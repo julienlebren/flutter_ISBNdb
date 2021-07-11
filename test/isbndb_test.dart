@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:isbndb_flutter/isbndb_flutter.dart';
+import 'package:isbndb_flutter/isbndb.dart';
 import 'package:isbndb_flutter/models/author.dart';
 import 'package:isbndb_flutter/models/author_query_results.dart';
 import 'package:isbndb_flutter/models/book.dart';
