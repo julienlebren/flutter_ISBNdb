@@ -1,0 +1,16 @@
+import 'package:isbndb_flutter/models/book.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'publisher.freezed.dart';
+part 'publisher.g.dart';
+
+@freezed
+class Publisher with _$Publisher {
+  factory Publisher({
+    required String name,
+    @Default([]) List<Book> books,
+  }) = _Publisher;
+
+  factory Publisher.fromJson(Map<String, dynamic> json) =>
+      _$PublisherFromJson(json);
+}
