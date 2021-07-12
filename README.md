@@ -67,7 +67,7 @@ BookColumn column | Search limited to a column
 
 ### Authors
 
-#### Get author details
+* **Get author details**
 
 ```dart
 final book = isbnDb.getAuthor("Bussi Michel", { 
@@ -82,7 +82,7 @@ String name | The name of an author in the Author's database
 String page | The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them
 String pageSize | How many items should be returned per page, maximum of 1,000
 
-#### Search authors
+* **Search authors**
 
 ```dart
 final book = isbnDb.getAuthors("werber", { 
@@ -97,9 +97,9 @@ String query | A string to search for in the Author’s database
 String page | The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them
 String pageSize | How many items should be returned per page, maximum of 1,000
 
-### Search publishers
+### Publishers
 
-* Get publisher details
+* **Get publisher details**
 
 ```dart
 final book = isbnDb.getPublisher("Nathan", { 
@@ -114,7 +114,7 @@ String name | The name of a publisher in the Publisher's database
 String page | The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them
 String pageSize | How many items should be returned per page, maximum of 1,000
 
-* Search authors
+* **Search publishers**
 
 ```dart
 final book = isbnDb.getPublishers("Nathan", { 
@@ -129,9 +129,9 @@ String query | A string to search for in the Publisher’s database
 String page | The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them
 String pageSize | How many items should be returned per page, maximum of 1,000
 
-### Search subjects
+### Subjects
 
-* Get subject details
+* **Get subject details**
 
 ```dart
 final book = isbnDb.getSubject("Flutter");
@@ -141,7 +141,7 @@ Param | Description
 ------------ | -------------
 String name | A subject in the Subject's database
 
-* Search authors
+* **Search subjects**
 
 ```dart
 final book = isbnDb.getSubjects("flutter", { 
