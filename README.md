@@ -257,6 +257,8 @@ This app uses some external librairies:
 
 This package was originally created for my personnal needs but feel free to use it, it covers all the features of the ISBNdb API and I will maintain it.
 
+I am not related to ISBNdb in any way, I am just a developer who needed to use this API and created this library to do so.
+
 If you have questions, feel free to ask on [Twitter](https://twitter.com/hikeland).
 
 ## [LICENSE: MIT](LICENSE.md)
