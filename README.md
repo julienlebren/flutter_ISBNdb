@@ -22,7 +22,7 @@ final isbnDb = ISBNdb("your_key_here");
 
 ### Books
 
-#### * Get book details
+* **Get book details**
 
 ```dart
 final book = isbnDb.getBook("9781092297370");
@@ -34,7 +34,7 @@ Param | Description
 String isbn | an ISBN 10 or ISBN 13 in the Books database
 bool withPrices = false | indicate if shows Real Time Prices. Only with the Pro plan
 
-#### * Get many books with ISBNs (require Pro Plan on [ISBNbn.com](https://ISBNbn.com))
+* **Get many books with ISBNs (require Pro Plan on [ISBNbn.com](https://ISBNbn.com))**
 
 ```dart
 final books = isbnDb.getBooksFromISBNs(["9781092297370", "9781680506952"]);
@@ -44,7 +44,7 @@ Param | Description
 ------------ | -------------
 List<String> isbns | a list of ISBN 10 or ISBN 13 in the Books database
 
-#### * Search books
+* **Search books**
 
 ```dart
 final books = isbnDb.getBooks("Google Flutter", { 
