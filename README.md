@@ -6,7 +6,7 @@
 
 This package is a ready-to-use API for ISBNdb.
 
-![App preview](assets/screenshot.jpg)
+![App preview](https://raw.githubusercontent.com/julienlebren/flutter_ISBNdb/main/assets/screenshot.jpg)
 
 ⚠️  You need an API key to use this service. To get it, create an account on [ISBNdb](https://isbndb.com/).
 
