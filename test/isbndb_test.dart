@@ -1,13 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:isbndb_flutter/isbndb.dart';
-import 'package:isbndb_flutter/models/author.dart';
-import 'package:isbndb_flutter/models/author_query_results.dart';
-import 'package:isbndb_flutter/models/book.dart';
-import 'package:isbndb_flutter/models/book_query_results.dart';
-import 'package:isbndb_flutter/models/publisher.dart';
-import 'package:isbndb_flutter/models/publisher_query_results.dart';
-import 'package:isbndb_flutter/models/subject.dart';
-import 'package:isbndb_flutter/models/subject_query_results.dart';
+import 'package:isbndb/isbndb.dart';
+import 'package:isbndb/models/author.dart';
+import 'package:isbndb/models/author_query_results.dart';
+import 'package:isbndb/models/book.dart';
+import 'package:isbndb/models/book_query_results.dart';
+import 'package:isbndb/models/publisher.dart';
+import 'package:isbndb/models/publisher_query_results.dart';
+import 'package:isbndb/models/subject.dart';
+import 'package:isbndb/models/subject_query_results.dart';
 
 void main() {
   group("ISBNdb", () {

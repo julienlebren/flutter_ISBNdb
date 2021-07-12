@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:isbndb_flutter/models/book.dart';
+import 'package:isbndb/models/book.dart';
 
 part 'book_query_results.freezed.dart';
 part 'book_query_results.g.dart';
