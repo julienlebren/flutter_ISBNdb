@@ -5,6 +5,7 @@
 # Dart/Flutter package for using ISBNdb API
 
 This package is a ready-to-use API for ISBNdb.
+
 ⚠️ You will need an API key to use this service. To get it, create an account on [ISBNdb](https://isbndb.com/).
 You can have a 7-day trial for free.
 
@@ -20,7 +21,7 @@ final isbnDb = ISBNdb("your_key_here");
 
 ### Books
 
-* Returns the book details
+#### Returns the book details
 
 ```dart
 final book = isbnDb.getBook("9781092297370");
@@ -32,7 +33,7 @@ Param | Description
 String isbn | an ISBN 10 or ISBN 13 in the Books database
 bool withPrices = false | indicate if shows Real Time Prices. Only with the Pro plan
 
-* Get many books with ISBNs (require Pro Plan on [ISBNbn.com](https://ISBNbn.com))
+####  Get many books with ISBNs (require Pro Plan on [ISBNbn.com](https://ISBNbn.com))
 
 ```dart
 final books = isbnDb.getBooksFromISBNs(["9781092297370", "9781680506952"]);
@@ -42,7 +43,7 @@ Param | Description
 ------------ | -------------
 List<String> isbns | a list of ISBN 10 or ISBN 13 in the Books database
 
-* Search books
+####  Search books
 
 ```dart
 final books = isbnDb.getBooks("Google Flutter", { 
@@ -63,9 +64,9 @@ BookColumn column | Search limited to a column
 * author - Only searches books by the given Author
 * date_published - Only searches books in a given year, e.g. 1998
 
-### Search authors
+### Authors
 
-* Get author details
+#### Get author details
 
 ```dart
 final book = isbnDb.getAuthor("Bussi Michel", { 
@@ -80,7 +81,7 @@ String name | The name of an author in the Author's database
 String page | The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them
 String pageSize | How many items should be returned per page, maximum of 1,000
 
-* Search authors
+#### Search authors
 
 ```dart
 final book = isbnDb.getAuthors("werber", { 
