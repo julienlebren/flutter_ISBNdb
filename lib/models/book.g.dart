@@ -22,7 +22,7 @@ _$_Book _$_$_BookFromJson(Map<String, dynamic> json) {
     dimensions: json['dimensions'] as String?,
     overview: json['overview'] as String?,
     image: json['image'] as String?,
-    msrp: const MsrpConverter().fromJson(json['msrp'] as String?),
+    msrp: const MsrpConverter().fromJson(json['msrp']),
     excerpt: json['excerpt'] as String?,
     synopsys: json['synopsys'] as String?,
     authors:

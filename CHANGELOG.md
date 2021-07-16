@@ -1,3 +1,7 @@
+## 0.1.0+4
+
+* Updated book.g.dart class to conform to new MsrpConverter
+
 ## 0.1.0+3
 
 * Fixed an issue in MsrpConverter
