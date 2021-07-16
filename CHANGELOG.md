@@ -1,3 +1,7 @@
+## 0.1.0+6
+
+* Changed reponse body from Dio to bytes to handle better special chars decoding 
+
 ## 0.1.0+5
 
 * msrp can be either a double or a String in the API... needed to handle both cases in MsrpConverter

@@ -1,6 +1,7 @@
 library isbndb_flutter;
 
 import 'dart:io';
+import 'dart:convert' show Utf8Decoder, jsonDecode, utf8;
 import 'package:dio/dio.dart';
 import 'package:isbndb/enums/book_column.dart';
 import 'package:isbndb/models/author_query_results.dart';
@@ -25,9 +26,10 @@ class ISBNdb {
     String path, {
     Map<String, Object?>? queryParameters,
   }) async {
-    final result = await _dio.get<Map<String, Object?>>(
+    final result = await _dio.get<List<int>>(
       "$baseApiUrl/$path",
       options: Options(
+        responseType: ResponseType.bytes,
         headers: {
           HttpHeaders.authorizationHeader: _key,
         },
@@ -36,7 +38,7 @@ class ISBNdb {
       queryParameters: queryParameters,
     );
     if (result.statusCode == 200) {
-      return Map<String, Object>.from(result.data!);
+      return Map<String, Object>.from(jsonDecode(utf8.decode(result.data!)));
     } else {
       throw errorMessage;
     }
@@ -46,7 +48,7 @@ class ISBNdb {
     String path, {
     Map<String, Object?>? queryParameters,
   }) async {
-    final result = await _dio.get<Map<String, Object?>>(
+    final result = await _dio.get<List<int>>(
       "$baseApiUrl/$path",
       options: Options(
         headers: {
@@ -57,7 +59,7 @@ class ISBNdb {
       queryParameters: queryParameters,
     );
     if (result.statusCode == 200) {
-      return Map<String, Object>.from(result.data!);
+      return Map<String, Object>.from(jsonDecode(utf8.decode(result.data!)));
     } else {
       throw errorMessage;
     }
