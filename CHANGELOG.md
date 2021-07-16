@@ -1,3 +1,7 @@
+## 0.1.0+5
+
+* msrp can be either a double or a String in the API... needed to handle both cases in MsrpConverter
+
 ## 0.1.0+4
 
 * Updated book.g.dart class to conform to new MsrpConverter

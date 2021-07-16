@@ -61,7 +61,16 @@ class MsrpConverter implements JsonConverter<double?, dynamic> {
   const MsrpConverter();
 
   @override
-  double? fromJson(dynamic value) => value != null ? double.parse(value) : null;
+  double? fromJson(dynamic value) {
+    if (value != null) {
+      if (value is String) {
+        return double.parse(value);
+      } else if (value is int) {
+        return value.toDouble();
+      }
+    }
+    return null;
+  }
 
   @override
   dynamic toJson(double? value) => value != null ? "$value" : null;
