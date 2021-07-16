@@ -57,12 +57,12 @@ class DateConverter implements JsonConverter<DateTime?, dynamic> {
       value != null ? DateFormat().format(value) : null;
 }
 
-class MsrpConverter implements JsonConverter<double?, String?> {
+class MsrpConverter implements JsonConverter<double?, dynamic> {
   const MsrpConverter();
 
   @override
-  double? fromJson(String? value) => value != null ? double.parse(value) : null;
+  double? fromJson(dynamic value) => value != null ? double.parse(value) : null;
 
   @override
-  String? toJson(double? value) => value != null ? "$value" : null;
+  dynamic toJson(double? value) => value != null ? "$value" : null;
 }
