@@ -1,3 +1,7 @@
+## 0.1.0+3
+
+* Fixed an issue in MsrpConverter
+
 ## 0.1.0+2
 
 * Preview screenshot updated
