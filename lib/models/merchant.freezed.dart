@@ -53,16 +53,31 @@ const $Merchant = _$MerchantTearOff();
 
 /// @nodoc
 mixin _$Merchant {
+  /// Not documented in the official API
   String get condition => throw _privateConstructorUsedError;
+
+  /// Name of the seller of the book
   String get merchant => throw _privateConstructorUsedError;
+
+  /// URL of the merchant logo
   @JsonKey(name: 'merchant_logo')
   String get merchantLogo => throw _privateConstructorUsedError;
+
+  /// Not documented in the official API
   @JsonKey(name: 'merchant_logo_offset')
   Map<dynamic, dynamic> get merchantLogoOffset =>
       throw _privateConstructorUsedError;
+
+  /// Shipping cost
   String get shipping => throw _privateConstructorUsedError;
+
+  /// Price of the book
   String get price => throw _privateConstructorUsedError;
+
+  /// Not documented in the official API
   String get total => throw _privateConstructorUsedError;
+
+  /// Link to the purchase url
   String get link => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -237,22 +252,38 @@ class _$_Merchant implements _Merchant {
       _$_$_MerchantFromJson(json);
 
   @override
+
+  /// Not documented in the official API
   final String condition;
   @override
+
+  /// Name of the seller of the book
   final String merchant;
   @override
+
+  /// URL of the merchant logo
   @JsonKey(name: 'merchant_logo')
   final String merchantLogo;
   @override
+
+  /// Not documented in the official API
   @JsonKey(name: 'merchant_logo_offset')
   final Map<dynamic, dynamic> merchantLogoOffset;
   @override
+
+  /// Shipping cost
   final String shipping;
   @override
+
+  /// Price of the book
   final String price;
   @override
+
+  /// Not documented in the official API
   final String total;
   @override
+
+  /// Link to the purchase url
   final String link;
 
   @override
@@ -326,23 +357,39 @@ abstract class _Merchant implements Merchant {
   factory _Merchant.fromJson(Map<String, dynamic> json) = _$_Merchant.fromJson;
 
   @override
+
+  /// Not documented in the official API
   String get condition => throw _privateConstructorUsedError;
   @override
+
+  /// Name of the seller of the book
   String get merchant => throw _privateConstructorUsedError;
   @override
+
+  /// URL of the merchant logo
   @JsonKey(name: 'merchant_logo')
   String get merchantLogo => throw _privateConstructorUsedError;
   @override
+
+  /// Not documented in the official API
   @JsonKey(name: 'merchant_logo_offset')
   Map<dynamic, dynamic> get merchantLogoOffset =>
       throw _privateConstructorUsedError;
   @override
+
+  /// Shipping cost
   String get shipping => throw _privateConstructorUsedError;
   @override
+
+  /// Price of the book
   String get price => throw _privateConstructorUsedError;
   @override
+
+  /// Not documented in the official API
   String get total => throw _privateConstructorUsedError;
   @override
+
+  /// Link to the purchase url
   String get link => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)

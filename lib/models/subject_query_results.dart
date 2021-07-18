@@ -7,10 +7,14 @@ part 'subject_query_results.g.dart';
 @freezed
 class SubjectQueryResult with _$SubjectQueryResult {
   factory SubjectQueryResult({
+    /// The number of results for this query
     required int total,
+
+    /// The list of the subjects matching the query
     @Default([]) List<String> subjects,
   }) = _SubjectQueryResult;
 
+  /// Used to build the object from the response of the ISBNdb API
   factory SubjectQueryResult.fromJson(Map<String, dynamic> json) =>
       _$SubjectQueryResultFromJson(json);
 }

@@ -7,10 +7,14 @@ part 'publisher_query_results.g.dart';
 @freezed
 class PublisherQueryResult with _$PublisherQueryResult {
   factory PublisherQueryResult({
+    /// The number of results for this query
     required int total,
+
+    /// The list of the publishers matching the query
     @Default([]) List<String> publishers,
   }) = _PublisherQueryResult;
 
+  /// Used to build the object from the response of the ISBNdb API
   factory PublisherQueryResult.fromJson(Map<String, dynamic> json) =>
       _$PublisherQueryResultFromJson(json);
 }

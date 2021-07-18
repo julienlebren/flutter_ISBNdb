@@ -7,10 +7,14 @@ part 'author_query_results.g.dart';
 @freezed
 class AuthorQueryResult with _$AuthorQueryResult {
   factory AuthorQueryResult({
+    /// The number of results for this query
     required int total,
+
+    /// The list of the authors matching the query
     @Default([]) List<String> authors,
   }) = _AuthorQueryResult;
 
+  /// Used to build the object from the response of the ISBNdb API
   factory AuthorQueryResult.fromJson(Map<String, dynamic> json) =>
       _$AuthorQueryResultFromJson(json);
 }

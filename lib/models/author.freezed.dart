@@ -37,7 +37,10 @@ const $Author = _$AuthorTearOff();
 
 /// @nodoc
 mixin _$Author {
+  /// The name of the author
   String get author => throw _privateConstructorUsedError;
+
+  /// The list of the books this author published
   List<Book> get books => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -123,9 +126,13 @@ class _$_Author implements _Author {
       _$_$_AuthorFromJson(json);
 
   @override
+
+  /// The name of the author
   final String author;
   @JsonKey(defaultValue: const [])
   @override
+
+  /// The list of the books this author published
   final List<Book> books;
 
   @override
@@ -166,8 +173,12 @@ abstract class _Author implements Author {
   factory _Author.fromJson(Map<String, dynamic> json) = _$_Author.fromJson;
 
   @override
+
+  /// The name of the author
   String get author => throw _privateConstructorUsedError;
   @override
+
+  /// The list of the books this author published
   List<Book> get books => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)

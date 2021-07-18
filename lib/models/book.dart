@@ -9,30 +9,74 @@ part 'book.g.dart';
 @freezed
 class Book with _$Book {
   factory Book({
+    /// Title of the book
     required String title,
+
+    /// Long version of the title
     @JsonKey(name: 'title_long') String? titleLong,
+
+    /// ISBN of the book
     required String isbn,
+
+    /// New 13-digit ISBN
     required String isbn13,
+
+    /// Not documented in the official API
     @JsonKey(name: 'dewey_decimal') String? deweyDecimal,
+
+    /// Not documented in the official API
     String? binding,
+
+    /// The name of the publisher
     String? publisher,
+
+    /// Language of the book
     String? language,
+
+    /// Date when the book was published. Can be a year or a full date.
     @DateConverter() @JsonKey(name: 'date_published') DateTime? datePublished,
+
+    /// Details about the edition
     String? edition,
+
+    /// Number of pages of the book
     int? pages,
+
+    /// Dimensions of the book
     String? dimensions,
+
+    /// Not documented in the official API
     String? overview,
+
+    /// URL of the cover
     String? image,
+
+    /// Not documented in the official API
     @MsrpConverter() double? msrp,
+
+    /// Excerpt of the book
     String? excerpt,
+
+    /// Synopsys of the book
     String? synopsys,
+
+    /// List of the authors of the book
     List<String>? authors,
+
+    /// List of the subjects of the book
     List<String>? subjects,
+
+    /// Not documented in the official API
     List<String>? reviews,
+
+    /// List of the merchants selling this book with real-time prices
     List<Merchant>? prices,
+
+    /// Not documented in the official API
     List<String>? related,
   }) = _Book;
 
+  /// Used to build the object from the response of the ISBNdb API
   factory Book.fromJson(Map<String, dynamic> json) => _$BookFromJson(json);
 }
 

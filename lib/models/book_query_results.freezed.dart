@@ -37,7 +37,10 @@ const $BookQueryResult = _$BookQueryResultTearOff();
 
 /// @nodoc
 mixin _$BookQueryResult {
+  /// The number of results for this query
   int get total => throw _privateConstructorUsedError;
+
+  /// The list of the books matching the query
   List<Book> get books => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -130,9 +133,13 @@ class _$_BookQueryResult implements _BookQueryResult {
       _$_$_BookQueryResultFromJson(json);
 
   @override
+
+  /// The number of results for this query
   final int total;
   @JsonKey(defaultValue: const [])
   @override
+
+  /// The list of the books matching the query
   final List<Book> books;
 
   @override
@@ -175,8 +182,12 @@ abstract class _BookQueryResult implements BookQueryResult {
       _$_BookQueryResult.fromJson;
 
   @override
+
+  /// The number of results for this query
   int get total => throw _privateConstructorUsedError;
   @override
+
+  /// The list of the books matching the query
   List<Book> get books => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)

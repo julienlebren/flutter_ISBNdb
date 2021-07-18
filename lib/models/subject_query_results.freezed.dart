@@ -38,7 +38,10 @@ const $SubjectQueryResult = _$SubjectQueryResultTearOff();
 
 /// @nodoc
 mixin _$SubjectQueryResult {
+  /// The number of results for this query
   int get total => throw _privateConstructorUsedError;
+
+  /// The list of the subjects matching the query
   List<String> get subjects => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -131,9 +134,13 @@ class _$_SubjectQueryResult implements _SubjectQueryResult {
       _$_$_SubjectQueryResultFromJson(json);
 
   @override
+
+  /// The number of results for this query
   final int total;
   @JsonKey(defaultValue: const [])
   @override
+
+  /// The list of the subjects matching the query
   final List<String> subjects;
 
   @override
@@ -177,8 +184,12 @@ abstract class _SubjectQueryResult implements SubjectQueryResult {
       _$_SubjectQueryResult.fromJson;
 
   @override
+
+  /// The number of results for this query
   int get total => throw _privateConstructorUsedError;
   @override
+
+  /// The list of the subjects matching the query
   List<String> get subjects => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)

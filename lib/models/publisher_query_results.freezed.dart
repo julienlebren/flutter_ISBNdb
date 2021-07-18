@@ -38,7 +38,10 @@ const $PublisherQueryResult = _$PublisherQueryResultTearOff();
 
 /// @nodoc
 mixin _$PublisherQueryResult {
+  /// The number of results for this query
   int get total => throw _privateConstructorUsedError;
+
+  /// The list of the publishers matching the query
   List<String> get publishers => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -131,9 +134,13 @@ class _$_PublisherQueryResult implements _PublisherQueryResult {
       _$_$_PublisherQueryResultFromJson(json);
 
   @override
+
+  /// The number of results for this query
   final int total;
   @JsonKey(defaultValue: const [])
   @override
+
+  /// The list of the publishers matching the query
   final List<String> publishers;
 
   @override
@@ -178,8 +185,12 @@ abstract class _PublisherQueryResult implements PublisherQueryResult {
       _$_PublisherQueryResult.fromJson;
 
   @override
+
+  /// The number of results for this query
   int get total => throw _privateConstructorUsedError;
   @override
+
+  /// The list of the publishers matching the query
   List<String> get publishers => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)

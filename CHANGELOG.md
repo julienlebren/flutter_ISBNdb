@@ -1,3 +1,7 @@
+## 0.2.2
+
+* Completed documentation
+
 ## 0.2.1
 
 * Added documentation for most of API

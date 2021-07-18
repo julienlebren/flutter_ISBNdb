@@ -79,32 +79,75 @@ const $Book = _$BookTearOff();
 
 /// @nodoc
 mixin _$Book {
+  /// Title of the book
   String get title => throw _privateConstructorUsedError;
+
+  /// Long version of the title
   @JsonKey(name: 'title_long')
   String? get titleLong => throw _privateConstructorUsedError;
+
+  /// ISBN of the book
   String get isbn => throw _privateConstructorUsedError;
+
+  /// New 13-digit ISBN
   String get isbn13 => throw _privateConstructorUsedError;
+
+  /// Not documented in the official API
   @JsonKey(name: 'dewey_decimal')
   String? get deweyDecimal => throw _privateConstructorUsedError;
+
+  /// Not documented in the official API
   String? get binding => throw _privateConstructorUsedError;
+
+  /// The name of the publisher
   String? get publisher => throw _privateConstructorUsedError;
+
+  /// Language of the book
   String? get language => throw _privateConstructorUsedError;
+
+  /// Date when the book was published. Can be a year or a full date.
   @DateConverter()
   @JsonKey(name: 'date_published')
   DateTime? get datePublished => throw _privateConstructorUsedError;
+
+  /// Details about the edition
   String? get edition => throw _privateConstructorUsedError;
+
+  /// Number of pages of the book
   int? get pages => throw _privateConstructorUsedError;
+
+  /// Dimensions of the book
   String? get dimensions => throw _privateConstructorUsedError;
+
+  /// Not documented in the official API
   String? get overview => throw _privateConstructorUsedError;
+
+  /// URL of the cover
   String? get image => throw _privateConstructorUsedError;
+
+  /// Not documented in the official API
   @MsrpConverter()
   double? get msrp => throw _privateConstructorUsedError;
+
+  /// Excerpt of the book
   String? get excerpt => throw _privateConstructorUsedError;
+
+  /// Synopsys of the book
   String? get synopsys => throw _privateConstructorUsedError;
+
+  /// List of the authors of the book
   List<String>? get authors => throw _privateConstructorUsedError;
+
+  /// List of the subjects of the book
   List<String>? get subjects => throw _privateConstructorUsedError;
+
+  /// Not documented in the official API
   List<String>? get reviews => throw _privateConstructorUsedError;
+
+  /// List of the merchants selling this book with real-time prices
   List<Merchant>? get prices => throw _privateConstructorUsedError;
+
+  /// Not documented in the official API
   List<String>? get related => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -456,53 +499,97 @@ class _$_Book implements _Book {
       _$_$_BookFromJson(json);
 
   @override
+
+  /// Title of the book
   final String title;
   @override
+
+  /// Long version of the title
   @JsonKey(name: 'title_long')
   final String? titleLong;
   @override
+
+  /// ISBN of the book
   final String isbn;
   @override
+
+  /// New 13-digit ISBN
   final String isbn13;
   @override
+
+  /// Not documented in the official API
   @JsonKey(name: 'dewey_decimal')
   final String? deweyDecimal;
   @override
+
+  /// Not documented in the official API
   final String? binding;
   @override
+
+  /// The name of the publisher
   final String? publisher;
   @override
+
+  /// Language of the book
   final String? language;
   @override
+
+  /// Date when the book was published. Can be a year or a full date.
   @DateConverter()
   @JsonKey(name: 'date_published')
   final DateTime? datePublished;
   @override
+
+  /// Details about the edition
   final String? edition;
   @override
+
+  /// Number of pages of the book
   final int? pages;
   @override
+
+  /// Dimensions of the book
   final String? dimensions;
   @override
+
+  /// Not documented in the official API
   final String? overview;
   @override
+
+  /// URL of the cover
   final String? image;
   @override
+
+  /// Not documented in the official API
   @MsrpConverter()
   final double? msrp;
   @override
+
+  /// Excerpt of the book
   final String? excerpt;
   @override
+
+  /// Synopsys of the book
   final String? synopsys;
   @override
+
+  /// List of the authors of the book
   final List<String>? authors;
   @override
+
+  /// List of the subjects of the book
   final List<String>? subjects;
   @override
+
+  /// Not documented in the official API
   final List<String>? reviews;
   @override
+
+  /// List of the merchants selling this book with real-time prices
   final List<Merchant>? prices;
   @override
+
+  /// Not documented in the official API
   final List<String>? related;
 
   @override
@@ -639,53 +726,97 @@ abstract class _Book implements Book {
   factory _Book.fromJson(Map<String, dynamic> json) = _$_Book.fromJson;
 
   @override
+
+  /// Title of the book
   String get title => throw _privateConstructorUsedError;
   @override
+
+  /// Long version of the title
   @JsonKey(name: 'title_long')
   String? get titleLong => throw _privateConstructorUsedError;
   @override
+
+  /// ISBN of the book
   String get isbn => throw _privateConstructorUsedError;
   @override
+
+  /// New 13-digit ISBN
   String get isbn13 => throw _privateConstructorUsedError;
   @override
+
+  /// Not documented in the official API
   @JsonKey(name: 'dewey_decimal')
   String? get deweyDecimal => throw _privateConstructorUsedError;
   @override
+
+  /// Not documented in the official API
   String? get binding => throw _privateConstructorUsedError;
   @override
+
+  /// The name of the publisher
   String? get publisher => throw _privateConstructorUsedError;
   @override
+
+  /// Language of the book
   String? get language => throw _privateConstructorUsedError;
   @override
+
+  /// Date when the book was published. Can be a year or a full date.
   @DateConverter()
   @JsonKey(name: 'date_published')
   DateTime? get datePublished => throw _privateConstructorUsedError;
   @override
+
+  /// Details about the edition
   String? get edition => throw _privateConstructorUsedError;
   @override
+
+  /// Number of pages of the book
   int? get pages => throw _privateConstructorUsedError;
   @override
+
+  /// Dimensions of the book
   String? get dimensions => throw _privateConstructorUsedError;
   @override
+
+  /// Not documented in the official API
   String? get overview => throw _privateConstructorUsedError;
   @override
+
+  /// URL of the cover
   String? get image => throw _privateConstructorUsedError;
   @override
+
+  /// Not documented in the official API
   @MsrpConverter()
   double? get msrp => throw _privateConstructorUsedError;
   @override
+
+  /// Excerpt of the book
   String? get excerpt => throw _privateConstructorUsedError;
   @override
+
+  /// Synopsys of the book
   String? get synopsys => throw _privateConstructorUsedError;
   @override
+
+  /// List of the authors of the book
   List<String>? get authors => throw _privateConstructorUsedError;
   @override
+
+  /// List of the subjects of the book
   List<String>? get subjects => throw _privateConstructorUsedError;
   @override
+
+  /// Not documented in the official API
   List<String>? get reviews => throw _privateConstructorUsedError;
   @override
+
+  /// List of the merchants selling this book with real-time prices
   List<Merchant>? get prices => throw _privateConstructorUsedError;
   @override
+
+  /// Not documented in the official API
   List<String>? get related => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)

@@ -38,7 +38,10 @@ const $AuthorQueryResult = _$AuthorQueryResultTearOff();
 
 /// @nodoc
 mixin _$AuthorQueryResult {
+  /// The number of results for this query
   int get total => throw _privateConstructorUsedError;
+
+  /// The list of the authors matching the query
   List<String> get authors => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -131,9 +134,13 @@ class _$_AuthorQueryResult implements _AuthorQueryResult {
       _$_$_AuthorQueryResultFromJson(json);
 
   @override
+
+  /// The number of results for this query
   final int total;
   @JsonKey(defaultValue: const [])
   @override
+
+  /// The list of the authors matching the query
   final List<String> authors;
 
   @override
@@ -176,8 +183,12 @@ abstract class _AuthorQueryResult implements AuthorQueryResult {
       _$_AuthorQueryResult.fromJson;
 
   @override
+
+  /// The number of results for this query
   int get total => throw _privateConstructorUsedError;
   @override
+
+  /// The list of the authors matching the query
   List<String> get authors => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)

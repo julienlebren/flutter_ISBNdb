@@ -8,10 +8,14 @@ part 'book_query_results.g.dart';
 @freezed
 class BookQueryResult with _$BookQueryResult {
   factory BookQueryResult({
+    /// The number of results for this query
     required int total,
+
+    /// The list of the books matching the query
     @Default([]) List<Book> books,
   }) = _BookQueryResult;
 
+  /// Used to build the object from the response of the ISBNdb API
   factory BookQueryResult.fromJson(Map<String, dynamic> json) =>
       _$BookQueryResultFromJson(json);
 }

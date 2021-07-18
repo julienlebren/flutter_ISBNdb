@@ -37,7 +37,10 @@ const $Publisher = _$PublisherTearOff();
 
 /// @nodoc
 mixin _$Publisher {
+  /// The name of this publisher
   String get name => throw _privateConstructorUsedError;
+
+  /// The list of the books this publisher published
   List<Book> get books => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -125,9 +128,13 @@ class _$_Publisher implements _Publisher {
       _$_$_PublisherFromJson(json);
 
   @override
+
+  /// The name of this publisher
   final String name;
   @JsonKey(defaultValue: const [])
   @override
+
+  /// The list of the books this publisher published
   final List<Book> books;
 
   @override
@@ -169,8 +176,12 @@ abstract class _Publisher implements Publisher {
       _$_Publisher.fromJson;
 
   @override
+
+  /// The name of this publisher
   String get name => throw _privateConstructorUsedError;
   @override
+
+  /// The list of the books this publisher published
   List<Book> get books => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)

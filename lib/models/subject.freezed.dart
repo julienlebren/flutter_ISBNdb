@@ -37,7 +37,10 @@ const $Subject = _$SubjectTearOff();
 
 /// @nodoc
 mixin _$Subject {
+  /// The subject
   String get subject => throw _privateConstructorUsedError;
+
+  /// The list of the books matching this subject
   List<Book> get books => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -123,9 +126,13 @@ class _$_Subject implements _Subject {
       _$_$_SubjectFromJson(json);
 
   @override
+
+  /// The subject
   final String subject;
   @JsonKey(defaultValue: const [])
   @override
+
+  /// The list of the books matching this subject
   final List<Book> books;
 
   @override
@@ -167,8 +174,12 @@ abstract class _Subject implements Subject {
   factory _Subject.fromJson(Map<String, dynamic> json) = _$_Subject.fromJson;
 
   @override
+
+  /// The subject
   String get subject => throw _privateConstructorUsedError;
   @override
+
+  /// The list of the books matching this subject
   List<Book> get books => throw _privateConstructorUsedError;
   @override
   @JsonKey(ignore: true)
