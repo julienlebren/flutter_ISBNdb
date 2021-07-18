@@ -1,3 +1,7 @@
+## 0.2.0
+
+* Now supports Flutter web by replacing dart:io with universal_io package
+
 ## 0.1.0+6
 
 * Changed reponse body from Dio to bytes to handle better special chars decoding 

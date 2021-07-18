@@ -1,7 +1,6 @@
 library isbndb_flutter;
 
-import 'dart:io';
-import 'dart:convert' show Utf8Decoder, jsonDecode, utf8;
+import 'dart:convert' show jsonDecode, utf8;
 import 'package:dio/dio.dart';
 import 'package:isbndb/enums/book_column.dart';
 import 'package:isbndb/models/author_query_results.dart';
@@ -12,6 +11,7 @@ import 'package:isbndb/models/publisher.dart';
 import 'package:isbndb/models/book.dart';
 import 'package:isbndb/models/author.dart';
 import 'package:isbndb/models/subject_query_results.dart';
+import 'package:universal_io/io.dart';
 
 class ISBNdb {
   ISBNdb(this._key);
