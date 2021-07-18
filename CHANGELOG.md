@@ -1,3 +1,7 @@
+## 0.2.1
+
+* Added documentation for most of API
+
 ## 0.2.0
 
 * Now supports Flutter web by replacing dart:io with universal_io package

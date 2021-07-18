@@ -4,6 +4,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'author.freezed.dart';
 part 'author.g.dart';
 
+/// An object which returns the name of an author and the list of the books he published.
 @freezed
 class Author with _$Author {
   factory Author({

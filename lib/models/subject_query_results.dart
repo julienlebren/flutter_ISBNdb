@@ -3,6 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'subject_query_results.freezed.dart';
 part 'subject_query_results.g.dart';
 
+/// The object which contains the results of search in the subjects database
 @freezed
 class SubjectQueryResult with _$SubjectQueryResult {
   factory SubjectQueryResult({
@@ -15,9 +16,6 @@ class SubjectQueryResult with _$SubjectQueryResult {
 }
 
 extension SubjectQueryResultX on SubjectQueryResult {
-  bool get isEmpty => !hasResults();
-
-  bool hasResults() {
-    return subjects.length > 0;
-  }
+  /// Boolean which indicates if the search has results or not
+  bool get isEmpty => subjects.length == 0;
 }

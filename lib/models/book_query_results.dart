@@ -4,6 +4,7 @@ import 'package:isbndb/models/book.dart';
 part 'book_query_results.freezed.dart';
 part 'book_query_results.g.dart';
 
+/// The object which contains the results of search in the books database
 @freezed
 class BookQueryResult with _$BookQueryResult {
   factory BookQueryResult({
@@ -16,9 +17,6 @@ class BookQueryResult with _$BookQueryResult {
 }
 
 extension BookQueryResultX on BookQueryResult {
-  bool get isEmpty => !hasResults();
-
-  bool hasResults() {
-    return books.length > 0;
-  }
+  /// Boolean which indicates if the search has results or not
+  bool get isEmpty => books.length == 0;
 }

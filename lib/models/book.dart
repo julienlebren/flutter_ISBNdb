@@ -5,6 +5,7 @@ import 'package:isbndb/models/merchant.dart';
 part 'book.freezed.dart';
 part 'book.g.dart';
 
+/// An object which handle the details of a book
 @freezed
 class Book with _$Book {
   factory Book({
@@ -35,6 +36,9 @@ class Book with _$Book {
   factory Book.fromJson(Map<String, dynamic> json) => _$BookFromJson(json);
 }
 
+/// A json converter that handles the date_published field of the API
+/// It can be either a year, a full date... so we need to handle this properly
+/// to return always the same type.
 class DateConverter implements JsonConverter<DateTime?, dynamic> {
   const DateConverter();
 
@@ -57,6 +61,9 @@ class DateConverter implements JsonConverter<DateTime?, dynamic> {
       value != null ? DateFormat().format(value) : null;
 }
 
+/// A json converter that handles the msrp field of the API
+/// It can be either a string, an int... so we need to handle this properly
+/// to return always the same type.
 class MsrpConverter implements JsonConverter<double?, dynamic> {
   const MsrpConverter();
 
