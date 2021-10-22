@@ -1,3 +1,12 @@
+## 0.2.4
+
+* Added nullable String for the list of authors (sometimes ISBNdb returns a null value inside the array)
+* Added uppercase to the date because sometimes ISBNdb returns a date with lowercase "t" and "z" which fail the parsing
+
+## 0.2.3
+
+* Fixed small issues
+
 ## 0.2.2
 
 * Completed documentation
