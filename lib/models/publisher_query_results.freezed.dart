@@ -1,5 +1,6 @@
+// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
 part of 'publisher_query_results.dart';
 
@@ -28,7 +29,7 @@ class _$PublisherQueryResultTearOff {
     );
   }
 
-  PublisherQueryResult fromJson(Map<String, Object> json) {
+  PublisherQueryResult fromJson(Map<String, Object?> json) {
     return PublisherQueryResult.fromJson(json);
   }
 }
@@ -124,14 +125,13 @@ class __$PublisherQueryResultCopyWithImpl<$Res>
   }
 }
 
-@JsonSerializable()
-
 /// @nodoc
+@JsonSerializable()
 class _$_PublisherQueryResult implements _PublisherQueryResult {
   _$_PublisherQueryResult({required this.total, this.publishers = const []});
 
   factory _$_PublisherQueryResult.fromJson(Map<String, dynamic> json) =>
-      _$_$_PublisherQueryResultFromJson(json);
+      _$$_PublisherQueryResultFromJson(json);
 
   @override
 
@@ -151,19 +151,16 @@ class _$_PublisherQueryResult implements _PublisherQueryResult {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is _PublisherQueryResult &&
-            (identical(other.total, total) ||
-                const DeepCollectionEquality().equals(other.total, total)) &&
-            (identical(other.publishers, publishers) ||
-                const DeepCollectionEquality()
-                    .equals(other.publishers, publishers)));
+        (other.runtimeType == runtimeType &&
+            other is _PublisherQueryResult &&
+            (identical(other.total, total) || other.total == total) &&
+            const DeepCollectionEquality()
+                .equals(other.publishers, publishers));
   }
 
   @override
-  int get hashCode =>
-      runtimeType.hashCode ^
-      const DeepCollectionEquality().hash(total) ^
-      const DeepCollectionEquality().hash(publishers);
+  int get hashCode => Object.hash(
+      runtimeType, total, const DeepCollectionEquality().hash(publishers));
 
   @JsonKey(ignore: true)
   @override
@@ -173,7 +170,7 @@ class _$_PublisherQueryResult implements _PublisherQueryResult {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$_$_PublisherQueryResultToJson(this);
+    return _$$_PublisherQueryResultToJson(this);
   }
 }
 
@@ -187,11 +184,11 @@ abstract class _PublisherQueryResult implements PublisherQueryResult {
   @override
 
   /// The number of results for this query
-  int get total => throw _privateConstructorUsedError;
+  int get total;
   @override
 
   /// The list of the publishers matching the query
-  List<String> get publishers => throw _privateConstructorUsedError;
+  List<String> get publishers;
   @override
   @JsonKey(ignore: true)
   _$PublisherQueryResultCopyWith<_PublisherQueryResult> get copyWith =>

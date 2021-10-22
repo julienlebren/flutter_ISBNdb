@@ -1,5 +1,6 @@
+// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
 part of 'subject_query_results.dart';
 
@@ -28,7 +29,7 @@ class _$SubjectQueryResultTearOff {
     );
   }
 
-  SubjectQueryResult fromJson(Map<String, Object> json) {
+  SubjectQueryResult fromJson(Map<String, Object?> json) {
     return SubjectQueryResult.fromJson(json);
   }
 }
@@ -124,14 +125,13 @@ class __$SubjectQueryResultCopyWithImpl<$Res>
   }
 }
 
-@JsonSerializable()
-
 /// @nodoc
+@JsonSerializable()
 class _$_SubjectQueryResult implements _SubjectQueryResult {
   _$_SubjectQueryResult({required this.total, this.subjects = const []});
 
   factory _$_SubjectQueryResult.fromJson(Map<String, dynamic> json) =>
-      _$_$_SubjectQueryResultFromJson(json);
+      _$$_SubjectQueryResultFromJson(json);
 
   @override
 
@@ -151,19 +151,15 @@ class _$_SubjectQueryResult implements _SubjectQueryResult {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is _SubjectQueryResult &&
-            (identical(other.total, total) ||
-                const DeepCollectionEquality().equals(other.total, total)) &&
-            (identical(other.subjects, subjects) ||
-                const DeepCollectionEquality()
-                    .equals(other.subjects, subjects)));
+        (other.runtimeType == runtimeType &&
+            other is _SubjectQueryResult &&
+            (identical(other.total, total) || other.total == total) &&
+            const DeepCollectionEquality().equals(other.subjects, subjects));
   }
 
   @override
-  int get hashCode =>
-      runtimeType.hashCode ^
-      const DeepCollectionEquality().hash(total) ^
-      const DeepCollectionEquality().hash(subjects);
+  int get hashCode => Object.hash(
+      runtimeType, total, const DeepCollectionEquality().hash(subjects));
 
   @JsonKey(ignore: true)
   @override
@@ -172,7 +168,7 @@ class _$_SubjectQueryResult implements _SubjectQueryResult {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$_$_SubjectQueryResultToJson(this);
+    return _$$_SubjectQueryResultToJson(this);
   }
 }
 
@@ -186,11 +182,11 @@ abstract class _SubjectQueryResult implements SubjectQueryResult {
   @override
 
   /// The number of results for this query
-  int get total => throw _privateConstructorUsedError;
+  int get total;
   @override
 
   /// The list of the subjects matching the query
-  List<String> get subjects => throw _privateConstructorUsedError;
+  List<String> get subjects;
   @override
   @JsonKey(ignore: true)
   _$SubjectQueryResultCopyWith<_SubjectQueryResult> get copyWith =>

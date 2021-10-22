@@ -1,5 +1,6 @@
+// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
 part of 'book_query_results.dart';
 
@@ -27,7 +28,7 @@ class _$BookQueryResultTearOff {
     );
   }
 
-  BookQueryResult fromJson(Map<String, Object> json) {
+  BookQueryResult fromJson(Map<String, Object?> json) {
     return BookQueryResult.fromJson(json);
   }
 }
@@ -123,14 +124,13 @@ class __$BookQueryResultCopyWithImpl<$Res>
   }
 }
 
-@JsonSerializable()
-
 /// @nodoc
+@JsonSerializable()
 class _$_BookQueryResult implements _BookQueryResult {
   _$_BookQueryResult({required this.total, this.books = const []});
 
   factory _$_BookQueryResult.fromJson(Map<String, dynamic> json) =>
-      _$_$_BookQueryResultFromJson(json);
+      _$$_BookQueryResultFromJson(json);
 
   @override
 
@@ -150,18 +150,15 @@ class _$_BookQueryResult implements _BookQueryResult {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is _BookQueryResult &&
-            (identical(other.total, total) ||
-                const DeepCollectionEquality().equals(other.total, total)) &&
-            (identical(other.books, books) ||
-                const DeepCollectionEquality().equals(other.books, books)));
+        (other.runtimeType == runtimeType &&
+            other is _BookQueryResult &&
+            (identical(other.total, total) || other.total == total) &&
+            const DeepCollectionEquality().equals(other.books, books));
   }
 
   @override
-  int get hashCode =>
-      runtimeType.hashCode ^
-      const DeepCollectionEquality().hash(total) ^
-      const DeepCollectionEquality().hash(books);
+  int get hashCode => Object.hash(
+      runtimeType, total, const DeepCollectionEquality().hash(books));
 
   @JsonKey(ignore: true)
   @override
@@ -170,7 +167,7 @@ class _$_BookQueryResult implements _BookQueryResult {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$_$_BookQueryResultToJson(this);
+    return _$$_BookQueryResultToJson(this);
   }
 }
 
@@ -184,11 +181,11 @@ abstract class _BookQueryResult implements BookQueryResult {
   @override
 
   /// The number of results for this query
-  int get total => throw _privateConstructorUsedError;
+  int get total;
   @override
 
   /// The list of the books matching the query
-  List<Book> get books => throw _privateConstructorUsedError;
+  List<Book> get books;
   @override
   @JsonKey(ignore: true)
   _$BookQueryResultCopyWith<_BookQueryResult> get copyWith =>

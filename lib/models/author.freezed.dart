@@ -1,5 +1,6 @@
+// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
 part of 'author.dart';
 
@@ -27,7 +28,7 @@ class _$AuthorTearOff {
     );
   }
 
-  Author fromJson(Map<String, Object> json) {
+  Author fromJson(Map<String, Object?> json) {
     return Author.fromJson(json);
   }
 }
@@ -116,14 +117,13 @@ class __$AuthorCopyWithImpl<$Res> extends _$AuthorCopyWithImpl<$Res>
   }
 }
 
-@JsonSerializable()
-
 /// @nodoc
+@JsonSerializable()
 class _$_Author implements _Author {
   _$_Author({required this.author, this.books = const []});
 
   factory _$_Author.fromJson(Map<String, dynamic> json) =>
-      _$_$_AuthorFromJson(json);
+      _$$_AuthorFromJson(json);
 
   @override
 
@@ -143,18 +143,15 @@ class _$_Author implements _Author {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is _Author &&
-            (identical(other.author, author) ||
-                const DeepCollectionEquality().equals(other.author, author)) &&
-            (identical(other.books, books) ||
-                const DeepCollectionEquality().equals(other.books, books)));
+        (other.runtimeType == runtimeType &&
+            other is _Author &&
+            (identical(other.author, author) || other.author == author) &&
+            const DeepCollectionEquality().equals(other.books, books));
   }
 
   @override
-  int get hashCode =>
-      runtimeType.hashCode ^
-      const DeepCollectionEquality().hash(author) ^
-      const DeepCollectionEquality().hash(books);
+  int get hashCode => Object.hash(
+      runtimeType, author, const DeepCollectionEquality().hash(books));
 
   @JsonKey(ignore: true)
   @override
@@ -163,7 +160,7 @@ class _$_Author implements _Author {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$_$_AuthorToJson(this);
+    return _$$_AuthorToJson(this);
   }
 }
 
@@ -175,11 +172,11 @@ abstract class _Author implements Author {
   @override
 
   /// The name of the author
-  String get author => throw _privateConstructorUsedError;
+  String get author;
   @override
 
   /// The list of the books this author published
-  List<Book> get books => throw _privateConstructorUsedError;
+  List<Book> get books;
   @override
   @JsonKey(ignore: true)
   _$AuthorCopyWith<_Author> get copyWith => throw _privateConstructorUsedError;

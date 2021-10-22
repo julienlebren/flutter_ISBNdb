@@ -1,5 +1,6 @@
+// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
 part of 'publisher.dart';
 
@@ -27,7 +28,7 @@ class _$PublisherTearOff {
     );
   }
 
-  Publisher fromJson(Map<String, Object> json) {
+  Publisher fromJson(Map<String, Object?> json) {
     return Publisher.fromJson(json);
   }
 }
@@ -118,14 +119,13 @@ class __$PublisherCopyWithImpl<$Res> extends _$PublisherCopyWithImpl<$Res>
   }
 }
 
-@JsonSerializable()
-
 /// @nodoc
+@JsonSerializable()
 class _$_Publisher implements _Publisher {
   _$_Publisher({required this.name, this.books = const []});
 
   factory _$_Publisher.fromJson(Map<String, dynamic> json) =>
-      _$_$_PublisherFromJson(json);
+      _$$_PublisherFromJson(json);
 
   @override
 
@@ -145,18 +145,15 @@ class _$_Publisher implements _Publisher {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is _Publisher &&
-            (identical(other.name, name) ||
-                const DeepCollectionEquality().equals(other.name, name)) &&
-            (identical(other.books, books) ||
-                const DeepCollectionEquality().equals(other.books, books)));
+        (other.runtimeType == runtimeType &&
+            other is _Publisher &&
+            (identical(other.name, name) || other.name == name) &&
+            const DeepCollectionEquality().equals(other.books, books));
   }
 
   @override
-  int get hashCode =>
-      runtimeType.hashCode ^
-      const DeepCollectionEquality().hash(name) ^
-      const DeepCollectionEquality().hash(books);
+  int get hashCode => Object.hash(
+      runtimeType, name, const DeepCollectionEquality().hash(books));
 
   @JsonKey(ignore: true)
   @override
@@ -165,7 +162,7 @@ class _$_Publisher implements _Publisher {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$_$_PublisherToJson(this);
+    return _$$_PublisherToJson(this);
   }
 }
 
@@ -178,11 +175,11 @@ abstract class _Publisher implements Publisher {
   @override
 
   /// The name of this publisher
-  String get name => throw _privateConstructorUsedError;
+  String get name;
   @override
 
   /// The list of the books this publisher published
-  List<Book> get books => throw _privateConstructorUsedError;
+  List<Book> get books;
   @override
   @JsonKey(ignore: true)
   _$PublisherCopyWith<_Publisher> get copyWith =>

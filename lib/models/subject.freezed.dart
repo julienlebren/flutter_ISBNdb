@@ -1,5 +1,6 @@
+// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
 part of 'subject.dart';
 
@@ -27,7 +28,7 @@ class _$SubjectTearOff {
     );
   }
 
-  Subject fromJson(Map<String, Object> json) {
+  Subject fromJson(Map<String, Object?> json) {
     return Subject.fromJson(json);
   }
 }
@@ -116,14 +117,13 @@ class __$SubjectCopyWithImpl<$Res> extends _$SubjectCopyWithImpl<$Res>
   }
 }
 
-@JsonSerializable()
-
 /// @nodoc
+@JsonSerializable()
 class _$_Subject implements _Subject {
   _$_Subject({required this.subject, this.books = const []});
 
   factory _$_Subject.fromJson(Map<String, dynamic> json) =>
-      _$_$_SubjectFromJson(json);
+      _$$_SubjectFromJson(json);
 
   @override
 
@@ -143,19 +143,15 @@ class _$_Subject implements _Subject {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is _Subject &&
-            (identical(other.subject, subject) ||
-                const DeepCollectionEquality()
-                    .equals(other.subject, subject)) &&
-            (identical(other.books, books) ||
-                const DeepCollectionEquality().equals(other.books, books)));
+        (other.runtimeType == runtimeType &&
+            other is _Subject &&
+            (identical(other.subject, subject) || other.subject == subject) &&
+            const DeepCollectionEquality().equals(other.books, books));
   }
 
   @override
-  int get hashCode =>
-      runtimeType.hashCode ^
-      const DeepCollectionEquality().hash(subject) ^
-      const DeepCollectionEquality().hash(books);
+  int get hashCode => Object.hash(
+      runtimeType, subject, const DeepCollectionEquality().hash(books));
 
   @JsonKey(ignore: true)
   @override
@@ -164,7 +160,7 @@ class _$_Subject implements _Subject {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$_$_SubjectToJson(this);
+    return _$$_SubjectToJson(this);
   }
 }
 
@@ -176,11 +172,11 @@ abstract class _Subject implements Subject {
   @override
 
   /// The subject
-  String get subject => throw _privateConstructorUsedError;
+  String get subject;
   @override
 
   /// The list of the books matching this subject
-  List<Book> get books => throw _privateConstructorUsedError;
+  List<Book> get books;
   @override
   @JsonKey(ignore: true)
   _$SubjectCopyWith<_Subject> get copyWith =>

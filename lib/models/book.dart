@@ -61,7 +61,7 @@ class Book with _$Book {
     String? synopsys,
 
     /// List of the authors of the book
-    List<String>? authors,
+    List<String?>? authors,
 
     /// List of the subjects of the book
     List<String>? subjects,

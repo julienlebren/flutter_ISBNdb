@@ -1,5 +1,6 @@
+// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
 part of 'merchant.dart';
 
@@ -43,7 +44,7 @@ class _$MerchantTearOff {
     );
   }
 
-  Merchant fromJson(Map<String, Object> json) {
+  Merchant fromJson(Map<String, Object?> json) {
     return Merchant.fromJson(json);
   }
 }
@@ -234,9 +235,8 @@ class __$MerchantCopyWithImpl<$Res> extends _$MerchantCopyWithImpl<$Res>
   }
 }
 
-@JsonSerializable()
-
 /// @nodoc
+@JsonSerializable()
 class _$_Merchant implements _Merchant {
   _$_Merchant(
       {required this.condition,
@@ -249,7 +249,7 @@ class _$_Merchant implements _Merchant {
       required this.link});
 
   factory _$_Merchant.fromJson(Map<String, dynamic> json) =>
-      _$_$_MerchantFromJson(json);
+      _$$_MerchantFromJson(json);
 
   @override
 
@@ -294,41 +294,34 @@ class _$_Merchant implements _Merchant {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is _Merchant &&
+        (other.runtimeType == runtimeType &&
+            other is _Merchant &&
             (identical(other.condition, condition) ||
-                const DeepCollectionEquality()
-                    .equals(other.condition, condition)) &&
+                other.condition == condition) &&
             (identical(other.merchant, merchant) ||
-                const DeepCollectionEquality()
-                    .equals(other.merchant, merchant)) &&
+                other.merchant == merchant) &&
             (identical(other.merchantLogo, merchantLogo) ||
-                const DeepCollectionEquality()
-                    .equals(other.merchantLogo, merchantLogo)) &&
-            (identical(other.merchantLogoOffset, merchantLogoOffset) ||
-                const DeepCollectionEquality()
-                    .equals(other.merchantLogoOffset, merchantLogoOffset)) &&
+                other.merchantLogo == merchantLogo) &&
+            const DeepCollectionEquality()
+                .equals(other.merchantLogoOffset, merchantLogoOffset) &&
             (identical(other.shipping, shipping) ||
-                const DeepCollectionEquality()
-                    .equals(other.shipping, shipping)) &&
-            (identical(other.price, price) ||
-                const DeepCollectionEquality().equals(other.price, price)) &&
-            (identical(other.total, total) ||
-                const DeepCollectionEquality().equals(other.total, total)) &&
-            (identical(other.link, link) ||
-                const DeepCollectionEquality().equals(other.link, link)));
+                other.shipping == shipping) &&
+            (identical(other.price, price) || other.price == price) &&
+            (identical(other.total, total) || other.total == total) &&
+            (identical(other.link, link) || other.link == link));
   }
 
   @override
-  int get hashCode =>
-      runtimeType.hashCode ^
-      const DeepCollectionEquality().hash(condition) ^
-      const DeepCollectionEquality().hash(merchant) ^
-      const DeepCollectionEquality().hash(merchantLogo) ^
-      const DeepCollectionEquality().hash(merchantLogoOffset) ^
-      const DeepCollectionEquality().hash(shipping) ^
-      const DeepCollectionEquality().hash(price) ^
-      const DeepCollectionEquality().hash(total) ^
-      const DeepCollectionEquality().hash(link);
+  int get hashCode => Object.hash(
+      runtimeType,
+      condition,
+      merchant,
+      merchantLogo,
+      const DeepCollectionEquality().hash(merchantLogoOffset),
+      shipping,
+      price,
+      total,
+      link);
 
   @JsonKey(ignore: true)
   @override
@@ -337,7 +330,7 @@ class _$_Merchant implements _Merchant {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$_$_MerchantToJson(this);
+    return _$$_MerchantToJson(this);
   }
 }
 
@@ -359,38 +352,37 @@ abstract class _Merchant implements Merchant {
   @override
 
   /// Not documented in the official API
-  String get condition => throw _privateConstructorUsedError;
+  String get condition;
   @override
 
   /// Name of the seller of the book
-  String get merchant => throw _privateConstructorUsedError;
+  String get merchant;
   @override
 
   /// URL of the merchant logo
   @JsonKey(name: 'merchant_logo')
-  String get merchantLogo => throw _privateConstructorUsedError;
+  String get merchantLogo;
   @override
 
   /// Not documented in the official API
   @JsonKey(name: 'merchant_logo_offset')
-  Map<dynamic, dynamic> get merchantLogoOffset =>
-      throw _privateConstructorUsedError;
+  Map<dynamic, dynamic> get merchantLogoOffset;
   @override
 
   /// Shipping cost
-  String get shipping => throw _privateConstructorUsedError;
+  String get shipping;
   @override
 
   /// Price of the book
-  String get price => throw _privateConstructorUsedError;
+  String get price;
   @override
 
   /// Not documented in the official API
-  String get total => throw _privateConstructorUsedError;
+  String get total;
   @override
 
   /// Link to the purchase url
-  String get link => throw _privateConstructorUsedError;
+  String get link;
   @override
   @JsonKey(ignore: true)
   _$MerchantCopyWith<_Merchant> get copyWith =>

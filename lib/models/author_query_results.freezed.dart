@@ -1,5 +1,6 @@
+// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
 part of 'author_query_results.dart';
 
@@ -28,7 +29,7 @@ class _$AuthorQueryResultTearOff {
     );
   }
 
-  AuthorQueryResult fromJson(Map<String, Object> json) {
+  AuthorQueryResult fromJson(Map<String, Object?> json) {
     return AuthorQueryResult.fromJson(json);
   }
 }
@@ -124,14 +125,13 @@ class __$AuthorQueryResultCopyWithImpl<$Res>
   }
 }
 
-@JsonSerializable()
-
 /// @nodoc
+@JsonSerializable()
 class _$_AuthorQueryResult implements _AuthorQueryResult {
   _$_AuthorQueryResult({required this.total, this.authors = const []});
 
   factory _$_AuthorQueryResult.fromJson(Map<String, dynamic> json) =>
-      _$_$_AuthorQueryResultFromJson(json);
+      _$$_AuthorQueryResultFromJson(json);
 
   @override
 
@@ -151,18 +151,15 @@ class _$_AuthorQueryResult implements _AuthorQueryResult {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is _AuthorQueryResult &&
-            (identical(other.total, total) ||
-                const DeepCollectionEquality().equals(other.total, total)) &&
-            (identical(other.authors, authors) ||
-                const DeepCollectionEquality().equals(other.authors, authors)));
+        (other.runtimeType == runtimeType &&
+            other is _AuthorQueryResult &&
+            (identical(other.total, total) || other.total == total) &&
+            const DeepCollectionEquality().equals(other.authors, authors));
   }
 
   @override
-  int get hashCode =>
-      runtimeType.hashCode ^
-      const DeepCollectionEquality().hash(total) ^
-      const DeepCollectionEquality().hash(authors);
+  int get hashCode => Object.hash(
+      runtimeType, total, const DeepCollectionEquality().hash(authors));
 
   @JsonKey(ignore: true)
   @override
@@ -171,7 +168,7 @@ class _$_AuthorQueryResult implements _AuthorQueryResult {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$_$_AuthorQueryResultToJson(this);
+    return _$$_AuthorQueryResultToJson(this);
   }
 }
 
@@ -185,11 +182,11 @@ abstract class _AuthorQueryResult implements AuthorQueryResult {
   @override
 
   /// The number of results for this query
-  int get total => throw _privateConstructorUsedError;
+  int get total;
   @override
 
   /// The list of the authors matching the query
-  List<String> get authors => throw _privateConstructorUsedError;
+  List<String> get authors;
   @override
   @JsonKey(ignore: true)
   _$AuthorQueryResultCopyWith<_AuthorQueryResult> get copyWith =>

@@ -1,5 +1,6 @@
+// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
 
 part of 'book.dart';
 
@@ -38,7 +39,7 @@ class _$BookTearOff {
       @MsrpConverter() double? msrp,
       String? excerpt,
       String? synopsys,
-      List<String>? authors,
+      List<String?>? authors,
       List<String>? subjects,
       List<String>? reviews,
       List<Merchant>? prices,
@@ -69,7 +70,7 @@ class _$BookTearOff {
     );
   }
 
-  Book fromJson(Map<String, Object> json) {
+  Book fromJson(Map<String, Object?> json) {
     return Book.fromJson(json);
   }
 }
@@ -136,7 +137,7 @@ mixin _$Book {
   String? get synopsys => throw _privateConstructorUsedError;
 
   /// List of the authors of the book
-  List<String>? get authors => throw _privateConstructorUsedError;
+  List<String?>? get authors => throw _privateConstructorUsedError;
 
   /// List of the subjects of the book
   List<String>? get subjects => throw _privateConstructorUsedError;
@@ -177,7 +178,7 @@ abstract class $BookCopyWith<$Res> {
       @MsrpConverter() double? msrp,
       String? excerpt,
       String? synopsys,
-      List<String>? authors,
+      List<String?>? authors,
       List<String>? subjects,
       List<String>? reviews,
       List<Merchant>? prices,
@@ -289,7 +290,7 @@ class _$BookCopyWithImpl<$Res> implements $BookCopyWith<$Res> {
       authors: authors == freezed
           ? _value.authors
           : authors // ignore: cast_nullable_to_non_nullable
-              as List<String>?,
+              as List<String?>?,
       subjects: subjects == freezed
           ? _value.subjects
           : subjects // ignore: cast_nullable_to_non_nullable
@@ -333,7 +334,7 @@ abstract class _$BookCopyWith<$Res> implements $BookCopyWith<$Res> {
       @MsrpConverter() double? msrp,
       String? excerpt,
       String? synopsys,
-      List<String>? authors,
+      List<String?>? authors,
       List<String>? subjects,
       List<String>? reviews,
       List<Merchant>? prices,
@@ -446,7 +447,7 @@ class __$BookCopyWithImpl<$Res> extends _$BookCopyWithImpl<$Res>
       authors: authors == freezed
           ? _value.authors
           : authors // ignore: cast_nullable_to_non_nullable
-              as List<String>?,
+              as List<String?>?,
       subjects: subjects == freezed
           ? _value.subjects
           : subjects // ignore: cast_nullable_to_non_nullable
@@ -467,9 +468,8 @@ class __$BookCopyWithImpl<$Res> extends _$BookCopyWithImpl<$Res>
   }
 }
 
-@JsonSerializable()
-
 /// @nodoc
+@JsonSerializable()
 class _$_Book implements _Book {
   _$_Book(
       {required this.title,
@@ -495,8 +495,7 @@ class _$_Book implements _Book {
       this.prices,
       this.related});
 
-  factory _$_Book.fromJson(Map<String, dynamic> json) =>
-      _$_$_BookFromJson(json);
+  factory _$_Book.fromJson(Map<String, dynamic> json) => _$$_BookFromJson(json);
 
   @override
 
@@ -574,7 +573,7 @@ class _$_Book implements _Book {
   @override
 
   /// List of the authors of the book
-  final List<String>? authors;
+  final List<String?>? authors;
   @override
 
   /// List of the subjects of the book
@@ -600,92 +599,66 @@ class _$_Book implements _Book {
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other is _Book &&
-            (identical(other.title, title) ||
-                const DeepCollectionEquality().equals(other.title, title)) &&
+        (other.runtimeType == runtimeType &&
+            other is _Book &&
+            (identical(other.title, title) || other.title == title) &&
             (identical(other.titleLong, titleLong) ||
-                const DeepCollectionEquality()
-                    .equals(other.titleLong, titleLong)) &&
-            (identical(other.isbn, isbn) ||
-                const DeepCollectionEquality().equals(other.isbn, isbn)) &&
-            (identical(other.isbn13, isbn13) ||
-                const DeepCollectionEquality().equals(other.isbn13, isbn13)) &&
+                other.titleLong == titleLong) &&
+            (identical(other.isbn, isbn) || other.isbn == isbn) &&
+            (identical(other.isbn13, isbn13) || other.isbn13 == isbn13) &&
             (identical(other.deweyDecimal, deweyDecimal) ||
-                const DeepCollectionEquality()
-                    .equals(other.deweyDecimal, deweyDecimal)) &&
-            (identical(other.binding, binding) ||
-                const DeepCollectionEquality()
-                    .equals(other.binding, binding)) &&
+                other.deweyDecimal == deweyDecimal) &&
+            (identical(other.binding, binding) || other.binding == binding) &&
             (identical(other.publisher, publisher) ||
-                const DeepCollectionEquality()
-                    .equals(other.publisher, publisher)) &&
+                other.publisher == publisher) &&
             (identical(other.language, language) ||
-                const DeepCollectionEquality()
-                    .equals(other.language, language)) &&
+                other.language == language) &&
             (identical(other.datePublished, datePublished) ||
-                const DeepCollectionEquality()
-                    .equals(other.datePublished, datePublished)) &&
-            (identical(other.edition, edition) ||
-                const DeepCollectionEquality()
-                    .equals(other.edition, edition)) &&
-            (identical(other.pages, pages) ||
-                const DeepCollectionEquality().equals(other.pages, pages)) &&
+                other.datePublished == datePublished) &&
+            (identical(other.edition, edition) || other.edition == edition) &&
+            (identical(other.pages, pages) || other.pages == pages) &&
             (identical(other.dimensions, dimensions) ||
-                const DeepCollectionEquality()
-                    .equals(other.dimensions, dimensions)) &&
+                other.dimensions == dimensions) &&
             (identical(other.overview, overview) ||
-                const DeepCollectionEquality()
-                    .equals(other.overview, overview)) &&
-            (identical(other.image, image) ||
-                const DeepCollectionEquality().equals(other.image, image)) &&
-            (identical(other.msrp, msrp) ||
-                const DeepCollectionEquality().equals(other.msrp, msrp)) &&
-            (identical(other.excerpt, excerpt) ||
-                const DeepCollectionEquality()
-                    .equals(other.excerpt, excerpt)) &&
+                other.overview == overview) &&
+            (identical(other.image, image) || other.image == image) &&
+            (identical(other.msrp, msrp) || other.msrp == msrp) &&
+            (identical(other.excerpt, excerpt) || other.excerpt == excerpt) &&
             (identical(other.synopsys, synopsys) ||
-                const DeepCollectionEquality()
-                    .equals(other.synopsys, synopsys)) &&
-            (identical(other.authors, authors) ||
-                const DeepCollectionEquality()
-                    .equals(other.authors, authors)) &&
-            (identical(other.subjects, subjects) ||
-                const DeepCollectionEquality()
-                    .equals(other.subjects, subjects)) &&
-            (identical(other.reviews, reviews) ||
-                const DeepCollectionEquality()
-                    .equals(other.reviews, reviews)) &&
-            (identical(other.prices, prices) ||
-                const DeepCollectionEquality().equals(other.prices, prices)) &&
-            (identical(other.related, related) ||
-                const DeepCollectionEquality().equals(other.related, related)));
+                other.synopsys == synopsys) &&
+            const DeepCollectionEquality().equals(other.authors, authors) &&
+            const DeepCollectionEquality().equals(other.subjects, subjects) &&
+            const DeepCollectionEquality().equals(other.reviews, reviews) &&
+            const DeepCollectionEquality().equals(other.prices, prices) &&
+            const DeepCollectionEquality().equals(other.related, related));
   }
 
   @override
-  int get hashCode =>
-      runtimeType.hashCode ^
-      const DeepCollectionEquality().hash(title) ^
-      const DeepCollectionEquality().hash(titleLong) ^
-      const DeepCollectionEquality().hash(isbn) ^
-      const DeepCollectionEquality().hash(isbn13) ^
-      const DeepCollectionEquality().hash(deweyDecimal) ^
-      const DeepCollectionEquality().hash(binding) ^
-      const DeepCollectionEquality().hash(publisher) ^
-      const DeepCollectionEquality().hash(language) ^
-      const DeepCollectionEquality().hash(datePublished) ^
-      const DeepCollectionEquality().hash(edition) ^
-      const DeepCollectionEquality().hash(pages) ^
-      const DeepCollectionEquality().hash(dimensions) ^
-      const DeepCollectionEquality().hash(overview) ^
-      const DeepCollectionEquality().hash(image) ^
-      const DeepCollectionEquality().hash(msrp) ^
-      const DeepCollectionEquality().hash(excerpt) ^
-      const DeepCollectionEquality().hash(synopsys) ^
-      const DeepCollectionEquality().hash(authors) ^
-      const DeepCollectionEquality().hash(subjects) ^
-      const DeepCollectionEquality().hash(reviews) ^
-      const DeepCollectionEquality().hash(prices) ^
-      const DeepCollectionEquality().hash(related);
+  int get hashCode => Object.hashAll([
+        runtimeType,
+        title,
+        titleLong,
+        isbn,
+        isbn13,
+        deweyDecimal,
+        binding,
+        publisher,
+        language,
+        datePublished,
+        edition,
+        pages,
+        dimensions,
+        overview,
+        image,
+        msrp,
+        excerpt,
+        synopsys,
+        const DeepCollectionEquality().hash(authors),
+        const DeepCollectionEquality().hash(subjects),
+        const DeepCollectionEquality().hash(reviews),
+        const DeepCollectionEquality().hash(prices),
+        const DeepCollectionEquality().hash(related)
+      ]);
 
   @JsonKey(ignore: true)
   @override
@@ -694,7 +667,7 @@ class _$_Book implements _Book {
 
   @override
   Map<String, dynamic> toJson() {
-    return _$_$_BookToJson(this);
+    return _$$_BookToJson(this);
   }
 }
 
@@ -717,7 +690,7 @@ abstract class _Book implements Book {
       @MsrpConverter() double? msrp,
       String? excerpt,
       String? synopsys,
-      List<String>? authors,
+      List<String?>? authors,
       List<String>? subjects,
       List<String>? reviews,
       List<Merchant>? prices,
@@ -728,96 +701,96 @@ abstract class _Book implements Book {
   @override
 
   /// Title of the book
-  String get title => throw _privateConstructorUsedError;
+  String get title;
   @override
 
   /// Long version of the title
   @JsonKey(name: 'title_long')
-  String? get titleLong => throw _privateConstructorUsedError;
+  String? get titleLong;
   @override
 
   /// ISBN of the book
-  String get isbn => throw _privateConstructorUsedError;
+  String get isbn;
   @override
 
   /// New 13-digit ISBN
-  String get isbn13 => throw _privateConstructorUsedError;
+  String get isbn13;
   @override
 
   /// Not documented in the official API
   @JsonKey(name: 'dewey_decimal')
-  String? get deweyDecimal => throw _privateConstructorUsedError;
+  String? get deweyDecimal;
   @override
 
   /// Not documented in the official API
-  String? get binding => throw _privateConstructorUsedError;
+  String? get binding;
   @override
 
   /// The name of the publisher
-  String? get publisher => throw _privateConstructorUsedError;
+  String? get publisher;
   @override
 
   /// Language of the book
-  String? get language => throw _privateConstructorUsedError;
+  String? get language;
   @override
 
   /// Date when the book was published. Can be a year or a full date.
   @DateConverter()
   @JsonKey(name: 'date_published')
-  DateTime? get datePublished => throw _privateConstructorUsedError;
+  DateTime? get datePublished;
   @override
 
   /// Details about the edition
-  String? get edition => throw _privateConstructorUsedError;
+  String? get edition;
   @override
 
   /// Number of pages of the book
-  int? get pages => throw _privateConstructorUsedError;
+  int? get pages;
   @override
 
   /// Dimensions of the book
-  String? get dimensions => throw _privateConstructorUsedError;
+  String? get dimensions;
   @override
 
   /// Not documented in the official API
-  String? get overview => throw _privateConstructorUsedError;
+  String? get overview;
   @override
 
   /// URL of the cover
-  String? get image => throw _privateConstructorUsedError;
+  String? get image;
   @override
 
   /// Not documented in the official API
   @MsrpConverter()
-  double? get msrp => throw _privateConstructorUsedError;
+  double? get msrp;
   @override
 
   /// Excerpt of the book
-  String? get excerpt => throw _privateConstructorUsedError;
+  String? get excerpt;
   @override
 
   /// Synopsys of the book
-  String? get synopsys => throw _privateConstructorUsedError;
+  String? get synopsys;
   @override
 
   /// List of the authors of the book
-  List<String>? get authors => throw _privateConstructorUsedError;
+  List<String?>? get authors;
   @override
 
   /// List of the subjects of the book
-  List<String>? get subjects => throw _privateConstructorUsedError;
+  List<String>? get subjects;
   @override
 
   /// Not documented in the official API
-  List<String>? get reviews => throw _privateConstructorUsedError;
+  List<String>? get reviews;
   @override
 
   /// List of the merchants selling this book with real-time prices
-  List<Merchant>? get prices => throw _privateConstructorUsedError;
+  List<Merchant>? get prices;
   @override
 
   /// Not documented in the official API
-  List<String>? get related => throw _privateConstructorUsedError;
+  List<String>? get related;
   @override
   @JsonKey(ignore: true)
   _$BookCopyWith<_Book> get copyWith => throw _privateConstructorUsedError;
