@@ -94,7 +94,7 @@ class DateConverter implements JsonConverter<DateTime?, dynamic> {
       if (value.length == 4) {
         return DateTime(int.parse(value));
       } else if (value.length == 20) {
-        return DateTime.parse(value);
+        return DateTime.parse(value.toUpperCase());
       }
     }
     return null;
