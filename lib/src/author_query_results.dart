@@ -14,9 +14,7 @@ class AuthorQueryResult with _$AuthorQueryResult {
   /// Used to build the object from the response of the ISBNdb API
   factory AuthorQueryResult.fromJson(Map<String, dynamic> json) =>
       _$AuthorQueryResultFromJson(json);
-}
 
-extension AuthorQueryResultX on AuthorQueryResult {
   /// Boolean which indicates if the search has results or not
   bool get isEmpty => authors.length == 0;
 }

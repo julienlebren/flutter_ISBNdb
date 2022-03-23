@@ -14,9 +14,7 @@ class SubjectQueryResult with _$SubjectQueryResult {
   /// Used to build the object from the response of the ISBNdb API
   factory SubjectQueryResult.fromJson(Map<String, dynamic> json) =>
       _$SubjectQueryResultFromJson(json);
-}
 
-extension SubjectQueryResultX on SubjectQueryResult {
   /// Boolean which indicates if the search has results or not
   bool get isEmpty => subjects.length == 0;
 }
