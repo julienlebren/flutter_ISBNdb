@@ -1,3 +1,15 @@
+## 0.2.7
+
+* Added flutter_lints and fixed warnings
+
+## 0.2.6
+
+* Reorganization of code with only one freezed file
+
+## 0.2.5
+
+* Updated packages to last versions
+
 ## 0.2.4
 
 * Added nullable String for the list of authors (sometimes ISBNdb returns a null value inside the array)
