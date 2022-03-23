@@ -14,7 +14,9 @@ class PublisherQueryResult with _$PublisherQueryResult {
   /// Used to build the object from the response of the ISBNdb API
   factory PublisherQueryResult.fromJson(Map<String, dynamic> json) =>
       _$PublisherQueryResultFromJson(json);
+}
 
+extension PublisherQueryResultX on PublisherQueryResult {
   /// Boolean which indicates if the search has results or not
   bool get isEmpty => publishers.length == 0;
 }

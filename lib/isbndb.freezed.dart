@@ -589,20 +589,25 @@ class _$BookTearOff {
 
   _Book call(
       {required String title,
-      @JsonKey(name: 'title_long') String? titleLong,
+      @JsonKey(name: 'title_long')
+          String? titleLong,
       required String isbn,
       required String isbn13,
-      @JsonKey(name: 'dewey_decimal') String? deweyDecimal,
+      @JsonKey(name: 'dewey_decimal')
+          String? deweyDecimal,
       String? binding,
       String? publisher,
       String? language,
-      @DateConverter() @JsonKey(name: 'date_published') DateTime? datePublished,
+      @_DateConverter()
+      @JsonKey(name: 'date_published')
+          DateTime? datePublished,
       String? edition,
       int? pages,
       String? dimensions,
       String? overview,
       String? image,
-      @MsrpConverter() double? msrp,
+      @_MsrpConverter()
+          double? msrp,
       String? excerpt,
       String? synopsys,
       List<String?>? authors,
@@ -673,7 +678,7 @@ mixin _$Book {
   String? get language => throw _privateConstructorUsedError;
 
   /// Date when the book was published. Can be a year or a full date.
-  @DateConverter()
+  @_DateConverter()
   @JsonKey(name: 'date_published')
   DateTime? get datePublished => throw _privateConstructorUsedError;
 
@@ -693,7 +698,7 @@ mixin _$Book {
   String? get image => throw _privateConstructorUsedError;
 
   /// Not documented in the official API
-  @MsrpConverter()
+  @_MsrpConverter()
   double? get msrp => throw _privateConstructorUsedError;
 
   /// Excerpt of the book
@@ -728,20 +733,25 @@ abstract class $BookCopyWith<$Res> {
       _$BookCopyWithImpl<$Res>;
   $Res call(
       {String title,
-      @JsonKey(name: 'title_long') String? titleLong,
+      @JsonKey(name: 'title_long')
+          String? titleLong,
       String isbn,
       String isbn13,
-      @JsonKey(name: 'dewey_decimal') String? deweyDecimal,
+      @JsonKey(name: 'dewey_decimal')
+          String? deweyDecimal,
       String? binding,
       String? publisher,
       String? language,
-      @DateConverter() @JsonKey(name: 'date_published') DateTime? datePublished,
+      @_DateConverter()
+      @JsonKey(name: 'date_published')
+          DateTime? datePublished,
       String? edition,
       int? pages,
       String? dimensions,
       String? overview,
       String? image,
-      @MsrpConverter() double? msrp,
+      @_MsrpConverter()
+          double? msrp,
       String? excerpt,
       String? synopsys,
       List<String?>? authors,
@@ -884,20 +894,25 @@ abstract class _$BookCopyWith<$Res> implements $BookCopyWith<$Res> {
   @override
   $Res call(
       {String title,
-      @JsonKey(name: 'title_long') String? titleLong,
+      @JsonKey(name: 'title_long')
+          String? titleLong,
       String isbn,
       String isbn13,
-      @JsonKey(name: 'dewey_decimal') String? deweyDecimal,
+      @JsonKey(name: 'dewey_decimal')
+          String? deweyDecimal,
       String? binding,
       String? publisher,
       String? language,
-      @DateConverter() @JsonKey(name: 'date_published') DateTime? datePublished,
+      @_DateConverter()
+      @JsonKey(name: 'date_published')
+          DateTime? datePublished,
       String? edition,
       int? pages,
       String? dimensions,
       String? overview,
       String? image,
-      @MsrpConverter() double? msrp,
+      @_MsrpConverter()
+          double? msrp,
       String? excerpt,
       String? synopsys,
       List<String?>? authors,
@@ -1046,13 +1061,13 @@ class _$_Book with DiagnosticableTreeMixin implements _Book {
       this.binding,
       this.publisher,
       this.language,
-      @DateConverter() @JsonKey(name: 'date_published') this.datePublished,
+      @_DateConverter() @JsonKey(name: 'date_published') this.datePublished,
       this.edition,
       this.pages,
       this.dimensions,
       this.overview,
       this.image,
-      @MsrpConverter() this.msrp,
+      @_MsrpConverter() this.msrp,
       this.excerpt,
       this.synopsys,
       this.authors,
@@ -1100,7 +1115,7 @@ class _$_Book with DiagnosticableTreeMixin implements _Book {
   @override
 
   /// Date when the book was published. Can be a year or a full date.
-  @DateConverter()
+  @_DateConverter()
   @JsonKey(name: 'date_published')
   final DateTime? datePublished;
   @override
@@ -1126,7 +1141,7 @@ class _$_Book with DiagnosticableTreeMixin implements _Book {
   @override
 
   /// Not documented in the official API
-  @MsrpConverter()
+  @_MsrpConverter()
   final double? msrp;
   @override
 
@@ -1264,20 +1279,25 @@ class _$_Book with DiagnosticableTreeMixin implements _Book {
 abstract class _Book implements Book {
   factory _Book(
       {required String title,
-      @JsonKey(name: 'title_long') String? titleLong,
+      @JsonKey(name: 'title_long')
+          String? titleLong,
       required String isbn,
       required String isbn13,
-      @JsonKey(name: 'dewey_decimal') String? deweyDecimal,
+      @JsonKey(name: 'dewey_decimal')
+          String? deweyDecimal,
       String? binding,
       String? publisher,
       String? language,
-      @DateConverter() @JsonKey(name: 'date_published') DateTime? datePublished,
+      @_DateConverter()
+      @JsonKey(name: 'date_published')
+          DateTime? datePublished,
       String? edition,
       int? pages,
       String? dimensions,
       String? overview,
       String? image,
-      @MsrpConverter() double? msrp,
+      @_MsrpConverter()
+          double? msrp,
       String? excerpt,
       String? synopsys,
       List<String?>? authors,
@@ -1325,7 +1345,7 @@ abstract class _Book implements Book {
   @override
 
   /// Date when the book was published. Can be a year or a full date.
-  @DateConverter()
+  @_DateConverter()
   @JsonKey(name: 'date_published')
   DateTime? get datePublished;
   @override
@@ -1351,7 +1371,7 @@ abstract class _Book implements Book {
   @override
 
   /// Not documented in the official API
-  @MsrpConverter()
+  @_MsrpConverter()
   double? get msrp;
   @override
 

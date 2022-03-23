@@ -1,3 +1,7 @@
+## 0.3.0
+
+* Back to extensions for var `isEmpty` to avoid freezed errors when generating main class
+
 ## 0.2.8
 
 * Moved `isEmpty` to main class instead of extension to avoid documentation boilerplate

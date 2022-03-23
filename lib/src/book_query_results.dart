@@ -14,7 +14,9 @@ class BookQueryResult with _$BookQueryResult {
   /// Used to build the object from the response of the ISBNdb API
   factory BookQueryResult.fromJson(Map<String, dynamic> json) =>
       _$BookQueryResultFromJson(json);
+}
 
+extension BookQueryResultResultX on BookQueryResult {
   /// Boolean which indicates if the search has results or not
   bool get isEmpty => books.length == 0;
 }
