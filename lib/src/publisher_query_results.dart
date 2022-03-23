@@ -1,7 +1,4 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
-
-part 'publisher_query_results.freezed.dart';
-part 'publisher_query_results.g.dart';
+part of isbndb_flutter;
 
 /// The object which contains the results of search in the publishers database
 @freezed

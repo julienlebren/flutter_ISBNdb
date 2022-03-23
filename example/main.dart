@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:isbndb/isbndb.dart';
-import 'package:isbndb/models/book.dart';
 
 void main() async {
   runApp(App());

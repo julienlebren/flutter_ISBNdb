@@ -1,9 +1,4 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:intl/intl.dart';
-import 'package:isbndb/models/merchant.dart';
-
-part 'book.freezed.dart';
-part 'book.g.dart';
+part of isbndb_flutter;
 
 /// An object which handle the details of a book
 @freezed

@@ -1,8 +1,4 @@
-import 'package:isbndb/models/book.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
-
-part 'subject.freezed.dart';
-part 'subject.g.dart';
+part of isbndb_flutter;
 
 /// An object which returns the name of a subject and the list of the books related to this subject.
 @freezed

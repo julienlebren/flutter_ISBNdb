@@ -1,8 +1,4 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:isbndb/models/book.dart';
-
-part 'book_query_results.freezed.dart';
-part 'book_query_results.g.dart';
+part of isbndb_flutter;
 
 /// The object which contains the results of search in the books database
 @freezed

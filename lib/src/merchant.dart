@@ -1,7 +1,4 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
-
-part 'merchant.freezed.dart';
-part 'merchant.g.dart';
+part of isbndb_flutter;
 
 /// An object which returns the details about a seller of a book on the web.
 @freezed
