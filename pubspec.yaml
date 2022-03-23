@@ -1,6 +1,6 @@
 name: isbndb
 description: Dart service for isbndb.com API. Returns book details from an ISBN, or a list of books from an author name, etc.
-version: 0.2.6
+version: 0.2.7
 repository: https://github.com/julienlebren/flutter_ISBNdb
 issue_tracker: https://github.com/julienlebren/flutter_ISBNdb/issues
 
@@ -20,6 +20,7 @@ dev_dependencies:
   build_runner: ^2.1.8
   flutter_test:
     sdk: flutter
+  flutter_lints: ^1.0.0
   freezed: ^1.1.1
   json_serializable: ^6.1.5
 

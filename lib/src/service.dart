@@ -70,10 +70,7 @@ class ISBNdb {
       },
     );
     final bookJson = response['book'];
-
-    if (bookJson != null) {
-      return Book.fromJson(bookJson);
-    }
+    return bookJson != null ? Book.fromJson(bookJson) : null;
   }
 
   /// Search books in ISBNdb
