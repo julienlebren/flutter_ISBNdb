@@ -29,7 +29,7 @@ class Book with _$Book {
     String? language,
 
     /// Date when the book was published. Can be a year or a full date.
-    @DateConverter() @JsonKey(name: 'date_published') DateTime? datePublished,
+    @_DateConverter() @JsonKey(name: 'date_published') DateTime? datePublished,
 
     /// Details about the edition
     String? edition,
@@ -47,7 +47,7 @@ class Book with _$Book {
     String? image,
 
     /// Not documented in the official API
-    @MsrpConverter() double? msrp,
+    @_MsrpConverter() double? msrp,
 
     /// Excerpt of the book
     String? excerpt,
@@ -78,8 +78,9 @@ class Book with _$Book {
 /// A json converter that handles the date_published field of the API
 /// It can be either a year, a full date... so we need to handle this properly
 /// to return always the same type.
-class DateConverter implements JsonConverter<DateTime?, dynamic> {
-  const DateConverter();
+@protected
+class _DateConverter implements JsonConverter<DateTime?, dynamic> {
+  const _DateConverter();
 
   @override
   DateTime? fromJson(dynamic value) {
@@ -103,8 +104,8 @@ class DateConverter implements JsonConverter<DateTime?, dynamic> {
 /// A json converter that handles the msrp field of the API
 /// It can be either a string, an int... so we need to handle this properly
 /// to return always the same type.
-class MsrpConverter implements JsonConverter<double?, dynamic> {
-  const MsrpConverter();
+class _MsrpConverter implements JsonConverter<double?, dynamic> {
+  const _MsrpConverter();
 
   @override
   double? fromJson(dynamic value) {

@@ -1,3 +1,8 @@
+## 0.2.8
+
+* Moved `isEmpty` to main class instead of extension to avoid documentation boilerplate
+* Made DateConveter and MsrpConveter private and protected
+
 ## 0.2.7
 
 * Added flutter_lints and fixed warnings
