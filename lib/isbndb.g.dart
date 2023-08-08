@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of isbndb_flutter;
+part of 'isbndb.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator

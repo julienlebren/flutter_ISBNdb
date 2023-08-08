@@ -1,9 +1,9 @@
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint
-// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of isbndb_flutter;
+part of 'isbndb.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -12,31 +12,11 @@ part of isbndb_flutter;
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more informations: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
 
 AuthorQueryResult _$AuthorQueryResultFromJson(Map<String, dynamic> json) {
   return _AuthorQueryResult.fromJson(json);
 }
-
-/// @nodoc
-class _$AuthorQueryResultTearOff {
-  const _$AuthorQueryResultTearOff();
-
-  _AuthorQueryResult call(
-      {required int total, List<String> authors = const []}) {
-    return _AuthorQueryResult(
-      total: total,
-      authors: authors,
-    );
-  }
-
-  AuthorQueryResult fromJson(Map<String, Object?> json) {
-    return AuthorQueryResult.fromJson(json);
-  }
-}
-
-/// @nodoc
-const $AuthorQueryResult = _$AuthorQueryResultTearOff();
 
 /// @nodoc
 mixin _$AuthorQueryResult {
@@ -56,70 +36,72 @@ mixin _$AuthorQueryResult {
 abstract class $AuthorQueryResultCopyWith<$Res> {
   factory $AuthorQueryResultCopyWith(
           AuthorQueryResult value, $Res Function(AuthorQueryResult) then) =
-      _$AuthorQueryResultCopyWithImpl<$Res>;
+      _$AuthorQueryResultCopyWithImpl<$Res, AuthorQueryResult>;
+  @useResult
   $Res call({int total, List<String> authors});
 }
 
 /// @nodoc
-class _$AuthorQueryResultCopyWithImpl<$Res>
+class _$AuthorQueryResultCopyWithImpl<$Res, $Val extends AuthorQueryResult>
     implements $AuthorQueryResultCopyWith<$Res> {
   _$AuthorQueryResultCopyWithImpl(this._value, this._then);
 
-  final AuthorQueryResult _value;
   // ignore: unused_field
-  final $Res Function(AuthorQueryResult) _then;
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
 
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? total = freezed,
-    Object? authors = freezed,
+    Object? total = null,
+    Object? authors = null,
   }) {
     return _then(_value.copyWith(
-      total: total == freezed
+      total: null == total
           ? _value.total
           : total // ignore: cast_nullable_to_non_nullable
               as int,
-      authors: authors == freezed
+      authors: null == authors
           ? _value.authors
           : authors // ignore: cast_nullable_to_non_nullable
               as List<String>,
-    ));
+    ) as $Val);
   }
 }
 
 /// @nodoc
-abstract class _$AuthorQueryResultCopyWith<$Res>
+abstract class _$$_AuthorQueryResultCopyWith<$Res>
     implements $AuthorQueryResultCopyWith<$Res> {
-  factory _$AuthorQueryResultCopyWith(
-          _AuthorQueryResult value, $Res Function(_AuthorQueryResult) then) =
-      __$AuthorQueryResultCopyWithImpl<$Res>;
+  factory _$$_AuthorQueryResultCopyWith(_$_AuthorQueryResult value,
+          $Res Function(_$_AuthorQueryResult) then) =
+      __$$_AuthorQueryResultCopyWithImpl<$Res>;
   @override
+  @useResult
   $Res call({int total, List<String> authors});
 }
 
 /// @nodoc
-class __$AuthorQueryResultCopyWithImpl<$Res>
-    extends _$AuthorQueryResultCopyWithImpl<$Res>
-    implements _$AuthorQueryResultCopyWith<$Res> {
-  __$AuthorQueryResultCopyWithImpl(
-      _AuthorQueryResult _value, $Res Function(_AuthorQueryResult) _then)
-      : super(_value, (v) => _then(v as _AuthorQueryResult));
+class __$$_AuthorQueryResultCopyWithImpl<$Res>
+    extends _$AuthorQueryResultCopyWithImpl<$Res, _$_AuthorQueryResult>
+    implements _$$_AuthorQueryResultCopyWith<$Res> {
+  __$$_AuthorQueryResultCopyWithImpl(
+      _$_AuthorQueryResult _value, $Res Function(_$_AuthorQueryResult) _then)
+      : super(_value, _then);
 
-  @override
-  _AuthorQueryResult get _value => super._value as _AuthorQueryResult;
-
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? total = freezed,
-    Object? authors = freezed,
+    Object? total = null,
+    Object? authors = null,
   }) {
-    return _then(_AuthorQueryResult(
-      total: total == freezed
+    return _then(_$_AuthorQueryResult(
+      total: null == total
           ? _value.total
           : total // ignore: cast_nullable_to_non_nullable
               as int,
-      authors: authors == freezed
-          ? _value.authors
+      authors: null == authors
+          ? _value._authors
           : authors // ignore: cast_nullable_to_non_nullable
               as List<String>,
     ));
@@ -131,20 +113,28 @@ class __$AuthorQueryResultCopyWithImpl<$Res>
 class _$_AuthorQueryResult
     with DiagnosticableTreeMixin
     implements _AuthorQueryResult {
-  _$_AuthorQueryResult({required this.total, this.authors = const []});
+  _$_AuthorQueryResult(
+      {required this.total, final List<String> authors = const []})
+      : _authors = authors;
 
   factory _$_AuthorQueryResult.fromJson(Map<String, dynamic> json) =>
       _$$_AuthorQueryResultFromJson(json);
 
-  @override
-
   /// The number of results for this query
-  final int total;
-  @JsonKey()
   @override
+  final int total;
 
   /// The list of the authors matching the query
-  final List<String> authors;
+  final List<String> _authors;
+
+  /// The list of the authors matching the query
+  @override
+  @JsonKey()
+  List<String> get authors {
+    if (_authors is EqualUnmodifiableListView) return _authors;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_authors);
+  }
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
@@ -164,31 +154,35 @@ class _$_AuthorQueryResult
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _AuthorQueryResult &&
-            const DeepCollectionEquality().equals(other.total, total) &&
-            const DeepCollectionEquality().equals(other.authors, authors));
+            other is _$_AuthorQueryResult &&
+            (identical(other.total, total) || other.total == total) &&
+            const DeepCollectionEquality().equals(other._authors, _authors));
   }
-
-  @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      const DeepCollectionEquality().hash(total),
-      const DeepCollectionEquality().hash(authors));
 
   @JsonKey(ignore: true)
   @override
-  _$AuthorQueryResultCopyWith<_AuthorQueryResult> get copyWith =>
-      __$AuthorQueryResultCopyWithImpl<_AuthorQueryResult>(this, _$identity);
+  int get hashCode => Object.hash(
+      runtimeType, total, const DeepCollectionEquality().hash(_authors));
+
+  @JsonKey(ignore: true)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$_AuthorQueryResultCopyWith<_$_AuthorQueryResult> get copyWith =>
+      __$$_AuthorQueryResultCopyWithImpl<_$_AuthorQueryResult>(
+          this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_AuthorQueryResultToJson(this);
+    return _$$_AuthorQueryResultToJson(
+      this,
+    );
   }
 }
 
 abstract class _AuthorQueryResult implements AuthorQueryResult {
-  factory _AuthorQueryResult({required int total, List<String> authors}) =
-      _$_AuthorQueryResult;
+  factory _AuthorQueryResult(
+      {required final int total,
+      final List<String> authors}) = _$_AuthorQueryResult;
 
   factory _AuthorQueryResult.fromJson(Map<String, dynamic> json) =
       _$_AuthorQueryResult.fromJson;
@@ -203,32 +197,13 @@ abstract class _AuthorQueryResult implements AuthorQueryResult {
   List<String> get authors;
   @override
   @JsonKey(ignore: true)
-  _$AuthorQueryResultCopyWith<_AuthorQueryResult> get copyWith =>
+  _$$_AuthorQueryResultCopyWith<_$_AuthorQueryResult> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 Author _$AuthorFromJson(Map<String, dynamic> json) {
   return _Author.fromJson(json);
 }
-
-/// @nodoc
-class _$AuthorTearOff {
-  const _$AuthorTearOff();
-
-  _Author call({required String author, List<Book> books = const []}) {
-    return _Author(
-      author: author,
-      books: books,
-    );
-  }
-
-  Author fromJson(Map<String, Object?> json) {
-    return Author.fromJson(json);
-  }
-}
-
-/// @nodoc
-const $Author = _$AuthorTearOff();
 
 /// @nodoc
 mixin _$Author {
@@ -246,65 +221,69 @@ mixin _$Author {
 /// @nodoc
 abstract class $AuthorCopyWith<$Res> {
   factory $AuthorCopyWith(Author value, $Res Function(Author) then) =
-      _$AuthorCopyWithImpl<$Res>;
+      _$AuthorCopyWithImpl<$Res, Author>;
+  @useResult
   $Res call({String author, List<Book> books});
 }
 
 /// @nodoc
-class _$AuthorCopyWithImpl<$Res> implements $AuthorCopyWith<$Res> {
+class _$AuthorCopyWithImpl<$Res, $Val extends Author>
+    implements $AuthorCopyWith<$Res> {
   _$AuthorCopyWithImpl(this._value, this._then);
 
-  final Author _value;
   // ignore: unused_field
-  final $Res Function(Author) _then;
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
 
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? author = freezed,
-    Object? books = freezed,
+    Object? author = null,
+    Object? books = null,
   }) {
     return _then(_value.copyWith(
-      author: author == freezed
+      author: null == author
           ? _value.author
           : author // ignore: cast_nullable_to_non_nullable
               as String,
-      books: books == freezed
+      books: null == books
           ? _value.books
           : books // ignore: cast_nullable_to_non_nullable
               as List<Book>,
-    ));
+    ) as $Val);
   }
 }
 
 /// @nodoc
-abstract class _$AuthorCopyWith<$Res> implements $AuthorCopyWith<$Res> {
-  factory _$AuthorCopyWith(_Author value, $Res Function(_Author) then) =
-      __$AuthorCopyWithImpl<$Res>;
+abstract class _$$_AuthorCopyWith<$Res> implements $AuthorCopyWith<$Res> {
+  factory _$$_AuthorCopyWith(_$_Author value, $Res Function(_$_Author) then) =
+      __$$_AuthorCopyWithImpl<$Res>;
   @override
+  @useResult
   $Res call({String author, List<Book> books});
 }
 
 /// @nodoc
-class __$AuthorCopyWithImpl<$Res> extends _$AuthorCopyWithImpl<$Res>
-    implements _$AuthorCopyWith<$Res> {
-  __$AuthorCopyWithImpl(_Author _value, $Res Function(_Author) _then)
-      : super(_value, (v) => _then(v as _Author));
+class __$$_AuthorCopyWithImpl<$Res>
+    extends _$AuthorCopyWithImpl<$Res, _$_Author>
+    implements _$$_AuthorCopyWith<$Res> {
+  __$$_AuthorCopyWithImpl(_$_Author _value, $Res Function(_$_Author) _then)
+      : super(_value, _then);
 
-  @override
-  _Author get _value => super._value as _Author;
-
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? author = freezed,
-    Object? books = freezed,
+    Object? author = null,
+    Object? books = null,
   }) {
-    return _then(_Author(
-      author: author == freezed
+    return _then(_$_Author(
+      author: null == author
           ? _value.author
           : author // ignore: cast_nullable_to_non_nullable
               as String,
-      books: books == freezed
-          ? _value.books
+      books: null == books
+          ? _value._books
           : books // ignore: cast_nullable_to_non_nullable
               as List<Book>,
     ));
@@ -314,20 +293,27 @@ class __$AuthorCopyWithImpl<$Res> extends _$AuthorCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$_Author with DiagnosticableTreeMixin implements _Author {
-  _$_Author({required this.author, this.books = const []});
+  _$_Author({required this.author, final List<Book> books = const []})
+      : _books = books;
 
   factory _$_Author.fromJson(Map<String, dynamic> json) =>
       _$$_AuthorFromJson(json);
 
-  @override
-
   /// The name of the author
-  final String author;
-  @JsonKey()
   @override
+  final String author;
 
   /// The list of the books this author published
-  final List<Book> books;
+  final List<Book> _books;
+
+  /// The list of the books this author published
+  @override
+  @JsonKey()
+  List<Book> get books {
+    if (_books is EqualUnmodifiableListView) return _books;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_books);
+  }
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
@@ -347,30 +333,33 @@ class _$_Author with DiagnosticableTreeMixin implements _Author {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _Author &&
-            const DeepCollectionEquality().equals(other.author, author) &&
-            const DeepCollectionEquality().equals(other.books, books));
+            other is _$_Author &&
+            (identical(other.author, author) || other.author == author) &&
+            const DeepCollectionEquality().equals(other._books, _books));
   }
-
-  @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      const DeepCollectionEquality().hash(author),
-      const DeepCollectionEquality().hash(books));
 
   @JsonKey(ignore: true)
   @override
-  _$AuthorCopyWith<_Author> get copyWith =>
-      __$AuthorCopyWithImpl<_Author>(this, _$identity);
+  int get hashCode => Object.hash(
+      runtimeType, author, const DeepCollectionEquality().hash(_books));
+
+  @JsonKey(ignore: true)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$_AuthorCopyWith<_$_Author> get copyWith =>
+      __$$_AuthorCopyWithImpl<_$_Author>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_AuthorToJson(this);
+    return _$$_AuthorToJson(
+      this,
+    );
   }
 }
 
 abstract class _Author implements Author {
-  factory _Author({required String author, List<Book> books}) = _$_Author;
+  factory _Author({required final String author, final List<Book> books}) =
+      _$_Author;
 
   factory _Author.fromJson(Map<String, dynamic> json) = _$_Author.fromJson;
 
@@ -384,31 +373,13 @@ abstract class _Author implements Author {
   List<Book> get books;
   @override
   @JsonKey(ignore: true)
-  _$AuthorCopyWith<_Author> get copyWith => throw _privateConstructorUsedError;
+  _$$_AuthorCopyWith<_$_Author> get copyWith =>
+      throw _privateConstructorUsedError;
 }
 
 BookQueryResult _$BookQueryResultFromJson(Map<String, dynamic> json) {
   return _BookQueryResult.fromJson(json);
 }
-
-/// @nodoc
-class _$BookQueryResultTearOff {
-  const _$BookQueryResultTearOff();
-
-  _BookQueryResult call({required int total, List<Book> books = const []}) {
-    return _BookQueryResult(
-      total: total,
-      books: books,
-    );
-  }
-
-  BookQueryResult fromJson(Map<String, Object?> json) {
-    return BookQueryResult.fromJson(json);
-  }
-}
-
-/// @nodoc
-const $BookQueryResult = _$BookQueryResultTearOff();
 
 /// @nodoc
 mixin _$BookQueryResult {
@@ -428,70 +399,72 @@ mixin _$BookQueryResult {
 abstract class $BookQueryResultCopyWith<$Res> {
   factory $BookQueryResultCopyWith(
           BookQueryResult value, $Res Function(BookQueryResult) then) =
-      _$BookQueryResultCopyWithImpl<$Res>;
+      _$BookQueryResultCopyWithImpl<$Res, BookQueryResult>;
+  @useResult
   $Res call({int total, List<Book> books});
 }
 
 /// @nodoc
-class _$BookQueryResultCopyWithImpl<$Res>
+class _$BookQueryResultCopyWithImpl<$Res, $Val extends BookQueryResult>
     implements $BookQueryResultCopyWith<$Res> {
   _$BookQueryResultCopyWithImpl(this._value, this._then);
 
-  final BookQueryResult _value;
   // ignore: unused_field
-  final $Res Function(BookQueryResult) _then;
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
 
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? total = freezed,
-    Object? books = freezed,
+    Object? total = null,
+    Object? books = null,
   }) {
     return _then(_value.copyWith(
-      total: total == freezed
+      total: null == total
           ? _value.total
           : total // ignore: cast_nullable_to_non_nullable
               as int,
-      books: books == freezed
+      books: null == books
           ? _value.books
           : books // ignore: cast_nullable_to_non_nullable
               as List<Book>,
-    ));
+    ) as $Val);
   }
 }
 
 /// @nodoc
-abstract class _$BookQueryResultCopyWith<$Res>
+abstract class _$$_BookQueryResultCopyWith<$Res>
     implements $BookQueryResultCopyWith<$Res> {
-  factory _$BookQueryResultCopyWith(
-          _BookQueryResult value, $Res Function(_BookQueryResult) then) =
-      __$BookQueryResultCopyWithImpl<$Res>;
+  factory _$$_BookQueryResultCopyWith(
+          _$_BookQueryResult value, $Res Function(_$_BookQueryResult) then) =
+      __$$_BookQueryResultCopyWithImpl<$Res>;
   @override
+  @useResult
   $Res call({int total, List<Book> books});
 }
 
 /// @nodoc
-class __$BookQueryResultCopyWithImpl<$Res>
-    extends _$BookQueryResultCopyWithImpl<$Res>
-    implements _$BookQueryResultCopyWith<$Res> {
-  __$BookQueryResultCopyWithImpl(
-      _BookQueryResult _value, $Res Function(_BookQueryResult) _then)
-      : super(_value, (v) => _then(v as _BookQueryResult));
+class __$$_BookQueryResultCopyWithImpl<$Res>
+    extends _$BookQueryResultCopyWithImpl<$Res, _$_BookQueryResult>
+    implements _$$_BookQueryResultCopyWith<$Res> {
+  __$$_BookQueryResultCopyWithImpl(
+      _$_BookQueryResult _value, $Res Function(_$_BookQueryResult) _then)
+      : super(_value, _then);
 
-  @override
-  _BookQueryResult get _value => super._value as _BookQueryResult;
-
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? total = freezed,
-    Object? books = freezed,
+    Object? total = null,
+    Object? books = null,
   }) {
-    return _then(_BookQueryResult(
-      total: total == freezed
+    return _then(_$_BookQueryResult(
+      total: null == total
           ? _value.total
           : total // ignore: cast_nullable_to_non_nullable
               as int,
-      books: books == freezed
-          ? _value.books
+      books: null == books
+          ? _value._books
           : books // ignore: cast_nullable_to_non_nullable
               as List<Book>,
     ));
@@ -503,20 +476,27 @@ class __$BookQueryResultCopyWithImpl<$Res>
 class _$_BookQueryResult
     with DiagnosticableTreeMixin
     implements _BookQueryResult {
-  _$_BookQueryResult({required this.total, this.books = const []});
+  _$_BookQueryResult({required this.total, final List<Book> books = const []})
+      : _books = books;
 
   factory _$_BookQueryResult.fromJson(Map<String, dynamic> json) =>
       _$$_BookQueryResultFromJson(json);
 
-  @override
-
   /// The number of results for this query
-  final int total;
-  @JsonKey()
   @override
+  final int total;
 
   /// The list of the books matching the query
-  final List<Book> books;
+  final List<Book> _books;
+
+  /// The list of the books matching the query
+  @override
+  @JsonKey()
+  List<Book> get books {
+    if (_books is EqualUnmodifiableListView) return _books;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_books);
+  }
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
@@ -536,30 +516,32 @@ class _$_BookQueryResult
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _BookQueryResult &&
-            const DeepCollectionEquality().equals(other.total, total) &&
-            const DeepCollectionEquality().equals(other.books, books));
+            other is _$_BookQueryResult &&
+            (identical(other.total, total) || other.total == total) &&
+            const DeepCollectionEquality().equals(other._books, _books));
   }
-
-  @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      const DeepCollectionEquality().hash(total),
-      const DeepCollectionEquality().hash(books));
 
   @JsonKey(ignore: true)
   @override
-  _$BookQueryResultCopyWith<_BookQueryResult> get copyWith =>
-      __$BookQueryResultCopyWithImpl<_BookQueryResult>(this, _$identity);
+  int get hashCode => Object.hash(
+      runtimeType, total, const DeepCollectionEquality().hash(_books));
+
+  @JsonKey(ignore: true)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$_BookQueryResultCopyWith<_$_BookQueryResult> get copyWith =>
+      __$$_BookQueryResultCopyWithImpl<_$_BookQueryResult>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_BookQueryResultToJson(this);
+    return _$$_BookQueryResultToJson(
+      this,
+    );
   }
 }
 
 abstract class _BookQueryResult implements BookQueryResult {
-  factory _BookQueryResult({required int total, List<Book> books}) =
+  factory _BookQueryResult({required final int total, final List<Book> books}) =
       _$_BookQueryResult;
 
   factory _BookQueryResult.fromJson(Map<String, dynamic> json) =
@@ -575,79 +557,13 @@ abstract class _BookQueryResult implements BookQueryResult {
   List<Book> get books;
   @override
   @JsonKey(ignore: true)
-  _$BookQueryResultCopyWith<_BookQueryResult> get copyWith =>
+  _$$_BookQueryResultCopyWith<_$_BookQueryResult> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 Book _$BookFromJson(Map<String, dynamic> json) {
   return _Book.fromJson(json);
 }
-
-/// @nodoc
-class _$BookTearOff {
-  const _$BookTearOff();
-
-  _Book call(
-      {required String title,
-      @JsonKey(name: 'title_long')
-          String? titleLong,
-      required String isbn,
-      required String isbn13,
-      @JsonKey(name: 'dewey_decimal')
-          String? deweyDecimal,
-      String? binding,
-      String? publisher,
-      String? language,
-      @_DateConverter()
-      @JsonKey(name: 'date_published')
-          DateTime? datePublished,
-      String? edition,
-      int? pages,
-      String? dimensions,
-      String? overview,
-      String? image,
-      @_MsrpConverter()
-          double? msrp,
-      String? excerpt,
-      String? synopsys,
-      List<String?>? authors,
-      List<String>? subjects,
-      List<String>? reviews,
-      List<Merchant>? prices,
-      List<String>? related}) {
-    return _Book(
-      title: title,
-      titleLong: titleLong,
-      isbn: isbn,
-      isbn13: isbn13,
-      deweyDecimal: deweyDecimal,
-      binding: binding,
-      publisher: publisher,
-      language: language,
-      datePublished: datePublished,
-      edition: edition,
-      pages: pages,
-      dimensions: dimensions,
-      overview: overview,
-      image: image,
-      msrp: msrp,
-      excerpt: excerpt,
-      synopsys: synopsys,
-      authors: authors,
-      subjects: subjects,
-      reviews: reviews,
-      prices: prices,
-      related: related,
-    );
-  }
-
-  Book fromJson(Map<String, Object?> json) {
-    return Book.fromJson(json);
-  }
-}
-
-/// @nodoc
-const $Book = _$BookTearOff();
 
 /// @nodoc
 mixin _$Book {
@@ -730,28 +646,26 @@ mixin _$Book {
 /// @nodoc
 abstract class $BookCopyWith<$Res> {
   factory $BookCopyWith(Book value, $Res Function(Book) then) =
-      _$BookCopyWithImpl<$Res>;
+      _$BookCopyWithImpl<$Res, Book>;
+  @useResult
   $Res call(
       {String title,
-      @JsonKey(name: 'title_long')
-          String? titleLong,
+      @JsonKey(name: 'title_long') String? titleLong,
       String isbn,
       String isbn13,
-      @JsonKey(name: 'dewey_decimal')
-          String? deweyDecimal,
+      @JsonKey(name: 'dewey_decimal') String? deweyDecimal,
       String? binding,
       String? publisher,
       String? language,
       @_DateConverter()
       @JsonKey(name: 'date_published')
-          DateTime? datePublished,
+      DateTime? datePublished,
       String? edition,
       int? pages,
       String? dimensions,
       String? overview,
       String? image,
-      @_MsrpConverter()
-          double? msrp,
+      @_MsrpConverter() double? msrp,
       String? excerpt,
       String? synopsys,
       List<String?>? authors,
@@ -762,19 +676,22 @@ abstract class $BookCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$BookCopyWithImpl<$Res> implements $BookCopyWith<$Res> {
+class _$BookCopyWithImpl<$Res, $Val extends Book>
+    implements $BookCopyWith<$Res> {
   _$BookCopyWithImpl(this._value, this._then);
 
-  final Book _value;
   // ignore: unused_field
-  final $Res Function(Book) _then;
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
 
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? title = freezed,
+    Object? title = null,
     Object? titleLong = freezed,
-    Object? isbn = freezed,
-    Object? isbn13 = freezed,
+    Object? isbn = null,
+    Object? isbn13 = null,
     Object? deweyDecimal = freezed,
     Object? binding = freezed,
     Object? publisher = freezed,
@@ -795,124 +712,122 @@ class _$BookCopyWithImpl<$Res> implements $BookCopyWith<$Res> {
     Object? related = freezed,
   }) {
     return _then(_value.copyWith(
-      title: title == freezed
+      title: null == title
           ? _value.title
           : title // ignore: cast_nullable_to_non_nullable
               as String,
-      titleLong: titleLong == freezed
+      titleLong: freezed == titleLong
           ? _value.titleLong
           : titleLong // ignore: cast_nullable_to_non_nullable
               as String?,
-      isbn: isbn == freezed
+      isbn: null == isbn
           ? _value.isbn
           : isbn // ignore: cast_nullable_to_non_nullable
               as String,
-      isbn13: isbn13 == freezed
+      isbn13: null == isbn13
           ? _value.isbn13
           : isbn13 // ignore: cast_nullable_to_non_nullable
               as String,
-      deweyDecimal: deweyDecimal == freezed
+      deweyDecimal: freezed == deweyDecimal
           ? _value.deweyDecimal
           : deweyDecimal // ignore: cast_nullable_to_non_nullable
               as String?,
-      binding: binding == freezed
+      binding: freezed == binding
           ? _value.binding
           : binding // ignore: cast_nullable_to_non_nullable
               as String?,
-      publisher: publisher == freezed
+      publisher: freezed == publisher
           ? _value.publisher
           : publisher // ignore: cast_nullable_to_non_nullable
               as String?,
-      language: language == freezed
+      language: freezed == language
           ? _value.language
           : language // ignore: cast_nullable_to_non_nullable
               as String?,
-      datePublished: datePublished == freezed
+      datePublished: freezed == datePublished
           ? _value.datePublished
           : datePublished // ignore: cast_nullable_to_non_nullable
               as DateTime?,
-      edition: edition == freezed
+      edition: freezed == edition
           ? _value.edition
           : edition // ignore: cast_nullable_to_non_nullable
               as String?,
-      pages: pages == freezed
+      pages: freezed == pages
           ? _value.pages
           : pages // ignore: cast_nullable_to_non_nullable
               as int?,
-      dimensions: dimensions == freezed
+      dimensions: freezed == dimensions
           ? _value.dimensions
           : dimensions // ignore: cast_nullable_to_non_nullable
               as String?,
-      overview: overview == freezed
+      overview: freezed == overview
           ? _value.overview
           : overview // ignore: cast_nullable_to_non_nullable
               as String?,
-      image: image == freezed
+      image: freezed == image
           ? _value.image
           : image // ignore: cast_nullable_to_non_nullable
               as String?,
-      msrp: msrp == freezed
+      msrp: freezed == msrp
           ? _value.msrp
           : msrp // ignore: cast_nullable_to_non_nullable
               as double?,
-      excerpt: excerpt == freezed
+      excerpt: freezed == excerpt
           ? _value.excerpt
           : excerpt // ignore: cast_nullable_to_non_nullable
               as String?,
-      synopsys: synopsys == freezed
+      synopsys: freezed == synopsys
           ? _value.synopsys
           : synopsys // ignore: cast_nullable_to_non_nullable
               as String?,
-      authors: authors == freezed
+      authors: freezed == authors
           ? _value.authors
           : authors // ignore: cast_nullable_to_non_nullable
               as List<String?>?,
-      subjects: subjects == freezed
+      subjects: freezed == subjects
           ? _value.subjects
           : subjects // ignore: cast_nullable_to_non_nullable
               as List<String>?,
-      reviews: reviews == freezed
+      reviews: freezed == reviews
           ? _value.reviews
           : reviews // ignore: cast_nullable_to_non_nullable
               as List<String>?,
-      prices: prices == freezed
+      prices: freezed == prices
           ? _value.prices
           : prices // ignore: cast_nullable_to_non_nullable
               as List<Merchant>?,
-      related: related == freezed
+      related: freezed == related
           ? _value.related
           : related // ignore: cast_nullable_to_non_nullable
               as List<String>?,
-    ));
+    ) as $Val);
   }
 }
 
 /// @nodoc
-abstract class _$BookCopyWith<$Res> implements $BookCopyWith<$Res> {
-  factory _$BookCopyWith(_Book value, $Res Function(_Book) then) =
-      __$BookCopyWithImpl<$Res>;
+abstract class _$$_BookCopyWith<$Res> implements $BookCopyWith<$Res> {
+  factory _$$_BookCopyWith(_$_Book value, $Res Function(_$_Book) then) =
+      __$$_BookCopyWithImpl<$Res>;
   @override
+  @useResult
   $Res call(
       {String title,
-      @JsonKey(name: 'title_long')
-          String? titleLong,
+      @JsonKey(name: 'title_long') String? titleLong,
       String isbn,
       String isbn13,
-      @JsonKey(name: 'dewey_decimal')
-          String? deweyDecimal,
+      @JsonKey(name: 'dewey_decimal') String? deweyDecimal,
       String? binding,
       String? publisher,
       String? language,
       @_DateConverter()
       @JsonKey(name: 'date_published')
-          DateTime? datePublished,
+      DateTime? datePublished,
       String? edition,
       int? pages,
       String? dimensions,
       String? overview,
       String? image,
-      @_MsrpConverter()
-          double? msrp,
+      @_MsrpConverter() double? msrp,
       String? excerpt,
       String? synopsys,
       List<String?>? authors,
@@ -923,20 +838,18 @@ abstract class _$BookCopyWith<$Res> implements $BookCopyWith<$Res> {
 }
 
 /// @nodoc
-class __$BookCopyWithImpl<$Res> extends _$BookCopyWithImpl<$Res>
-    implements _$BookCopyWith<$Res> {
-  __$BookCopyWithImpl(_Book _value, $Res Function(_Book) _then)
-      : super(_value, (v) => _then(v as _Book));
+class __$$_BookCopyWithImpl<$Res> extends _$BookCopyWithImpl<$Res, _$_Book>
+    implements _$$_BookCopyWith<$Res> {
+  __$$_BookCopyWithImpl(_$_Book _value, $Res Function(_$_Book) _then)
+      : super(_value, _then);
 
-  @override
-  _Book get _value => super._value as _Book;
-
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? title = freezed,
+    Object? title = null,
     Object? titleLong = freezed,
-    Object? isbn = freezed,
-    Object? isbn13 = freezed,
+    Object? isbn = null,
+    Object? isbn13 = null,
     Object? deweyDecimal = freezed,
     Object? binding = freezed,
     Object? publisher = freezed,
@@ -956,93 +869,93 @@ class __$BookCopyWithImpl<$Res> extends _$BookCopyWithImpl<$Res>
     Object? prices = freezed,
     Object? related = freezed,
   }) {
-    return _then(_Book(
-      title: title == freezed
+    return _then(_$_Book(
+      title: null == title
           ? _value.title
           : title // ignore: cast_nullable_to_non_nullable
               as String,
-      titleLong: titleLong == freezed
+      titleLong: freezed == titleLong
           ? _value.titleLong
           : titleLong // ignore: cast_nullable_to_non_nullable
               as String?,
-      isbn: isbn == freezed
+      isbn: null == isbn
           ? _value.isbn
           : isbn // ignore: cast_nullable_to_non_nullable
               as String,
-      isbn13: isbn13 == freezed
+      isbn13: null == isbn13
           ? _value.isbn13
           : isbn13 // ignore: cast_nullable_to_non_nullable
               as String,
-      deweyDecimal: deweyDecimal == freezed
+      deweyDecimal: freezed == deweyDecimal
           ? _value.deweyDecimal
           : deweyDecimal // ignore: cast_nullable_to_non_nullable
               as String?,
-      binding: binding == freezed
+      binding: freezed == binding
           ? _value.binding
           : binding // ignore: cast_nullable_to_non_nullable
               as String?,
-      publisher: publisher == freezed
+      publisher: freezed == publisher
           ? _value.publisher
           : publisher // ignore: cast_nullable_to_non_nullable
               as String?,
-      language: language == freezed
+      language: freezed == language
           ? _value.language
           : language // ignore: cast_nullable_to_non_nullable
               as String?,
-      datePublished: datePublished == freezed
+      datePublished: freezed == datePublished
           ? _value.datePublished
           : datePublished // ignore: cast_nullable_to_non_nullable
               as DateTime?,
-      edition: edition == freezed
+      edition: freezed == edition
           ? _value.edition
           : edition // ignore: cast_nullable_to_non_nullable
               as String?,
-      pages: pages == freezed
+      pages: freezed == pages
           ? _value.pages
           : pages // ignore: cast_nullable_to_non_nullable
               as int?,
-      dimensions: dimensions == freezed
+      dimensions: freezed == dimensions
           ? _value.dimensions
           : dimensions // ignore: cast_nullable_to_non_nullable
               as String?,
-      overview: overview == freezed
+      overview: freezed == overview
           ? _value.overview
           : overview // ignore: cast_nullable_to_non_nullable
               as String?,
-      image: image == freezed
+      image: freezed == image
           ? _value.image
           : image // ignore: cast_nullable_to_non_nullable
               as String?,
-      msrp: msrp == freezed
+      msrp: freezed == msrp
           ? _value.msrp
           : msrp // ignore: cast_nullable_to_non_nullable
               as double?,
-      excerpt: excerpt == freezed
+      excerpt: freezed == excerpt
           ? _value.excerpt
           : excerpt // ignore: cast_nullable_to_non_nullable
               as String?,
-      synopsys: synopsys == freezed
+      synopsys: freezed == synopsys
           ? _value.synopsys
           : synopsys // ignore: cast_nullable_to_non_nullable
               as String?,
-      authors: authors == freezed
-          ? _value.authors
+      authors: freezed == authors
+          ? _value._authors
           : authors // ignore: cast_nullable_to_non_nullable
               as List<String?>?,
-      subjects: subjects == freezed
-          ? _value.subjects
+      subjects: freezed == subjects
+          ? _value._subjects
           : subjects // ignore: cast_nullable_to_non_nullable
               as List<String>?,
-      reviews: reviews == freezed
-          ? _value.reviews
+      reviews: freezed == reviews
+          ? _value._reviews
           : reviews // ignore: cast_nullable_to_non_nullable
               as List<String>?,
-      prices: prices == freezed
-          ? _value.prices
+      prices: freezed == prices
+          ? _value._prices
           : prices // ignore: cast_nullable_to_non_nullable
               as List<Merchant>?,
-      related: related == freezed
-          ? _value.related
+      related: freezed == related
+          ? _value._related
           : related // ignore: cast_nullable_to_non_nullable
               as List<String>?,
     ));
@@ -1070,107 +983,156 @@ class _$_Book with DiagnosticableTreeMixin implements _Book {
       @_MsrpConverter() this.msrp,
       this.excerpt,
       this.synopsys,
-      this.authors,
-      this.subjects,
-      this.reviews,
-      this.prices,
-      this.related});
+      final List<String?>? authors,
+      final List<String>? subjects,
+      final List<String>? reviews,
+      final List<Merchant>? prices,
+      final List<String>? related})
+      : _authors = authors,
+        _subjects = subjects,
+        _reviews = reviews,
+        _prices = prices,
+        _related = related;
 
   factory _$_Book.fromJson(Map<String, dynamic> json) => _$$_BookFromJson(json);
 
-  @override
-
   /// Title of the book
-  final String title;
   @override
+  final String title;
 
   /// Long version of the title
+  @override
   @JsonKey(name: 'title_long')
   final String? titleLong;
-  @override
 
   /// ISBN of the book
-  final String isbn;
   @override
+  final String isbn;
 
   /// New 13-digit ISBN
-  final String isbn13;
   @override
+  final String isbn13;
 
   /// Not documented in the official API
+  @override
   @JsonKey(name: 'dewey_decimal')
   final String? deweyDecimal;
-  @override
 
   /// Not documented in the official API
-  final String? binding;
   @override
+  final String? binding;
 
   /// The name of the publisher
-  final String? publisher;
   @override
+  final String? publisher;
 
   /// Language of the book
-  final String? language;
   @override
+  final String? language;
 
   /// Date when the book was published. Can be a year or a full date.
+  @override
   @_DateConverter()
   @JsonKey(name: 'date_published')
   final DateTime? datePublished;
-  @override
 
   /// Details about the edition
-  final String? edition;
   @override
+  final String? edition;
 
   /// Number of pages of the book
-  final int? pages;
   @override
+  final int? pages;
 
   /// Dimensions of the book
-  final String? dimensions;
   @override
+  final String? dimensions;
 
   /// Not documented in the official API
-  final String? overview;
   @override
+  final String? overview;
 
   /// URL of the cover
-  final String? image;
   @override
+  final String? image;
 
   /// Not documented in the official API
+  @override
   @_MsrpConverter()
   final double? msrp;
-  @override
 
   /// Excerpt of the book
-  final String? excerpt;
   @override
+  final String? excerpt;
 
   /// Synopsys of the book
-  final String? synopsys;
   @override
+  final String? synopsys;
 
   /// List of the authors of the book
-  final List<String?>? authors;
+  final List<String?>? _authors;
+
+  /// List of the authors of the book
   @override
+  List<String?>? get authors {
+    final value = _authors;
+    if (value == null) return null;
+    if (_authors is EqualUnmodifiableListView) return _authors;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
 
   /// List of the subjects of the book
-  final List<String>? subjects;
+  final List<String>? _subjects;
+
+  /// List of the subjects of the book
   @override
+  List<String>? get subjects {
+    final value = _subjects;
+    if (value == null) return null;
+    if (_subjects is EqualUnmodifiableListView) return _subjects;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
 
   /// Not documented in the official API
-  final List<String>? reviews;
+  final List<String>? _reviews;
+
+  /// Not documented in the official API
   @override
+  List<String>? get reviews {
+    final value = _reviews;
+    if (value == null) return null;
+    if (_reviews is EqualUnmodifiableListView) return _reviews;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
 
   /// List of the merchants selling this book with real-time prices
-  final List<Merchant>? prices;
+  final List<Merchant>? _prices;
+
+  /// List of the merchants selling this book with real-time prices
   @override
+  List<Merchant>? get prices {
+    final value = _prices;
+    if (value == null) return null;
+    if (_prices is EqualUnmodifiableListView) return _prices;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
 
   /// Not documented in the official API
-  final List<String>? related;
+  final List<String>? _related;
+
+  /// Not documented in the official API
+  @override
+  List<String>? get related {
+    final value = _related;
+    if (value == null) return null;
+    if (_related is EqualUnmodifiableListView) return _related;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
@@ -1210,101 +1172,107 @@ class _$_Book with DiagnosticableTreeMixin implements _Book {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _Book &&
-            const DeepCollectionEquality().equals(other.title, title) &&
-            const DeepCollectionEquality().equals(other.titleLong, titleLong) &&
-            const DeepCollectionEquality().equals(other.isbn, isbn) &&
-            const DeepCollectionEquality().equals(other.isbn13, isbn13) &&
-            const DeepCollectionEquality()
-                .equals(other.deweyDecimal, deweyDecimal) &&
-            const DeepCollectionEquality().equals(other.binding, binding) &&
-            const DeepCollectionEquality().equals(other.publisher, publisher) &&
-            const DeepCollectionEquality().equals(other.language, language) &&
-            const DeepCollectionEquality()
-                .equals(other.datePublished, datePublished) &&
-            const DeepCollectionEquality().equals(other.edition, edition) &&
-            const DeepCollectionEquality().equals(other.pages, pages) &&
-            const DeepCollectionEquality()
-                .equals(other.dimensions, dimensions) &&
-            const DeepCollectionEquality().equals(other.overview, overview) &&
-            const DeepCollectionEquality().equals(other.image, image) &&
-            const DeepCollectionEquality().equals(other.msrp, msrp) &&
-            const DeepCollectionEquality().equals(other.excerpt, excerpt) &&
-            const DeepCollectionEquality().equals(other.synopsys, synopsys) &&
-            const DeepCollectionEquality().equals(other.authors, authors) &&
-            const DeepCollectionEquality().equals(other.subjects, subjects) &&
-            const DeepCollectionEquality().equals(other.reviews, reviews) &&
-            const DeepCollectionEquality().equals(other.prices, prices) &&
-            const DeepCollectionEquality().equals(other.related, related));
+            other is _$_Book &&
+            (identical(other.title, title) || other.title == title) &&
+            (identical(other.titleLong, titleLong) ||
+                other.titleLong == titleLong) &&
+            (identical(other.isbn, isbn) || other.isbn == isbn) &&
+            (identical(other.isbn13, isbn13) || other.isbn13 == isbn13) &&
+            (identical(other.deweyDecimal, deweyDecimal) ||
+                other.deweyDecimal == deweyDecimal) &&
+            (identical(other.binding, binding) || other.binding == binding) &&
+            (identical(other.publisher, publisher) ||
+                other.publisher == publisher) &&
+            (identical(other.language, language) ||
+                other.language == language) &&
+            (identical(other.datePublished, datePublished) ||
+                other.datePublished == datePublished) &&
+            (identical(other.edition, edition) || other.edition == edition) &&
+            (identical(other.pages, pages) || other.pages == pages) &&
+            (identical(other.dimensions, dimensions) ||
+                other.dimensions == dimensions) &&
+            (identical(other.overview, overview) ||
+                other.overview == overview) &&
+            (identical(other.image, image) || other.image == image) &&
+            (identical(other.msrp, msrp) || other.msrp == msrp) &&
+            (identical(other.excerpt, excerpt) || other.excerpt == excerpt) &&
+            (identical(other.synopsys, synopsys) ||
+                other.synopsys == synopsys) &&
+            const DeepCollectionEquality().equals(other._authors, _authors) &&
+            const DeepCollectionEquality().equals(other._subjects, _subjects) &&
+            const DeepCollectionEquality().equals(other._reviews, _reviews) &&
+            const DeepCollectionEquality().equals(other._prices, _prices) &&
+            const DeepCollectionEquality().equals(other._related, _related));
   }
 
+  @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hashAll([
         runtimeType,
-        const DeepCollectionEquality().hash(title),
-        const DeepCollectionEquality().hash(titleLong),
-        const DeepCollectionEquality().hash(isbn),
-        const DeepCollectionEquality().hash(isbn13),
-        const DeepCollectionEquality().hash(deweyDecimal),
-        const DeepCollectionEquality().hash(binding),
-        const DeepCollectionEquality().hash(publisher),
-        const DeepCollectionEquality().hash(language),
-        const DeepCollectionEquality().hash(datePublished),
-        const DeepCollectionEquality().hash(edition),
-        const DeepCollectionEquality().hash(pages),
-        const DeepCollectionEquality().hash(dimensions),
-        const DeepCollectionEquality().hash(overview),
-        const DeepCollectionEquality().hash(image),
-        const DeepCollectionEquality().hash(msrp),
-        const DeepCollectionEquality().hash(excerpt),
-        const DeepCollectionEquality().hash(synopsys),
-        const DeepCollectionEquality().hash(authors),
-        const DeepCollectionEquality().hash(subjects),
-        const DeepCollectionEquality().hash(reviews),
-        const DeepCollectionEquality().hash(prices),
-        const DeepCollectionEquality().hash(related)
+        title,
+        titleLong,
+        isbn,
+        isbn13,
+        deweyDecimal,
+        binding,
+        publisher,
+        language,
+        datePublished,
+        edition,
+        pages,
+        dimensions,
+        overview,
+        image,
+        msrp,
+        excerpt,
+        synopsys,
+        const DeepCollectionEquality().hash(_authors),
+        const DeepCollectionEquality().hash(_subjects),
+        const DeepCollectionEquality().hash(_reviews),
+        const DeepCollectionEquality().hash(_prices),
+        const DeepCollectionEquality().hash(_related)
       ]);
 
   @JsonKey(ignore: true)
   @override
-  _$BookCopyWith<_Book> get copyWith =>
-      __$BookCopyWithImpl<_Book>(this, _$identity);
+  @pragma('vm:prefer-inline')
+  _$$_BookCopyWith<_$_Book> get copyWith =>
+      __$$_BookCopyWithImpl<_$_Book>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_BookToJson(this);
+    return _$$_BookToJson(
+      this,
+    );
   }
 }
 
 abstract class _Book implements Book {
   factory _Book(
-      {required String title,
-      @JsonKey(name: 'title_long')
-          String? titleLong,
-      required String isbn,
-      required String isbn13,
-      @JsonKey(name: 'dewey_decimal')
-          String? deweyDecimal,
-      String? binding,
-      String? publisher,
-      String? language,
+      {required final String title,
+      @JsonKey(name: 'title_long') final String? titleLong,
+      required final String isbn,
+      required final String isbn13,
+      @JsonKey(name: 'dewey_decimal') final String? deweyDecimal,
+      final String? binding,
+      final String? publisher,
+      final String? language,
       @_DateConverter()
       @JsonKey(name: 'date_published')
-          DateTime? datePublished,
-      String? edition,
-      int? pages,
-      String? dimensions,
-      String? overview,
-      String? image,
-      @_MsrpConverter()
-          double? msrp,
-      String? excerpt,
-      String? synopsys,
-      List<String?>? authors,
-      List<String>? subjects,
-      List<String>? reviews,
-      List<Merchant>? prices,
-      List<String>? related}) = _$_Book;
+      final DateTime? datePublished,
+      final String? edition,
+      final int? pages,
+      final String? dimensions,
+      final String? overview,
+      final String? image,
+      @_MsrpConverter() final double? msrp,
+      final String? excerpt,
+      final String? synopsys,
+      final List<String?>? authors,
+      final List<String>? subjects,
+      final List<String>? reviews,
+      final List<Merchant>? prices,
+      final List<String>? related}) = _$_Book;
 
   factory _Book.fromJson(Map<String, dynamic> json) = _$_Book.fromJson;
 
@@ -1403,47 +1371,12 @@ abstract class _Book implements Book {
   List<String>? get related;
   @override
   @JsonKey(ignore: true)
-  _$BookCopyWith<_Book> get copyWith => throw _privateConstructorUsedError;
+  _$$_BookCopyWith<_$_Book> get copyWith => throw _privateConstructorUsedError;
 }
 
 Merchant _$MerchantFromJson(Map<String, dynamic> json) {
   return _Merchant.fromJson(json);
 }
-
-/// @nodoc
-class _$MerchantTearOff {
-  const _$MerchantTearOff();
-
-  _Merchant call(
-      {required String condition,
-      required String merchant,
-      @JsonKey(name: 'merchant_logo')
-          required String merchantLogo,
-      @JsonKey(name: 'merchant_logo_offset')
-          required Map<dynamic, dynamic> merchantLogoOffset,
-      required String shipping,
-      required String price,
-      required String total,
-      required String link}) {
-    return _Merchant(
-      condition: condition,
-      merchant: merchant,
-      merchantLogo: merchantLogo,
-      merchantLogoOffset: merchantLogoOffset,
-      shipping: shipping,
-      price: price,
-      total: total,
-      link: link,
-    );
-  }
-
-  Merchant fromJson(Map<String, Object?> json) {
-    return Merchant.fromJson(json);
-  }
-}
-
-/// @nodoc
-const $Merchant = _$MerchantTearOff();
 
 /// @nodoc
 mixin _$Merchant {
@@ -1483,14 +1416,14 @@ mixin _$Merchant {
 /// @nodoc
 abstract class $MerchantCopyWith<$Res> {
   factory $MerchantCopyWith(Merchant value, $Res Function(Merchant) then) =
-      _$MerchantCopyWithImpl<$Res>;
+      _$MerchantCopyWithImpl<$Res, Merchant>;
+  @useResult
   $Res call(
       {String condition,
       String merchant,
-      @JsonKey(name: 'merchant_logo')
-          String merchantLogo,
+      @JsonKey(name: 'merchant_logo') String merchantLogo,
       @JsonKey(name: 'merchant_logo_offset')
-          Map<dynamic, dynamic> merchantLogoOffset,
+      Map<dynamic, dynamic> merchantLogoOffset,
       String shipping,
       String price,
       String total,
@@ -1498,73 +1431,77 @@ abstract class $MerchantCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$MerchantCopyWithImpl<$Res> implements $MerchantCopyWith<$Res> {
+class _$MerchantCopyWithImpl<$Res, $Val extends Merchant>
+    implements $MerchantCopyWith<$Res> {
   _$MerchantCopyWithImpl(this._value, this._then);
 
-  final Merchant _value;
   // ignore: unused_field
-  final $Res Function(Merchant) _then;
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
 
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? condition = freezed,
-    Object? merchant = freezed,
-    Object? merchantLogo = freezed,
-    Object? merchantLogoOffset = freezed,
-    Object? shipping = freezed,
-    Object? price = freezed,
-    Object? total = freezed,
-    Object? link = freezed,
+    Object? condition = null,
+    Object? merchant = null,
+    Object? merchantLogo = null,
+    Object? merchantLogoOffset = null,
+    Object? shipping = null,
+    Object? price = null,
+    Object? total = null,
+    Object? link = null,
   }) {
     return _then(_value.copyWith(
-      condition: condition == freezed
+      condition: null == condition
           ? _value.condition
           : condition // ignore: cast_nullable_to_non_nullable
               as String,
-      merchant: merchant == freezed
+      merchant: null == merchant
           ? _value.merchant
           : merchant // ignore: cast_nullable_to_non_nullable
               as String,
-      merchantLogo: merchantLogo == freezed
+      merchantLogo: null == merchantLogo
           ? _value.merchantLogo
           : merchantLogo // ignore: cast_nullable_to_non_nullable
               as String,
-      merchantLogoOffset: merchantLogoOffset == freezed
+      merchantLogoOffset: null == merchantLogoOffset
           ? _value.merchantLogoOffset
           : merchantLogoOffset // ignore: cast_nullable_to_non_nullable
               as Map<dynamic, dynamic>,
-      shipping: shipping == freezed
+      shipping: null == shipping
           ? _value.shipping
           : shipping // ignore: cast_nullable_to_non_nullable
               as String,
-      price: price == freezed
+      price: null == price
           ? _value.price
           : price // ignore: cast_nullable_to_non_nullable
               as String,
-      total: total == freezed
+      total: null == total
           ? _value.total
           : total // ignore: cast_nullable_to_non_nullable
               as String,
-      link: link == freezed
+      link: null == link
           ? _value.link
           : link // ignore: cast_nullable_to_non_nullable
               as String,
-    ));
+    ) as $Val);
   }
 }
 
 /// @nodoc
-abstract class _$MerchantCopyWith<$Res> implements $MerchantCopyWith<$Res> {
-  factory _$MerchantCopyWith(_Merchant value, $Res Function(_Merchant) then) =
-      __$MerchantCopyWithImpl<$Res>;
+abstract class _$$_MerchantCopyWith<$Res> implements $MerchantCopyWith<$Res> {
+  factory _$$_MerchantCopyWith(
+          _$_Merchant value, $Res Function(_$_Merchant) then) =
+      __$$_MerchantCopyWithImpl<$Res>;
   @override
+  @useResult
   $Res call(
       {String condition,
       String merchant,
-      @JsonKey(name: 'merchant_logo')
-          String merchantLogo,
+      @JsonKey(name: 'merchant_logo') String merchantLogo,
       @JsonKey(name: 'merchant_logo_offset')
-          Map<dynamic, dynamic> merchantLogoOffset,
+      Map<dynamic, dynamic> merchantLogoOffset,
       String shipping,
       String price,
       String total,
@@ -1572,55 +1509,55 @@ abstract class _$MerchantCopyWith<$Res> implements $MerchantCopyWith<$Res> {
 }
 
 /// @nodoc
-class __$MerchantCopyWithImpl<$Res> extends _$MerchantCopyWithImpl<$Res>
-    implements _$MerchantCopyWith<$Res> {
-  __$MerchantCopyWithImpl(_Merchant _value, $Res Function(_Merchant) _then)
-      : super(_value, (v) => _then(v as _Merchant));
+class __$$_MerchantCopyWithImpl<$Res>
+    extends _$MerchantCopyWithImpl<$Res, _$_Merchant>
+    implements _$$_MerchantCopyWith<$Res> {
+  __$$_MerchantCopyWithImpl(
+      _$_Merchant _value, $Res Function(_$_Merchant) _then)
+      : super(_value, _then);
 
-  @override
-  _Merchant get _value => super._value as _Merchant;
-
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? condition = freezed,
-    Object? merchant = freezed,
-    Object? merchantLogo = freezed,
-    Object? merchantLogoOffset = freezed,
-    Object? shipping = freezed,
-    Object? price = freezed,
-    Object? total = freezed,
-    Object? link = freezed,
+    Object? condition = null,
+    Object? merchant = null,
+    Object? merchantLogo = null,
+    Object? merchantLogoOffset = null,
+    Object? shipping = null,
+    Object? price = null,
+    Object? total = null,
+    Object? link = null,
   }) {
-    return _then(_Merchant(
-      condition: condition == freezed
+    return _then(_$_Merchant(
+      condition: null == condition
           ? _value.condition
           : condition // ignore: cast_nullable_to_non_nullable
               as String,
-      merchant: merchant == freezed
+      merchant: null == merchant
           ? _value.merchant
           : merchant // ignore: cast_nullable_to_non_nullable
               as String,
-      merchantLogo: merchantLogo == freezed
+      merchantLogo: null == merchantLogo
           ? _value.merchantLogo
           : merchantLogo // ignore: cast_nullable_to_non_nullable
               as String,
-      merchantLogoOffset: merchantLogoOffset == freezed
-          ? _value.merchantLogoOffset
+      merchantLogoOffset: null == merchantLogoOffset
+          ? _value._merchantLogoOffset
           : merchantLogoOffset // ignore: cast_nullable_to_non_nullable
               as Map<dynamic, dynamic>,
-      shipping: shipping == freezed
+      shipping: null == shipping
           ? _value.shipping
           : shipping // ignore: cast_nullable_to_non_nullable
               as String,
-      price: price == freezed
+      price: null == price
           ? _value.price
           : price // ignore: cast_nullable_to_non_nullable
               as String,
-      total: total == freezed
+      total: null == total
           ? _value.total
           : total // ignore: cast_nullable_to_non_nullable
               as String,
-      link: link == freezed
+      link: null == link
           ? _value.link
           : link // ignore: cast_nullable_to_non_nullable
               as String,
@@ -1635,48 +1572,57 @@ class _$_Merchant with DiagnosticableTreeMixin implements _Merchant {
       {required this.condition,
       required this.merchant,
       @JsonKey(name: 'merchant_logo') required this.merchantLogo,
-      @JsonKey(name: 'merchant_logo_offset') required this.merchantLogoOffset,
+      @JsonKey(name: 'merchant_logo_offset')
+      required final Map<dynamic, dynamic> merchantLogoOffset,
       required this.shipping,
       required this.price,
       required this.total,
-      required this.link});
+      required this.link})
+      : _merchantLogoOffset = merchantLogoOffset;
 
   factory _$_Merchant.fromJson(Map<String, dynamic> json) =>
       _$$_MerchantFromJson(json);
 
-  @override
-
   /// Not documented in the official API
-  final String condition;
   @override
+  final String condition;
 
   /// Name of the seller of the book
-  final String merchant;
   @override
+  final String merchant;
 
   /// URL of the merchant logo
+  @override
   @JsonKey(name: 'merchant_logo')
   final String merchantLogo;
-  @override
 
   /// Not documented in the official API
-  @JsonKey(name: 'merchant_logo_offset')
-  final Map<dynamic, dynamic> merchantLogoOffset;
+  final Map<dynamic, dynamic> _merchantLogoOffset;
+
+  /// Not documented in the official API
   @override
+  @JsonKey(name: 'merchant_logo_offset')
+  Map<dynamic, dynamic> get merchantLogoOffset {
+    if (_merchantLogoOffset is EqualUnmodifiableMapView)
+      return _merchantLogoOffset;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_merchantLogoOffset);
+  }
 
   /// Shipping cost
-  final String shipping;
   @override
+  final String shipping;
 
   /// Price of the book
-  final String price;
   @override
+  final String price;
 
   /// Not documented in the official API
-  final String total;
   @override
+  final String total;
 
   /// Link to the purchase url
+  @override
   final String link;
 
   @override
@@ -1703,54 +1649,60 @@ class _$_Merchant with DiagnosticableTreeMixin implements _Merchant {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _Merchant &&
-            const DeepCollectionEquality().equals(other.condition, condition) &&
-            const DeepCollectionEquality().equals(other.merchant, merchant) &&
+            other is _$_Merchant &&
+            (identical(other.condition, condition) ||
+                other.condition == condition) &&
+            (identical(other.merchant, merchant) ||
+                other.merchant == merchant) &&
+            (identical(other.merchantLogo, merchantLogo) ||
+                other.merchantLogo == merchantLogo) &&
             const DeepCollectionEquality()
-                .equals(other.merchantLogo, merchantLogo) &&
-            const DeepCollectionEquality()
-                .equals(other.merchantLogoOffset, merchantLogoOffset) &&
-            const DeepCollectionEquality().equals(other.shipping, shipping) &&
-            const DeepCollectionEquality().equals(other.price, price) &&
-            const DeepCollectionEquality().equals(other.total, total) &&
-            const DeepCollectionEquality().equals(other.link, link));
+                .equals(other._merchantLogoOffset, _merchantLogoOffset) &&
+            (identical(other.shipping, shipping) ||
+                other.shipping == shipping) &&
+            (identical(other.price, price) || other.price == price) &&
+            (identical(other.total, total) || other.total == total) &&
+            (identical(other.link, link) || other.link == link));
   }
-
-  @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      const DeepCollectionEquality().hash(condition),
-      const DeepCollectionEquality().hash(merchant),
-      const DeepCollectionEquality().hash(merchantLogo),
-      const DeepCollectionEquality().hash(merchantLogoOffset),
-      const DeepCollectionEquality().hash(shipping),
-      const DeepCollectionEquality().hash(price),
-      const DeepCollectionEquality().hash(total),
-      const DeepCollectionEquality().hash(link));
 
   @JsonKey(ignore: true)
   @override
-  _$MerchantCopyWith<_Merchant> get copyWith =>
-      __$MerchantCopyWithImpl<_Merchant>(this, _$identity);
+  int get hashCode => Object.hash(
+      runtimeType,
+      condition,
+      merchant,
+      merchantLogo,
+      const DeepCollectionEquality().hash(_merchantLogoOffset),
+      shipping,
+      price,
+      total,
+      link);
+
+  @JsonKey(ignore: true)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$_MerchantCopyWith<_$_Merchant> get copyWith =>
+      __$$_MerchantCopyWithImpl<_$_Merchant>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_MerchantToJson(this);
+    return _$$_MerchantToJson(
+      this,
+    );
   }
 }
 
 abstract class _Merchant implements Merchant {
   factory _Merchant(
-      {required String condition,
-      required String merchant,
-      @JsonKey(name: 'merchant_logo')
-          required String merchantLogo,
+      {required final String condition,
+      required final String merchant,
+      @JsonKey(name: 'merchant_logo') required final String merchantLogo,
       @JsonKey(name: 'merchant_logo_offset')
-          required Map<dynamic, dynamic> merchantLogoOffset,
-      required String shipping,
-      required String price,
-      required String total,
-      required String link}) = _$_Merchant;
+      required final Map<dynamic, dynamic> merchantLogoOffset,
+      required final String shipping,
+      required final String price,
+      required final String total,
+      required final String link}) = _$_Merchant;
 
   factory _Merchant.fromJson(Map<String, dynamic> json) = _$_Merchant.fromJson;
 
@@ -1790,33 +1742,13 @@ abstract class _Merchant implements Merchant {
   String get link;
   @override
   @JsonKey(ignore: true)
-  _$MerchantCopyWith<_Merchant> get copyWith =>
+  _$$_MerchantCopyWith<_$_Merchant> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 PublisherQueryResult _$PublisherQueryResultFromJson(Map<String, dynamic> json) {
   return _PublisherQueryResult.fromJson(json);
 }
-
-/// @nodoc
-class _$PublisherQueryResultTearOff {
-  const _$PublisherQueryResultTearOff();
-
-  _PublisherQueryResult call(
-      {required int total, List<String> publishers = const []}) {
-    return _PublisherQueryResult(
-      total: total,
-      publishers: publishers,
-    );
-  }
-
-  PublisherQueryResult fromJson(Map<String, Object?> json) {
-    return PublisherQueryResult.fromJson(json);
-  }
-}
-
-/// @nodoc
-const $PublisherQueryResult = _$PublisherQueryResultTearOff();
 
 /// @nodoc
 mixin _$PublisherQueryResult {
@@ -1836,70 +1768,73 @@ mixin _$PublisherQueryResult {
 abstract class $PublisherQueryResultCopyWith<$Res> {
   factory $PublisherQueryResultCopyWith(PublisherQueryResult value,
           $Res Function(PublisherQueryResult) then) =
-      _$PublisherQueryResultCopyWithImpl<$Res>;
+      _$PublisherQueryResultCopyWithImpl<$Res, PublisherQueryResult>;
+  @useResult
   $Res call({int total, List<String> publishers});
 }
 
 /// @nodoc
-class _$PublisherQueryResultCopyWithImpl<$Res>
+class _$PublisherQueryResultCopyWithImpl<$Res,
+        $Val extends PublisherQueryResult>
     implements $PublisherQueryResultCopyWith<$Res> {
   _$PublisherQueryResultCopyWithImpl(this._value, this._then);
 
-  final PublisherQueryResult _value;
   // ignore: unused_field
-  final $Res Function(PublisherQueryResult) _then;
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
 
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? total = freezed,
-    Object? publishers = freezed,
+    Object? total = null,
+    Object? publishers = null,
   }) {
     return _then(_value.copyWith(
-      total: total == freezed
+      total: null == total
           ? _value.total
           : total // ignore: cast_nullable_to_non_nullable
               as int,
-      publishers: publishers == freezed
+      publishers: null == publishers
           ? _value.publishers
           : publishers // ignore: cast_nullable_to_non_nullable
               as List<String>,
-    ));
+    ) as $Val);
   }
 }
 
 /// @nodoc
-abstract class _$PublisherQueryResultCopyWith<$Res>
+abstract class _$$_PublisherQueryResultCopyWith<$Res>
     implements $PublisherQueryResultCopyWith<$Res> {
-  factory _$PublisherQueryResultCopyWith(_PublisherQueryResult value,
-          $Res Function(_PublisherQueryResult) then) =
-      __$PublisherQueryResultCopyWithImpl<$Res>;
+  factory _$$_PublisherQueryResultCopyWith(_$_PublisherQueryResult value,
+          $Res Function(_$_PublisherQueryResult) then) =
+      __$$_PublisherQueryResultCopyWithImpl<$Res>;
   @override
+  @useResult
   $Res call({int total, List<String> publishers});
 }
 
 /// @nodoc
-class __$PublisherQueryResultCopyWithImpl<$Res>
-    extends _$PublisherQueryResultCopyWithImpl<$Res>
-    implements _$PublisherQueryResultCopyWith<$Res> {
-  __$PublisherQueryResultCopyWithImpl(
-      _PublisherQueryResult _value, $Res Function(_PublisherQueryResult) _then)
-      : super(_value, (v) => _then(v as _PublisherQueryResult));
+class __$$_PublisherQueryResultCopyWithImpl<$Res>
+    extends _$PublisherQueryResultCopyWithImpl<$Res, _$_PublisherQueryResult>
+    implements _$$_PublisherQueryResultCopyWith<$Res> {
+  __$$_PublisherQueryResultCopyWithImpl(_$_PublisherQueryResult _value,
+      $Res Function(_$_PublisherQueryResult) _then)
+      : super(_value, _then);
 
-  @override
-  _PublisherQueryResult get _value => super._value as _PublisherQueryResult;
-
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? total = freezed,
-    Object? publishers = freezed,
+    Object? total = null,
+    Object? publishers = null,
   }) {
-    return _then(_PublisherQueryResult(
-      total: total == freezed
+    return _then(_$_PublisherQueryResult(
+      total: null == total
           ? _value.total
           : total // ignore: cast_nullable_to_non_nullable
               as int,
-      publishers: publishers == freezed
-          ? _value.publishers
+      publishers: null == publishers
+          ? _value._publishers
           : publishers // ignore: cast_nullable_to_non_nullable
               as List<String>,
     ));
@@ -1911,20 +1846,28 @@ class __$PublisherQueryResultCopyWithImpl<$Res>
 class _$_PublisherQueryResult
     with DiagnosticableTreeMixin
     implements _PublisherQueryResult {
-  _$_PublisherQueryResult({required this.total, this.publishers = const []});
+  _$_PublisherQueryResult(
+      {required this.total, final List<String> publishers = const []})
+      : _publishers = publishers;
 
   factory _$_PublisherQueryResult.fromJson(Map<String, dynamic> json) =>
       _$$_PublisherQueryResultFromJson(json);
 
-  @override
-
   /// The number of results for this query
-  final int total;
-  @JsonKey()
   @override
+  final int total;
 
   /// The list of the publishers matching the query
-  final List<String> publishers;
+  final List<String> _publishers;
+
+  /// The list of the publishers matching the query
+  @override
+  @JsonKey()
+  List<String> get publishers {
+    if (_publishers is EqualUnmodifiableListView) return _publishers;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_publishers);
+  }
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
@@ -1944,33 +1887,36 @@ class _$_PublisherQueryResult
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _PublisherQueryResult &&
-            const DeepCollectionEquality().equals(other.total, total) &&
+            other is _$_PublisherQueryResult &&
+            (identical(other.total, total) || other.total == total) &&
             const DeepCollectionEquality()
-                .equals(other.publishers, publishers));
+                .equals(other._publishers, _publishers));
   }
-
-  @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      const DeepCollectionEquality().hash(total),
-      const DeepCollectionEquality().hash(publishers));
 
   @JsonKey(ignore: true)
   @override
-  _$PublisherQueryResultCopyWith<_PublisherQueryResult> get copyWith =>
-      __$PublisherQueryResultCopyWithImpl<_PublisherQueryResult>(
+  int get hashCode => Object.hash(
+      runtimeType, total, const DeepCollectionEquality().hash(_publishers));
+
+  @JsonKey(ignore: true)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$_PublisherQueryResultCopyWith<_$_PublisherQueryResult> get copyWith =>
+      __$$_PublisherQueryResultCopyWithImpl<_$_PublisherQueryResult>(
           this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_PublisherQueryResultToJson(this);
+    return _$$_PublisherQueryResultToJson(
+      this,
+    );
   }
 }
 
 abstract class _PublisherQueryResult implements PublisherQueryResult {
-  factory _PublisherQueryResult({required int total, List<String> publishers}) =
-      _$_PublisherQueryResult;
+  factory _PublisherQueryResult(
+      {required final int total,
+      final List<String> publishers}) = _$_PublisherQueryResult;
 
   factory _PublisherQueryResult.fromJson(Map<String, dynamic> json) =
       _$_PublisherQueryResult.fromJson;
@@ -1985,32 +1931,13 @@ abstract class _PublisherQueryResult implements PublisherQueryResult {
   List<String> get publishers;
   @override
   @JsonKey(ignore: true)
-  _$PublisherQueryResultCopyWith<_PublisherQueryResult> get copyWith =>
+  _$$_PublisherQueryResultCopyWith<_$_PublisherQueryResult> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 Publisher _$PublisherFromJson(Map<String, dynamic> json) {
   return _Publisher.fromJson(json);
 }
-
-/// @nodoc
-class _$PublisherTearOff {
-  const _$PublisherTearOff();
-
-  _Publisher call({required String name, List<Book> books = const []}) {
-    return _Publisher(
-      name: name,
-      books: books,
-    );
-  }
-
-  Publisher fromJson(Map<String, Object?> json) {
-    return Publisher.fromJson(json);
-  }
-}
-
-/// @nodoc
-const $Publisher = _$PublisherTearOff();
 
 /// @nodoc
 mixin _$Publisher {
@@ -2029,66 +1956,71 @@ mixin _$Publisher {
 /// @nodoc
 abstract class $PublisherCopyWith<$Res> {
   factory $PublisherCopyWith(Publisher value, $Res Function(Publisher) then) =
-      _$PublisherCopyWithImpl<$Res>;
+      _$PublisherCopyWithImpl<$Res, Publisher>;
+  @useResult
   $Res call({String name, List<Book> books});
 }
 
 /// @nodoc
-class _$PublisherCopyWithImpl<$Res> implements $PublisherCopyWith<$Res> {
+class _$PublisherCopyWithImpl<$Res, $Val extends Publisher>
+    implements $PublisherCopyWith<$Res> {
   _$PublisherCopyWithImpl(this._value, this._then);
 
-  final Publisher _value;
   // ignore: unused_field
-  final $Res Function(Publisher) _then;
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
 
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? name = freezed,
-    Object? books = freezed,
+    Object? name = null,
+    Object? books = null,
   }) {
     return _then(_value.copyWith(
-      name: name == freezed
+      name: null == name
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
               as String,
-      books: books == freezed
+      books: null == books
           ? _value.books
           : books // ignore: cast_nullable_to_non_nullable
               as List<Book>,
-    ));
+    ) as $Val);
   }
 }
 
 /// @nodoc
-abstract class _$PublisherCopyWith<$Res> implements $PublisherCopyWith<$Res> {
-  factory _$PublisherCopyWith(
-          _Publisher value, $Res Function(_Publisher) then) =
-      __$PublisherCopyWithImpl<$Res>;
+abstract class _$$_PublisherCopyWith<$Res> implements $PublisherCopyWith<$Res> {
+  factory _$$_PublisherCopyWith(
+          _$_Publisher value, $Res Function(_$_Publisher) then) =
+      __$$_PublisherCopyWithImpl<$Res>;
   @override
+  @useResult
   $Res call({String name, List<Book> books});
 }
 
 /// @nodoc
-class __$PublisherCopyWithImpl<$Res> extends _$PublisherCopyWithImpl<$Res>
-    implements _$PublisherCopyWith<$Res> {
-  __$PublisherCopyWithImpl(_Publisher _value, $Res Function(_Publisher) _then)
-      : super(_value, (v) => _then(v as _Publisher));
+class __$$_PublisherCopyWithImpl<$Res>
+    extends _$PublisherCopyWithImpl<$Res, _$_Publisher>
+    implements _$$_PublisherCopyWith<$Res> {
+  __$$_PublisherCopyWithImpl(
+      _$_Publisher _value, $Res Function(_$_Publisher) _then)
+      : super(_value, _then);
 
-  @override
-  _Publisher get _value => super._value as _Publisher;
-
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? name = freezed,
-    Object? books = freezed,
+    Object? name = null,
+    Object? books = null,
   }) {
-    return _then(_Publisher(
-      name: name == freezed
+    return _then(_$_Publisher(
+      name: null == name
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
               as String,
-      books: books == freezed
-          ? _value.books
+      books: null == books
+          ? _value._books
           : books // ignore: cast_nullable_to_non_nullable
               as List<Book>,
     ));
@@ -2098,20 +2030,27 @@ class __$PublisherCopyWithImpl<$Res> extends _$PublisherCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$_Publisher with DiagnosticableTreeMixin implements _Publisher {
-  _$_Publisher({required this.name, this.books = const []});
+  _$_Publisher({required this.name, final List<Book> books = const []})
+      : _books = books;
 
   factory _$_Publisher.fromJson(Map<String, dynamic> json) =>
       _$$_PublisherFromJson(json);
 
-  @override
-
   /// The name of this publisher
-  final String name;
-  @JsonKey()
   @override
+  final String name;
 
   /// The list of the books this publisher published
-  final List<Book> books;
+  final List<Book> _books;
+
+  /// The list of the books this publisher published
+  @override
+  @JsonKey()
+  List<Book> get books {
+    if (_books is EqualUnmodifiableListView) return _books;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_books);
+  }
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
@@ -2131,30 +2070,33 @@ class _$_Publisher with DiagnosticableTreeMixin implements _Publisher {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _Publisher &&
-            const DeepCollectionEquality().equals(other.name, name) &&
-            const DeepCollectionEquality().equals(other.books, books));
+            other is _$_Publisher &&
+            (identical(other.name, name) || other.name == name) &&
+            const DeepCollectionEquality().equals(other._books, _books));
   }
-
-  @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      const DeepCollectionEquality().hash(name),
-      const DeepCollectionEquality().hash(books));
 
   @JsonKey(ignore: true)
   @override
-  _$PublisherCopyWith<_Publisher> get copyWith =>
-      __$PublisherCopyWithImpl<_Publisher>(this, _$identity);
+  int get hashCode => Object.hash(
+      runtimeType, name, const DeepCollectionEquality().hash(_books));
+
+  @JsonKey(ignore: true)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$_PublisherCopyWith<_$_Publisher> get copyWith =>
+      __$$_PublisherCopyWithImpl<_$_Publisher>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_PublisherToJson(this);
+    return _$$_PublisherToJson(
+      this,
+    );
   }
 }
 
 abstract class _Publisher implements Publisher {
-  factory _Publisher({required String name, List<Book> books}) = _$_Publisher;
+  factory _Publisher({required final String name, final List<Book> books}) =
+      _$_Publisher;
 
   factory _Publisher.fromJson(Map<String, dynamic> json) =
       _$_Publisher.fromJson;
@@ -2169,33 +2111,13 @@ abstract class _Publisher implements Publisher {
   List<Book> get books;
   @override
   @JsonKey(ignore: true)
-  _$PublisherCopyWith<_Publisher> get copyWith =>
+  _$$_PublisherCopyWith<_$_Publisher> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 SubjectQueryResult _$SubjectQueryResultFromJson(Map<String, dynamic> json) {
   return _SubjectQueryResult.fromJson(json);
 }
-
-/// @nodoc
-class _$SubjectQueryResultTearOff {
-  const _$SubjectQueryResultTearOff();
-
-  _SubjectQueryResult call(
-      {required int total, List<String> subjects = const []}) {
-    return _SubjectQueryResult(
-      total: total,
-      subjects: subjects,
-    );
-  }
-
-  SubjectQueryResult fromJson(Map<String, Object?> json) {
-    return SubjectQueryResult.fromJson(json);
-  }
-}
-
-/// @nodoc
-const $SubjectQueryResult = _$SubjectQueryResultTearOff();
 
 /// @nodoc
 mixin _$SubjectQueryResult {
@@ -2215,70 +2137,72 @@ mixin _$SubjectQueryResult {
 abstract class $SubjectQueryResultCopyWith<$Res> {
   factory $SubjectQueryResultCopyWith(
           SubjectQueryResult value, $Res Function(SubjectQueryResult) then) =
-      _$SubjectQueryResultCopyWithImpl<$Res>;
+      _$SubjectQueryResultCopyWithImpl<$Res, SubjectQueryResult>;
+  @useResult
   $Res call({int total, List<String> subjects});
 }
 
 /// @nodoc
-class _$SubjectQueryResultCopyWithImpl<$Res>
+class _$SubjectQueryResultCopyWithImpl<$Res, $Val extends SubjectQueryResult>
     implements $SubjectQueryResultCopyWith<$Res> {
   _$SubjectQueryResultCopyWithImpl(this._value, this._then);
 
-  final SubjectQueryResult _value;
   // ignore: unused_field
-  final $Res Function(SubjectQueryResult) _then;
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
 
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? total = freezed,
-    Object? subjects = freezed,
+    Object? total = null,
+    Object? subjects = null,
   }) {
     return _then(_value.copyWith(
-      total: total == freezed
+      total: null == total
           ? _value.total
           : total // ignore: cast_nullable_to_non_nullable
               as int,
-      subjects: subjects == freezed
+      subjects: null == subjects
           ? _value.subjects
           : subjects // ignore: cast_nullable_to_non_nullable
               as List<String>,
-    ));
+    ) as $Val);
   }
 }
 
 /// @nodoc
-abstract class _$SubjectQueryResultCopyWith<$Res>
+abstract class _$$_SubjectQueryResultCopyWith<$Res>
     implements $SubjectQueryResultCopyWith<$Res> {
-  factory _$SubjectQueryResultCopyWith(
-          _SubjectQueryResult value, $Res Function(_SubjectQueryResult) then) =
-      __$SubjectQueryResultCopyWithImpl<$Res>;
+  factory _$$_SubjectQueryResultCopyWith(_$_SubjectQueryResult value,
+          $Res Function(_$_SubjectQueryResult) then) =
+      __$$_SubjectQueryResultCopyWithImpl<$Res>;
   @override
+  @useResult
   $Res call({int total, List<String> subjects});
 }
 
 /// @nodoc
-class __$SubjectQueryResultCopyWithImpl<$Res>
-    extends _$SubjectQueryResultCopyWithImpl<$Res>
-    implements _$SubjectQueryResultCopyWith<$Res> {
-  __$SubjectQueryResultCopyWithImpl(
-      _SubjectQueryResult _value, $Res Function(_SubjectQueryResult) _then)
-      : super(_value, (v) => _then(v as _SubjectQueryResult));
+class __$$_SubjectQueryResultCopyWithImpl<$Res>
+    extends _$SubjectQueryResultCopyWithImpl<$Res, _$_SubjectQueryResult>
+    implements _$$_SubjectQueryResultCopyWith<$Res> {
+  __$$_SubjectQueryResultCopyWithImpl(
+      _$_SubjectQueryResult _value, $Res Function(_$_SubjectQueryResult) _then)
+      : super(_value, _then);
 
-  @override
-  _SubjectQueryResult get _value => super._value as _SubjectQueryResult;
-
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? total = freezed,
-    Object? subjects = freezed,
+    Object? total = null,
+    Object? subjects = null,
   }) {
-    return _then(_SubjectQueryResult(
-      total: total == freezed
+    return _then(_$_SubjectQueryResult(
+      total: null == total
           ? _value.total
           : total // ignore: cast_nullable_to_non_nullable
               as int,
-      subjects: subjects == freezed
-          ? _value.subjects
+      subjects: null == subjects
+          ? _value._subjects
           : subjects // ignore: cast_nullable_to_non_nullable
               as List<String>,
     ));
@@ -2290,20 +2214,28 @@ class __$SubjectQueryResultCopyWithImpl<$Res>
 class _$_SubjectQueryResult
     with DiagnosticableTreeMixin
     implements _SubjectQueryResult {
-  _$_SubjectQueryResult({required this.total, this.subjects = const []});
+  _$_SubjectQueryResult(
+      {required this.total, final List<String> subjects = const []})
+      : _subjects = subjects;
 
   factory _$_SubjectQueryResult.fromJson(Map<String, dynamic> json) =>
       _$$_SubjectQueryResultFromJson(json);
 
-  @override
-
   /// The number of results for this query
-  final int total;
-  @JsonKey()
   @override
+  final int total;
 
   /// The list of the subjects matching the query
-  final List<String> subjects;
+  final List<String> _subjects;
+
+  /// The list of the subjects matching the query
+  @override
+  @JsonKey()
+  List<String> get subjects {
+    if (_subjects is EqualUnmodifiableListView) return _subjects;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_subjects);
+  }
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
@@ -2323,31 +2255,35 @@ class _$_SubjectQueryResult
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _SubjectQueryResult &&
-            const DeepCollectionEquality().equals(other.total, total) &&
-            const DeepCollectionEquality().equals(other.subjects, subjects));
+            other is _$_SubjectQueryResult &&
+            (identical(other.total, total) || other.total == total) &&
+            const DeepCollectionEquality().equals(other._subjects, _subjects));
   }
-
-  @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      const DeepCollectionEquality().hash(total),
-      const DeepCollectionEquality().hash(subjects));
 
   @JsonKey(ignore: true)
   @override
-  _$SubjectQueryResultCopyWith<_SubjectQueryResult> get copyWith =>
-      __$SubjectQueryResultCopyWithImpl<_SubjectQueryResult>(this, _$identity);
+  int get hashCode => Object.hash(
+      runtimeType, total, const DeepCollectionEquality().hash(_subjects));
+
+  @JsonKey(ignore: true)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$_SubjectQueryResultCopyWith<_$_SubjectQueryResult> get copyWith =>
+      __$$_SubjectQueryResultCopyWithImpl<_$_SubjectQueryResult>(
+          this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_SubjectQueryResultToJson(this);
+    return _$$_SubjectQueryResultToJson(
+      this,
+    );
   }
 }
 
 abstract class _SubjectQueryResult implements SubjectQueryResult {
-  factory _SubjectQueryResult({required int total, List<String> subjects}) =
-      _$_SubjectQueryResult;
+  factory _SubjectQueryResult(
+      {required final int total,
+      final List<String> subjects}) = _$_SubjectQueryResult;
 
   factory _SubjectQueryResult.fromJson(Map<String, dynamic> json) =
       _$_SubjectQueryResult.fromJson;
@@ -2362,32 +2298,13 @@ abstract class _SubjectQueryResult implements SubjectQueryResult {
   List<String> get subjects;
   @override
   @JsonKey(ignore: true)
-  _$SubjectQueryResultCopyWith<_SubjectQueryResult> get copyWith =>
+  _$$_SubjectQueryResultCopyWith<_$_SubjectQueryResult> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 Subject _$SubjectFromJson(Map<String, dynamic> json) {
   return _Subject.fromJson(json);
 }
-
-/// @nodoc
-class _$SubjectTearOff {
-  const _$SubjectTearOff();
-
-  _Subject call({required String subject, List<Book> books = const []}) {
-    return _Subject(
-      subject: subject,
-      books: books,
-    );
-  }
-
-  Subject fromJson(Map<String, Object?> json) {
-    return Subject.fromJson(json);
-  }
-}
-
-/// @nodoc
-const $Subject = _$SubjectTearOff();
 
 /// @nodoc
 mixin _$Subject {
@@ -2405,65 +2322,70 @@ mixin _$Subject {
 /// @nodoc
 abstract class $SubjectCopyWith<$Res> {
   factory $SubjectCopyWith(Subject value, $Res Function(Subject) then) =
-      _$SubjectCopyWithImpl<$Res>;
+      _$SubjectCopyWithImpl<$Res, Subject>;
+  @useResult
   $Res call({String subject, List<Book> books});
 }
 
 /// @nodoc
-class _$SubjectCopyWithImpl<$Res> implements $SubjectCopyWith<$Res> {
+class _$SubjectCopyWithImpl<$Res, $Val extends Subject>
+    implements $SubjectCopyWith<$Res> {
   _$SubjectCopyWithImpl(this._value, this._then);
 
-  final Subject _value;
   // ignore: unused_field
-  final $Res Function(Subject) _then;
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
 
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? subject = freezed,
-    Object? books = freezed,
+    Object? subject = null,
+    Object? books = null,
   }) {
     return _then(_value.copyWith(
-      subject: subject == freezed
+      subject: null == subject
           ? _value.subject
           : subject // ignore: cast_nullable_to_non_nullable
               as String,
-      books: books == freezed
+      books: null == books
           ? _value.books
           : books // ignore: cast_nullable_to_non_nullable
               as List<Book>,
-    ));
+    ) as $Val);
   }
 }
 
 /// @nodoc
-abstract class _$SubjectCopyWith<$Res> implements $SubjectCopyWith<$Res> {
-  factory _$SubjectCopyWith(_Subject value, $Res Function(_Subject) then) =
-      __$SubjectCopyWithImpl<$Res>;
+abstract class _$$_SubjectCopyWith<$Res> implements $SubjectCopyWith<$Res> {
+  factory _$$_SubjectCopyWith(
+          _$_Subject value, $Res Function(_$_Subject) then) =
+      __$$_SubjectCopyWithImpl<$Res>;
   @override
+  @useResult
   $Res call({String subject, List<Book> books});
 }
 
 /// @nodoc
-class __$SubjectCopyWithImpl<$Res> extends _$SubjectCopyWithImpl<$Res>
-    implements _$SubjectCopyWith<$Res> {
-  __$SubjectCopyWithImpl(_Subject _value, $Res Function(_Subject) _then)
-      : super(_value, (v) => _then(v as _Subject));
+class __$$_SubjectCopyWithImpl<$Res>
+    extends _$SubjectCopyWithImpl<$Res, _$_Subject>
+    implements _$$_SubjectCopyWith<$Res> {
+  __$$_SubjectCopyWithImpl(_$_Subject _value, $Res Function(_$_Subject) _then)
+      : super(_value, _then);
 
-  @override
-  _Subject get _value => super._value as _Subject;
-
+  @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? subject = freezed,
-    Object? books = freezed,
+    Object? subject = null,
+    Object? books = null,
   }) {
-    return _then(_Subject(
-      subject: subject == freezed
+    return _then(_$_Subject(
+      subject: null == subject
           ? _value.subject
           : subject // ignore: cast_nullable_to_non_nullable
               as String,
-      books: books == freezed
-          ? _value.books
+      books: null == books
+          ? _value._books
           : books // ignore: cast_nullable_to_non_nullable
               as List<Book>,
     ));
@@ -2473,20 +2395,27 @@ class __$SubjectCopyWithImpl<$Res> extends _$SubjectCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$_Subject with DiagnosticableTreeMixin implements _Subject {
-  _$_Subject({required this.subject, this.books = const []});
+  _$_Subject({required this.subject, final List<Book> books = const []})
+      : _books = books;
 
   factory _$_Subject.fromJson(Map<String, dynamic> json) =>
       _$$_SubjectFromJson(json);
 
-  @override
-
   /// The subject
-  final String subject;
-  @JsonKey()
   @override
+  final String subject;
 
   /// The list of the books matching this subject
-  final List<Book> books;
+  final List<Book> _books;
+
+  /// The list of the books matching this subject
+  @override
+  @JsonKey()
+  List<Book> get books {
+    if (_books is EqualUnmodifiableListView) return _books;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_books);
+  }
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
@@ -2506,30 +2435,33 @@ class _$_Subject with DiagnosticableTreeMixin implements _Subject {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _Subject &&
-            const DeepCollectionEquality().equals(other.subject, subject) &&
-            const DeepCollectionEquality().equals(other.books, books));
+            other is _$_Subject &&
+            (identical(other.subject, subject) || other.subject == subject) &&
+            const DeepCollectionEquality().equals(other._books, _books));
   }
-
-  @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      const DeepCollectionEquality().hash(subject),
-      const DeepCollectionEquality().hash(books));
 
   @JsonKey(ignore: true)
   @override
-  _$SubjectCopyWith<_Subject> get copyWith =>
-      __$SubjectCopyWithImpl<_Subject>(this, _$identity);
+  int get hashCode => Object.hash(
+      runtimeType, subject, const DeepCollectionEquality().hash(_books));
+
+  @JsonKey(ignore: true)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$_SubjectCopyWith<_$_Subject> get copyWith =>
+      __$$_SubjectCopyWithImpl<_$_Subject>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$_SubjectToJson(this);
+    return _$$_SubjectToJson(
+      this,
+    );
   }
 }
 
 abstract class _Subject implements Subject {
-  factory _Subject({required String subject, List<Book> books}) = _$_Subject;
+  factory _Subject({required final String subject, final List<Book> books}) =
+      _$_Subject;
 
   factory _Subject.fromJson(Map<String, dynamic> json) = _$_Subject.fromJson;
 
@@ -2543,6 +2475,6 @@ abstract class _Subject implements Subject {
   List<Book> get books;
   @override
   @JsonKey(ignore: true)
-  _$SubjectCopyWith<_Subject> get copyWith =>
+  _$$_SubjectCopyWith<_$_Subject> get copyWith =>
       throw _privateConstructorUsedError;
 }
