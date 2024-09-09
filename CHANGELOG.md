@@ -1,3 +1,7 @@
+## 0.3.1
+
+* Updated packages to last versions
+
 ## 0.3.0
 
 * Back to extensions for var `isEmpty` to avoid freezed errors when generating main class
