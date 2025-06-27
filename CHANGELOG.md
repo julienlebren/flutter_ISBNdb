@@ -1,3 +1,9 @@
+## 0.4.0
+
+* Updated freezed to 3.0.0: if you are also using freezed in your project, it may be a breaking change
+  Please check https://github.com/rrousselGit/freezed/blob/master/packages/freezed/migration_guide.md
+* Removed depedency to universal_io
+
 ## 0.3.2
 
 * Updated packages to last versions

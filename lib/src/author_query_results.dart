@@ -2,7 +2,7 @@ part of isbndb_flutter;
 
 /// The object which contains the results of search in the authors database
 @freezed
-class AuthorQueryResult with _$AuthorQueryResult {
+abstract class AuthorQueryResult with _$AuthorQueryResult {
   factory AuthorQueryResult({
     /// The number of results for this query
     required int total,

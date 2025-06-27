@@ -2,7 +2,7 @@ part of isbndb_flutter;
 
 /// The object which contains the results of search in the books database
 @freezed
-class BookQueryResult with _$BookQueryResult {
+abstract class BookQueryResult with _$BookQueryResult {
   factory BookQueryResult({
     /// The number of results for this query
     required int total,

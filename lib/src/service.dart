@@ -23,7 +23,7 @@ class ISBNdb {
       options: Options(
         responseType: ResponseType.bytes,
         headers: {
-          HttpHeaders.authorizationHeader: _key,
+          'authorization': _key,
         },
       ),
       cancelToken: CancelToken(),
@@ -45,7 +45,7 @@ class ISBNdb {
       "$_baseApiUrl/$path",
       options: Options(
         headers: {
-          HttpHeaders.authorizationHeader: _key,
+          'authorization': _key,
         },
       ),
       cancelToken: CancelToken(),

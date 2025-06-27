@@ -2,7 +2,7 @@ part of isbndb_flutter;
 
 /// An object which returns the details about a seller of a book on the web.
 @freezed
-class Merchant with _$Merchant {
+abstract class Merchant with _$Merchant {
   factory Merchant({
     /// Not documented in the official API
     required String condition,

@@ -2,7 +2,7 @@ part of isbndb_flutter;
 
 /// The object which contains the results of search in the publishers database
 @freezed
-class PublisherQueryResult with _$PublisherQueryResult {
+abstract class PublisherQueryResult with _$PublisherQueryResult {
   factory PublisherQueryResult({
     /// The number of results for this query
     required int total,

@@ -1,28 +1,27 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of isbndb_flutter;
+part of 'isbndb.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$_AuthorQueryResult _$$_AuthorQueryResultFromJson(Map<String, dynamic> json) =>
-    _$_AuthorQueryResult(
-      total: json['total'] as int,
+_AuthorQueryResult _$AuthorQueryResultFromJson(Map<String, dynamic> json) =>
+    _AuthorQueryResult(
+      total: (json['total'] as num).toInt(),
       authors: (json['authors'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
           const [],
     );
 
-Map<String, dynamic> _$$_AuthorQueryResultToJson(
-        _$_AuthorQueryResult instance) =>
+Map<String, dynamic> _$AuthorQueryResultToJson(_AuthorQueryResult instance) =>
     <String, dynamic>{
       'total': instance.total,
       'authors': instance.authors,
     };
 
-_$_Author _$$_AuthorFromJson(Map<String, dynamic> json) => _$_Author(
+_Author _$AuthorFromJson(Map<String, dynamic> json) => _Author(
       author: json['author'] as String,
       books: (json['books'] as List<dynamic>?)
               ?.map((e) => Book.fromJson(e as Map<String, dynamic>))
@@ -30,27 +29,27 @@ _$_Author _$$_AuthorFromJson(Map<String, dynamic> json) => _$_Author(
           const [],
     );
 
-Map<String, dynamic> _$$_AuthorToJson(_$_Author instance) => <String, dynamic>{
+Map<String, dynamic> _$AuthorToJson(_Author instance) => <String, dynamic>{
       'author': instance.author,
       'books': instance.books,
     };
 
-_$_BookQueryResult _$$_BookQueryResultFromJson(Map<String, dynamic> json) =>
-    _$_BookQueryResult(
-      total: json['total'] as int,
+_BookQueryResult _$BookQueryResultFromJson(Map<String, dynamic> json) =>
+    _BookQueryResult(
+      total: (json['total'] as num).toInt(),
       books: (json['books'] as List<dynamic>?)
               ?.map((e) => Book.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
     );
 
-Map<String, dynamic> _$$_BookQueryResultToJson(_$_BookQueryResult instance) =>
+Map<String, dynamic> _$BookQueryResultToJson(_BookQueryResult instance) =>
     <String, dynamic>{
       'total': instance.total,
       'books': instance.books,
     };
 
-_$_Book _$$_BookFromJson(Map<String, dynamic> json) => _$_Book(
+_Book _$BookFromJson(Map<String, dynamic> json) => _Book(
       title: json['title'] as String,
       titleLong: json['title_long'] as String?,
       isbn: json['isbn'] as String,
@@ -61,7 +60,7 @@ _$_Book _$$_BookFromJson(Map<String, dynamic> json) => _$_Book(
       language: json['language'] as String?,
       datePublished: const _DateConverter().fromJson(json['date_published']),
       edition: json['edition'] as String?,
-      pages: json['pages'] as int?,
+      pages: (json['pages'] as num?)?.toInt(),
       dimensions: json['dimensions'] as String?,
       overview: json['overview'] as String?,
       image: json['image'] as String?,
@@ -83,7 +82,7 @@ _$_Book _$$_BookFromJson(Map<String, dynamic> json) => _$_Book(
           (json['related'] as List<dynamic>?)?.map((e) => e as String).toList(),
     );
 
-Map<String, dynamic> _$$_BookToJson(_$_Book instance) => <String, dynamic>{
+Map<String, dynamic> _$BookToJson(_Book instance) => <String, dynamic>{
       'title': instance.title,
       'title_long': instance.titleLong,
       'isbn': instance.isbn,
@@ -108,7 +107,7 @@ Map<String, dynamic> _$$_BookToJson(_$_Book instance) => <String, dynamic>{
       'related': instance.related,
     };
 
-_$_Merchant _$$_MerchantFromJson(Map<String, dynamic> json) => _$_Merchant(
+_Merchant _$MerchantFromJson(Map<String, dynamic> json) => _Merchant(
       condition: json['condition'] as String,
       merchant: json['merchant'] as String,
       merchantLogo: json['merchant_logo'] as String,
@@ -119,8 +118,7 @@ _$_Merchant _$$_MerchantFromJson(Map<String, dynamic> json) => _$_Merchant(
       link: json['link'] as String,
     );
 
-Map<String, dynamic> _$$_MerchantToJson(_$_Merchant instance) =>
-    <String, dynamic>{
+Map<String, dynamic> _$MerchantToJson(_Merchant instance) => <String, dynamic>{
       'condition': instance.condition,
       'merchant': instance.merchant,
       'merchant_logo': instance.merchantLogo,
@@ -131,24 +129,24 @@ Map<String, dynamic> _$$_MerchantToJson(_$_Merchant instance) =>
       'link': instance.link,
     };
 
-_$_PublisherQueryResult _$$_PublisherQueryResultFromJson(
+_PublisherQueryResult _$PublisherQueryResultFromJson(
         Map<String, dynamic> json) =>
-    _$_PublisherQueryResult(
-      total: json['total'] as int,
+    _PublisherQueryResult(
+      total: (json['total'] as num).toInt(),
       publishers: (json['publishers'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
           const [],
     );
 
-Map<String, dynamic> _$$_PublisherQueryResultToJson(
-        _$_PublisherQueryResult instance) =>
+Map<String, dynamic> _$PublisherQueryResultToJson(
+        _PublisherQueryResult instance) =>
     <String, dynamic>{
       'total': instance.total,
       'publishers': instance.publishers,
     };
 
-_$_Publisher _$$_PublisherFromJson(Map<String, dynamic> json) => _$_Publisher(
+_Publisher _$PublisherFromJson(Map<String, dynamic> json) => _Publisher(
       name: json['name'] as String,
       books: (json['books'] as List<dynamic>?)
               ?.map((e) => Book.fromJson(e as Map<String, dynamic>))
@@ -156,30 +154,28 @@ _$_Publisher _$$_PublisherFromJson(Map<String, dynamic> json) => _$_Publisher(
           const [],
     );
 
-Map<String, dynamic> _$$_PublisherToJson(_$_Publisher instance) =>
+Map<String, dynamic> _$PublisherToJson(_Publisher instance) =>
     <String, dynamic>{
       'name': instance.name,
       'books': instance.books,
     };
 
-_$_SubjectQueryResult _$$_SubjectQueryResultFromJson(
-        Map<String, dynamic> json) =>
-    _$_SubjectQueryResult(
-      total: json['total'] as int,
+_SubjectQueryResult _$SubjectQueryResultFromJson(Map<String, dynamic> json) =>
+    _SubjectQueryResult(
+      total: (json['total'] as num).toInt(),
       subjects: (json['subjects'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
           const [],
     );
 
-Map<String, dynamic> _$$_SubjectQueryResultToJson(
-        _$_SubjectQueryResult instance) =>
+Map<String, dynamic> _$SubjectQueryResultToJson(_SubjectQueryResult instance) =>
     <String, dynamic>{
       'total': instance.total,
       'subjects': instance.subjects,
     };
 
-_$_Subject _$$_SubjectFromJson(Map<String, dynamic> json) => _$_Subject(
+_Subject _$SubjectFromJson(Map<String, dynamic> json) => _Subject(
       subject: json['subject'] as String,
       books: (json['books'] as List<dynamic>?)
               ?.map((e) => Book.fromJson(e as Map<String, dynamic>))
@@ -187,8 +183,7 @@ _$_Subject _$$_SubjectFromJson(Map<String, dynamic> json) => _$_Subject(
           const [],
     );
 
-Map<String, dynamic> _$$_SubjectToJson(_$_Subject instance) =>
-    <String, dynamic>{
+Map<String, dynamic> _$SubjectToJson(_Subject instance) => <String, dynamic>{
       'subject': instance.subject,
       'books': instance.books,
     };
