@@ -2,7 +2,7 @@ part of isbndb_flutter;
 
 /// The object which contains the results of search in the subjects database
 @freezed
-abstract class SubjectQueryResult with _$SubjectQueryResult {
+sealed class SubjectQueryResult with _$SubjectQueryResult {
   factory SubjectQueryResult({
     /// The number of results for this query
     required int total,

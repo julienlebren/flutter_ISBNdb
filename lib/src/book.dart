@@ -2,7 +2,7 @@ part of isbndb_flutter;
 
 /// An object which handle the details of a book
 @freezed
-abstract class Book with _$Book {
+sealed class Book with _$Book {
   factory Book({
     /// Title of the book
     required String title,

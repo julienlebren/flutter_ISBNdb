@@ -2,7 +2,7 @@ part of isbndb_flutter;
 
 /// An object which returns the name of a subject and the list of the books related to this subject.
 @freezed
-abstract class Subject with _$Subject {
+sealed class Subject with _$Subject {
   factory Subject({
     /// The subject
     required String subject,

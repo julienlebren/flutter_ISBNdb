@@ -2,7 +2,7 @@ part of isbndb_flutter;
 
 /// An object which returns the name of an author and the list of the books he published.
 @freezed
-abstract class Author with _$Author {
+sealed class Author with _$Author {
   factory Author({
     /// The name of the author
     required String author,
