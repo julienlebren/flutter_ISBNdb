@@ -1,3 +1,7 @@
+## 0.5.0
+
+* Added a converter for `dewey_decimal` since ISBNdb can return either string or array of dynamic
+
 ## 0.4.0
 
 * Updated freezed to 3.0.0: if you are also using freezed in your project, it may be a breaking change

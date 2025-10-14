@@ -22,9 +22,7 @@ class ISBNdb {
       "$_baseApiUrl/$path",
       options: Options(
         responseType: ResponseType.bytes,
-        headers: {
-          'authorization': _key,
-        },
+        headers: {'authorization': _key},
       ),
       cancelToken: CancelToken(),
       queryParameters: queryParameters,
@@ -43,11 +41,7 @@ class ISBNdb {
   }) async {
     final result = await _dio.post<List<int>>(
       "$_baseApiUrl/$path",
-      options: Options(
-        headers: {
-          'authorization': _key,
-        },
-      ),
+      options: Options(headers: {'authorization': _key}),
       cancelToken: CancelToken(),
       queryParameters: queryParameters,
     );
@@ -59,17 +53,13 @@ class ISBNdb {
   }
 
   /// Get book details from an ISBN
-  Future<Book?> getBook(
-    String isbn, {
-    bool withPrices = false,
-  }) async {
+  Future<Book?> getBook(String isbn, {bool withPrices = false}) async {
     final response = await _get(
       "book/$isbn",
-      queryParameters: <String, Object?>{
-        "with_prices": withPrices ? 1 : 0,
-      },
+      queryParameters: <String, Object?>{"with_prices": withPrices ? 1 : 0},
     );
     final bookJson = response['book'];
+    print(bookJson);
     return bookJson != null ? Book.fromJson(bookJson) : null;
   }
 
@@ -95,15 +85,11 @@ class ISBNdb {
   Future<BookQueryResult> getBooksFromISBNs(List<String> isbns) async {
     final response = await _post(
       "books",
-      queryParameters: <String, Object?>{
-        "isbns": isbns,
-      },
+      queryParameters: <String, Object?>{"isbns": isbns},
     );
     return BookQueryResult(
       total: response['total'],
-      books: response['books'].map(
-        (json) => Book.fromJson(json),
-      ),
+      books: response['books'].map((json) => Book.fromJson(json)),
     );
   }
 
@@ -116,10 +102,7 @@ class ISBNdb {
   }) async {
     final response = await _get(
       "author/$name",
-      queryParameters: <String, Object?>{
-        "page": page,
-        "pageSize": pageSize,
-      },
+      queryParameters: <String, Object?>{"page": page, "pageSize": pageSize},
     );
     return Author.fromJson(response);
   }
@@ -132,10 +115,7 @@ class ISBNdb {
   }) async {
     final response = await _get(
       "authors/$query",
-      queryParameters: <String, Object?>{
-        "page": page,
-        "pageSize": pageSize,
-      },
+      queryParameters: <String, Object?>{"page": page, "pageSize": pageSize},
     );
     return AuthorQueryResult.fromJson(response);
   }
@@ -148,10 +128,7 @@ class ISBNdb {
   }) async {
     final response = await _get(
       "publisher/$name",
-      queryParameters: <String, Object?>{
-        "page": page,
-        "pageSize": pageSize,
-      },
+      queryParameters: <String, Object?>{"page": page, "pageSize": pageSize},
     );
     return Publisher.fromJson(response);
   }
@@ -164,10 +141,7 @@ class ISBNdb {
   }) async {
     final response = await _get(
       "publishers/$query",
-      queryParameters: <String, Object?>{
-        "page": page,
-        "pageSize": pageSize,
-      },
+      queryParameters: <String, Object?>{"page": page, "pageSize": pageSize},
     );
     return PublisherQueryResult.fromJson(response);
   }
@@ -186,10 +160,7 @@ class ISBNdb {
   }) async {
     final response = await _get(
       "subjects/$query",
-      queryParameters: <String, Object?>{
-        "page": page,
-        "pageSize": pageSize,
-      },
+      queryParameters: <String, Object?>{"page": page, "pageSize": pageSize},
     );
     return SubjectQueryResult.fromJson(response);
   }

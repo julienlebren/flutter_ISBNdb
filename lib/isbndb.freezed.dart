@@ -869,7 +869,7 @@ mixin _$Book implements DiagnosticableTreeMixin {
 @JsonKey(name: 'title_long') String? get titleLong;/// ISBN of the book
  String get isbn;/// New 13-digit ISBN
  String get isbn13;/// Not documented in the official API
-@JsonKey(name: 'dewey_decimal') String? get deweyDecimal;/// Not documented in the official API
+@_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal') String? get deweyDecimal;/// Not documented in the official API
  String? get binding;/// The name of the publisher
  String? get publisher;/// Language of the book
  String? get language;/// Date when the book was published. Can be a year or a full date.
@@ -925,7 +925,7 @@ abstract mixin class $BookCopyWith<$Res>  {
   factory $BookCopyWith(Book value, $Res Function(Book) _then) = _$BookCopyWithImpl;
 @useResult
 $Res call({
- String title,@JsonKey(name: 'title_long') String? titleLong, String isbn, String isbn13,@JsonKey(name: 'dewey_decimal') String? deweyDecimal, String? binding, String? publisher, String? language,@_DateConverter()@JsonKey(name: 'date_published') DateTime? datePublished, String? edition, int? pages, String? dimensions, String? overview, String? image,@_MsrpConverter() double? msrp, String? excerpt, String? synopsys, List<String?>? authors, List<String>? subjects, List<String>? reviews, List<Merchant>? prices, List<String>? related
+ String title,@JsonKey(name: 'title_long') String? titleLong, String isbn, String isbn13,@_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal') String? deweyDecimal, String? binding, String? publisher, String? language,@_DateConverter()@JsonKey(name: 'date_published') DateTime? datePublished, String? edition, int? pages, String? dimensions, String? overview, String? image,@_MsrpConverter() double? msrp, String? excerpt, String? synopsys, List<String?>? authors, List<String>? subjects, List<String>? reviews, List<Merchant>? prices, List<String>? related
 });
 
 
@@ -1048,7 +1048,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String title, @JsonKey(name: 'title_long')  String? titleLong,  String isbn,  String isbn13, @JsonKey(name: 'dewey_decimal')  String? deweyDecimal,  String? binding,  String? publisher,  String? language, @_DateConverter()@JsonKey(name: 'date_published')  DateTime? datePublished,  String? edition,  int? pages,  String? dimensions,  String? overview,  String? image, @_MsrpConverter()  double? msrp,  String? excerpt,  String? synopsys,  List<String?>? authors,  List<String>? subjects,  List<String>? reviews,  List<Merchant>? prices,  List<String>? related)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String title, @JsonKey(name: 'title_long')  String? titleLong,  String isbn,  String isbn13, @_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal')  String? deweyDecimal,  String? binding,  String? publisher,  String? language, @_DateConverter()@JsonKey(name: 'date_published')  DateTime? datePublished,  String? edition,  int? pages,  String? dimensions,  String? overview,  String? image, @_MsrpConverter()  double? msrp,  String? excerpt,  String? synopsys,  List<String?>? authors,  List<String>? subjects,  List<String>? reviews,  List<Merchant>? prices,  List<String>? related)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Book() when $default != null:
 return $default(_that.title,_that.titleLong,_that.isbn,_that.isbn13,_that.deweyDecimal,_that.binding,_that.publisher,_that.language,_that.datePublished,_that.edition,_that.pages,_that.dimensions,_that.overview,_that.image,_that.msrp,_that.excerpt,_that.synopsys,_that.authors,_that.subjects,_that.reviews,_that.prices,_that.related);case _:
@@ -1069,7 +1069,7 @@ return $default(_that.title,_that.titleLong,_that.isbn,_that.isbn13,_that.deweyD
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String title, @JsonKey(name: 'title_long')  String? titleLong,  String isbn,  String isbn13, @JsonKey(name: 'dewey_decimal')  String? deweyDecimal,  String? binding,  String? publisher,  String? language, @_DateConverter()@JsonKey(name: 'date_published')  DateTime? datePublished,  String? edition,  int? pages,  String? dimensions,  String? overview,  String? image, @_MsrpConverter()  double? msrp,  String? excerpt,  String? synopsys,  List<String?>? authors,  List<String>? subjects,  List<String>? reviews,  List<Merchant>? prices,  List<String>? related)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String title, @JsonKey(name: 'title_long')  String? titleLong,  String isbn,  String isbn13, @_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal')  String? deweyDecimal,  String? binding,  String? publisher,  String? language, @_DateConverter()@JsonKey(name: 'date_published')  DateTime? datePublished,  String? edition,  int? pages,  String? dimensions,  String? overview,  String? image, @_MsrpConverter()  double? msrp,  String? excerpt,  String? synopsys,  List<String?>? authors,  List<String>? subjects,  List<String>? reviews,  List<Merchant>? prices,  List<String>? related)  $default,) {final _that = this;
 switch (_that) {
 case _Book():
 return $default(_that.title,_that.titleLong,_that.isbn,_that.isbn13,_that.deweyDecimal,_that.binding,_that.publisher,_that.language,_that.datePublished,_that.edition,_that.pages,_that.dimensions,_that.overview,_that.image,_that.msrp,_that.excerpt,_that.synopsys,_that.authors,_that.subjects,_that.reviews,_that.prices,_that.related);}
@@ -1086,7 +1086,7 @@ return $default(_that.title,_that.titleLong,_that.isbn,_that.isbn13,_that.deweyD
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String title, @JsonKey(name: 'title_long')  String? titleLong,  String isbn,  String isbn13, @JsonKey(name: 'dewey_decimal')  String? deweyDecimal,  String? binding,  String? publisher,  String? language, @_DateConverter()@JsonKey(name: 'date_published')  DateTime? datePublished,  String? edition,  int? pages,  String? dimensions,  String? overview,  String? image, @_MsrpConverter()  double? msrp,  String? excerpt,  String? synopsys,  List<String?>? authors,  List<String>? subjects,  List<String>? reviews,  List<Merchant>? prices,  List<String>? related)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String title, @JsonKey(name: 'title_long')  String? titleLong,  String isbn,  String isbn13, @_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal')  String? deweyDecimal,  String? binding,  String? publisher,  String? language, @_DateConverter()@JsonKey(name: 'date_published')  DateTime? datePublished,  String? edition,  int? pages,  String? dimensions,  String? overview,  String? image, @_MsrpConverter()  double? msrp,  String? excerpt,  String? synopsys,  List<String?>? authors,  List<String>? subjects,  List<String>? reviews,  List<Merchant>? prices,  List<String>? related)?  $default,) {final _that = this;
 switch (_that) {
 case _Book() when $default != null:
 return $default(_that.title,_that.titleLong,_that.isbn,_that.isbn13,_that.deweyDecimal,_that.binding,_that.publisher,_that.language,_that.datePublished,_that.edition,_that.pages,_that.dimensions,_that.overview,_that.image,_that.msrp,_that.excerpt,_that.synopsys,_that.authors,_that.subjects,_that.reviews,_that.prices,_that.related);case _:
@@ -1101,7 +1101,7 @@ return $default(_that.title,_that.titleLong,_that.isbn,_that.isbn13,_that.deweyD
 @JsonSerializable()
 
 class _Book with DiagnosticableTreeMixin implements Book {
-   _Book({required this.title, @JsonKey(name: 'title_long') this.titleLong, required this.isbn, required this.isbn13, @JsonKey(name: 'dewey_decimal') this.deweyDecimal, this.binding, this.publisher, this.language, @_DateConverter()@JsonKey(name: 'date_published') this.datePublished, this.edition, this.pages, this.dimensions, this.overview, this.image, @_MsrpConverter() this.msrp, this.excerpt, this.synopsys, final  List<String?>? authors, final  List<String>? subjects, final  List<String>? reviews, final  List<Merchant>? prices, final  List<String>? related}): _authors = authors,_subjects = subjects,_reviews = reviews,_prices = prices,_related = related;
+   _Book({required this.title, @JsonKey(name: 'title_long') this.titleLong, required this.isbn, required this.isbn13, @_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal') this.deweyDecimal, this.binding, this.publisher, this.language, @_DateConverter()@JsonKey(name: 'date_published') this.datePublished, this.edition, this.pages, this.dimensions, this.overview, this.image, @_MsrpConverter() this.msrp, this.excerpt, this.synopsys, final  List<String?>? authors, final  List<String>? subjects, final  List<String>? reviews, final  List<Merchant>? prices, final  List<String>? related}): _authors = authors,_subjects = subjects,_reviews = reviews,_prices = prices,_related = related;
   factory _Book.fromJson(Map<String, dynamic> json) => _$BookFromJson(json);
 
 /// Title of the book
@@ -1113,7 +1113,7 @@ class _Book with DiagnosticableTreeMixin implements Book {
 /// New 13-digit ISBN
 @override final  String isbn13;
 /// Not documented in the official API
-@override@JsonKey(name: 'dewey_decimal') final  String? deweyDecimal;
+@override@_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal') final  String? deweyDecimal;
 /// Not documented in the official API
 @override final  String? binding;
 /// The name of the publisher
@@ -1233,7 +1233,7 @@ abstract mixin class _$BookCopyWith<$Res> implements $BookCopyWith<$Res> {
   factory _$BookCopyWith(_Book value, $Res Function(_Book) _then) = __$BookCopyWithImpl;
 @override @useResult
 $Res call({
- String title,@JsonKey(name: 'title_long') String? titleLong, String isbn, String isbn13,@JsonKey(name: 'dewey_decimal') String? deweyDecimal, String? binding, String? publisher, String? language,@_DateConverter()@JsonKey(name: 'date_published') DateTime? datePublished, String? edition, int? pages, String? dimensions, String? overview, String? image,@_MsrpConverter() double? msrp, String? excerpt, String? synopsys, List<String?>? authors, List<String>? subjects, List<String>? reviews, List<Merchant>? prices, List<String>? related
+ String title,@JsonKey(name: 'title_long') String? titleLong, String isbn, String isbn13,@_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal') String? deweyDecimal, String? binding, String? publisher, String? language,@_DateConverter()@JsonKey(name: 'date_published') DateTime? datePublished, String? edition, int? pages, String? dimensions, String? overview, String? image,@_MsrpConverter() double? msrp, String? excerpt, String? synopsys, List<String?>? authors, List<String>? subjects, List<String>? reviews, List<Merchant>? prices, List<String>? related
 });
 
 

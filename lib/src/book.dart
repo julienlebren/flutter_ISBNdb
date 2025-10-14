@@ -17,7 +17,9 @@ sealed class Book with _$Book {
     required String isbn13,
 
     /// Not documented in the official API
-    @JsonKey(name: 'dewey_decimal') String? deweyDecimal,
+    @_DeweyDecimalConverter()
+    @JsonKey(name: 'dewey_decimal')
+    String? deweyDecimal,
 
     /// Not documented in the official API
     String? binding,
@@ -121,4 +123,23 @@ class _MsrpConverter implements JsonConverter<double?, dynamic> {
 
   @override
   dynamic toJson(double? value) => value != null ? "$value" : null;
+}
+
+/// A json converter that handles the dewey field of the API
+/// It can be either a string, an array of string...
+/// so we need to handle this properly to return always the same type.
+class _DeweyDecimalConverter implements JsonConverter<String?, dynamic> {
+  const _DeweyDecimalConverter();
+
+  @override
+  String? fromJson(dynamic json) {
+    if (json is String) return json;
+    if (json is List && json.isNotEmpty && json.first is String) {
+      return json.first as String;
+    }
+    return null;
+  }
+
+  @override
+  dynamic toJson(String? value) => value;
 }
