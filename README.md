@@ -22,6 +22,30 @@ Before any request to the API, you need to init the service class with the follo
 final isbnDb = ISBNdb("your_key_here");
 ```
 
+## Error handling
+
+All request and parsing failures from `ISBNdb` methods throw `ISBNdbException`.
+
+`ISBNdbException` contains:
+- `message`: readable error description
+- `method`: HTTP method (`GET`, `POST`, ...)
+- `path`: API path (for example `book/9781092297370`)
+- `statusCode`: optional HTTP status code (when available)
+- `cause`: original underlying error
+
+Example:
+
+```dart
+try {
+  final book = await isbnDb.getBook("9781092297370");
+  // use book
+} on ISBNdbException catch (e) {
+  print("ISBNdb error: ${e.message}");
+  print("request: ${e.method} ${e.path}");
+  print("status: ${e.statusCode}");
+}
+```
+
 ### Books
 
 * **Get book details**
@@ -163,6 +187,13 @@ Param | Description
 String query | A string to search for in the Subject’s database
 String page | The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them
 String pageSize | How many items should be returned per page, maximum of 1,000
+
+## Testing
+
+- Offline tests: `flutter test --exclude-tags live`
+- Live tests (requires secret): `ISBNDB_API_KEY=your_key flutter test --tags live`
+
+Live tests are skipped automatically when `ISBNDB_API_KEY` is not set.
 
 ## Models
 
