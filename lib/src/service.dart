@@ -66,7 +66,6 @@ class ISBNdb {
       queryParameters: <String, Object?>{"with_prices": withPrices ? 1 : 0},
     );
     final bookJson = response['book'];
-    print(bookJson);
     return bookJson != null ? Book.fromJson(bookJson) : null;
   }
 

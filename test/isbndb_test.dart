@@ -45,6 +45,20 @@ void main() {
       expect(books.books.first, isA<Book>());
     });
 
+    test('Should send ISBN list payload for batch endpoint', () async {
+      RequestOptions? options;
+      final isbndb = _createClient(
+        onRequestCallback: (requestOptions) => options = requestOptions,
+      );
+      const isbns = ["9781092297370", "9781680506952"];
+
+      await isbndb.getBooksFromISBNs(isbns);
+
+      expect(options, isNotNull);
+      expect(options!.method.toUpperCase(), "POST");
+      expect(options!.queryParameters["isbns"], equals(isbns));
+    });
+
     test('Should get list of publishers matching "Nathan"', () async {
       final isbndb = _createClient();
       final publishers = await isbndb.getPublishers("Nathan");
@@ -106,17 +120,58 @@ void main() {
       expect(book, isNotNull);
       expect(book!.msrp, isNull);
     });
+
+    test('Should throw DioException when API returns 401', () async {
+      final isbndb = _createClient(
+        statusCodes: {"GET book/9781092297370": 401},
+      );
+
+      await expectLater(
+        () => isbndb.getBook("9781092297370"),
+        throwsA(
+          isA<DioException>().having(
+            (exception) => exception.response?.statusCode,
+            "statusCode",
+            401,
+          ),
+        ),
+      );
+    });
+
+    test('Should parse year-only and ISO date_published values', () async {
+      final yearBook = Book.fromJson({
+        ..._book(
+          title: "Year Book",
+          isbn: "1111111111",
+          isbn13: "9781111111111",
+        ),
+        "date_published": "1998",
+      });
+      final isoBook = Book.fromJson({
+        ..._book(
+          title: "ISO Book",
+          isbn: "2222222222",
+          isbn13: "9782222222222",
+        ),
+        "date_published": "2022-03-25t10:20:30z",
+      });
+
+      expect(yearBook.datePublished, DateTime(1998));
+      expect(isoBook.datePublished, DateTime.parse("2022-03-25T10:20:30Z"));
+    });
   });
 }
 
 ISBNdb _createClient({
   Map<String, Map<String, dynamic>>? responses,
+  Map<String, int>? statusCodes,
   void Function(RequestOptions options)? onRequestCallback,
 }) {
   final dio = Dio()
     ..interceptors.add(
       _StubApiInterceptor(
         responses: responses ?? _defaultResponses(),
+        statusCodes: statusCodes ?? const {},
         onRequestCallback: onRequestCallback,
       ),
     );
@@ -196,9 +251,14 @@ Map<String, dynamic> _book({
 };
 
 class _StubApiInterceptor extends Interceptor {
-  _StubApiInterceptor({required this.responses, this.onRequestCallback});
+  _StubApiInterceptor({
+    required this.responses,
+    required this.statusCodes,
+    this.onRequestCallback,
+  });
 
   final Map<String, Map<String, dynamic>> responses;
+  final Map<String, int> statusCodes;
   final void Function(RequestOptions options)? onRequestCallback;
 
   @override
@@ -211,6 +271,7 @@ class _StubApiInterceptor extends Interceptor {
     );
     final key = "${options.method.toUpperCase()} $endpoint";
     final payload = responses[key];
+    final statusCode = statusCodes[key] ?? 200;
 
     if (payload == null) {
       handler.reject(
@@ -223,10 +284,25 @@ class _StubApiInterceptor extends Interceptor {
       return;
     }
 
+    if (statusCode != 200) {
+      handler.reject(
+        DioException(
+          requestOptions: options,
+          response: Response<List<int>>(
+            requestOptions: options,
+            statusCode: statusCode,
+            data: utf8.encode(jsonEncode(payload)),
+          ),
+          type: DioExceptionType.badResponse,
+        ),
+      );
+      return;
+    }
+
     handler.resolve(
       Response<List<int>>(
         requestOptions: options,
-        statusCode: 200,
+        statusCode: statusCode,
         data: utf8.encode(jsonEncode(payload)),
       ),
     );
