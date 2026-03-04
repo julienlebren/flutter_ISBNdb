@@ -14,7 +14,7 @@ class ISBNdb {
   final _dio = Dio();
 
   /// Handles get requests
-  Future<dynamic> _get(
+  Future<Map<String, dynamic>> _get(
     String path, {
     Map<String, Object?>? queryParameters,
   }) async {
@@ -28,25 +28,32 @@ class ISBNdb {
       queryParameters: queryParameters,
     );
     if (result.statusCode == 200) {
-      return Map<String, Object>.from(jsonDecode(utf8.decode(result.data!)));
+      return Map<String, dynamic>.from(
+        jsonDecode(utf8.decode(result.data!)) as Map<String, dynamic>,
+      );
     } else {
       throw _errorMessage;
     }
   }
 
   /// Handles post requests
-  Future<dynamic> _post(
+  Future<Map<String, dynamic>> _post(
     String path, {
     Map<String, Object?>? queryParameters,
   }) async {
     final result = await _dio.post<List<int>>(
       "$_baseApiUrl/$path",
-      options: Options(headers: {'authorization': _key}),
+      options: Options(
+        responseType: ResponseType.bytes,
+        headers: {'authorization': _key},
+      ),
       cancelToken: CancelToken(),
       queryParameters: queryParameters,
     );
     if (result.statusCode == 200) {
-      return Map<String, Object>.from(jsonDecode(utf8.decode(result.data!)));
+      return Map<String, dynamic>.from(
+        jsonDecode(utf8.decode(result.data!)) as Map<String, dynamic>,
+      );
     } else {
       throw _errorMessage;
     }
@@ -87,10 +94,7 @@ class ISBNdb {
       "books",
       queryParameters: <String, Object?>{"isbns": isbns},
     );
-    return BookQueryResult(
-      total: response['total'],
-      books: response['books'].map((json) => Book.fromJson(json)),
-    );
+    return BookQueryResult.fromJson(response);
   }
 
   /// Get author details
