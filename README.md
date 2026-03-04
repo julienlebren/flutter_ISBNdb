@@ -49,10 +49,11 @@ List<String> isbns | a list of ISBN 10 or ISBN 13 in the Books database
 * **Search books**
 
 ```dart
-final books = isbnDb.getBooks("Google Flutter", { 
-    page: 1, 
-    pageSize: 20, 
-});
+final books = isbnDb.getBooks(
+  "Google Flutter",
+  page: 1,
+  pageSize: 20,
+);
 ```
 
 Param | Description
@@ -72,10 +73,11 @@ BookColumn column | Search limited to a column
 * **Get author details**
 
 ```dart
-final book = isbnDb.getAuthor("Bussi Michel", { 
-    page: 1, 
-    pageSize: 20, 
-});
+final book = isbnDb.getAuthor(
+  "Bussi Michel",
+  page: 1,
+  pageSize: 20,
+);
 ```
 
 Param | Description
@@ -87,10 +89,11 @@ String pageSize | How many items should be returned per page, maximum of 1,000
 * **Search authors**
 
 ```dart
-final book = isbnDb.getAuthors("werber", { 
-    page: 1, 
-    pageSize: 20, 
-});
+final book = isbnDb.getAuthors(
+  "werber",
+  page: 1,
+  pageSize: 20,
+);
 ```
 
 Param | Description
@@ -104,10 +107,11 @@ String pageSize | How many items should be returned per page, maximum of 1,000
 * **Get publisher details**
 
 ```dart
-final book = isbnDb.getPublisher("Nathan", { 
-    page: 1, 
-    pageSize: 20, 
-});
+final book = isbnDb.getPublisher(
+  "Nathan",
+  page: 1,
+  pageSize: 20,
+);
 ```
 
 Param | Description
@@ -119,10 +123,11 @@ String pageSize | How many items should be returned per page, maximum of 1,000
 * **Search publishers**
 
 ```dart
-final book = isbnDb.getPublishers("Nathan", { 
-    page: 1, 
-    pageSize: 20, 
-});
+final book = isbnDb.getPublishers(
+  "Nathan",
+  page: 1,
+  pageSize: 20,
+);
 ```
 
 Param | Description
@@ -146,10 +151,11 @@ String name | A subject in the Subject's database
 * **Search subjects**
 
 ```dart
-final book = isbnDb.getSubjects("flutter", { 
-    page: 1, 
-    pageSize: 20, 
-});
+final book = isbnDb.getSubjects(
+  "flutter",
+  page: 1,
+  pageSize: 20,
+);
 ```
 
 Param | Description

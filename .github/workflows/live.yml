@@ -1,0 +1,48 @@
+name: Live API Tests
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 5 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  live-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Tests (live)
+        env:
+          ISBNDB_API_KEY: ${{ secrets.ISBNDB_API_KEY }}
+        run: |
+          if [ -z "${ISBNDB_API_KEY}" ]; then
+            echo "ISBNDB_API_KEY is missing; skipping live tests."
+            exit 0
+          fi
+
+          set +e
+          flutter test --tags live
+          status=$?
+          set -e
+
+          if [ "${status}" -eq 79 ]; then
+            echo "No tests tagged 'live'; skipping."
+            exit 0
+          fi
+
+          exit "${status}"

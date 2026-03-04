@@ -111,12 +111,11 @@ class _MsrpConverter implements JsonConverter<double?, dynamic> {
 
   @override
   double? fromJson(dynamic value) {
-    if (value != null) {
-      if (value is String) {
-        return double.parse(value);
-      } else if (value is int) {
-        return value.toDouble();
-      }
+    if (value is num) {
+      return value.toDouble();
+    }
+    if (value is String) {
+      return double.tryParse(value.trim());
     }
     return null;
   }

@@ -4,14 +4,14 @@ part of isbndb_flutter;
 /// You need to init the class with your own key
 /// See https://isbndb.com/isbn-database
 class ISBNdb {
-  ISBNdb(this._key);
+  ISBNdb(this._key, {Dio? dio}) : _dio = dio ?? Dio();
 
   /// Your key from isbndb.com
   final String _key;
 
   static const String _baseApiUrl = "https://api2.isbndb.com";
   static const String _errorMessage = "Unable to get response from API server";
-  final _dio = Dio();
+  final Dio _dio;
 
   /// Handles get requests
   Future<Map<String, dynamic>> _get(
@@ -82,7 +82,7 @@ class ISBNdb {
       queryParameters: <String, Object?>{
         "page": page,
         "pageSize": pageSize,
-        "column": column?.toString(),
+        "column": column?.name,
       },
     );
     return BookQueryResult.fromJson(response);

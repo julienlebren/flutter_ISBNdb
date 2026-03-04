@@ -1,63 +1,234 @@
+import 'dart:convert';
+
+import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:isbndb/isbndb.dart';
 
 void main() {
   group("ISBNdb", () {
-    final isbndb = ISBNdb("put_your_key_here");
-
     test('Should get books from Michel Bussi', () async {
-      expect(
-        await isbndb.getAuthor("Bussi Michel"),
-        isInstanceOf<Author>(),
-      );
+      final isbndb = _createClient();
+      final author = await isbndb.getAuthor("Bussi Michel");
+      expect(author, isA<Author>());
+      expect(author!.author, "Bussi Michel");
     });
+
     test('Should get authors matching name werber', () async {
-      expect(
-        await isbndb.getAuthors("werber"),
-        isInstanceOf<AuthorQueryResult>(),
-      );
+      final isbndb = _createClient();
+      final authors = await isbndb.getAuthors("werber");
+      expect(authors, isA<AuthorQueryResult>());
+      expect(authors.authors, contains("Bernard Werber"));
     });
+
     test('Should get "Learn Google Flutter Fast"', () async {
-      expect(
-        await isbndb.getBook("9781092297370"),
-        isInstanceOf<Book>(),
-      );
+      final isbndb = _createClient();
+      final book = await isbndb.getBook("9781092297370");
+      expect(book, isA<Book>());
+      expect(book!.title, "Learn Google Flutter Fast");
     });
+
     test('Should get books about Flutter', () async {
-      expect(
-        await isbndb.getBooks("Google Flutter"),
-        isInstanceOf<BookQueryResult>(),
-      );
+      final isbndb = _createClient();
+      final books = await isbndb.getBooks("Google Flutter");
+      expect(books, isA<BookQueryResult>());
+      expect(books.books.length, 1);
     });
+
     test('Should get books from ISBNs', () async {
-      expect(
-        await isbndb.getBooksFromISBNs(["9781092297370", "9781680506952"]),
-        isInstanceOf<BookQueryResult>(),
-      );
+      final isbndb = _createClient();
+      final books = await isbndb.getBooksFromISBNs([
+        "9781092297370",
+        "9781680506952",
+      ]);
+      expect(books, isA<BookQueryResult>());
+      expect(books.books.length, 2);
+      expect(books.books.first, isA<Book>());
     });
+
     test('Should get list of publishers matching "Nathan"', () async {
-      expect(
-        await isbndb.getPublishers("Nathan"),
-        isInstanceOf<PublisherQueryResult>(),
-      );
+      final isbndb = _createClient();
+      final publishers = await isbndb.getPublishers("Nathan");
+      expect(publishers, isA<PublisherQueryResult>());
+      expect(publishers.publishers, contains("Nathan"));
     });
+
     test('Should get books from publisher Nathan', () async {
-      expect(
-        await isbndb.getPublisher("Nathan"),
-        isInstanceOf<Publisher>(),
-      );
+      final isbndb = _createClient();
+      final publisher = await isbndb.getPublisher("Nathan");
+      expect(publisher, isA<Publisher>());
+      expect(publisher!.name, "Nathan");
     });
+
     test('Should get list of subjects matching "flutter"', () async {
-      expect(
-        await isbndb.getSubjects("flutter"),
-        isInstanceOf<SubjectQueryResult>(),
-      );
+      final isbndb = _createClient();
+      final subjects = await isbndb.getSubjects("flutter");
+      expect(subjects, isA<SubjectQueryResult>());
+      expect(subjects.subjects, contains("flutter"));
     });
+
     test('Should get books matching subject "flutter"', () async {
-      expect(
-        await isbndb.getSubject("flutter"),
-        isInstanceOf<Subject>(),
+      final isbndb = _createClient();
+      final subject = await isbndb.getSubject("flutter");
+      expect(subject, isA<Subject>());
+      expect(subject!.subject, "flutter");
+    });
+
+    test('Should send column enum name to API', () async {
+      RequestOptions? options;
+      final isbndb = _createClient(
+        onRequestCallback: (requestOptions) => options = requestOptions,
       );
+
+      await isbndb.getBooks("Google Flutter", column: BookColumn.title);
+
+      expect(options, isNotNull);
+      expect(options!.queryParameters["column"], "title");
+    });
+
+    test('Should not throw when msrp is non-numeric', () async {
+      final isbndb = _createClient(
+        responses: {
+          ..._defaultResponses(),
+          "GET book/9780000000000": {
+            "book": {
+              ..._book(
+                title: "Unknown MSRP",
+                isbn: "0000000000",
+                isbn13: "9780000000000",
+              ),
+              "msrp": "N/A",
+            },
+          },
+        },
+      );
+
+      final book = await isbndb.getBook("9780000000000");
+      expect(book, isNotNull);
+      expect(book!.msrp, isNull);
     });
   });
+}
+
+ISBNdb _createClient({
+  Map<String, Map<String, dynamic>>? responses,
+  void Function(RequestOptions options)? onRequestCallback,
+}) {
+  final dio = Dio()
+    ..interceptors.add(
+      _StubApiInterceptor(
+        responses: responses ?? _defaultResponses(),
+        onRequestCallback: onRequestCallback,
+      ),
+    );
+  return ISBNdb("test-api-key", dio: dio);
+}
+
+Map<String, Map<String, dynamic>> _defaultResponses() => {
+  "GET author/Bussi Michel": {
+    "author": "Bussi Michel",
+    "books": [
+      _book(
+        title: "Nymphéas Noirs",
+        isbn: "2266246197",
+        isbn13: "9782266246194",
+      ),
+    ],
+  },
+  "GET authors/werber": {
+    "total": 1,
+    "authors": ["Bernard Werber"],
+  },
+  "GET book/9781092297370": {
+    "book": _book(
+      title: "Learn Google Flutter Fast",
+      isbn: "1092297370",
+      isbn13: "9781092297370",
+      msrp: "39.99",
+    ),
+  },
+  "GET books/Google Flutter": {
+    "total": 1,
+    "books": [
+      _book(
+        title: "Learn Google Flutter Fast",
+        isbn: "1092297370",
+        isbn13: "9781092297370",
+      ),
+    ],
+  },
+  "POST books": {
+    "total": 2,
+    "books": [
+      _book(
+        title: "Learn Google Flutter Fast",
+        isbn: "1092297370",
+        isbn13: "9781092297370",
+      ),
+      _book(
+        title: "Programming Flutter",
+        isbn: "1680506955",
+        isbn13: "9781680506952",
+      ),
+    ],
+  },
+  "GET publishers/Nathan": {
+    "total": 1,
+    "publishers": ["Nathan"],
+  },
+  "GET publisher/Nathan": {"name": "Nathan", "books": []},
+  "GET subjects/flutter": {
+    "total": 1,
+    "subjects": ["flutter"],
+  },
+  "GET subject/flutter": {"subject": "flutter", "books": []},
+};
+
+Map<String, dynamic> _book({
+  required String title,
+  required String isbn,
+  required String isbn13,
+  dynamic msrp,
+}) => <String, dynamic>{
+  "title": title,
+  "isbn": isbn,
+  "isbn13": isbn13,
+  if (msrp != null) "msrp": msrp,
+};
+
+class _StubApiInterceptor extends Interceptor {
+  _StubApiInterceptor({required this.responses, this.onRequestCallback});
+
+  final Map<String, Map<String, dynamic>> responses;
+  final void Function(RequestOptions options)? onRequestCallback;
+
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    onRequestCallback?.call(options);
+
+    final uri = Uri.parse(options.path);
+    final endpoint = Uri.decodeComponent(
+      uri.path.startsWith("/") ? uri.path.substring(1) : uri.path,
+    );
+    final key = "${options.method.toUpperCase()} $endpoint";
+    final payload = responses[key];
+
+    if (payload == null) {
+      handler.reject(
+        DioException(
+          requestOptions: options,
+          type: DioExceptionType.badResponse,
+          error: "No stub response for $key",
+        ),
+      );
+      return;
+    }
+
+    handler.resolve(
+      Response<List<int>>(
+        requestOptions: options,
+        statusCode: 200,
+        data: utf8.encode(jsonEncode(payload)),
+      ),
+    );
+  }
 }
