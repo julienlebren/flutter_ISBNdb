@@ -121,7 +121,7 @@ void main() {
       expect(book!.msrp, isNull);
     });
 
-    test('Should throw DioException when API returns 401', () async {
+    test('Should throw ISBNdbException when API returns 401', () async {
       final isbndb = _createClient(
         statusCodes: {"GET book/9781092297370": 401},
       );
@@ -129,11 +129,100 @@ void main() {
       await expectLater(
         () => isbndb.getBook("9781092297370"),
         throwsA(
-          isA<DioException>().having(
-            (exception) => exception.response?.statusCode,
-            "statusCode",
-            401,
+          isA<ISBNdbException>()
+              .having((exception) => exception.statusCode, "statusCode", 401)
+              .having((exception) => exception.method, "method", "GET")
+              .having(
+                (exception) => exception.path,
+                "path",
+                "book/9781092297370",
+              ),
+        ),
+      );
+    });
+
+    test(
+      'Should throw ISBNdbException when response JSON is not an object',
+      () async {
+        final isbndb = _createClient(
+          rawResponses: {
+            "GET book/9784444444444": utf8.encode('["unexpected", "shape"]'),
+          },
+        );
+
+        await expectLater(
+          () => isbndb.getBook("9784444444444"),
+          throwsA(
+            isA<ISBNdbException>()
+                .having(
+                  (exception) => exception.message,
+                  "message",
+                  "Received an invalid response format from API server",
+                )
+                .having((exception) => exception.method, "method", "GET")
+                .having(
+                  (exception) => exception.path,
+                  "path",
+                  "book/9784444444444",
+                ),
           ),
+        );
+      },
+    );
+
+    test('Should throw ISBNdbException when network call fails', () async {
+      final isbndb = _createClient(
+        failureTypes: {
+          "GET book/9785555555555": DioExceptionType.connectionError,
+        },
+      );
+
+      await expectLater(
+        () => isbndb.getBook("9785555555555"),
+        throwsA(
+          isA<ISBNdbException>()
+              .having((exception) => exception.statusCode, "statusCode", isNull)
+              .having((exception) => exception.method, "method", "GET")
+              .having(
+                (exception) => exception.path,
+                "path",
+                "book/9785555555555",
+              )
+              .having(
+                (exception) => exception.cause,
+                "cause",
+                isA<DioException>(),
+              ),
+        ),
+      );
+    });
+
+    test('Should throw ISBNdbException when model parsing fails', () async {
+      final isbndb = _createClient(
+        responses: {
+          ..._defaultResponses(),
+          "GET book/9783333333333": {
+            "book": {"isbn": "3333333333", "isbn13": "9783333333333"},
+          },
+        },
+      );
+
+      await expectLater(
+        () => isbndb.getBook("9783333333333"),
+        throwsA(
+          isA<ISBNdbException>()
+              .having(
+                (exception) => exception.message,
+                "message",
+                "Received an unexpected data format from API server",
+              )
+              .having((exception) => exception.method, "method", "GET")
+              .having(
+                (exception) => exception.path,
+                "path",
+                "book/9783333333333",
+              )
+              .having((exception) => exception.cause, "cause", isNotNull),
         ),
       );
     });
@@ -165,6 +254,8 @@ void main() {
 ISBNdb _createClient({
   Map<String, Map<String, dynamic>>? responses,
   Map<String, int>? statusCodes,
+  Map<String, List<int>>? rawResponses,
+  Map<String, DioExceptionType>? failureTypes,
   void Function(RequestOptions options)? onRequestCallback,
 }) {
   final dio = Dio()
@@ -172,6 +263,8 @@ ISBNdb _createClient({
       _StubApiInterceptor(
         responses: responses ?? _defaultResponses(),
         statusCodes: statusCodes ?? const {},
+        rawResponses: rawResponses ?? const {},
+        failureTypes: failureTypes ?? const {},
         onRequestCallback: onRequestCallback,
       ),
     );
@@ -254,11 +347,15 @@ class _StubApiInterceptor extends Interceptor {
   _StubApiInterceptor({
     required this.responses,
     required this.statusCodes,
+    required this.rawResponses,
+    required this.failureTypes,
     this.onRequestCallback,
   });
 
   final Map<String, Map<String, dynamic>> responses;
   final Map<String, int> statusCodes;
+  final Map<String, List<int>> rawResponses;
+  final Map<String, DioExceptionType> failureTypes;
   final void Function(RequestOptions options)? onRequestCallback;
 
   @override
@@ -270,6 +367,30 @@ class _StubApiInterceptor extends Interceptor {
       uri.path.startsWith("/") ? uri.path.substring(1) : uri.path,
     );
     final key = "${options.method.toUpperCase()} $endpoint";
+    final simulatedFailureType = failureTypes[key];
+    if (simulatedFailureType != null) {
+      handler.reject(
+        DioException(
+          requestOptions: options,
+          type: simulatedFailureType,
+          message: "Simulated request failure for $key",
+        ),
+      );
+      return;
+    }
+
+    final rawPayload = rawResponses[key];
+    if (rawPayload != null) {
+      handler.resolve(
+        Response<List<int>>(
+          requestOptions: options,
+          statusCode: statusCodes[key] ?? 200,
+          data: rawPayload,
+        ),
+      );
+      return;
+    }
+
     final payload = responses[key];
     final statusCode = statusCodes[key] ?? 200;
 

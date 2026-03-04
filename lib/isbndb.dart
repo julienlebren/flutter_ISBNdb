@@ -18,5 +18,6 @@ part 'src/merchant.dart';
 part 'src/publisher_query_results.dart';
 part 'src/publisher.dart';
 part 'src/service.dart';
+part 'src/isbndb_exception.dart';
 part 'src/subject_query_results.dart';
 part 'src/subject.dart';
