@@ -8,10 +8,12 @@ cd "${REPO_ROOT}"
 PUBSPEC_FILE="pubspec.yaml"
 CHANGELOG_FILE="CHANGELOG.md"
 
-NO_PUBLISH=0
+NO_PUBLISH=1
+PUBLISH_ONLY=0
 SKIP_LIVE_TESTS=0
 SKIP_TESTS=0
 BUMP_TYPE=""
+NEW_VERSION=""
 
 usage() {
   cat <<'EOF'
@@ -19,7 +21,8 @@ Usage: scripts/release.sh [options]
 
 Options:
   --bump <patch|minor|major>  Set the version bump type (otherwise prompted)
-  --no-publish                Do not run `flutter pub publish`
+  --publish-only              Publish current committed version to pub.dev
+  --no-publish                Keep compatibility with previous behavior (default)
   --skip-live-tests           Skip `flutter test --tags live`
   --skip-tests                Skip all tests and analysis (not recommended)
   -h, --help                  Show this help
@@ -53,6 +56,11 @@ parse_args() {
         ;;
       --no-publish)
         NO_PUBLISH=1
+        shift
+        ;;
+      --publish-only)
+        PUBLISH_ONLY=1
+        NO_PUBLISH=0
         shift
         ;;
       --skip-live-tests)
@@ -212,8 +220,12 @@ run_checks() {
 
 publish_package() {
   if [[ "${NO_PUBLISH}" -eq 1 ]]; then
-    log "Skipping publish (--no-publish)"
+    log "Skipping publish (default behavior)"
     return
+  fi
+
+  if [[ -n "$(git status --porcelain)" ]]; then
+    fail "Publish requires a clean git state. Commit release files first, then run scripts/release.sh --publish-only."
   fi
 
   log "Running publish dry-run"
@@ -229,6 +241,21 @@ publish_package() {
 
 main() {
   parse_args "$@"
+
+  if [[ "${PUBLISH_ONLY}" -eq 1 ]]; then
+    [[ -z "${BUMP_TYPE}" ]] || fail "--bump cannot be used with --publish-only"
+
+    ensure_clean_worktree
+    NEW_VERSION="$(current_version)"
+    [[ -n "${NEW_VERSION}" ]] || fail "Could not read current version from ${PUBSPEC_FILE}"
+
+    log "Publish-only mode for version: ${NEW_VERSION}"
+    run_checks
+    publish_package
+    log "Done"
+    exit 0
+  fi
+
   ensure_clean_worktree
 
   local current base bump next
@@ -268,6 +295,7 @@ main() {
   echo "  2) git add ${PUBSPEC_FILE} ${CHANGELOG_FILE}"
   echo "  3) git commit -m \"Release ${NEW_VERSION}\""
   echo "  4) git tag v${NEW_VERSION} && git push --follow-tags"
+  echo "  5) scripts/release.sh --publish-only"
 }
 
 main "$@"
