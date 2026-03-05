@@ -442,6 +442,186 @@ void main() {
       );
     });
 
+    test('Should propagate common HTTP status codes from API', () async {
+      const statusCodes = <int>[400, 401, 403, 404, 429, 500];
+
+      for (final statusCode in statusCodes) {
+        final isbndb = _createClient(
+          responses: {
+            ..._defaultResponses(),
+            "GET book/9781092297370": {"message": "HTTP $statusCode error"},
+          },
+          statusCodes: {"GET book/9781092297370": statusCode},
+        );
+
+        await expectLater(
+          () => isbndb.getBook("9781092297370"),
+          throwsA(
+            isA<ISBNdbException>()
+                .having(
+                  (exception) => exception.statusCode,
+                  "statusCode",
+                  statusCode,
+                )
+                .having(
+                  (exception) => exception.message,
+                  "message",
+                  "HTTP $statusCode error",
+                ),
+          ),
+        );
+      }
+    });
+
+    test('Should read error_message field from API error payload', () async {
+      final isbndb = _createClient(
+        responses: {
+          ..._defaultResponses(),
+          "POST books": {"error_message": "Unsupported format."},
+        },
+        statusCodes: {"POST books": 415},
+      );
+
+      await expectLater(
+        () => isbndb.getBooksFromISBNs(["9781092297370"]),
+        throwsA(
+          isA<ISBNdbException>()
+              .having((exception) => exception.statusCode, "statusCode", 415)
+              .having((exception) => exception.method, "method", "POST")
+              .having((exception) => exception.path, "path", "books")
+              .having(
+                (exception) => exception.message,
+                "message",
+                "Unsupported format.",
+              ),
+        ),
+      );
+    });
+
+    test(
+      'Should fallback to raw text message for non-JSON API errors',
+      () async {
+        final isbndb = _createClient(
+          rawResponses: {
+            "GET book/9781092297370": utf8.encode("Gateway timeout"),
+          },
+          statusCodes: {"GET book/9781092297370": 500},
+        );
+
+        await expectLater(
+          () => isbndb.getBook("9781092297370"),
+          throwsA(
+            isA<ISBNdbException>()
+                .having((exception) => exception.statusCode, "statusCode", 500)
+                .having(
+                  (exception) => exception.message,
+                  "message",
+                  "Gateway timeout",
+                ),
+          ),
+        );
+      },
+    );
+
+    test(
+      'Should fallback to default message when API payload is empty',
+      () async {
+        final isbndb = _createClient(
+          rawResponses: {"GET book/9781092297370": utf8.encode("")},
+          statusCodes: {"GET book/9781092297370": 500},
+        );
+
+        await expectLater(
+          () => isbndb.getBook("9781092297370"),
+          throwsA(
+            isA<ISBNdbException>().having(
+              (exception) => exception.message,
+              "message",
+              "Unable to get response from API server",
+            ),
+          ),
+        );
+      },
+    );
+
+    test('Should read message from Dio map error payload', () async {
+      final isbndb = _createClientWithErrorResponseData(
+        data: {"error_message": "Map payload error"},
+        statusCode: 400,
+      );
+
+      await expectLater(
+        () => isbndb.getBook("9781092297370"),
+        throwsA(
+          isA<ISBNdbException>()
+              .having((exception) => exception.statusCode, "statusCode", 400)
+              .having(
+                (exception) => exception.message,
+                "message",
+                "Map payload error",
+              ),
+        ),
+      );
+    });
+
+    test('Should read message from Dio string error payload', () async {
+      final isbndb = _createClientWithErrorResponseData(
+        data: "Upstream failure",
+        statusCode: 502,
+      );
+
+      await expectLater(
+        () => isbndb.getBook("9781092297370"),
+        throwsA(
+          isA<ISBNdbException>()
+              .having((exception) => exception.statusCode, "statusCode", 502)
+              .having(
+                (exception) => exception.message,
+                "message",
+                "Upstream failure",
+              ),
+        ),
+      );
+    });
+
+    test(
+      'Should fallback to Dio message when no response payload is available',
+      () async {
+        final isbndb = _createClientWithErrorResponseData(
+          data: null,
+          statusCode: null,
+          type: DioExceptionType.connectionTimeout,
+          errorMessage: "Request timed out",
+        );
+
+        await expectLater(
+          () => isbndb.getBook("9781092297370"),
+          throwsA(
+            isA<ISBNdbException>()
+                .having(
+                  (exception) => exception.statusCode,
+                  "statusCode",
+                  isNull,
+                )
+                .having(
+                  (exception) => exception.message,
+                  "message",
+                  "Request timed out",
+                )
+                .having(
+                  (exception) => exception.cause,
+                  "cause",
+                  isA<DioException>().having(
+                    (error) => error.type,
+                    "type",
+                    DioExceptionType.connectionTimeout,
+                  ),
+                ),
+          ),
+        );
+      },
+    );
+
     test(
       'Should throw ISBNdbException when response JSON is not an object',
       () async {
@@ -493,6 +673,37 @@ void main() {
                 (exception) => exception.cause,
                 "cause",
                 isA<DioException>(),
+              ),
+        ),
+      );
+    });
+
+    test('Should throw ISBNdbException when request times out', () async {
+      final isbndb = _createClient(
+        failureTypes: {
+          "GET book/9785555555555": DioExceptionType.connectionTimeout,
+        },
+      );
+
+      await expectLater(
+        () => isbndb.getBook("9785555555555"),
+        throwsA(
+          isA<ISBNdbException>()
+              .having((exception) => exception.statusCode, "statusCode", isNull)
+              .having((exception) => exception.method, "method", "GET")
+              .having(
+                (exception) => exception.path,
+                "path",
+                "book/9785555555555",
+              )
+              .having(
+                (exception) => exception.cause,
+                "cause",
+                isA<DioException>().having(
+                  (error) => error.type,
+                  "type",
+                  DioExceptionType.connectionTimeout,
+                ),
               ),
         ),
       );
@@ -567,6 +778,36 @@ ISBNdb _createClient({
         rawResponses: rawResponses ?? const {},
         failureTypes: failureTypes ?? const {},
         onRequestCallback: onRequestCallback,
+      ),
+    );
+  return ISBNdb("test-api-key", dio: dio);
+}
+
+ISBNdb _createClientWithErrorResponseData({
+  required Object? data,
+  int? statusCode = 500,
+  DioExceptionType type = DioExceptionType.badResponse,
+  String? errorMessage,
+}) {
+  final dio = Dio()
+    ..interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          handler.reject(
+            DioException(
+              requestOptions: options,
+              type: type,
+              message: errorMessage,
+              response: statusCode == null
+                  ? null
+                  : Response<Object?>(
+                      requestOptions: options,
+                      statusCode: statusCode,
+                      data: data,
+                    ),
+            ),
+          );
+        },
       ),
     );
   return ISBNdb("test-api-key", dio: dio);

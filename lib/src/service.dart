@@ -61,7 +61,15 @@ class ISBNdb {
             );
 
       final bytes = result.data;
-      if (result.statusCode != 200 || bytes == null) {
+      if (result.statusCode != 200) {
+        throw ISBNdbException(
+          message: _extractMessageFromRawBytes(bytes) ?? _defaultErrorMessage,
+          method: method,
+          path: path,
+          statusCode: result.statusCode,
+        );
+      }
+      if (bytes == null) {
         throw ISBNdbException(
           message: _defaultErrorMessage,
           method: method,
@@ -107,30 +115,13 @@ class ISBNdb {
     final responseData = error.response?.data;
 
     if (responseData is List<int>) {
-      final rawText = utf8.decode(responseData, allowMalformed: true).trim();
-      if (rawText.isEmpty) {
-        return null;
-      }
-
-      try {
-        final decodedJson = jsonDecode(rawText);
-        if (decodedJson is Map<String, dynamic>) {
-          final message = decodedJson['message'] ?? decodedJson['error'];
-          if (message is String && message.trim().isNotEmpty) {
-            return message.trim();
-          }
-        }
-      } on FormatException {
-        // Non-JSON payload, fallback to raw text below.
-      }
-
-      return rawText;
+      return _extractMessageFromRawBytes(responseData);
     }
 
-    if (responseData is Map<String, dynamic>) {
-      final message = responseData['message'] ?? responseData['error'];
-      if (message is String && message.trim().isNotEmpty) {
-        return message.trim();
+    if (responseData is Map) {
+      final message = _extractMessageFromMap(responseData);
+      if (message != null) {
+        return message;
       }
     }
 
@@ -142,6 +133,40 @@ class ISBNdb {
       return error.message!.trim();
     }
 
+    return null;
+  }
+
+  String? _extractMessageFromRawBytes(List<int>? bytes) {
+    if (bytes == null) {
+      return null;
+    }
+    final rawText = utf8.decode(bytes, allowMalformed: true).trim();
+    if (rawText.isEmpty) {
+      return null;
+    }
+
+    try {
+      final decodedJson = jsonDecode(rawText);
+      if (decodedJson is Map) {
+        final message = _extractMessageFromMap(decodedJson);
+        if (message != null) {
+          return message;
+        }
+      }
+    } on FormatException {
+      // Non-JSON payload, fallback to raw text below.
+    }
+
+    return rawText;
+  }
+
+  String? _extractMessageFromMap(Map<dynamic, dynamic> json) {
+    for (final key in ['error_message', 'message', 'error']) {
+      final value = json[key];
+      if (value is String && value.trim().isNotEmpty) {
+        return value.trim();
+      }
+    }
     return null;
   }
 
