@@ -124,8 +124,8 @@ final book = isbnDb.getAuthor(
 Param | Description
 ------------ | -------------
 String name | The name of an author in the Author's database
-String page | The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them
-String pageSize | How many items should be returned per page, maximum of 1,000
+int page | The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them
+int pageSize | How many items should be returned per page, maximum of 1,000
 
 * **Search authors**
 
@@ -140,8 +140,8 @@ final book = isbnDb.getAuthors(
 Param | Description
 ------------ | -------------
 String query | A string to search for in the Author’s database
-String page | The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them
-String pageSize | How many items should be returned per page, maximum of 1,000
+int page | The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them
+int pageSize | How many items should be returned per page, maximum of 1,000
 
 ### Publishers
 
@@ -158,8 +158,8 @@ final book = isbnDb.getPublisher(
 Param | Description
 ------------ | -------------
 String name | The name of a publisher in the Publisher's database
-String page | The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them
-String pageSize | How many items should be returned per page, maximum of 1,000
+int page | The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them
+int pageSize | How many items should be returned per page, maximum of 1,000
 
 * **Search publishers**
 
@@ -174,8 +174,8 @@ final book = isbnDb.getPublishers(
 Param | Description
 ------------ | -------------
 String query | A string to search for in the Publisher’s database
-String page | The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them
-String pageSize | How many items should be returned per page, maximum of 1,000
+int page | The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them
+int pageSize | How many items should be returned per page, maximum of 1,000
 
 ### Subjects
 
@@ -202,8 +202,8 @@ final book = isbnDb.getSubjects(
 Param | Description
 ------------ | -------------
 String query | A string to search for in the Subject’s database
-String page | The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them
-String pageSize | How many items should be returned per page, maximum of 1,000
+int page | The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them
+int pageSize | How many items should be returned per page, maximum of 1,000
 
 ### Account & API stats
 
@@ -230,7 +230,9 @@ Returns global dataset counters (`books`, `authors`, `publishers`, `subjects`).
 
 Live tests are skipped automatically when `ISBNDB_API_KEY` is not set.
 
-## Code generation
+## Code generation (maintainers only)
+
+You do not need this section to use the package in your app.
 
 Regenerate `freezed`/`json_serializable` files with:
 
