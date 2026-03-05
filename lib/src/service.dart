@@ -24,12 +24,19 @@ class ISBNdb {
   Future<Map<String, dynamic>> _post(
     String path, {
     Map<String, Object?>? queryParameters,
-  }) => _request(method: "POST", path: path, queryParameters: queryParameters);
+    Object? data,
+  }) => _request(
+    method: "POST",
+    path: path,
+    queryParameters: queryParameters,
+    data: data,
+  );
 
   Future<Map<String, dynamic>> _request({
     required String method,
     required String path,
     Map<String, Object?>? queryParameters,
+    Object? data,
   }) async {
     final options = Options(
       responseType: ResponseType.bytes,
@@ -50,6 +57,7 @@ class ISBNdb {
               options: options,
               cancelToken: CancelToken(),
               queryParameters: queryParameters,
+              data: data,
             );
 
       final bytes = result.data;
@@ -186,15 +194,28 @@ class ISBNdb {
     String query, {
     int page = 1,
     int pageSize = 20,
+    int? year,
+    int? edition,
+    bool? shouldMatchAll,
+    String? language,
     BookColumn? column,
+    int? offset,
   }) async {
     final path = "books/$query";
     final response = await _get(
       path,
       queryParameters: <String, Object?>{
         "page": page,
+        // Keep both snake_case and camelCase for backward compatibility.
+        "page_size": pageSize,
         "pageSize": pageSize,
+        "year": year,
+        "edition": edition,
+        "should_match_all": shouldMatchAll,
+        "language": language,
+        "column_enum": column?.name,
         "column": column?.name,
+        "offset": offset,
       },
     );
     return _parseModel(
@@ -207,10 +228,7 @@ class ISBNdb {
   /// Get book details from a list of ISBNs
   Future<BookQueryResult> getBooksFromISBNs(List<String> isbns) async {
     const path = "books";
-    final response = await _post(
-      path,
-      queryParameters: <String, Object?>{"isbns": isbns},
-    );
+    final response = await _post(path, data: <String, Object?>{"isbns": isbns});
     return _parseModel(
       method: "POST",
       path: path,

@@ -6,6 +6,7 @@ import 'package:isbndb/isbndb.dart';
 
 void main() {
   const isbn13 = "9781092297370";
+  const batchIsbns = <String>["9781092297370", "9781680506952"];
   final apiKey = Platform.environment['ISBNDB_API_KEY'];
   final skipReason = apiKey == null ? "Missing ISBNDB_API_KEY" : false;
 
@@ -43,6 +44,22 @@ void main() {
       final result = await isbndb.getSubjects("flutter", page: 1, pageSize: 5);
       expect(result.total, greaterThan(0));
       expect(result.subjects, isNotEmpty);
+    }, skip: skipReason);
+
+    test("getBooksFromISBNs returns expected books for known ISBNs", () async {
+      final isbndb = ISBNdb(apiKey!);
+      final result = await isbndb.getBooksFromISBNs(batchIsbns);
+
+      expect(result.total, greaterThanOrEqualTo(batchIsbns.length));
+      expect(result.books, isNotEmpty);
+
+      final returnedIsbns = result.books.map((book) => book.isbn13).toSet();
+      expect(returnedIsbns, containsAll(batchIsbns));
+
+      for (final book in result.books) {
+        expect(book.isbn13, isNotEmpty);
+        expect(book.title, isNotEmpty);
+      }
     }, skip: skipReason);
   });
 }

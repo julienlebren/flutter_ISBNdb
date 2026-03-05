@@ -14,7 +14,7 @@ You can have a 7-day trial for free.
 
 ## Features of the API
 
-This package allows you to use [all the features available in the ISBNdb API](https://isbndb.com/apidocs/v2).
+This package allows you to use the main ISBNdb API features for books, authors, publishers, and subjects.
 
 Before any request to the API, you need to init the service class with the following code:
 
@@ -60,11 +60,16 @@ Param | Description
 String isbn | an ISBN 10 or ISBN 13 in the Books database
 bool withPrices = false | indicate if shows Real Time Prices. Only with the Pro plan
 
-* **Get many books with ISBNs (require Pro Plan on [ISBNbn.com](https://ISBNbn.com))**
+* **Get many books with ISBNs**
 
 ```dart
 final books = isbnDb.getBooksFromISBNs(["9781092297370", "9781680506952"]);
 ```
+
+This endpoint supports all plans with limits per request depending on your plan:
+- Academic: up to 10 ISBNs
+- Basic: up to 100 ISBNs
+- Pro/Premium: up to 1,000 ISBNs
 
 Param | Description
 ------------ | -------------
@@ -77,20 +82,32 @@ final books = isbnDb.getBooks(
   "Google Flutter",
   page: 1,
   pageSize: 20,
+  year: 2024,
+  edition: 2,
+  shouldMatchAll: true,
+  language: "en",
+  column: BookColumn.subjects,
+  offset: 0,
 );
 ```
 
 Param | Description
 ------------ | -------------
 String query | A string to search for in the Book’s database
-String page | The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them
-String pageSize | How many items should be returned per page, maximum of 1,000
-BookColumn column | Search limited to a column
+int page | The number of page to retrieve. The API returns up to 10,000 results in total
+int pageSize | How many items should be returned per page, maximum of 1,000
+int? year | Filter books by year of publication
+int? edition | Filter books by edition
+bool? shouldMatchAll | If true, title/author must contain all searched words
+String? language | Language code filter (for example `en`, `fr`)
+BookColumn? column | Search limited to a column
+int? offset | Offset to start results from
 
 `BookColumn` is an enum with the following values:
 * title - Only searches in Books Title
 * author - Only searches books by the given Author
 * date_published - Only searches books in a given year, e.g. 1998
+* subjects - Only searches in subjects
 
 ### Authors
 

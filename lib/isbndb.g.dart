@@ -37,7 +37,7 @@ _BookQueryResult _$BookQueryResultFromJson(Map<String, dynamic> json) =>
     _BookQueryResult(
       total: (json['total'] as num).toInt(),
       books:
-          (json['books'] as List<dynamic>?)
+          (BookQueryResult._readBooks(json, 'books') as List<dynamic>?)
               ?.map((e) => Book.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],

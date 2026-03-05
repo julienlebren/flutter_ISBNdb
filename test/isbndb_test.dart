@@ -56,7 +56,8 @@ void main() {
 
       expect(options, isNotNull);
       expect(options!.method.toUpperCase(), "POST");
-      expect(options!.queryParameters["isbns"], equals(isbns));
+      expect(options!.data, isA<Map<String, dynamic>>());
+      expect((options!.data as Map<String, dynamic>)["isbns"], equals(isbns));
     });
 
     test('Should get list of publishers matching "Nathan"', () async {
@@ -96,8 +97,43 @@ void main() {
       await isbndb.getBooks("Google Flutter", column: BookColumn.title);
 
       expect(options, isNotNull);
+      expect(options!.queryParameters["column_enum"], "title");
       expect(options!.queryParameters["column"], "title");
     });
+
+    test(
+      'Should send expected query parameters for getBooks filters',
+      () async {
+        RequestOptions? options;
+        final isbndb = _createClient(
+          onRequestCallback: (requestOptions) => options = requestOptions,
+        );
+
+        await isbndb.getBooks(
+          "Google Flutter",
+          page: 2,
+          pageSize: 5,
+          year: 2024,
+          edition: 2,
+          shouldMatchAll: true,
+          language: "en",
+          column: BookColumn.subjects,
+          offset: 10,
+        );
+
+        expect(options, isNotNull);
+        expect(options!.queryParameters["page"], 2);
+        expect(options!.queryParameters["page_size"], 5);
+        expect(options!.queryParameters["pageSize"], 5);
+        expect(options!.queryParameters["year"], 2024);
+        expect(options!.queryParameters["edition"], 2);
+        expect(options!.queryParameters["should_match_all"], true);
+        expect(options!.queryParameters["language"], "en");
+        expect(options!.queryParameters["column_enum"], "subjects");
+        expect(options!.queryParameters["column"], "subjects");
+        expect(options!.queryParameters["offset"], 10);
+      },
+    );
 
     test('Should not throw when msrp is non-numeric', () async {
       final isbndb = _createClient(
@@ -306,7 +342,7 @@ Map<String, Map<String, dynamic>> _defaultResponses() => {
   },
   "POST books": {
     "total": 2,
-    "books": [
+    "data": [
       _book(
         title: "Learn Google Flutter Fast",
         isbn: "1092297370",
