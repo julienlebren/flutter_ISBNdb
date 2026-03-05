@@ -19,5 +19,8 @@ part 'src/publisher_query_results.dart';
 part 'src/publisher.dart';
 part 'src/service.dart';
 part 'src/isbndb_exception.dart';
+part 'src/key_details.dart';
+part 'src/plan_limit.dart';
+part 'src/stats.dart';
 part 'src/subject_query_results.dart';
 part 'src/subject.dart';

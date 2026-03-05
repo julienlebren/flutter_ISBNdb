@@ -158,6 +158,44 @@ _Publisher _$PublisherFromJson(Map<String, dynamic> json) => _Publisher(
 Map<String, dynamic> _$PublisherToJson(_Publisher instance) =>
     <String, dynamic>{'name': instance.name, 'books': instance.books};
 
+_KeyDetails _$KeyDetailsFromJson(Map<String, dynamic> json) => _KeyDetails(
+  apiHost: json['api_host'] as String,
+  planLimit: PlanLimit.fromJson(json['plan_limit'] as Map<String, dynamic>),
+);
+
+Map<String, dynamic> _$KeyDetailsToJson(_KeyDetails instance) =>
+    <String, dynamic>{
+      'api_host': instance.apiHost,
+      'plan_limit': instance.planLimit,
+    };
+
+_PlanLimit _$PlanLimitFromJson(Map<String, dynamic> json) => _PlanLimit(
+  total: (json['total'] as num).toInt(),
+  spent: (json['spent'] as num).toInt(),
+  left: (json['left'] as num).toInt(),
+);
+
+Map<String, dynamic> _$PlanLimitToJson(_PlanLimit instance) =>
+    <String, dynamic>{
+      'total': instance.total,
+      'spent': instance.spent,
+      'left': instance.left,
+    };
+
+_Stats _$StatsFromJson(Map<String, dynamic> json) => _Stats(
+  books: (json['books'] as num).toInt(),
+  authors: (json['authors'] as num).toInt(),
+  publishers: (json['publishers'] as num).toInt(),
+  subjects: (json['subjects'] as num).toInt(),
+);
+
+Map<String, dynamic> _$StatsToJson(_Stats instance) => <String, dynamic>{
+  'books': instance.books,
+  'authors': instance.authors,
+  'publishers': instance.publishers,
+  'subjects': instance.subjects,
+};
+
 _SubjectQueryResult _$SubjectQueryResultFromJson(Map<String, dynamic> json) =>
     _SubjectQueryResult(
       total: (json['total'] as num).toInt(),

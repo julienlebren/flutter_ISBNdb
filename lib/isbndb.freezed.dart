@@ -2162,6 +2162,859 @@ as List<Book>,
 
 
 /// @nodoc
+mixin _$KeyDetails implements DiagnosticableTreeMixin {
+
+/// API host tied to this key.
+@JsonKey(name: 'api_host') String get apiHost;/// Plan usage details.
+@JsonKey(name: 'plan_limit') PlanLimit get planLimit;
+/// Create a copy of KeyDetails
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$KeyDetailsCopyWith<KeyDetails> get copyWith => _$KeyDetailsCopyWithImpl<KeyDetails>(this as KeyDetails, _$identity);
+
+  /// Serializes this KeyDetails to a JSON map.
+  Map<String, dynamic> toJson();
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'KeyDetails'))
+    ..add(DiagnosticsProperty('apiHost', apiHost))..add(DiagnosticsProperty('planLimit', planLimit));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is KeyDetails&&(identical(other.apiHost, apiHost) || other.apiHost == apiHost)&&(identical(other.planLimit, planLimit) || other.planLimit == planLimit));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,apiHost,planLimit);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'KeyDetails(apiHost: $apiHost, planLimit: $planLimit)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $KeyDetailsCopyWith<$Res>  {
+  factory $KeyDetailsCopyWith(KeyDetails value, $Res Function(KeyDetails) _then) = _$KeyDetailsCopyWithImpl;
+@useResult
+$Res call({
+@JsonKey(name: 'api_host') String apiHost,@JsonKey(name: 'plan_limit') PlanLimit planLimit
+});
+
+
+$PlanLimitCopyWith<$Res> get planLimit;
+
+}
+/// @nodoc
+class _$KeyDetailsCopyWithImpl<$Res>
+    implements $KeyDetailsCopyWith<$Res> {
+  _$KeyDetailsCopyWithImpl(this._self, this._then);
+
+  final KeyDetails _self;
+  final $Res Function(KeyDetails) _then;
+
+/// Create a copy of KeyDetails
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? apiHost = null,Object? planLimit = null,}) {
+  return _then(_self.copyWith(
+apiHost: null == apiHost ? _self.apiHost : apiHost // ignore: cast_nullable_to_non_nullable
+as String,planLimit: null == planLimit ? _self.planLimit : planLimit // ignore: cast_nullable_to_non_nullable
+as PlanLimit,
+  ));
+}
+/// Create a copy of KeyDetails
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$PlanLimitCopyWith<$Res> get planLimit {
+  
+  return $PlanLimitCopyWith<$Res>(_self.planLimit, (value) {
+    return _then(_self.copyWith(planLimit: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [KeyDetails].
+extension KeyDetailsPatterns on KeyDetails {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _KeyDetails value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _KeyDetails() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _KeyDetails value)  $default,){
+final _that = this;
+switch (_that) {
+case _KeyDetails():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _KeyDetails value)?  $default,){
+final _that = this;
+switch (_that) {
+case _KeyDetails() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'api_host')  String apiHost, @JsonKey(name: 'plan_limit')  PlanLimit planLimit)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _KeyDetails() when $default != null:
+return $default(_that.apiHost,_that.planLimit);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'api_host')  String apiHost, @JsonKey(name: 'plan_limit')  PlanLimit planLimit)  $default,) {final _that = this;
+switch (_that) {
+case _KeyDetails():
+return $default(_that.apiHost,_that.planLimit);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'api_host')  String apiHost, @JsonKey(name: 'plan_limit')  PlanLimit planLimit)?  $default,) {final _that = this;
+switch (_that) {
+case _KeyDetails() when $default != null:
+return $default(_that.apiHost,_that.planLimit);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _KeyDetails with DiagnosticableTreeMixin implements KeyDetails {
+   _KeyDetails({@JsonKey(name: 'api_host') required this.apiHost, @JsonKey(name: 'plan_limit') required this.planLimit});
+  factory _KeyDetails.fromJson(Map<String, dynamic> json) => _$KeyDetailsFromJson(json);
+
+/// API host tied to this key.
+@override@JsonKey(name: 'api_host') final  String apiHost;
+/// Plan usage details.
+@override@JsonKey(name: 'plan_limit') final  PlanLimit planLimit;
+
+/// Create a copy of KeyDetails
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$KeyDetailsCopyWith<_KeyDetails> get copyWith => __$KeyDetailsCopyWithImpl<_KeyDetails>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$KeyDetailsToJson(this, );
+}
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'KeyDetails'))
+    ..add(DiagnosticsProperty('apiHost', apiHost))..add(DiagnosticsProperty('planLimit', planLimit));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _KeyDetails&&(identical(other.apiHost, apiHost) || other.apiHost == apiHost)&&(identical(other.planLimit, planLimit) || other.planLimit == planLimit));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,apiHost,planLimit);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'KeyDetails(apiHost: $apiHost, planLimit: $planLimit)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$KeyDetailsCopyWith<$Res> implements $KeyDetailsCopyWith<$Res> {
+  factory _$KeyDetailsCopyWith(_KeyDetails value, $Res Function(_KeyDetails) _then) = __$KeyDetailsCopyWithImpl;
+@override @useResult
+$Res call({
+@JsonKey(name: 'api_host') String apiHost,@JsonKey(name: 'plan_limit') PlanLimit planLimit
+});
+
+
+@override $PlanLimitCopyWith<$Res> get planLimit;
+
+}
+/// @nodoc
+class __$KeyDetailsCopyWithImpl<$Res>
+    implements _$KeyDetailsCopyWith<$Res> {
+  __$KeyDetailsCopyWithImpl(this._self, this._then);
+
+  final _KeyDetails _self;
+  final $Res Function(_KeyDetails) _then;
+
+/// Create a copy of KeyDetails
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? apiHost = null,Object? planLimit = null,}) {
+  return _then(_KeyDetails(
+apiHost: null == apiHost ? _self.apiHost : apiHost // ignore: cast_nullable_to_non_nullable
+as String,planLimit: null == planLimit ? _self.planLimit : planLimit // ignore: cast_nullable_to_non_nullable
+as PlanLimit,
+  ));
+}
+
+/// Create a copy of KeyDetails
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$PlanLimitCopyWith<$Res> get planLimit {
+  
+  return $PlanLimitCopyWith<$Res>(_self.planLimit, (value) {
+    return _then(_self.copyWith(planLimit: value));
+  });
+}
+}
+
+
+/// @nodoc
+mixin _$PlanLimit implements DiagnosticableTreeMixin {
+
+/// Total number of requests available for the period.
+ int get total;/// Number of requests already used.
+ int get spent;/// Number of requests remaining.
+ int get left;
+/// Create a copy of PlanLimit
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$PlanLimitCopyWith<PlanLimit> get copyWith => _$PlanLimitCopyWithImpl<PlanLimit>(this as PlanLimit, _$identity);
+
+  /// Serializes this PlanLimit to a JSON map.
+  Map<String, dynamic> toJson();
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'PlanLimit'))
+    ..add(DiagnosticsProperty('total', total))..add(DiagnosticsProperty('spent', spent))..add(DiagnosticsProperty('left', left));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PlanLimit&&(identical(other.total, total) || other.total == total)&&(identical(other.spent, spent) || other.spent == spent)&&(identical(other.left, left) || other.left == left));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,total,spent,left);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'PlanLimit(total: $total, spent: $spent, left: $left)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $PlanLimitCopyWith<$Res>  {
+  factory $PlanLimitCopyWith(PlanLimit value, $Res Function(PlanLimit) _then) = _$PlanLimitCopyWithImpl;
+@useResult
+$Res call({
+ int total, int spent, int left
+});
+
+
+
+
+}
+/// @nodoc
+class _$PlanLimitCopyWithImpl<$Res>
+    implements $PlanLimitCopyWith<$Res> {
+  _$PlanLimitCopyWithImpl(this._self, this._then);
+
+  final PlanLimit _self;
+  final $Res Function(PlanLimit) _then;
+
+/// Create a copy of PlanLimit
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? total = null,Object? spent = null,Object? left = null,}) {
+  return _then(_self.copyWith(
+total: null == total ? _self.total : total // ignore: cast_nullable_to_non_nullable
+as int,spent: null == spent ? _self.spent : spent // ignore: cast_nullable_to_non_nullable
+as int,left: null == left ? _self.left : left // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [PlanLimit].
+extension PlanLimitPatterns on PlanLimit {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _PlanLimit value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _PlanLimit() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _PlanLimit value)  $default,){
+final _that = this;
+switch (_that) {
+case _PlanLimit():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _PlanLimit value)?  $default,){
+final _that = this;
+switch (_that) {
+case _PlanLimit() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int total,  int spent,  int left)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _PlanLimit() when $default != null:
+return $default(_that.total,_that.spent,_that.left);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int total,  int spent,  int left)  $default,) {final _that = this;
+switch (_that) {
+case _PlanLimit():
+return $default(_that.total,_that.spent,_that.left);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int total,  int spent,  int left)?  $default,) {final _that = this;
+switch (_that) {
+case _PlanLimit() when $default != null:
+return $default(_that.total,_that.spent,_that.left);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _PlanLimit with DiagnosticableTreeMixin implements PlanLimit {
+   _PlanLimit({required this.total, required this.spent, required this.left});
+  factory _PlanLimit.fromJson(Map<String, dynamic> json) => _$PlanLimitFromJson(json);
+
+/// Total number of requests available for the period.
+@override final  int total;
+/// Number of requests already used.
+@override final  int spent;
+/// Number of requests remaining.
+@override final  int left;
+
+/// Create a copy of PlanLimit
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$PlanLimitCopyWith<_PlanLimit> get copyWith => __$PlanLimitCopyWithImpl<_PlanLimit>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$PlanLimitToJson(this, );
+}
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'PlanLimit'))
+    ..add(DiagnosticsProperty('total', total))..add(DiagnosticsProperty('spent', spent))..add(DiagnosticsProperty('left', left));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PlanLimit&&(identical(other.total, total) || other.total == total)&&(identical(other.spent, spent) || other.spent == spent)&&(identical(other.left, left) || other.left == left));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,total,spent,left);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'PlanLimit(total: $total, spent: $spent, left: $left)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$PlanLimitCopyWith<$Res> implements $PlanLimitCopyWith<$Res> {
+  factory _$PlanLimitCopyWith(_PlanLimit value, $Res Function(_PlanLimit) _then) = __$PlanLimitCopyWithImpl;
+@override @useResult
+$Res call({
+ int total, int spent, int left
+});
+
+
+
+
+}
+/// @nodoc
+class __$PlanLimitCopyWithImpl<$Res>
+    implements _$PlanLimitCopyWith<$Res> {
+  __$PlanLimitCopyWithImpl(this._self, this._then);
+
+  final _PlanLimit _self;
+  final $Res Function(_PlanLimit) _then;
+
+/// Create a copy of PlanLimit
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? total = null,Object? spent = null,Object? left = null,}) {
+  return _then(_PlanLimit(
+total: null == total ? _self.total : total // ignore: cast_nullable_to_non_nullable
+as int,spent: null == spent ? _self.spent : spent // ignore: cast_nullable_to_non_nullable
+as int,left: null == left ? _self.left : left // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$Stats implements DiagnosticableTreeMixin {
+
+ int get books; int get authors; int get publishers; int get subjects;
+/// Create a copy of Stats
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$StatsCopyWith<Stats> get copyWith => _$StatsCopyWithImpl<Stats>(this as Stats, _$identity);
+
+  /// Serializes this Stats to a JSON map.
+  Map<String, dynamic> toJson();
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'Stats'))
+    ..add(DiagnosticsProperty('books', books))..add(DiagnosticsProperty('authors', authors))..add(DiagnosticsProperty('publishers', publishers))..add(DiagnosticsProperty('subjects', subjects));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Stats&&(identical(other.books, books) || other.books == books)&&(identical(other.authors, authors) || other.authors == authors)&&(identical(other.publishers, publishers) || other.publishers == publishers)&&(identical(other.subjects, subjects) || other.subjects == subjects));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,books,authors,publishers,subjects);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'Stats(books: $books, authors: $authors, publishers: $publishers, subjects: $subjects)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $StatsCopyWith<$Res>  {
+  factory $StatsCopyWith(Stats value, $Res Function(Stats) _then) = _$StatsCopyWithImpl;
+@useResult
+$Res call({
+ int books, int authors, int publishers, int subjects
+});
+
+
+
+
+}
+/// @nodoc
+class _$StatsCopyWithImpl<$Res>
+    implements $StatsCopyWith<$Res> {
+  _$StatsCopyWithImpl(this._self, this._then);
+
+  final Stats _self;
+  final $Res Function(Stats) _then;
+
+/// Create a copy of Stats
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? books = null,Object? authors = null,Object? publishers = null,Object? subjects = null,}) {
+  return _then(_self.copyWith(
+books: null == books ? _self.books : books // ignore: cast_nullable_to_non_nullable
+as int,authors: null == authors ? _self.authors : authors // ignore: cast_nullable_to_non_nullable
+as int,publishers: null == publishers ? _self.publishers : publishers // ignore: cast_nullable_to_non_nullable
+as int,subjects: null == subjects ? _self.subjects : subjects // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [Stats].
+extension StatsPatterns on Stats {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _Stats value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _Stats() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _Stats value)  $default,){
+final _that = this;
+switch (_that) {
+case _Stats():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _Stats value)?  $default,){
+final _that = this;
+switch (_that) {
+case _Stats() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int books,  int authors,  int publishers,  int subjects)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _Stats() when $default != null:
+return $default(_that.books,_that.authors,_that.publishers,_that.subjects);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int books,  int authors,  int publishers,  int subjects)  $default,) {final _that = this;
+switch (_that) {
+case _Stats():
+return $default(_that.books,_that.authors,_that.publishers,_that.subjects);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int books,  int authors,  int publishers,  int subjects)?  $default,) {final _that = this;
+switch (_that) {
+case _Stats() when $default != null:
+return $default(_that.books,_that.authors,_that.publishers,_that.subjects);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _Stats with DiagnosticableTreeMixin implements Stats {
+   _Stats({required this.books, required this.authors, required this.publishers, required this.subjects});
+  factory _Stats.fromJson(Map<String, dynamic> json) => _$StatsFromJson(json);
+
+@override final  int books;
+@override final  int authors;
+@override final  int publishers;
+@override final  int subjects;
+
+/// Create a copy of Stats
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$StatsCopyWith<_Stats> get copyWith => __$StatsCopyWithImpl<_Stats>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$StatsToJson(this, );
+}
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'Stats'))
+    ..add(DiagnosticsProperty('books', books))..add(DiagnosticsProperty('authors', authors))..add(DiagnosticsProperty('publishers', publishers))..add(DiagnosticsProperty('subjects', subjects));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Stats&&(identical(other.books, books) || other.books == books)&&(identical(other.authors, authors) || other.authors == authors)&&(identical(other.publishers, publishers) || other.publishers == publishers)&&(identical(other.subjects, subjects) || other.subjects == subjects));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,books,authors,publishers,subjects);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'Stats(books: $books, authors: $authors, publishers: $publishers, subjects: $subjects)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$StatsCopyWith<$Res> implements $StatsCopyWith<$Res> {
+  factory _$StatsCopyWith(_Stats value, $Res Function(_Stats) _then) = __$StatsCopyWithImpl;
+@override @useResult
+$Res call({
+ int books, int authors, int publishers, int subjects
+});
+
+
+
+
+}
+/// @nodoc
+class __$StatsCopyWithImpl<$Res>
+    implements _$StatsCopyWith<$Res> {
+  __$StatsCopyWithImpl(this._self, this._then);
+
+  final _Stats _self;
+  final $Res Function(_Stats) _then;
+
+/// Create a copy of Stats
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? books = null,Object? authors = null,Object? publishers = null,Object? subjects = null,}) {
+  return _then(_Stats(
+books: null == books ? _self.books : books // ignore: cast_nullable_to_non_nullable
+as int,authors: null == authors ? _self.authors : authors // ignore: cast_nullable_to_non_nullable
+as int,publishers: null == publishers ? _self.publishers : publishers // ignore: cast_nullable_to_non_nullable
+as int,subjects: null == subjects ? _self.subjects : subjects // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
 mixin _$SubjectQueryResult implements DiagnosticableTreeMixin {
 
 /// The number of results for this query

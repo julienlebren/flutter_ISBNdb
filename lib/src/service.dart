@@ -361,4 +361,26 @@ class ISBNdb {
       parser: () => SubjectQueryResult.fromJson(response),
     );
   }
+
+  /// Get details about the current API key and plan usage.
+  Future<KeyDetails> getKeyDetails() async {
+    const path = "key";
+    final response = await _get(path);
+    return _parseModel(
+      method: "GET",
+      path: path,
+      parser: () => KeyDetails.fromJson(response),
+    );
+  }
+
+  /// Get global dataset statistics from ISBNdb.
+  Future<Stats> getStats() async {
+    const path = "stats";
+    final response = await _get(path);
+    return _parseModel(
+      method: "GET",
+      path: path,
+      parser: () => Stats.fromJson(response),
+    );
+  }
 }

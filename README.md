@@ -205,6 +205,24 @@ String query | A string to search for in the Subject’s database
 String page | The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them
 String pageSize | How many items should be returned per page, maximum of 1,000
 
+### Account & API stats
+
+* **Get key details**
+
+```dart
+final keyDetails = isbnDb.getKeyDetails();
+```
+
+Returns your API host and current plan usage (`total`, `spent`, `left`).
+
+* **Get global API stats**
+
+```dart
+final stats = isbnDb.getStats();
+```
+
+Returns global dataset counters (`books`, `authors`, `publishers`, `subjects`).
+
 ## Testing
 
 - Offline tests: `flutter test --exclude-tags live`
@@ -311,6 +329,30 @@ Name | Type | Description
 ------------ | ------------- | -------------
 subject | String | The subject
 books | List<Book> | An array containing the books related to this subject
+
+**KeyDetails**
+
+Name | Type | Description
+------------ | ------------- | -------------
+apiHost | String | API host attached to your key
+planLimit | PlanLimit | Usage details of the current API plan
+
+**PlanLimit**
+
+Name | Type | Description
+------------ | ------------- | -------------
+total | int | Total requests available on the current period
+spent | int | Requests already used
+left | int | Requests remaining
+
+**Stats**
+
+Name | Type | Description
+------------ | ------------- | -------------
+books | int | Number of books indexed by ISBNdb
+authors | int | Number of authors indexed by ISBNdb
+publishers | int | Number of publishers indexed by ISBNdb
+subjects | int | Number of subjects indexed by ISBNdb
 
 ## Third party packages
 

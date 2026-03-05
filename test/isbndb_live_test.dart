@@ -81,5 +81,25 @@ void main() {
         expect(book.title, isNotEmpty);
       }
     }, skip: skipReason);
+
+    test("getKeyDetails returns plan usage information", () async {
+      final isbndb = ISBNdb(apiKey!);
+      final keyDetails = await isbndb.getKeyDetails();
+
+      expect(keyDetails.apiHost, isNotEmpty);
+      expect(keyDetails.planLimit.total, greaterThanOrEqualTo(0));
+      expect(keyDetails.planLimit.spent, greaterThanOrEqualTo(0));
+      expect(keyDetails.planLimit.left, greaterThanOrEqualTo(0));
+    }, skip: skipReason);
+
+    test("getStats returns non-negative dataset counters", () async {
+      final isbndb = ISBNdb(apiKey!);
+      final stats = await isbndb.getStats();
+
+      expect(stats.books, greaterThanOrEqualTo(0));
+      expect(stats.authors, greaterThanOrEqualTo(0));
+      expect(stats.publishers, greaterThanOrEqualTo(0));
+      expect(stats.subjects, greaterThanOrEqualTo(0));
+    }, skip: skipReason);
   });
 }
