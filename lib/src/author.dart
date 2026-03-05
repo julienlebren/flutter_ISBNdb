@@ -8,17 +8,17 @@ sealed class Author with _$Author {
     required String author,
 
     /// The list of the books this author published
-    @JsonKey(readValue: _readBooks) @Default([]) List<Book> books,
+    @JsonKey(readValue: _readAuthorBooks) @Default([]) List<Book> books,
   }) = _Author;
 
   /// Used to build the object from the response of the ISBNdb API
   factory Author.fromJson(Map<String, dynamic> json) => _$AuthorFromJson(json);
+}
 
-  static Object? _readBooks(Map<dynamic, dynamic> json, String key) {
-    final books = json[key];
-    if (books is Map) {
-      return books.values.toList();
-    }
-    return books;
+Object? _readAuthorBooks(Map<dynamic, dynamic> json, String key) {
+  final books = json[key];
+  if (books is Map) {
+    return books.values.toList();
   }
+  return books;
 }

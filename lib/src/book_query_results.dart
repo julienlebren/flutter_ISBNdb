@@ -8,27 +8,27 @@ sealed class BookQueryResult with _$BookQueryResult {
     required int total,
 
     /// The list of the books matching the query
-    @JsonKey(readValue: _readBooks) @Default([]) List<Book> books,
+    @JsonKey(readValue: _readBookQueryBooks) @Default([]) List<Book> books,
   }) = _BookQueryResult;
 
   /// Used to build the object from the response of the ISBNdb API
   factory BookQueryResult.fromJson(Map<String, dynamic> json) =>
       _$BookQueryResultFromJson(json);
+}
 
-  static Object? _readBooks(Map<dynamic, dynamic> json, String key) {
-    final books = json[key] ?? json['data'];
-    if (books is Map) {
-      if (_looksLikeBookPayload(books)) {
-        return <Object?>[books];
-      }
-      return books.values.toList();
+Object? _readBookQueryBooks(Map<dynamic, dynamic> json, String key) {
+  final books = json[key] ?? json['data'];
+  if (books is Map) {
+    if (_looksLikeBookPayload(books)) {
+      return <Object?>[books];
     }
-    return books;
+    return books.values.toList();
   }
+  return books;
+}
 
-  static bool _looksLikeBookPayload(Map<dynamic, dynamic> value) {
-    return value.containsKey('title') && value.containsKey('isbn13');
-  }
+bool _looksLikeBookPayload(Map<dynamic, dynamic> value) {
+  return value.containsKey('title') && value.containsKey('isbn13');
 }
 
 extension BookQueryResultResultX on BookQueryResult {

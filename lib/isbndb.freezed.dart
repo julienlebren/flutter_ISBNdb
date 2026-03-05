@@ -17,7 +17,7 @@ mixin _$AuthorQueryResult implements DiagnosticableTreeMixin {
 
 /// The number of results for this query
  int get total;/// The list of the authors matching the query
- List<String> get authors;
+@JsonKey(readValue: _readAuthorNames) List<String> get authors;
 /// Create a copy of AuthorQueryResult
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -56,7 +56,7 @@ abstract mixin class $AuthorQueryResultCopyWith<$Res>  {
   factory $AuthorQueryResultCopyWith(AuthorQueryResult value, $Res Function(AuthorQueryResult) _then) = _$AuthorQueryResultCopyWithImpl;
 @useResult
 $Res call({
- int total, List<String> authors
+ int total,@JsonKey(readValue: _readAuthorNames) List<String> authors
 });
 
 
@@ -159,7 +159,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int total,  List<String> authors)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int total, @JsonKey(readValue: _readAuthorNames)  List<String> authors)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AuthorQueryResult() when $default != null:
 return $default(_that.total,_that.authors);case _:
@@ -180,7 +180,7 @@ return $default(_that.total,_that.authors);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int total,  List<String> authors)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int total, @JsonKey(readValue: _readAuthorNames)  List<String> authors)  $default,) {final _that = this;
 switch (_that) {
 case _AuthorQueryResult():
 return $default(_that.total,_that.authors);}
@@ -197,7 +197,7 @@ return $default(_that.total,_that.authors);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int total,  List<String> authors)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int total, @JsonKey(readValue: _readAuthorNames)  List<String> authors)?  $default,) {final _that = this;
 switch (_that) {
 case _AuthorQueryResult() when $default != null:
 return $default(_that.total,_that.authors);case _:
@@ -212,7 +212,7 @@ return $default(_that.total,_that.authors);case _:
 @JsonSerializable()
 
 class _AuthorQueryResult with DiagnosticableTreeMixin implements AuthorQueryResult {
-   _AuthorQueryResult({required this.total, final  List<String> authors = const []}): _authors = authors;
+   _AuthorQueryResult({required this.total, @JsonKey(readValue: _readAuthorNames) final  List<String> authors = const []}): _authors = authors;
   factory _AuthorQueryResult.fromJson(Map<String, dynamic> json) => _$AuthorQueryResultFromJson(json);
 
 /// The number of results for this query
@@ -220,7 +220,7 @@ class _AuthorQueryResult with DiagnosticableTreeMixin implements AuthorQueryResu
 /// The list of the authors matching the query
  final  List<String> _authors;
 /// The list of the authors matching the query
-@override@JsonKey() List<String> get authors {
+@override@JsonKey(readValue: _readAuthorNames) List<String> get authors {
   if (_authors is EqualUnmodifiableListView) return _authors;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_authors);
@@ -266,7 +266,7 @@ abstract mixin class _$AuthorQueryResultCopyWith<$Res> implements $AuthorQueryRe
   factory _$AuthorQueryResultCopyWith(_AuthorQueryResult value, $Res Function(_AuthorQueryResult) _then) = __$AuthorQueryResultCopyWithImpl;
 @override @useResult
 $Res call({
- int total, List<String> authors
+ int total,@JsonKey(readValue: _readAuthorNames) List<String> authors
 });
 
 
@@ -300,7 +300,7 @@ mixin _$Author implements DiagnosticableTreeMixin {
 
 /// The name of the author
  String get author;/// The list of the books this author published
- List<Book> get books;
+@JsonKey(readValue: _readAuthorBooks) List<Book> get books;
 /// Create a copy of Author
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -339,7 +339,7 @@ abstract mixin class $AuthorCopyWith<$Res>  {
   factory $AuthorCopyWith(Author value, $Res Function(Author) _then) = _$AuthorCopyWithImpl;
 @useResult
 $Res call({
- String author, List<Book> books
+ String author,@JsonKey(readValue: _readAuthorBooks) List<Book> books
 });
 
 
@@ -442,7 +442,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String author,  List<Book> books)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String author, @JsonKey(readValue: _readAuthorBooks)  List<Book> books)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Author() when $default != null:
 return $default(_that.author,_that.books);case _:
@@ -463,7 +463,7 @@ return $default(_that.author,_that.books);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String author,  List<Book> books)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String author, @JsonKey(readValue: _readAuthorBooks)  List<Book> books)  $default,) {final _that = this;
 switch (_that) {
 case _Author():
 return $default(_that.author,_that.books);}
@@ -480,7 +480,7 @@ return $default(_that.author,_that.books);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String author,  List<Book> books)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String author, @JsonKey(readValue: _readAuthorBooks)  List<Book> books)?  $default,) {final _that = this;
 switch (_that) {
 case _Author() when $default != null:
 return $default(_that.author,_that.books);case _:
@@ -495,7 +495,7 @@ return $default(_that.author,_that.books);case _:
 @JsonSerializable()
 
 class _Author with DiagnosticableTreeMixin implements Author {
-   _Author({required this.author, final  List<Book> books = const []}): _books = books;
+   _Author({required this.author, @JsonKey(readValue: _readAuthorBooks) final  List<Book> books = const []}): _books = books;
   factory _Author.fromJson(Map<String, dynamic> json) => _$AuthorFromJson(json);
 
 /// The name of the author
@@ -503,7 +503,7 @@ class _Author with DiagnosticableTreeMixin implements Author {
 /// The list of the books this author published
  final  List<Book> _books;
 /// The list of the books this author published
-@override@JsonKey() List<Book> get books {
+@override@JsonKey(readValue: _readAuthorBooks) List<Book> get books {
   if (_books is EqualUnmodifiableListView) return _books;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_books);
@@ -549,7 +549,7 @@ abstract mixin class _$AuthorCopyWith<$Res> implements $AuthorCopyWith<$Res> {
   factory _$AuthorCopyWith(_Author value, $Res Function(_Author) _then) = __$AuthorCopyWithImpl;
 @override @useResult
 $Res call({
- String author, List<Book> books
+ String author,@JsonKey(readValue: _readAuthorBooks) List<Book> books
 });
 
 
@@ -583,7 +583,7 @@ mixin _$BookQueryResult implements DiagnosticableTreeMixin {
 
 /// The number of results for this query
  int get total;/// The list of the books matching the query
- List<Book> get books;
+@JsonKey(readValue: _readBookQueryBooks) List<Book> get books;
 /// Create a copy of BookQueryResult
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -622,7 +622,7 @@ abstract mixin class $BookQueryResultCopyWith<$Res>  {
   factory $BookQueryResultCopyWith(BookQueryResult value, $Res Function(BookQueryResult) _then) = _$BookQueryResultCopyWithImpl;
 @useResult
 $Res call({
- int total, List<Book> books
+ int total,@JsonKey(readValue: _readBookQueryBooks) List<Book> books
 });
 
 
@@ -725,7 +725,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int total,  List<Book> books)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int total, @JsonKey(readValue: _readBookQueryBooks)  List<Book> books)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _BookQueryResult() when $default != null:
 return $default(_that.total,_that.books);case _:
@@ -746,7 +746,7 @@ return $default(_that.total,_that.books);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int total,  List<Book> books)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int total, @JsonKey(readValue: _readBookQueryBooks)  List<Book> books)  $default,) {final _that = this;
 switch (_that) {
 case _BookQueryResult():
 return $default(_that.total,_that.books);}
@@ -763,7 +763,7 @@ return $default(_that.total,_that.books);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int total,  List<Book> books)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int total, @JsonKey(readValue: _readBookQueryBooks)  List<Book> books)?  $default,) {final _that = this;
 switch (_that) {
 case _BookQueryResult() when $default != null:
 return $default(_that.total,_that.books);case _:
@@ -778,7 +778,7 @@ return $default(_that.total,_that.books);case _:
 @JsonSerializable()
 
 class _BookQueryResult with DiagnosticableTreeMixin implements BookQueryResult {
-   _BookQueryResult({required this.total, final  List<Book> books = const []}): _books = books;
+   _BookQueryResult({required this.total, @JsonKey(readValue: _readBookQueryBooks) final  List<Book> books = const []}): _books = books;
   factory _BookQueryResult.fromJson(Map<String, dynamic> json) => _$BookQueryResultFromJson(json);
 
 /// The number of results for this query
@@ -786,7 +786,7 @@ class _BookQueryResult with DiagnosticableTreeMixin implements BookQueryResult {
 /// The list of the books matching the query
  final  List<Book> _books;
 /// The list of the books matching the query
-@override@JsonKey() List<Book> get books {
+@override@JsonKey(readValue: _readBookQueryBooks) List<Book> get books {
   if (_books is EqualUnmodifiableListView) return _books;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_books);
@@ -832,7 +832,7 @@ abstract mixin class _$BookQueryResultCopyWith<$Res> implements $BookQueryResult
   factory _$BookQueryResultCopyWith(_BookQueryResult value, $Res Function(_BookQueryResult) _then) = __$BookQueryResultCopyWithImpl;
 @override @useResult
 $Res call({
- int total, List<Book> books
+ int total,@JsonKey(readValue: _readBookQueryBooks) List<Book> books
 });
 
 
@@ -882,11 +882,11 @@ mixin _$Book implements DiagnosticableTreeMixin {
 @_MsrpConverter() double? get msrp;/// Excerpt of the book
  String? get excerpt;/// Synopsys of the book
  String? get synopsys;/// List of the authors of the book
- List<String?>? get authors;/// List of the subjects of the book
- List<String>? get subjects;/// Not documented in the official API
- List<String>? get reviews;/// List of the merchants selling this book with real-time prices
+@JsonKey(readValue: _readBookAuthors) List<String?>? get authors;/// List of the subjects of the book
+@JsonKey(readValue: _readBookSubjects) List<String>? get subjects;/// Not documented in the official API
+@JsonKey(readValue: _readBookReviews) List<String>? get reviews;/// List of the merchants selling this book with real-time prices
  List<Merchant>? get prices;/// Not documented in the official API
- List<String>? get related;
+@JsonKey(readValue: _readBookRelated) List<String>? get related;
 /// Create a copy of Book
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -925,7 +925,7 @@ abstract mixin class $BookCopyWith<$Res>  {
   factory $BookCopyWith(Book value, $Res Function(Book) _then) = _$BookCopyWithImpl;
 @useResult
 $Res call({
- String title,@JsonKey(name: 'title_long') String? titleLong, String isbn, String isbn13,@_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal') String? deweyDecimal, String? binding, String? publisher, String? language,@_DateConverter()@JsonKey(name: 'date_published') DateTime? datePublished, String? edition, int? pages, String? dimensions, String? overview, String? image,@_MsrpConverter() double? msrp, String? excerpt, String? synopsys, List<String?>? authors, List<String>? subjects, List<String>? reviews, List<Merchant>? prices, List<String>? related
+ String title,@JsonKey(name: 'title_long') String? titleLong, String isbn, String isbn13,@_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal') String? deweyDecimal, String? binding, String? publisher, String? language,@_DateConverter()@JsonKey(name: 'date_published') DateTime? datePublished, String? edition, int? pages, String? dimensions, String? overview, String? image,@_MsrpConverter() double? msrp, String? excerpt, String? synopsys,@JsonKey(readValue: _readBookAuthors) List<String?>? authors,@JsonKey(readValue: _readBookSubjects) List<String>? subjects,@JsonKey(readValue: _readBookReviews) List<String>? reviews, List<Merchant>? prices,@JsonKey(readValue: _readBookRelated) List<String>? related
 });
 
 
@@ -1048,7 +1048,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String title, @JsonKey(name: 'title_long')  String? titleLong,  String isbn,  String isbn13, @_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal')  String? deweyDecimal,  String? binding,  String? publisher,  String? language, @_DateConverter()@JsonKey(name: 'date_published')  DateTime? datePublished,  String? edition,  int? pages,  String? dimensions,  String? overview,  String? image, @_MsrpConverter()  double? msrp,  String? excerpt,  String? synopsys,  List<String?>? authors,  List<String>? subjects,  List<String>? reviews,  List<Merchant>? prices,  List<String>? related)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String title, @JsonKey(name: 'title_long')  String? titleLong,  String isbn,  String isbn13, @_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal')  String? deweyDecimal,  String? binding,  String? publisher,  String? language, @_DateConverter()@JsonKey(name: 'date_published')  DateTime? datePublished,  String? edition,  int? pages,  String? dimensions,  String? overview,  String? image, @_MsrpConverter()  double? msrp,  String? excerpt,  String? synopsys, @JsonKey(readValue: _readBookAuthors)  List<String?>? authors, @JsonKey(readValue: _readBookSubjects)  List<String>? subjects, @JsonKey(readValue: _readBookReviews)  List<String>? reviews,  List<Merchant>? prices, @JsonKey(readValue: _readBookRelated)  List<String>? related)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Book() when $default != null:
 return $default(_that.title,_that.titleLong,_that.isbn,_that.isbn13,_that.deweyDecimal,_that.binding,_that.publisher,_that.language,_that.datePublished,_that.edition,_that.pages,_that.dimensions,_that.overview,_that.image,_that.msrp,_that.excerpt,_that.synopsys,_that.authors,_that.subjects,_that.reviews,_that.prices,_that.related);case _:
@@ -1069,7 +1069,7 @@ return $default(_that.title,_that.titleLong,_that.isbn,_that.isbn13,_that.deweyD
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String title, @JsonKey(name: 'title_long')  String? titleLong,  String isbn,  String isbn13, @_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal')  String? deweyDecimal,  String? binding,  String? publisher,  String? language, @_DateConverter()@JsonKey(name: 'date_published')  DateTime? datePublished,  String? edition,  int? pages,  String? dimensions,  String? overview,  String? image, @_MsrpConverter()  double? msrp,  String? excerpt,  String? synopsys,  List<String?>? authors,  List<String>? subjects,  List<String>? reviews,  List<Merchant>? prices,  List<String>? related)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String title, @JsonKey(name: 'title_long')  String? titleLong,  String isbn,  String isbn13, @_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal')  String? deweyDecimal,  String? binding,  String? publisher,  String? language, @_DateConverter()@JsonKey(name: 'date_published')  DateTime? datePublished,  String? edition,  int? pages,  String? dimensions,  String? overview,  String? image, @_MsrpConverter()  double? msrp,  String? excerpt,  String? synopsys, @JsonKey(readValue: _readBookAuthors)  List<String?>? authors, @JsonKey(readValue: _readBookSubjects)  List<String>? subjects, @JsonKey(readValue: _readBookReviews)  List<String>? reviews,  List<Merchant>? prices, @JsonKey(readValue: _readBookRelated)  List<String>? related)  $default,) {final _that = this;
 switch (_that) {
 case _Book():
 return $default(_that.title,_that.titleLong,_that.isbn,_that.isbn13,_that.deweyDecimal,_that.binding,_that.publisher,_that.language,_that.datePublished,_that.edition,_that.pages,_that.dimensions,_that.overview,_that.image,_that.msrp,_that.excerpt,_that.synopsys,_that.authors,_that.subjects,_that.reviews,_that.prices,_that.related);}
@@ -1086,7 +1086,7 @@ return $default(_that.title,_that.titleLong,_that.isbn,_that.isbn13,_that.deweyD
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String title, @JsonKey(name: 'title_long')  String? titleLong,  String isbn,  String isbn13, @_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal')  String? deweyDecimal,  String? binding,  String? publisher,  String? language, @_DateConverter()@JsonKey(name: 'date_published')  DateTime? datePublished,  String? edition,  int? pages,  String? dimensions,  String? overview,  String? image, @_MsrpConverter()  double? msrp,  String? excerpt,  String? synopsys,  List<String?>? authors,  List<String>? subjects,  List<String>? reviews,  List<Merchant>? prices,  List<String>? related)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String title, @JsonKey(name: 'title_long')  String? titleLong,  String isbn,  String isbn13, @_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal')  String? deweyDecimal,  String? binding,  String? publisher,  String? language, @_DateConverter()@JsonKey(name: 'date_published')  DateTime? datePublished,  String? edition,  int? pages,  String? dimensions,  String? overview,  String? image, @_MsrpConverter()  double? msrp,  String? excerpt,  String? synopsys, @JsonKey(readValue: _readBookAuthors)  List<String?>? authors, @JsonKey(readValue: _readBookSubjects)  List<String>? subjects, @JsonKey(readValue: _readBookReviews)  List<String>? reviews,  List<Merchant>? prices, @JsonKey(readValue: _readBookRelated)  List<String>? related)?  $default,) {final _that = this;
 switch (_that) {
 case _Book() when $default != null:
 return $default(_that.title,_that.titleLong,_that.isbn,_that.isbn13,_that.deweyDecimal,_that.binding,_that.publisher,_that.language,_that.datePublished,_that.edition,_that.pages,_that.dimensions,_that.overview,_that.image,_that.msrp,_that.excerpt,_that.synopsys,_that.authors,_that.subjects,_that.reviews,_that.prices,_that.related);case _:
@@ -1101,7 +1101,7 @@ return $default(_that.title,_that.titleLong,_that.isbn,_that.isbn13,_that.deweyD
 @JsonSerializable()
 
 class _Book with DiagnosticableTreeMixin implements Book {
-   _Book({required this.title, @JsonKey(name: 'title_long') this.titleLong, required this.isbn, required this.isbn13, @_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal') this.deweyDecimal, this.binding, this.publisher, this.language, @_DateConverter()@JsonKey(name: 'date_published') this.datePublished, this.edition, this.pages, this.dimensions, this.overview, this.image, @_MsrpConverter() this.msrp, this.excerpt, this.synopsys, final  List<String?>? authors, final  List<String>? subjects, final  List<String>? reviews, final  List<Merchant>? prices, final  List<String>? related}): _authors = authors,_subjects = subjects,_reviews = reviews,_prices = prices,_related = related;
+   _Book({required this.title, @JsonKey(name: 'title_long') this.titleLong, required this.isbn, required this.isbn13, @_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal') this.deweyDecimal, this.binding, this.publisher, this.language, @_DateConverter()@JsonKey(name: 'date_published') this.datePublished, this.edition, this.pages, this.dimensions, this.overview, this.image, @_MsrpConverter() this.msrp, this.excerpt, this.synopsys, @JsonKey(readValue: _readBookAuthors) final  List<String?>? authors, @JsonKey(readValue: _readBookSubjects) final  List<String>? subjects, @JsonKey(readValue: _readBookReviews) final  List<String>? reviews, final  List<Merchant>? prices, @JsonKey(readValue: _readBookRelated) final  List<String>? related}): _authors = authors,_subjects = subjects,_reviews = reviews,_prices = prices,_related = related;
   factory _Book.fromJson(Map<String, dynamic> json) => _$BookFromJson(json);
 
 /// Title of the book
@@ -1141,7 +1141,7 @@ class _Book with DiagnosticableTreeMixin implements Book {
 /// List of the authors of the book
  final  List<String?>? _authors;
 /// List of the authors of the book
-@override List<String?>? get authors {
+@override@JsonKey(readValue: _readBookAuthors) List<String?>? get authors {
   final value = _authors;
   if (value == null) return null;
   if (_authors is EqualUnmodifiableListView) return _authors;
@@ -1152,7 +1152,7 @@ class _Book with DiagnosticableTreeMixin implements Book {
 /// List of the subjects of the book
  final  List<String>? _subjects;
 /// List of the subjects of the book
-@override List<String>? get subjects {
+@override@JsonKey(readValue: _readBookSubjects) List<String>? get subjects {
   final value = _subjects;
   if (value == null) return null;
   if (_subjects is EqualUnmodifiableListView) return _subjects;
@@ -1163,7 +1163,7 @@ class _Book with DiagnosticableTreeMixin implements Book {
 /// Not documented in the official API
  final  List<String>? _reviews;
 /// Not documented in the official API
-@override List<String>? get reviews {
+@override@JsonKey(readValue: _readBookReviews) List<String>? get reviews {
   final value = _reviews;
   if (value == null) return null;
   if (_reviews is EqualUnmodifiableListView) return _reviews;
@@ -1185,7 +1185,7 @@ class _Book with DiagnosticableTreeMixin implements Book {
 /// Not documented in the official API
  final  List<String>? _related;
 /// Not documented in the official API
-@override List<String>? get related {
+@override@JsonKey(readValue: _readBookRelated) List<String>? get related {
   final value = _related;
   if (value == null) return null;
   if (_related is EqualUnmodifiableListView) return _related;
@@ -1233,7 +1233,7 @@ abstract mixin class _$BookCopyWith<$Res> implements $BookCopyWith<$Res> {
   factory _$BookCopyWith(_Book value, $Res Function(_Book) _then) = __$BookCopyWithImpl;
 @override @useResult
 $Res call({
- String title,@JsonKey(name: 'title_long') String? titleLong, String isbn, String isbn13,@_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal') String? deweyDecimal, String? binding, String? publisher, String? language,@_DateConverter()@JsonKey(name: 'date_published') DateTime? datePublished, String? edition, int? pages, String? dimensions, String? overview, String? image,@_MsrpConverter() double? msrp, String? excerpt, String? synopsys, List<String?>? authors, List<String>? subjects, List<String>? reviews, List<Merchant>? prices, List<String>? related
+ String title,@JsonKey(name: 'title_long') String? titleLong, String isbn, String isbn13,@_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal') String? deweyDecimal, String? binding, String? publisher, String? language,@_DateConverter()@JsonKey(name: 'date_published') DateTime? datePublished, String? edition, int? pages, String? dimensions, String? overview, String? image,@_MsrpConverter() double? msrp, String? excerpt, String? synopsys,@JsonKey(readValue: _readBookAuthors) List<String?>? authors,@JsonKey(readValue: _readBookSubjects) List<String>? subjects,@JsonKey(readValue: _readBookReviews) List<String>? reviews, List<Merchant>? prices,@JsonKey(readValue: _readBookRelated) List<String>? related
 });
 
 
@@ -1600,7 +1600,7 @@ mixin _$PublisherQueryResult implements DiagnosticableTreeMixin {
 
 /// The number of results for this query
  int get total;/// The list of the publishers matching the query
- List<String> get publishers;
+@JsonKey(readValue: _readPublisherNames) List<String> get publishers;
 /// Create a copy of PublisherQueryResult
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1639,7 +1639,7 @@ abstract mixin class $PublisherQueryResultCopyWith<$Res>  {
   factory $PublisherQueryResultCopyWith(PublisherQueryResult value, $Res Function(PublisherQueryResult) _then) = _$PublisherQueryResultCopyWithImpl;
 @useResult
 $Res call({
- int total, List<String> publishers
+ int total,@JsonKey(readValue: _readPublisherNames) List<String> publishers
 });
 
 
@@ -1742,7 +1742,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int total,  List<String> publishers)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int total, @JsonKey(readValue: _readPublisherNames)  List<String> publishers)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PublisherQueryResult() when $default != null:
 return $default(_that.total,_that.publishers);case _:
@@ -1763,7 +1763,7 @@ return $default(_that.total,_that.publishers);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int total,  List<String> publishers)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int total, @JsonKey(readValue: _readPublisherNames)  List<String> publishers)  $default,) {final _that = this;
 switch (_that) {
 case _PublisherQueryResult():
 return $default(_that.total,_that.publishers);}
@@ -1780,7 +1780,7 @@ return $default(_that.total,_that.publishers);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int total,  List<String> publishers)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int total, @JsonKey(readValue: _readPublisherNames)  List<String> publishers)?  $default,) {final _that = this;
 switch (_that) {
 case _PublisherQueryResult() when $default != null:
 return $default(_that.total,_that.publishers);case _:
@@ -1795,7 +1795,7 @@ return $default(_that.total,_that.publishers);case _:
 @JsonSerializable()
 
 class _PublisherQueryResult with DiagnosticableTreeMixin implements PublisherQueryResult {
-   _PublisherQueryResult({required this.total, final  List<String> publishers = const []}): _publishers = publishers;
+   _PublisherQueryResult({required this.total, @JsonKey(readValue: _readPublisherNames) final  List<String> publishers = const []}): _publishers = publishers;
   factory _PublisherQueryResult.fromJson(Map<String, dynamic> json) => _$PublisherQueryResultFromJson(json);
 
 /// The number of results for this query
@@ -1803,7 +1803,7 @@ class _PublisherQueryResult with DiagnosticableTreeMixin implements PublisherQue
 /// The list of the publishers matching the query
  final  List<String> _publishers;
 /// The list of the publishers matching the query
-@override@JsonKey() List<String> get publishers {
+@override@JsonKey(readValue: _readPublisherNames) List<String> get publishers {
   if (_publishers is EqualUnmodifiableListView) return _publishers;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_publishers);
@@ -1849,7 +1849,7 @@ abstract mixin class _$PublisherQueryResultCopyWith<$Res> implements $PublisherQ
   factory _$PublisherQueryResultCopyWith(_PublisherQueryResult value, $Res Function(_PublisherQueryResult) _then) = __$PublisherQueryResultCopyWithImpl;
 @override @useResult
 $Res call({
- int total, List<String> publishers
+ int total,@JsonKey(readValue: _readPublisherNames) List<String> publishers
 });
 
 
@@ -1883,7 +1883,7 @@ mixin _$Publisher implements DiagnosticableTreeMixin {
 
 /// The name of this publisher
  String get name;/// The list of the books this publisher published
- List<Book> get books;
+@JsonKey(readValue: _readPublisherBooks) List<Book> get books;
 /// Create a copy of Publisher
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1922,7 +1922,7 @@ abstract mixin class $PublisherCopyWith<$Res>  {
   factory $PublisherCopyWith(Publisher value, $Res Function(Publisher) _then) = _$PublisherCopyWithImpl;
 @useResult
 $Res call({
- String name, List<Book> books
+ String name,@JsonKey(readValue: _readPublisherBooks) List<Book> books
 });
 
 
@@ -2025,7 +2025,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  List<Book> books)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name, @JsonKey(readValue: _readPublisherBooks)  List<Book> books)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Publisher() when $default != null:
 return $default(_that.name,_that.books);case _:
@@ -2046,7 +2046,7 @@ return $default(_that.name,_that.books);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  List<Book> books)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name, @JsonKey(readValue: _readPublisherBooks)  List<Book> books)  $default,) {final _that = this;
 switch (_that) {
 case _Publisher():
 return $default(_that.name,_that.books);}
@@ -2063,7 +2063,7 @@ return $default(_that.name,_that.books);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  List<Book> books)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name, @JsonKey(readValue: _readPublisherBooks)  List<Book> books)?  $default,) {final _that = this;
 switch (_that) {
 case _Publisher() when $default != null:
 return $default(_that.name,_that.books);case _:
@@ -2078,7 +2078,7 @@ return $default(_that.name,_that.books);case _:
 @JsonSerializable()
 
 class _Publisher with DiagnosticableTreeMixin implements Publisher {
-   _Publisher({required this.name, final  List<Book> books = const []}): _books = books;
+   _Publisher({required this.name, @JsonKey(readValue: _readPublisherBooks) final  List<Book> books = const []}): _books = books;
   factory _Publisher.fromJson(Map<String, dynamic> json) => _$PublisherFromJson(json);
 
 /// The name of this publisher
@@ -2086,7 +2086,7 @@ class _Publisher with DiagnosticableTreeMixin implements Publisher {
 /// The list of the books this publisher published
  final  List<Book> _books;
 /// The list of the books this publisher published
-@override@JsonKey() List<Book> get books {
+@override@JsonKey(readValue: _readPublisherBooks) List<Book> get books {
   if (_books is EqualUnmodifiableListView) return _books;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_books);
@@ -2132,7 +2132,7 @@ abstract mixin class _$PublisherCopyWith<$Res> implements $PublisherCopyWith<$Re
   factory _$PublisherCopyWith(_Publisher value, $Res Function(_Publisher) _then) = __$PublisherCopyWithImpl;
 @override @useResult
 $Res call({
- String name, List<Book> books
+ String name,@JsonKey(readValue: _readPublisherBooks) List<Book> books
 });
 
 
@@ -2166,7 +2166,7 @@ mixin _$SubjectQueryResult implements DiagnosticableTreeMixin {
 
 /// The number of results for this query
  int get total;/// The list of the subjects matching the query
- List<String> get subjects;
+@JsonKey(readValue: _readSubjectNames) List<String> get subjects;
 /// Create a copy of SubjectQueryResult
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -2205,7 +2205,7 @@ abstract mixin class $SubjectQueryResultCopyWith<$Res>  {
   factory $SubjectQueryResultCopyWith(SubjectQueryResult value, $Res Function(SubjectQueryResult) _then) = _$SubjectQueryResultCopyWithImpl;
 @useResult
 $Res call({
- int total, List<String> subjects
+ int total,@JsonKey(readValue: _readSubjectNames) List<String> subjects
 });
 
 
@@ -2308,7 +2308,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int total,  List<String> subjects)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int total, @JsonKey(readValue: _readSubjectNames)  List<String> subjects)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SubjectQueryResult() when $default != null:
 return $default(_that.total,_that.subjects);case _:
@@ -2329,7 +2329,7 @@ return $default(_that.total,_that.subjects);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int total,  List<String> subjects)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int total, @JsonKey(readValue: _readSubjectNames)  List<String> subjects)  $default,) {final _that = this;
 switch (_that) {
 case _SubjectQueryResult():
 return $default(_that.total,_that.subjects);}
@@ -2346,7 +2346,7 @@ return $default(_that.total,_that.subjects);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int total,  List<String> subjects)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int total, @JsonKey(readValue: _readSubjectNames)  List<String> subjects)?  $default,) {final _that = this;
 switch (_that) {
 case _SubjectQueryResult() when $default != null:
 return $default(_that.total,_that.subjects);case _:
@@ -2361,7 +2361,7 @@ return $default(_that.total,_that.subjects);case _:
 @JsonSerializable()
 
 class _SubjectQueryResult with DiagnosticableTreeMixin implements SubjectQueryResult {
-   _SubjectQueryResult({required this.total, final  List<String> subjects = const []}): _subjects = subjects;
+   _SubjectQueryResult({required this.total, @JsonKey(readValue: _readSubjectNames) final  List<String> subjects = const []}): _subjects = subjects;
   factory _SubjectQueryResult.fromJson(Map<String, dynamic> json) => _$SubjectQueryResultFromJson(json);
 
 /// The number of results for this query
@@ -2369,7 +2369,7 @@ class _SubjectQueryResult with DiagnosticableTreeMixin implements SubjectQueryRe
 /// The list of the subjects matching the query
  final  List<String> _subjects;
 /// The list of the subjects matching the query
-@override@JsonKey() List<String> get subjects {
+@override@JsonKey(readValue: _readSubjectNames) List<String> get subjects {
   if (_subjects is EqualUnmodifiableListView) return _subjects;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_subjects);
@@ -2415,7 +2415,7 @@ abstract mixin class _$SubjectQueryResultCopyWith<$Res> implements $SubjectQuery
   factory _$SubjectQueryResultCopyWith(_SubjectQueryResult value, $Res Function(_SubjectQueryResult) _then) = __$SubjectQueryResultCopyWithImpl;
 @override @useResult
 $Res call({
- int total, List<String> subjects
+ int total,@JsonKey(readValue: _readSubjectNames) List<String> subjects
 });
 
 
@@ -2449,7 +2449,7 @@ mixin _$Subject implements DiagnosticableTreeMixin {
 
 /// The subject
  String get subject;/// The list of the books matching this subject
- List<Book> get books;
+@JsonKey(readValue: _readSubjectBooks) List<Book> get books;
 /// Create a copy of Subject
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -2488,7 +2488,7 @@ abstract mixin class $SubjectCopyWith<$Res>  {
   factory $SubjectCopyWith(Subject value, $Res Function(Subject) _then) = _$SubjectCopyWithImpl;
 @useResult
 $Res call({
- String subject, List<Book> books
+ String subject,@JsonKey(readValue: _readSubjectBooks) List<Book> books
 });
 
 
@@ -2591,7 +2591,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String subject,  List<Book> books)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String subject, @JsonKey(readValue: _readSubjectBooks)  List<Book> books)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Subject() when $default != null:
 return $default(_that.subject,_that.books);case _:
@@ -2612,7 +2612,7 @@ return $default(_that.subject,_that.books);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String subject,  List<Book> books)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String subject, @JsonKey(readValue: _readSubjectBooks)  List<Book> books)  $default,) {final _that = this;
 switch (_that) {
 case _Subject():
 return $default(_that.subject,_that.books);}
@@ -2629,7 +2629,7 @@ return $default(_that.subject,_that.books);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String subject,  List<Book> books)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String subject, @JsonKey(readValue: _readSubjectBooks)  List<Book> books)?  $default,) {final _that = this;
 switch (_that) {
 case _Subject() when $default != null:
 return $default(_that.subject,_that.books);case _:
@@ -2644,7 +2644,7 @@ return $default(_that.subject,_that.books);case _:
 @JsonSerializable()
 
 class _Subject with DiagnosticableTreeMixin implements Subject {
-   _Subject({required this.subject, final  List<Book> books = const []}): _books = books;
+   _Subject({required this.subject, @JsonKey(readValue: _readSubjectBooks) final  List<Book> books = const []}): _books = books;
   factory _Subject.fromJson(Map<String, dynamic> json) => _$SubjectFromJson(json);
 
 /// The subject
@@ -2652,7 +2652,7 @@ class _Subject with DiagnosticableTreeMixin implements Subject {
 /// The list of the books matching this subject
  final  List<Book> _books;
 /// The list of the books matching this subject
-@override@JsonKey() List<Book> get books {
+@override@JsonKey(readValue: _readSubjectBooks) List<Book> get books {
   if (_books is EqualUnmodifiableListView) return _books;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_books);
@@ -2698,7 +2698,7 @@ abstract mixin class _$SubjectCopyWith<$Res> implements $SubjectCopyWith<$Res> {
   factory _$SubjectCopyWith(_Subject value, $Res Function(_Subject) _then) = __$SubjectCopyWithImpl;
 @override @useResult
 $Res call({
- String subject, List<Book> books
+ String subject,@JsonKey(readValue: _readSubjectBooks) List<Book> books
 });
 
 

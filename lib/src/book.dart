@@ -58,46 +58,46 @@ sealed class Book with _$Book {
     String? synopsys,
 
     /// List of the authors of the book
-    @JsonKey(readValue: _readAuthors) List<String?>? authors,
+    @JsonKey(readValue: _readBookAuthors) List<String?>? authors,
 
     /// List of the subjects of the book
-    @JsonKey(readValue: _readSubjects) List<String>? subjects,
+    @JsonKey(readValue: _readBookSubjects) List<String>? subjects,
 
     /// Not documented in the official API
-    @JsonKey(readValue: _readReviews) List<String>? reviews,
+    @JsonKey(readValue: _readBookReviews) List<String>? reviews,
 
     /// List of the merchants selling this book with real-time prices
     List<Merchant>? prices,
 
     /// Not documented in the official API
-    @JsonKey(readValue: _readRelated) List<String>? related,
+    @JsonKey(readValue: _readBookRelated) List<String>? related,
   }) = _Book;
 
   /// Used to build the object from the response of the ISBNdb API
   factory Book.fromJson(Map<String, dynamic> json) => _$BookFromJson(json);
+}
 
-  static Object? _readAuthors(Map<dynamic, dynamic> json, String key) {
-    return _readListOrMapValues(json[key]);
-  }
+Object? _readBookAuthors(Map<dynamic, dynamic> json, String key) {
+  return _readListOrMapValues(json[key]);
+}
 
-  static Object? _readSubjects(Map<dynamic, dynamic> json, String key) {
-    return _readListOrMapValues(json[key]);
-  }
+Object? _readBookSubjects(Map<dynamic, dynamic> json, String key) {
+  return _readListOrMapValues(json[key]);
+}
 
-  static Object? _readReviews(Map<dynamic, dynamic> json, String key) {
-    return _readListOrMapValues(json[key]);
-  }
+Object? _readBookReviews(Map<dynamic, dynamic> json, String key) {
+  return _readListOrMapValues(json[key]);
+}
 
-  static Object? _readRelated(Map<dynamic, dynamic> json, String key) {
-    return _readListOrMapValues(json[key]);
-  }
+Object? _readBookRelated(Map<dynamic, dynamic> json, String key) {
+  return _readListOrMapValues(json[key]);
+}
 
-  static Object? _readListOrMapValues(Object? value) {
-    if (value is Map) {
-      return value.values.toList();
-    }
-    return value;
+Object? _readListOrMapValues(Object? value) {
+  if (value is Map) {
+    return value.values.toList();
   }
+  return value;
 }
 
 /// A json converter that handles the date_published field of the API

@@ -212,6 +212,16 @@ String pageSize | How many items should be returned per page, maximum of 1,000
 
 Live tests are skipped automatically when `ISBNDB_API_KEY` is not set.
 
+## Code generation
+
+Regenerate `freezed`/`json_serializable` files with:
+
+```sh
+./scripts/generate.sh
+```
+
+This script also clears stale local `build_runner` snapshots before generation.
+
 ## Models
 
 **AuthorQueryResult**

@@ -8,20 +8,22 @@ sealed class PublisherQueryResult with _$PublisherQueryResult {
     required int total,
 
     /// The list of the publishers matching the query
-    @JsonKey(readValue: _readPublishers) @Default([]) List<String> publishers,
+    @JsonKey(readValue: _readPublisherNames)
+    @Default([])
+    List<String> publishers,
   }) = _PublisherQueryResult;
 
   /// Used to build the object from the response of the ISBNdb API
   factory PublisherQueryResult.fromJson(Map<String, dynamic> json) =>
       _$PublisherQueryResultFromJson(json);
+}
 
-  static Object? _readPublishers(Map<dynamic, dynamic> json, String key) {
-    final publishers = json[key];
-    if (publishers is Map) {
-      return publishers.values.toList();
-    }
-    return publishers;
+Object? _readPublisherNames(Map<dynamic, dynamic> json, String key) {
+  final publishers = json[key];
+  if (publishers is Map) {
+    return publishers.values.toList();
   }
+  return publishers;
 }
 
 extension PublisherQueryResultX on PublisherQueryResult {

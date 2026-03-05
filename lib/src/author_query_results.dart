@@ -8,20 +8,20 @@ sealed class AuthorQueryResult with _$AuthorQueryResult {
     required int total,
 
     /// The list of the authors matching the query
-    @JsonKey(readValue: _readAuthors) @Default([]) List<String> authors,
+    @JsonKey(readValue: _readAuthorNames) @Default([]) List<String> authors,
   }) = _AuthorQueryResult;
 
   /// Used to build the object from the response of the ISBNdb API
   factory AuthorQueryResult.fromJson(Map<String, dynamic> json) =>
       _$AuthorQueryResultFromJson(json);
+}
 
-  static Object? _readAuthors(Map<dynamic, dynamic> json, String key) {
-    final authors = json[key];
-    if (authors is Map) {
-      return authors.values.toList();
-    }
-    return authors;
+Object? _readAuthorNames(Map<dynamic, dynamic> json, String key) {
+  final authors = json[key];
+  if (authors is Map) {
+    return authors.values.toList();
   }
+  return authors;
 }
 
 extension AuthorQueryResultX on AuthorQueryResult {
