@@ -10,7 +10,7 @@ _AuthorQueryResult _$AuthorQueryResultFromJson(Map<String, dynamic> json) =>
     _AuthorQueryResult(
       total: (json['total'] as num).toInt(),
       authors:
-          (json['authors'] as List<dynamic>?)
+          (AuthorQueryResult._readAuthors(json, 'authors') as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
           const [],
@@ -22,7 +22,7 @@ Map<String, dynamic> _$AuthorQueryResultToJson(_AuthorQueryResult instance) =>
 _Author _$AuthorFromJson(Map<String, dynamic> json) => _Author(
   author: json['author'] as String,
   books:
-      (json['books'] as List<dynamic>?)
+      (Author._readBooks(json, 'books') as List<dynamic>?)
           ?.map((e) => Book.fromJson(e as Map<String, dynamic>))
           .toList() ??
       const [],
@@ -64,19 +64,19 @@ _Book _$BookFromJson(Map<String, dynamic> json) => _Book(
   msrp: const _MsrpConverter().fromJson(json['msrp']),
   excerpt: json['excerpt'] as String?,
   synopsys: json['synopsys'] as String?,
-  authors: (json['authors'] as List<dynamic>?)
+  authors: (Book._readAuthors(json, 'authors') as List<dynamic>?)
       ?.map((e) => e as String?)
       .toList(),
-  subjects: (json['subjects'] as List<dynamic>?)
+  subjects: (Book._readSubjects(json, 'subjects') as List<dynamic>?)
       ?.map((e) => e as String)
       .toList(),
-  reviews: (json['reviews'] as List<dynamic>?)
+  reviews: (Book._readReviews(json, 'reviews') as List<dynamic>?)
       ?.map((e) => e as String)
       .toList(),
   prices: (json['prices'] as List<dynamic>?)
       ?.map((e) => Merchant.fromJson(e as Map<String, dynamic>))
       .toList(),
-  related: (json['related'] as List<dynamic>?)
+  related: (Book._readRelated(json, 'related') as List<dynamic>?)
       ?.map((e) => e as String)
       .toList(),
 );
@@ -133,7 +133,8 @@ _PublisherQueryResult _$PublisherQueryResultFromJson(
 ) => _PublisherQueryResult(
   total: (json['total'] as num).toInt(),
   publishers:
-      (json['publishers'] as List<dynamic>?)
+      (PublisherQueryResult._readPublishers(json, 'publishers')
+              as List<dynamic>?)
           ?.map((e) => e as String)
           .toList() ??
       const [],
@@ -149,7 +150,7 @@ Map<String, dynamic> _$PublisherQueryResultToJson(
 _Publisher _$PublisherFromJson(Map<String, dynamic> json) => _Publisher(
   name: json['name'] as String,
   books:
-      (json['books'] as List<dynamic>?)
+      (Publisher._readBooks(json, 'books') as List<dynamic>?)
           ?.map((e) => Book.fromJson(e as Map<String, dynamic>))
           .toList() ??
       const [],
@@ -162,7 +163,7 @@ _SubjectQueryResult _$SubjectQueryResultFromJson(Map<String, dynamic> json) =>
     _SubjectQueryResult(
       total: (json['total'] as num).toInt(),
       subjects:
-          (json['subjects'] as List<dynamic>?)
+          (SubjectQueryResult._readSubjects(json, 'subjects') as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
           const [],
@@ -174,7 +175,7 @@ Map<String, dynamic> _$SubjectQueryResultToJson(_SubjectQueryResult instance) =>
 _Subject _$SubjectFromJson(Map<String, dynamic> json) => _Subject(
   subject: json['subject'] as String,
   books:
-      (json['books'] as List<dynamic>?)
+      (Subject._readBooks(json, 'books') as List<dynamic>?)
           ?.map((e) => Book.fromJson(e as Map<String, dynamic>))
           .toList() ??
       const [],

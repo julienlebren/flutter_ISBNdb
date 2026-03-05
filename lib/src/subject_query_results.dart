@@ -8,12 +8,20 @@ sealed class SubjectQueryResult with _$SubjectQueryResult {
     required int total,
 
     /// The list of the subjects matching the query
-    @Default([]) List<String> subjects,
+    @JsonKey(readValue: _readSubjects) @Default([]) List<String> subjects,
   }) = _SubjectQueryResult;
 
   /// Used to build the object from the response of the ISBNdb API
   factory SubjectQueryResult.fromJson(Map<String, dynamic> json) =>
       _$SubjectQueryResultFromJson(json);
+
+  static Object? _readSubjects(Map<dynamic, dynamic> json, String key) {
+    final subjects = json[key];
+    if (subjects is Map) {
+      return subjects.values.toList();
+    }
+    return subjects;
+  }
 }
 
 extension SubjectQueryResultX on SubjectQueryResult {

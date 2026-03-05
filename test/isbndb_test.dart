@@ -13,11 +13,55 @@ void main() {
       expect(author!.author, "Bussi Michel");
     });
 
+    test('Should parse getAuthor books from object map', () async {
+      final isbndb = _createClient(
+        responses: {
+          ..._defaultResponses(),
+          "GET author/Bussi Michel": {
+            "author": "Bussi Michel",
+            "books": {
+              "9782266246194": _book(
+                title: "Nymphéas Noirs",
+                isbn: "2266246197",
+                isbn13: "9782266246194",
+              ),
+            },
+          },
+        },
+      );
+
+      final author = await isbndb.getAuthor("Bussi Michel");
+
+      expect(author, isNotNull);
+      expect(author!.books, hasLength(1));
+      expect(author.books.first.isbn13, "9782266246194");
+    });
+
     test('Should get authors matching name werber', () async {
       final isbndb = _createClient();
       final authors = await isbndb.getAuthors("werber");
       expect(authors, isA<AuthorQueryResult>());
       expect(authors.authors, contains("Bernard Werber"));
+    });
+
+    test('Should parse getAuthors results from object map', () async {
+      final isbndb = _createClient(
+        responses: {
+          ..._defaultResponses(),
+          "GET authors/werber": {
+            "total": 2,
+            "authors": {"a1": "Bernard Werber", "a2": "Philip K. Dick"},
+          },
+        },
+      );
+
+      final authors = await isbndb.getAuthors("werber");
+
+      expect(authors.total, 2);
+      expect(
+        authors.authors,
+        containsAll(<String>["Bernard Werber", "Philip K. Dick"]),
+      );
     });
 
     test('Should get "Learn Google Flutter Fast"', () async {
@@ -90,6 +134,28 @@ void main() {
       );
     });
 
+    test('Should parse getBooks response from a single book object', () async {
+      final isbndb = _createClient(
+        responses: {
+          ..._defaultResponses(),
+          "GET books/flutter-single": {
+            "total": 1,
+            "data": _book(
+              title: "Single Book Payload",
+              isbn: "1680506955",
+              isbn13: "9781680506952",
+            ),
+          },
+        },
+      );
+
+      final books = await isbndb.getBooks("flutter-single");
+
+      expect(books.total, 1);
+      expect(books.books, hasLength(1));
+      expect(books.books.first.title, "Single Book Payload");
+    });
+
     test('Should get books from ISBNs', () async {
       final isbndb = _createClient();
       final books = await isbndb.getBooksFromISBNs([
@@ -123,11 +189,55 @@ void main() {
       expect(publishers.publishers, contains("Nathan"));
     });
 
+    test('Should parse getPublishers results from object map', () async {
+      final isbndb = _createClient(
+        responses: {
+          ..._defaultResponses(),
+          "GET publishers/Nathan": {
+            "total": 2,
+            "publishers": {"p1": "Nathan", "p2": "Eyrolles"},
+          },
+        },
+      );
+
+      final publishers = await isbndb.getPublishers("Nathan");
+
+      expect(publishers.total, 2);
+      expect(
+        publishers.publishers,
+        containsAll(<String>["Nathan", "Eyrolles"]),
+      );
+    });
+
     test('Should get books from publisher Nathan', () async {
       final isbndb = _createClient();
       final publisher = await isbndb.getPublisher("Nathan");
       expect(publisher, isA<Publisher>());
       expect(publisher!.name, "Nathan");
+    });
+
+    test('Should parse getPublisher books from object map', () async {
+      final isbndb = _createClient(
+        responses: {
+          ..._defaultResponses(),
+          "GET publisher/Nathan": {
+            "name": "Nathan",
+            "books": {
+              "9781092297370": _book(
+                title: "Learn Google Flutter Fast",
+                isbn: "1092297370",
+                isbn13: "9781092297370",
+              ),
+            },
+          },
+        },
+      );
+
+      final publisher = await isbndb.getPublisher("Nathan");
+
+      expect(publisher, isNotNull);
+      expect(publisher!.books, hasLength(1));
+      expect(publisher.books.first.isbn13, "9781092297370");
     });
 
     test('Should get list of subjects matching "flutter"', () async {
@@ -137,11 +247,52 @@ void main() {
       expect(subjects.subjects, contains("flutter"));
     });
 
+    test('Should parse getSubjects results from object map', () async {
+      final isbndb = _createClient(
+        responses: {
+          ..._defaultResponses(),
+          "GET subjects/flutter": {
+            "total": 2,
+            "subjects": {"s1": "flutter", "s2": "mobile"},
+          },
+        },
+      );
+
+      final subjects = await isbndb.getSubjects("flutter");
+
+      expect(subjects.total, 2);
+      expect(subjects.subjects, containsAll(<String>["flutter", "mobile"]));
+    });
+
     test('Should get books matching subject "flutter"', () async {
       final isbndb = _createClient();
       final subject = await isbndb.getSubject("flutter");
       expect(subject, isA<Subject>());
       expect(subject!.subject, "flutter");
+    });
+
+    test('Should parse getSubject books from object map', () async {
+      final isbndb = _createClient(
+        responses: {
+          ..._defaultResponses(),
+          "GET subject/flutter": {
+            "subject": "flutter",
+            "books": {
+              "9781680506952": _book(
+                title: "Programming Flutter",
+                isbn: "1680506955",
+                isbn13: "9781680506952",
+              ),
+            },
+          },
+        },
+      );
+
+      final subject = await isbndb.getSubject("flutter");
+
+      expect(subject, isNotNull);
+      expect(subject!.books, hasLength(1));
+      expect(subject.books.first.isbn13, "9781680506952");
     });
 
     test('Should send column enum name to API', () async {
@@ -248,6 +399,28 @@ void main() {
       expect(book, isNotNull);
       expect(book!.msrp, isNull);
     });
+
+    test(
+      'Should parse book oneOf fields when returned as object maps',
+      () async {
+        final book = Book.fromJson({
+          ..._book(
+            title: "Map payload",
+            isbn: "4444444444",
+            isbn13: "9784444444444",
+          ),
+          "authors": {"0": "Alice", "1": "Bob"},
+          "subjects": {"0": "flutter"},
+          "reviews": {"0": "Great"},
+          "related": {"0": "9781680506952"},
+        });
+
+        expect(book.authors, equals(<String?>["Alice", "Bob"]));
+        expect(book.subjects, equals(<String>["flutter"]));
+        expect(book.reviews, equals(<String>["Great"]));
+        expect(book.related, equals(<String>["9781680506952"]));
+      },
+    );
 
     test('Should throw ISBNdbException when API returns 401', () async {
       final isbndb = _createClient(
