@@ -1,3 +1,11 @@
+## 1.0.0 - 2026-03-05
+
+- Unify API failures under ISBNdbException (41dfb37)
+- Align books endpoints with official API behavior (df9437c)
+- Support `oneOf` response parsing across models (1f579d7)
+- Expand error handling coverage and API message extraction (165b172)
+- Add `/key` and `/stats` endpoints (2fe17df)
+
 ## 0.5.1 - 2026-03-04
 
 - Add local release helper script (1eaad1e)
