@@ -202,22 +202,21 @@ class ISBNdb {
     int? offset,
   }) async {
     final path = "books/$query";
-    final response = await _get(
-      path,
-      queryParameters: <String, Object?>{
-        "page": page,
-        // Keep both snake_case and camelCase for backward compatibility.
-        "page_size": pageSize,
-        "pageSize": pageSize,
-        "year": year,
-        "edition": edition,
-        "should_match_all": shouldMatchAll,
-        "language": language,
-        "column_enum": column?.name,
-        "column": column?.name,
-        "offset": offset,
-      },
-    );
+    final queryParameters = <String, Object?>{
+      "page": page,
+      // Keep both snake_case and camelCase for backward compatibility.
+      "page_size": pageSize,
+      "pageSize": pageSize,
+      "year": year,
+      "edition": edition,
+      "should_match_all": shouldMatchAll,
+      "language": language,
+      "column_enum": column?.name,
+      "column": column?.name,
+      "offset": offset,
+    }..removeWhere((_, value) => value == null);
+
+    final response = await _get(path, queryParameters: queryParameters);
     return _parseModel(
       method: "GET",
       path: path,

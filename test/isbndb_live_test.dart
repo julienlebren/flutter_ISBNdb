@@ -39,6 +39,26 @@ void main() {
       expect(result.books.length, lessThanOrEqualTo(5));
     }, skip: skipReason);
 
+    test("getBooks accepts advanced filters from API spec", () async {
+      final isbndb = ISBNdb(apiKey!);
+      final result = await isbndb.getBooks(
+        "flutter",
+        page: 1,
+        pageSize: 3,
+        language: "en",
+        shouldMatchAll: true,
+        column: BookColumn.title,
+        offset: 0,
+      );
+
+      expect(result.total, greaterThanOrEqualTo(0));
+      expect(result.books.length, lessThanOrEqualTo(3));
+      for (final book in result.books) {
+        expect(book.title, isNotEmpty);
+        expect(book.isbn13, isNotEmpty);
+      }
+    }, skip: skipReason);
+
     test("getSubjects returns non-empty results for a common query", () async {
       final isbndb = ISBNdb(apiKey!);
       final result = await isbndb.getSubjects("flutter", page: 1, pageSize: 5);

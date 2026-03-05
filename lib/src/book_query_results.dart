@@ -16,7 +16,11 @@ sealed class BookQueryResult with _$BookQueryResult {
       _$BookQueryResultFromJson(json);
 
   static Object? _readBooks(Map<dynamic, dynamic> json, String key) {
-    return json[key] ?? json['data'];
+    final books = json[key] ?? json['data'];
+    if (books is Map) {
+      return books.values.toList();
+    }
+    return books;
   }
 }
 

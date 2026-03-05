@@ -34,6 +34,62 @@ void main() {
       expect(books.books.length, 1);
     });
 
+    test('Should parse getBooks response from data array', () async {
+      final isbndb = _createClient(
+        responses: {
+          ..._defaultResponses(),
+          "GET books/flutter-data": {
+            "total": 1,
+            "data": [
+              _book(
+                title: "Data Response Book",
+                isbn: "1234567890",
+                isbn13: "9781234567897",
+              ),
+            ],
+          },
+        },
+      );
+
+      final books = await isbndb.getBooks("flutter-data");
+
+      expect(books.total, 1);
+      expect(books.books, hasLength(1));
+      expect(books.books.first.isbn13, "9781234567897");
+    });
+
+    test('Should parse getBooks response from data object map', () async {
+      final isbndb = _createClient(
+        responses: {
+          ..._defaultResponses(),
+          "GET books/flutter-map": {
+            "total": 2,
+            "data": {
+              "9781092297370": _book(
+                title: "Learn Google Flutter Fast",
+                isbn: "1092297370",
+                isbn13: "9781092297370",
+              ),
+              "9781680506952": _book(
+                title: "Programming Flutter",
+                isbn: "1680506955",
+                isbn13: "9781680506952",
+              ),
+            },
+          },
+        },
+      );
+
+      final books = await isbndb.getBooks("flutter-map");
+
+      expect(books.total, 2);
+      expect(books.books, hasLength(2));
+      expect(
+        books.books.map((book) => book.isbn13).toSet(),
+        containsAll(<String>["9781092297370", "9781680506952"]),
+      );
+    });
+
     test('Should get books from ISBNs', () async {
       final isbndb = _createClient();
       final books = await isbndb.getBooksFromISBNs([
@@ -132,6 +188,42 @@ void main() {
         expect(options!.queryParameters["column_enum"], "subjects");
         expect(options!.queryParameters["column"], "subjects");
         expect(options!.queryParameters["offset"], 10);
+      },
+    );
+
+    test('Should not send optional filters when not provided', () async {
+      RequestOptions? options;
+      final isbndb = _createClient(
+        onRequestCallback: (requestOptions) => options = requestOptions,
+      );
+
+      await isbndb.getBooks("Google Flutter");
+
+      expect(options, isNotNull);
+      expect(options!.queryParameters["page"], 1);
+      expect(options!.queryParameters["page_size"], 20);
+      expect(options!.queryParameters["pageSize"], 20);
+      expect(options!.queryParameters.containsKey("year"), isFalse);
+      expect(options!.queryParameters.containsKey("edition"), isFalse);
+      expect(options!.queryParameters.containsKey("should_match_all"), isFalse);
+      expect(options!.queryParameters.containsKey("language"), isFalse);
+      expect(options!.queryParameters.containsKey("column_enum"), isFalse);
+      expect(options!.queryParameters.containsKey("column"), isFalse);
+      expect(options!.queryParameters.containsKey("offset"), isFalse);
+    });
+
+    test(
+      'Should send should_match_all=false when explicitly provided',
+      () async {
+        RequestOptions? options;
+        final isbndb = _createClient(
+          onRequestCallback: (requestOptions) => options = requestOptions,
+        );
+
+        await isbndb.getBooks("Google Flutter", shouldMatchAll: false);
+
+        expect(options, isNotNull);
+        expect(options!.queryParameters["should_match_all"], isFalse);
       },
     );
 
