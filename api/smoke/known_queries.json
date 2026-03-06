@@ -1,0 +1,16 @@
+{
+  "books": {
+    "single_isbn13": "9781092297370",
+    "batch_isbn13": [
+      "9781092297370",
+      "9781680506952"
+    ],
+    "search_query": "flutter"
+  },
+  "authors": {
+    "search_query": "werber"
+  },
+  "subjects": {
+    "search_query": "flutter"
+  }
+}

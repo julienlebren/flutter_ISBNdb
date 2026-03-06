@@ -1,0 +1,42 @@
+name: API Spec Watch
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "15 5 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  openapi-drift:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check OpenAPI drift
+        env:
+          ISBNDB_OPENAPI_SOURCE_URL: ${{ vars.ISBNDB_OPENAPI_SOURCE_URL }}
+          ISBNDB_OPENAPI_SOURCE_URL_SECRET: ${{ secrets.ISBNDB_OPENAPI_SOURCE_URL }}
+        run: |
+          source_url="${ISBNDB_OPENAPI_SOURCE_URL:-${ISBNDB_OPENAPI_SOURCE_URL_SECRET:-}}"
+          if [ -z "${source_url}" ]; then
+            echo "No OpenAPI source URL configured (vars/secrets ISBNDB_OPENAPI_SOURCE_URL)."
+            echo "Skipping drift check."
+            exit 0
+          fi
+
+          ./scripts/check_api_spec_changes.sh \
+            --source-url "${source_url}" \
+            --write-fetched /tmp/isbndb-openapi-candidate.json
+
+      - name: Upload fetched OpenAPI snapshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: isbndb-openapi-candidate
+          path: /tmp/isbndb-openapi-candidate.json
+          if-no-files-found: ignore

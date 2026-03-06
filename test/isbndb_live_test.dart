@@ -1,14 +1,25 @@
 @Tags(['live'])
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:isbndb/isbndb.dart';
 
 void main() {
-  const isbn13 = "9781092297370";
-  const batchIsbns = <String>["9781092297370", "9781680506952"];
   final apiKey = Platform.environment['ISBNDB_API_KEY'];
-  final skipReason = apiKey == null ? "Missing ISBNDB_API_KEY" : false;
+  final fixtures = _tryReadLiveFixtures();
+  final skipReason = apiKey == null
+      ? "Missing ISBNDB_API_KEY"
+      : fixtures == null
+      ? "Missing or invalid api/smoke/known_queries.json"
+      : false;
+
+  final liveFixtures = fixtures ?? _LiveFixtures.fallback();
+  final isbn13 = liveFixtures.singleIsbn13;
+  final batchIsbns = liveFixtures.batchIsbn13;
+  final booksQuery = liveFixtures.booksQuery;
+  final authorsQuery = liveFixtures.authorsQuery;
+  final subjectsQuery = liveFixtures.subjectsQuery;
 
   group("ISBNdb live", () {
     test("getBook returns a valid book for a known ISBN", () async {
@@ -21,7 +32,7 @@ void main() {
 
     test("getAuthors returns non-empty results for a common query", () async {
       final isbndb = ISBNdb(apiKey!);
-      final result = await isbndb.getAuthors("werber");
+      final result = await isbndb.getAuthors(authorsQuery);
       expect(result.total, greaterThan(0));
       expect(result.authors, isNotEmpty);
     }, skip: skipReason);
@@ -29,7 +40,7 @@ void main() {
     test("getBooks supports pagination and column filter", () async {
       final isbndb = ISBNdb(apiKey!);
       final result = await isbndb.getBooks(
-        "flutter",
+        booksQuery,
         page: 1,
         pageSize: 5,
         column: BookColumn.title,
@@ -42,7 +53,7 @@ void main() {
     test("getBooks accepts advanced filters from API spec", () async {
       final isbndb = ISBNdb(apiKey!);
       final result = await isbndb.getBooks(
-        "flutter",
+        booksQuery,
         page: 1,
         pageSize: 3,
         language: "en",
@@ -61,7 +72,11 @@ void main() {
 
     test("getSubjects returns non-empty results for a common query", () async {
       final isbndb = ISBNdb(apiKey!);
-      final result = await isbndb.getSubjects("flutter", page: 1, pageSize: 5);
+      final result = await isbndb.getSubjects(
+        subjectsQuery,
+        page: 1,
+        pageSize: 5,
+      );
       expect(result.total, greaterThan(0));
       expect(result.subjects, isNotEmpty);
     }, skip: skipReason);
@@ -102,4 +117,51 @@ void main() {
       expect(stats.subjects, greaterThanOrEqualTo(0));
     }, skip: skipReason);
   });
+}
+
+_LiveFixtures? _tryReadLiveFixtures() {
+  final file = File('api/smoke/known_queries.json');
+  if (!file.existsSync()) {
+    return null;
+  }
+
+  final json = jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
+
+  final books = Map<String, dynamic>.from(json['books'] as Map);
+  final authors = Map<String, dynamic>.from(json['authors'] as Map);
+  final subjects = Map<String, dynamic>.from(json['subjects'] as Map);
+
+  return _LiveFixtures(
+    singleIsbn13: books['single_isbn13'] as String,
+    batchIsbn13: List<String>.from(books['batch_isbn13'] as List),
+    booksQuery: books['search_query'] as String,
+    authorsQuery: authors['search_query'] as String,
+    subjectsQuery: subjects['search_query'] as String,
+  );
+}
+
+class _LiveFixtures {
+  const _LiveFixtures({
+    required this.singleIsbn13,
+    required this.batchIsbn13,
+    required this.booksQuery,
+    required this.authorsQuery,
+    required this.subjectsQuery,
+  });
+
+  final String singleIsbn13;
+  final List<String> batchIsbn13;
+  final String booksQuery;
+  final String authorsQuery;
+  final String subjectsQuery;
+
+  factory _LiveFixtures.fallback() {
+    return const _LiveFixtures(
+      singleIsbn13: '9781092297370',
+      batchIsbn13: <String>['9781092297370', '9781680506952'],
+      booksQuery: 'flutter',
+      authorsQuery: 'werber',
+      subjectsQuery: 'flutter',
+    );
+  }
 }

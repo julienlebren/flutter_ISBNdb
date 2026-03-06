@@ -230,6 +230,17 @@ Returns global dataset counters (`books`, `authors`, `publishers`, `subjects`).
 
 Live tests are skipped automatically when `ISBNDB_API_KEY` is not set.
 
+## API monitoring (maintainers only)
+
+You do not need this section to use the package in your app.
+
+- OpenAPI snapshot reference: `api/upstream/isbndb-openapi.json`
+- Stable smoke fixtures used by live tests: `api/smoke/known_queries.json`
+- Drift check script: `./scripts/check_api_spec_changes.sh`
+- Scheduled GitHub Action: `API Spec Watch` (`.github/workflows/api-spec-watch.yml`)
+
+Configure one repository variable or secret named `ISBNDB_OPENAPI_SOURCE_URL` to enable the scheduled OpenAPI drift check.
+
 ## Code generation (maintainers only)
 
 You do not need this section to use the package in your app.
