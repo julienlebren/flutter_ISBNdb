@@ -79,6 +79,24 @@ void main() {
       expect(batchIsbns, hasLength(greaterThanOrEqualTo(2)));
       expect(batchIsbns, contains(singleIsbn));
     });
+
+    test(
+      'contains detail fixtures for author, publisher and subject endpoints',
+      () {
+        final authors = Map<String, dynamic>.from(fixtures['authors'] as Map);
+        final publishers = Map<String, dynamic>.from(
+          fixtures['publishers'] as Map,
+        );
+        final subjects = Map<String, dynamic>.from(fixtures['subjects'] as Map);
+
+        expect(authors['search_query'], isA<String>());
+        expect(authors['detail_name'], isA<String>());
+        expect(publishers['search_query'], isA<String>());
+        expect(publishers['detail_name'], isA<String>());
+        expect(subjects['search_query'], isA<String>());
+        expect(subjects['detail_name'], isA<String>());
+      },
+    );
   });
 }
 

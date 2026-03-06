@@ -8,9 +8,15 @@
     "search_query": "flutter"
   },
   "authors": {
-    "search_query": "werber"
+    "search_query": "werber",
+    "detail_name": "Bussi Michel"
+  },
+  "publishers": {
+    "search_query": "Nathan",
+    "detail_name": "Nathan"
   },
   "subjects": {
-    "search_query": "flutter"
+    "search_query": "flutter",
+    "detail_name": "flutter"
   }
 }

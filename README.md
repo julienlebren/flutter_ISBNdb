@@ -238,6 +238,7 @@ You do not need this section to use the package in your app.
 - Stable smoke fixtures used by live tests: `api/smoke/known_queries.json`
 - Drift check script: `./scripts/check_api_spec_changes.sh`
 - Scheduled GitHub Action: `API Spec Watch` (`.github/workflows/api-spec-watch.yml`)
+- When drift is detected, `API Spec Watch` opens/updates an `api-drift` issue and fails the workflow.
 
 Configure one repository variable or secret named `ISBNDB_OPENAPI_SOURCE_URL` to enable the scheduled OpenAPI drift check.
 

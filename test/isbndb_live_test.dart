@@ -19,7 +19,11 @@ void main() {
   final batchIsbns = liveFixtures.batchIsbn13;
   final booksQuery = liveFixtures.booksQuery;
   final authorsQuery = liveFixtures.authorsQuery;
+  final authorDetailName = liveFixtures.authorDetailName;
+  final publishersQuery = liveFixtures.publishersQuery;
+  final publisherDetailName = liveFixtures.publisherDetailName;
   final subjectsQuery = liveFixtures.subjectsQuery;
+  final subjectDetailName = liveFixtures.subjectDetailName;
 
   group("ISBNdb live", () {
     test("getBook returns a valid book for a known ISBN", () async {
@@ -35,6 +39,17 @@ void main() {
       final result = await isbndb.getAuthors(authorsQuery);
       expect(result.total, greaterThan(0));
       expect(result.authors, isNotEmpty);
+    }, skip: skipReason);
+
+    test("getAuthor returns details for a known author", () async {
+      final isbndb = ISBNdb(apiKey!);
+      final author = await isbndb.getAuthor(authorDetailName, pageSize: 5);
+      expect(author, isNotNull);
+      expect(
+        author!.author.toLowerCase(),
+        contains(authorDetailName.toLowerCase().split(' ').first),
+      );
+      expect(author.books, isNotNull);
     }, skip: skipReason);
 
     test("getBooks supports pagination and column filter", () async {
@@ -79,6 +94,42 @@ void main() {
       );
       expect(result.total, greaterThan(0));
       expect(result.subjects, isNotEmpty);
+    }, skip: skipReason);
+
+    test(
+      "getPublishers returns non-empty results for a common query",
+      () async {
+        final isbndb = ISBNdb(apiKey!);
+        final result = await isbndb.getPublishers(publishersQuery);
+        expect(result.total, greaterThan(0));
+        expect(result.publishers, isNotEmpty);
+      },
+      skip: skipReason,
+    );
+
+    test("getPublisher returns details for a known publisher", () async {
+      final isbndb = ISBNdb(apiKey!);
+      final publisher = await isbndb.getPublisher(
+        publisherDetailName,
+        pageSize: 5,
+      );
+      expect(publisher, isNotNull);
+      expect(
+        publisher!.name.toLowerCase(),
+        contains(publisherDetailName.toLowerCase()),
+      );
+      expect(publisher.books, isNotNull);
+    }, skip: skipReason);
+
+    test("getSubject returns details for a known subject", () async {
+      final isbndb = ISBNdb(apiKey!);
+      final subject = await isbndb.getSubject(subjectDetailName);
+      expect(subject, isNotNull);
+      expect(
+        subject!.subject.toLowerCase(),
+        contains(subjectDetailName.toLowerCase()),
+      );
+      expect(subject.books, isNotNull);
     }, skip: skipReason);
 
     test("getBooksFromISBNs returns expected books for known ISBNs", () async {
@@ -129,6 +180,7 @@ _LiveFixtures? _tryReadLiveFixtures() {
 
   final books = Map<String, dynamic>.from(json['books'] as Map);
   final authors = Map<String, dynamic>.from(json['authors'] as Map);
+  final publishers = Map<String, dynamic>.from(json['publishers'] as Map);
   final subjects = Map<String, dynamic>.from(json['subjects'] as Map);
 
   return _LiveFixtures(
@@ -136,7 +188,11 @@ _LiveFixtures? _tryReadLiveFixtures() {
     batchIsbn13: List<String>.from(books['batch_isbn13'] as List),
     booksQuery: books['search_query'] as String,
     authorsQuery: authors['search_query'] as String,
+    authorDetailName: authors['detail_name'] as String,
+    publishersQuery: publishers['search_query'] as String,
+    publisherDetailName: publishers['detail_name'] as String,
     subjectsQuery: subjects['search_query'] as String,
+    subjectDetailName: subjects['detail_name'] as String,
   );
 }
 
@@ -146,14 +202,22 @@ class _LiveFixtures {
     required this.batchIsbn13,
     required this.booksQuery,
     required this.authorsQuery,
+    required this.authorDetailName,
+    required this.publishersQuery,
+    required this.publisherDetailName,
     required this.subjectsQuery,
+    required this.subjectDetailName,
   });
 
   final String singleIsbn13;
   final List<String> batchIsbn13;
   final String booksQuery;
   final String authorsQuery;
+  final String authorDetailName;
+  final String publishersQuery;
+  final String publisherDetailName;
   final String subjectsQuery;
+  final String subjectDetailName;
 
   factory _LiveFixtures.fallback() {
     return const _LiveFixtures(
@@ -161,7 +225,11 @@ class _LiveFixtures {
       batchIsbn13: <String>['9781092297370', '9781680506952'],
       booksQuery: 'flutter',
       authorsQuery: 'werber',
+      authorDetailName: 'Bussi Michel',
+      publishersQuery: 'Nathan',
+      publisherDetailName: 'Nathan',
       subjectsQuery: 'flutter',
+      subjectDetailName: 'flutter',
     );
   }
 }
