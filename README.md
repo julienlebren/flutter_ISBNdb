@@ -235,6 +235,7 @@ Live tests are skipped automatically when `ISBNDB_API_KEY` is not set.
 You do not need this section to use the package in your app.
 
 - OpenAPI snapshot reference: `api/upstream/isbndb-openapi.json`
+- API documentation snapshot: `api/isbndb-api-documentation-v2.md`
 - Stable smoke fixtures used by live tests: `api/smoke/known_queries.json`
 - Drift check script: `./scripts/check_api_spec_changes.sh`
 - Scheduled GitHub Action: `API Spec Watch` (`.github/workflows/api-spec-watch.yml`)
