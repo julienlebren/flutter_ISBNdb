@@ -222,6 +222,34 @@ comm -3 \
   <(jq -r '.paths | keys[]' "${normalized_candidate}" | sort) \
   | sed 's/^/  - /'
 
+echo "Changed operations (method-level):"
+jq -r '
+  def ops:
+    .paths
+    | to_entries[] as $path
+    | $path.value
+    | to_entries[]
+    | "\($path.key) \(.key):\(.value | @json)";
+  ops
+' "${normalized_reference}" | sort > "${tmp_dir}/reference.ops"
+
+jq -r '
+  def ops:
+    .paths
+    | to_entries[] as $path
+    | $path.value
+    | to_entries[]
+    | "\($path.key) \(.key):\(.value | @json)";
+  ops
+' "${normalized_candidate}" | sort > "${tmp_dir}/candidate.ops"
+
+comm -3 "${tmp_dir}/reference.ops" "${tmp_dir}/candidate.ops" \
+  | sed 's/^/  - /' \
+  | head -n 60
+
+echo "Diff excerpt (first 120 lines):"
+head -n 120 "${tmp_dir}/spec.diff"
+
 if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
   {
     echo "## ISBNdb OpenAPI Drift"
