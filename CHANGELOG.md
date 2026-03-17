@@ -1,3 +1,10 @@
+## 1.0.1 - 2026-03-17
+
+- Aligned the client with the current ISBNdb API contract (notably `pageSize`, `shouldMatchAll`, and `column` for book search).
+- Added/updated optional query support on details endpoints (`language`, and pagination for subject details) to match the live API behavior.
+- Expanded contract and live smoke tests to cover these API changes and prevent silent regressions.
+- Improved API drift monitoring in CI with clearer diagnostics and automatic issue creation/updates.
+
 ## 1.0.0 - 2026-03-05
 
 - Unify API failures under ISBNdbException (41dfb37)
