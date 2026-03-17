@@ -40,13 +40,12 @@ void main() {
         containsAll(<String>{
           'query',
           'page',
-          'page_size',
+          'pageSize',
           'year',
           'edition',
-          'should_match_all',
+          'shouldMatchAll',
           'language',
-          'column_enum',
-          'offset',
+          'column',
         }),
       );
     });

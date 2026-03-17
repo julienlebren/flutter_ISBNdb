@@ -194,7 +194,7 @@ class ISBNdb {
     final path = "book/$isbn";
     final response = await _get(
       path,
-      queryParameters: <String, Object?>{"with_prices": withPrices ? 1 : 0},
+      queryParameters: <String, Object?>{"with_prices": withPrices},
     );
     final bookJson = response['book'];
     if (bookJson == null) {
@@ -224,21 +224,17 @@ class ISBNdb {
     bool? shouldMatchAll,
     String? language,
     BookColumn? column,
-    int? offset,
+    @Deprecated('No longer supported by ISBNdb API contract.') int? offset,
   }) async {
     final path = "books/$query";
     final queryParameters = <String, Object?>{
       "page": page,
-      // Keep both snake_case and camelCase for backward compatibility.
-      "page_size": pageSize,
       "pageSize": pageSize,
       "year": year,
       "edition": edition,
-      "should_match_all": shouldMatchAll,
+      "shouldMatchAll": shouldMatchAll,
       "language": language,
-      "column_enum": column?.name,
       "column": column?.name,
-      "offset": offset,
     }..removeWhere((_, value) => value == null);
 
     final response = await _get(path, queryParameters: queryParameters);
@@ -265,12 +261,18 @@ class ISBNdb {
     String name, {
     int page = 1,
     int pageSize = 20,
+    String? language,
+    @Deprecated('No longer supported by ISBNdb API contract.')
     BookColumn? column,
   }) async {
     final path = "author/$name";
     final response = await _get(
       path,
-      queryParameters: <String, Object?>{"page": page, "pageSize": pageSize},
+      queryParameters: <String, Object?>{
+        "page": page,
+        "pageSize": pageSize,
+        "language": language,
+      }..removeWhere((_, value) => value == null),
     );
     return _parseModel(
       method: "GET",
@@ -302,11 +304,16 @@ class ISBNdb {
     String name, {
     int page = 1,
     int pageSize = 20,
+    String? language,
   }) async {
     final path = "publisher/$name";
     final response = await _get(
       path,
-      queryParameters: <String, Object?>{"page": page, "pageSize": pageSize},
+      queryParameters: <String, Object?>{
+        "page": page,
+        "pageSize": pageSize,
+        "language": language,
+      }..removeWhere((_, value) => value == null),
     );
     return _parseModel(
       method: "GET",
@@ -333,10 +340,22 @@ class ISBNdb {
     );
   }
 
-  /// Get a list of book about a given subject
-  Future<Subject?> getSubject(String name) async {
+  /// Get a list of books about a given subject.
+  Future<Subject?> getSubject(
+    String name, {
+    int page = 1,
+    int pageSize = 20,
+    String? language,
+  }) async {
     final path = "subject/$name";
-    final response = await _get(path);
+    final response = await _get(
+      path,
+      queryParameters: <String, Object?>{
+        "page": page,
+        "pageSize": pageSize,
+        "language": language,
+      }..removeWhere((_, value) => value == null),
+    );
     return _parseModel(
       method: "GET",
       path: path,

@@ -74,7 +74,6 @@ void main() {
         language: "en",
         shouldMatchAll: true,
         column: BookColumn.title,
-        offset: 0,
       );
 
       expect(result.total, greaterThanOrEqualTo(0));

@@ -71,6 +71,18 @@ void main() {
       expect(book!.title, "Learn Google Flutter Fast");
     });
 
+    test('Should send with_prices as boolean query parameter', () async {
+      RequestOptions? options;
+      final isbndb = _createClient(
+        onRequestCallback: (requestOptions) => options = requestOptions,
+      );
+
+      await isbndb.getBook("9781092297370", withPrices: true);
+
+      expect(options, isNotNull);
+      expect(options!.queryParameters["with_prices"], isTrue);
+    });
+
     test('Should get books about Flutter', () async {
       final isbndb = _createClient();
       final books = await isbndb.getBooks("Google Flutter");
@@ -314,7 +326,7 @@ void main() {
       expect(subject.books.first.isbn13, "9781680506952");
     });
 
-    test('Should send column enum name to API', () async {
+    test('Should send column name to API', () async {
       RequestOptions? options;
       final isbndb = _createClient(
         onRequestCallback: (requestOptions) => options = requestOptions,
@@ -323,8 +335,8 @@ void main() {
       await isbndb.getBooks("Google Flutter", column: BookColumn.title);
 
       expect(options, isNotNull);
-      expect(options!.queryParameters["column_enum"], "title");
       expect(options!.queryParameters["column"], "title");
+      expect(options!.queryParameters.containsKey("column_enum"), isFalse);
     });
 
     test(
@@ -344,20 +356,18 @@ void main() {
           shouldMatchAll: true,
           language: "en",
           column: BookColumn.subjects,
-          offset: 10,
         );
 
         expect(options, isNotNull);
         expect(options!.queryParameters["page"], 2);
-        expect(options!.queryParameters["page_size"], 5);
         expect(options!.queryParameters["pageSize"], 5);
         expect(options!.queryParameters["year"], 2024);
         expect(options!.queryParameters["edition"], 2);
-        expect(options!.queryParameters["should_match_all"], true);
+        expect(options!.queryParameters["shouldMatchAll"], true);
         expect(options!.queryParameters["language"], "en");
-        expect(options!.queryParameters["column_enum"], "subjects");
         expect(options!.queryParameters["column"], "subjects");
-        expect(options!.queryParameters["offset"], 10);
+        expect(options!.queryParameters.containsKey("column_enum"), isFalse);
+        expect(options!.queryParameters.containsKey("offset"), isFalse);
       },
     );
 
@@ -371,31 +381,50 @@ void main() {
 
       expect(options, isNotNull);
       expect(options!.queryParameters["page"], 1);
-      expect(options!.queryParameters["page_size"], 20);
       expect(options!.queryParameters["pageSize"], 20);
       expect(options!.queryParameters.containsKey("year"), isFalse);
       expect(options!.queryParameters.containsKey("edition"), isFalse);
-      expect(options!.queryParameters.containsKey("should_match_all"), isFalse);
+      expect(options!.queryParameters.containsKey("shouldMatchAll"), isFalse);
       expect(options!.queryParameters.containsKey("language"), isFalse);
       expect(options!.queryParameters.containsKey("column_enum"), isFalse);
       expect(options!.queryParameters.containsKey("column"), isFalse);
       expect(options!.queryParameters.containsKey("offset"), isFalse);
+      expect(options!.queryParameters.containsKey("page_size"), isFalse);
     });
 
-    test(
-      'Should send should_match_all=false when explicitly provided',
-      () async {
-        RequestOptions? options;
-        final isbndb = _createClient(
-          onRequestCallback: (requestOptions) => options = requestOptions,
-        );
+    test('Should send shouldMatchAll=false when explicitly provided', () async {
+      RequestOptions? options;
+      final isbndb = _createClient(
+        onRequestCallback: (requestOptions) => options = requestOptions,
+      );
 
-        await isbndb.getBooks("Google Flutter", shouldMatchAll: false);
+      await isbndb.getBooks("Google Flutter", shouldMatchAll: false);
 
-        expect(options, isNotNull);
-        expect(options!.queryParameters["should_match_all"], isFalse);
-      },
-    );
+      expect(options, isNotNull);
+      expect(options!.queryParameters["shouldMatchAll"], isFalse);
+    });
+
+    test('Should send language for details endpoints when provided', () async {
+      final capturedRequests = <RequestOptions>[];
+      final isbndb = _createClient(
+        onRequestCallback: (requestOptions) {
+          if (requestOptions.path.contains('/author/') ||
+              requestOptions.path.contains('/publisher/') ||
+              requestOptions.path.contains('/subject/')) {
+            capturedRequests.add(requestOptions);
+          }
+        },
+      );
+
+      await isbndb.getAuthor("Bussi Michel", language: "fr");
+      await isbndb.getPublisher("Nathan", language: "fr");
+      await isbndb.getSubject("flutter", language: "fr");
+
+      expect(capturedRequests, hasLength(3));
+      for (final request in capturedRequests) {
+        expect(request.queryParameters["language"], "fr");
+      }
+    });
 
     test('Should not throw when msrp is non-numeric', () async {
       final isbndb = _createClient(

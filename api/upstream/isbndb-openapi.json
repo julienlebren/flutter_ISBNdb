@@ -278,15 +278,6 @@
         ],
         "type": "object"
       },
-      "Column": {
-        "enum": [
-          "title",
-          "author",
-          "date_published",
-          "subjects"
-        ],
-        "type": "string"
-      },
       "DetailsResponse": {
         "properties": {
           "books": {
@@ -453,25 +444,19 @@
       },
       "PaginationFilters": {
         "properties": {
-          "offset": {
-            "type": "integer"
-          },
           "page": {
             "default": 1,
             "description": "The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them",
             "nullable": true,
             "type": "integer"
           },
-          "page_size": {
+          "pageSize": {
             "default": 20,
             "description": "How many items should be returned per page, maximum of 1,000",
             "nullable": true,
             "type": "integer"
           }
         },
-        "required": [
-          "offset"
-        ],
         "type": "object"
       },
       "PlanLimit": {
@@ -629,13 +614,17 @@
       },
       "SearchBookFilters": {
         "properties": {
-          "column_enum": {
+          "column": {
+            "default": null,
+            "description": "Search limited to this column:\n* `` - Empty value search in every column\n* `title` - Only searches in Books Title\n* `author` - Only searches books by the given Author\n* `date_published` - Only searches books in a given year, e.g. 1998\n* `subjects` - Only searches books by the given subject, e.g. physics",
+            "enum": [
+              "title",
+              "author",
+              "date_published",
+              "subjects"
+            ],
             "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/Column"
-              }
-            ]
+            "type": "string"
           },
           "edition": {
             "default": null,
@@ -649,7 +638,7 @@
             "nullable": true,
             "type": "string"
           },
-          "should_match_all": {
+          "shouldMatchAll": {
             "default": false,
             "description": "If set to `1` or `true`, the API will return books where the title \n        or author exactly contains all the words entered by the user.",
             "nullable": true,
@@ -902,20 +891,12 @@
           {
             "description": "How many items should be returned per page, maximum of 1,000",
             "in": "query",
-            "name": "page_size",
+            "name": "pageSize",
             "required": false,
             "schema": {
               "default": 20,
               "description": "How many items should be returned per page, maximum of 1,000",
               "nullable": true,
-              "type": "integer"
-            }
-          },
-          {
-            "in": "query",
-            "name": "offset",
-            "required": false,
-            "schema": {
               "type": "integer"
             }
           }
@@ -971,20 +952,12 @@
           {
             "description": "How many items should be returned per page, maximum of 1,000",
             "in": "query",
-            "name": "page_size",
+            "name": "pageSize",
             "required": false,
             "schema": {
               "default": 20,
               "description": "How many items should be returned per page, maximum of 1,000",
               "nullable": true,
-              "type": "integer"
-            }
-          },
-          {
-            "in": "query",
-            "name": "offset",
-            "required": false,
-            "schema": {
               "type": "integer"
             }
           }
@@ -1151,13 +1124,31 @@
           {
             "description": "If set to `1` or `true`, the API will return books where the title \n        or author exactly contains all the words entered by the user.",
             "in": "query",
-            "name": "should_match_all",
+            "name": "shouldMatchAll",
             "required": false,
             "schema": {
               "default": false,
               "description": "If set to `1` or `true`, the API will return books where the title \n        or author exactly contains all the words entered by the user.",
               "nullable": true,
               "type": "boolean"
+            }
+          },
+          {
+            "description": "Search limited to this column:\n* `` - Empty value search in every column\n* `title` - Only searches in Books Title\n* `author` - Only searches books by the given Author\n* `date_published` - Only searches books in a given year, e.g. 1998\n* `subjects` - Only searches books by the given subject, e.g. physics",
+            "in": "query",
+            "name": "column",
+            "required": false,
+            "schema": {
+              "default": null,
+              "description": "Search limited to this column:\n* `` - Empty value search in every column\n* `title` - Only searches in Books Title\n* `author` - Only searches books by the given Author\n* `date_published` - Only searches books in a given year, e.g. 1998\n* `subjects` - Only searches books by the given subject, e.g. physics",
+              "enum": [
+                "title",
+                "author",
+                "date_published",
+                "subjects"
+              ],
+              "nullable": true,
+              "type": "string"
             }
           },
           {
@@ -1170,19 +1161,6 @@
               "description": "Language code to filter books by language (e.g., `en` for English, `fr` for French, etc.)",
               "nullable": true,
               "type": "string"
-            }
-          },
-          {
-            "in": "query",
-            "name": "column_enum",
-            "required": false,
-            "schema": {
-              "nullable": true,
-              "oneOf": [
-                {
-                  "$ref": "#/components/schemas/Column"
-                }
-              ]
             }
           },
           {
@@ -1200,20 +1178,12 @@
           {
             "description": "How many items should be returned per page, maximum of 1,000",
             "in": "query",
-            "name": "page_size",
+            "name": "pageSize",
             "required": false,
             "schema": {
               "default": 20,
               "description": "How many items should be returned per page, maximum of 1,000",
               "nullable": true,
-              "type": "integer"
-            }
-          },
-          {
-            "in": "query",
-            "name": "offset",
-            "required": false,
-            "schema": {
               "type": "integer"
             }
           }
@@ -1303,20 +1273,12 @@
           {
             "description": "How many items should be returned per page, maximum of 1,000",
             "in": "query",
-            "name": "page_size",
+            "name": "pageSize",
             "required": false,
             "schema": {
               "default": 20,
               "description": "How many items should be returned per page, maximum of 1,000",
               "nullable": true,
-              "type": "integer"
-            }
-          },
-          {
-            "in": "query",
-            "name": "offset",
-            "required": false,
-            "schema": {
               "type": "integer"
             }
           }
@@ -1372,20 +1334,12 @@
           {
             "description": "How many items should be returned per page, maximum of 1,000",
             "in": "query",
-            "name": "page_size",
+            "name": "pageSize",
             "required": false,
             "schema": {
               "default": 20,
               "description": "How many items should be returned per page, maximum of 1,000",
               "nullable": true,
-              "type": "integer"
-            }
-          },
-          {
-            "in": "query",
-            "name": "offset",
-            "required": false,
-            "schema": {
               "type": "integer"
             }
           }
@@ -1442,20 +1396,12 @@
           {
             "description": "How many items should be returned per page, maximum of 1,000",
             "in": "query",
-            "name": "page_size",
+            "name": "pageSize",
             "required": false,
             "schema": {
               "default": 20,
               "description": "How many items should be returned per page, maximum of 1,000",
               "nullable": true,
-              "type": "integer"
-            }
-          },
-          {
-            "in": "query",
-            "name": "offset",
-            "required": true,
-            "schema": {
               "type": "integer"
             }
           }
@@ -1503,20 +1449,12 @@
           {
             "description": "How many items should be returned per page, maximum of 1,000",
             "in": "query",
-            "name": "page_size",
+            "name": "pageSize",
             "required": false,
             "schema": {
               "default": 20,
               "description": "How many items should be returned per page, maximum of 1,000",
               "nullable": true,
-              "type": "integer"
-            }
-          },
-          {
-            "in": "query",
-            "name": "offset",
-            "required": true,
-            "schema": {
               "type": "integer"
             }
           },
@@ -1639,20 +1577,12 @@
           {
             "description": "How many items should be returned per page, maximum of 1,000",
             "in": "query",
-            "name": "page_size",
+            "name": "pageSize",
             "required": false,
             "schema": {
               "default": 20,
               "description": "How many items should be returned per page, maximum of 1,000",
               "nullable": true,
-              "type": "integer"
-            }
-          },
-          {
-            "in": "query",
-            "name": "offset",
-            "required": true,
-            "schema": {
               "type": "integer"
             }
           }
@@ -1709,20 +1639,12 @@
           {
             "description": "How many items should be returned per page, maximum of 1,000",
             "in": "query",
-            "name": "page_size",
+            "name": "pageSize",
             "required": false,
             "schema": {
               "default": 20,
               "description": "How many items should be returned per page, maximum of 1,000",
               "nullable": true,
-              "type": "integer"
-            }
-          },
-          {
-            "in": "query",
-            "name": "offset",
-            "required": true,
-            "schema": {
               "type": "integer"
             }
           }
@@ -1812,20 +1734,12 @@
           {
             "description": "How many items should be returned per page, maximum of 1,000",
             "in": "query",
-            "name": "page_size",
+            "name": "pageSize",
             "required": false,
             "schema": {
               "default": 20,
               "description": "How many items should be returned per page, maximum of 1,000",
               "nullable": true,
-              "type": "integer"
-            }
-          },
-          {
-            "in": "query",
-            "name": "offset",
-            "required": false,
-            "schema": {
               "type": "integer"
             }
           }
@@ -1881,20 +1795,12 @@
           {
             "description": "How many items should be returned per page, maximum of 1,000",
             "in": "query",
-            "name": "page_size",
+            "name": "pageSize",
             "required": false,
             "schema": {
               "default": 20,
               "description": "How many items should be returned per page, maximum of 1,000",
               "nullable": true,
-              "type": "integer"
-            }
-          },
-          {
-            "in": "query",
-            "name": "offset",
-            "required": false,
-            "schema": {
               "type": "integer"
             }
           }

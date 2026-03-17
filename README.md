@@ -87,7 +87,6 @@ final books = isbnDb.getBooks(
   shouldMatchAll: true,
   language: "en",
   column: BookColumn.subjects,
-  offset: 0,
 );
 ```
 
@@ -101,7 +100,6 @@ int? edition | Filter books by edition
 bool? shouldMatchAll | If true, title/author must contain all searched words
 String? language | Language code filter (for example `en`, `fr`)
 BookColumn? column | Search limited to a column
-int? offset | Offset to start results from
 
 `BookColumn` is an enum with the following values:
 * title - Only searches in Books Title
@@ -118,6 +116,7 @@ final book = isbnDb.getAuthor(
   "Bussi Michel",
   page: 1,
   pageSize: 20,
+  language: "fr",
 );
 ```
 
@@ -126,6 +125,7 @@ Param | Description
 String name | The name of an author in the Author's database
 int page | The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them
 int pageSize | How many items should be returned per page, maximum of 1,000
+String? language | Language code filter (for example `en`, `fr`)
 
 * **Search authors**
 
@@ -152,6 +152,7 @@ final book = isbnDb.getPublisher(
   "Nathan",
   page: 1,
   pageSize: 20,
+  language: "fr",
 );
 ```
 
@@ -160,6 +161,7 @@ Param | Description
 String name | The name of a publisher in the Publisher's database
 int page | The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them
 int pageSize | How many items should be returned per page, maximum of 1,000
+String? language | Language code filter (for example `en`, `fr`)
 
 * **Search publishers**
 
@@ -182,12 +184,20 @@ int pageSize | How many items should be returned per page, maximum of 1,000
 * **Get subject details**
 
 ```dart
-final book = isbnDb.getSubject("Flutter");
+final book = isbnDb.getSubject(
+  "Flutter",
+  page: 1,
+  pageSize: 20,
+  language: "en",
+);
 ```
 
 Param | Description
 ------------ | -------------
 String name | A subject in the Subject's database
+int page | The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them
+int pageSize | How many items should be returned per page, maximum of 1,000
+String? language | Language code filter (for example `en`, `fr`)
 
 * **Search subjects**
 
