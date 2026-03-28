@@ -1,3 +1,9 @@
+## 1.0.2 - 2026-03-28
+
+- Added support for ISBNdb's new `/feeds/books/updated-isbns` endpoint.
+- You can now fetch the recent ISBN update feed, including each book's `isbn13`, `updated_at` timestamp, and pagination metadata.
+- Refreshed the bundled API snapshot and package documentation to match the latest ISBNdb contract.
+
 ## 1.0.1 - 2026-03-17
 
 - Aligned the client with the current ISBNdb API contract (notably `pageSize`, `shouldMatchAll`, and `column` for book search).
