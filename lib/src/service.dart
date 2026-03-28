@@ -402,4 +402,31 @@ class ISBNdb {
       parser: () => Stats.fromJson(response),
     );
   }
+
+  /// Get the paginated feed of recently updated ISBNs.
+  ///
+  /// This ISBNdb endpoint is available on Premium plans and keeps up to 7 days
+  /// of update history.
+  Future<UpdatedBookFeed> getUpdatedBookFeed({
+    int page = 1,
+    int pageSize = 100,
+    DateTime? lastUpdated,
+  }) async {
+    const path = "feeds/books/updated-isbns";
+    final response = await _get(
+      path,
+      queryParameters: <String, Object?>{
+        "page": page,
+        "pageSize": pageSize,
+        "lastUpdated": lastUpdated == null
+            ? null
+            : DateFormat("yyyy-MM-dd").format(lastUpdated),
+      }..removeWhere((_, value) => value == null),
+    );
+    return _parseModel(
+      method: "GET",
+      path: path,
+      parser: () => UpdatedBookFeed.fromJson(response),
+    );
+  }
 }

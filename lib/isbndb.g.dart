@@ -222,3 +222,34 @@ Map<String, dynamic> _$SubjectToJson(_Subject instance) => <String, dynamic>{
   'subject': instance.subject,
   'books': instance.books,
 };
+
+_UpdatedBook _$UpdatedBookFromJson(Map<String, dynamic> json) => _UpdatedBook(
+  isbn13: json['isbn13'] as String,
+  updatedAt: DateTime.parse(json['updated_at'] as String),
+);
+
+Map<String, dynamic> _$UpdatedBookToJson(_UpdatedBook instance) =>
+    <String, dynamic>{
+      'isbn13': instance.isbn13,
+      'updated_at': instance.updatedAt.toIso8601String(),
+    };
+
+_UpdatedBookFeed _$UpdatedBookFeedFromJson(Map<String, dynamic> json) =>
+    _UpdatedBookFeed(
+      updates:
+          (json['data'] as List<dynamic>?)
+              ?.map((e) => UpdatedBook.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
+      total: (json['total'] as num).toInt(),
+      page: (json['page'] as num).toInt(),
+      pageSize: (json['page_size'] as num).toInt(),
+    );
+
+Map<String, dynamic> _$UpdatedBookFeedToJson(_UpdatedBookFeed instance) =>
+    <String, dynamic>{
+      'data': instance.updates,
+      'total': instance.total,
+      'page': instance.page,
+      'page_size': instance.pageSize,
+    };

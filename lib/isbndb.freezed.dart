@@ -3579,4 +3579,573 @@ as List<Book>,
 
 }
 
+
+/// @nodoc
+mixin _$UpdatedBook implements DiagnosticableTreeMixin {
+
+/// Updated book ISBN-13.
+ String get isbn13;/// Timestamp when the book was last updated by ISBNdb.
+@JsonKey(name: 'updated_at') DateTime get updatedAt;
+/// Create a copy of UpdatedBook
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$UpdatedBookCopyWith<UpdatedBook> get copyWith => _$UpdatedBookCopyWithImpl<UpdatedBook>(this as UpdatedBook, _$identity);
+
+  /// Serializes this UpdatedBook to a JSON map.
+  Map<String, dynamic> toJson();
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'UpdatedBook'))
+    ..add(DiagnosticsProperty('isbn13', isbn13))..add(DiagnosticsProperty('updatedAt', updatedAt));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UpdatedBook&&(identical(other.isbn13, isbn13) || other.isbn13 == isbn13)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,isbn13,updatedAt);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'UpdatedBook(isbn13: $isbn13, updatedAt: $updatedAt)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $UpdatedBookCopyWith<$Res>  {
+  factory $UpdatedBookCopyWith(UpdatedBook value, $Res Function(UpdatedBook) _then) = _$UpdatedBookCopyWithImpl;
+@useResult
+$Res call({
+ String isbn13,@JsonKey(name: 'updated_at') DateTime updatedAt
+});
+
+
+
+
+}
+/// @nodoc
+class _$UpdatedBookCopyWithImpl<$Res>
+    implements $UpdatedBookCopyWith<$Res> {
+  _$UpdatedBookCopyWithImpl(this._self, this._then);
+
+  final UpdatedBook _self;
+  final $Res Function(UpdatedBook) _then;
+
+/// Create a copy of UpdatedBook
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? isbn13 = null,Object? updatedAt = null,}) {
+  return _then(_self.copyWith(
+isbn13: null == isbn13 ? _self.isbn13 : isbn13 // ignore: cast_nullable_to_non_nullable
+as String,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
+as DateTime,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [UpdatedBook].
+extension UpdatedBookPatterns on UpdatedBook {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _UpdatedBook value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _UpdatedBook() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _UpdatedBook value)  $default,){
+final _that = this;
+switch (_that) {
+case _UpdatedBook():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _UpdatedBook value)?  $default,){
+final _that = this;
+switch (_that) {
+case _UpdatedBook() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String isbn13, @JsonKey(name: 'updated_at')  DateTime updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _UpdatedBook() when $default != null:
+return $default(_that.isbn13,_that.updatedAt);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String isbn13, @JsonKey(name: 'updated_at')  DateTime updatedAt)  $default,) {final _that = this;
+switch (_that) {
+case _UpdatedBook():
+return $default(_that.isbn13,_that.updatedAt);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String isbn13, @JsonKey(name: 'updated_at')  DateTime updatedAt)?  $default,) {final _that = this;
+switch (_that) {
+case _UpdatedBook() when $default != null:
+return $default(_that.isbn13,_that.updatedAt);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _UpdatedBook with DiagnosticableTreeMixin implements UpdatedBook {
+   _UpdatedBook({required this.isbn13, @JsonKey(name: 'updated_at') required this.updatedAt});
+  factory _UpdatedBook.fromJson(Map<String, dynamic> json) => _$UpdatedBookFromJson(json);
+
+/// Updated book ISBN-13.
+@override final  String isbn13;
+/// Timestamp when the book was last updated by ISBNdb.
+@override@JsonKey(name: 'updated_at') final  DateTime updatedAt;
+
+/// Create a copy of UpdatedBook
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$UpdatedBookCopyWith<_UpdatedBook> get copyWith => __$UpdatedBookCopyWithImpl<_UpdatedBook>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$UpdatedBookToJson(this, );
+}
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'UpdatedBook'))
+    ..add(DiagnosticsProperty('isbn13', isbn13))..add(DiagnosticsProperty('updatedAt', updatedAt));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdatedBook&&(identical(other.isbn13, isbn13) || other.isbn13 == isbn13)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,isbn13,updatedAt);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'UpdatedBook(isbn13: $isbn13, updatedAt: $updatedAt)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$UpdatedBookCopyWith<$Res> implements $UpdatedBookCopyWith<$Res> {
+  factory _$UpdatedBookCopyWith(_UpdatedBook value, $Res Function(_UpdatedBook) _then) = __$UpdatedBookCopyWithImpl;
+@override @useResult
+$Res call({
+ String isbn13,@JsonKey(name: 'updated_at') DateTime updatedAt
+});
+
+
+
+
+}
+/// @nodoc
+class __$UpdatedBookCopyWithImpl<$Res>
+    implements _$UpdatedBookCopyWith<$Res> {
+  __$UpdatedBookCopyWithImpl(this._self, this._then);
+
+  final _UpdatedBook _self;
+  final $Res Function(_UpdatedBook) _then;
+
+/// Create a copy of UpdatedBook
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? isbn13 = null,Object? updatedAt = null,}) {
+  return _then(_UpdatedBook(
+isbn13: null == isbn13 ? _self.isbn13 : isbn13 // ignore: cast_nullable_to_non_nullable
+as String,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
+as DateTime,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$UpdatedBookFeed implements DiagnosticableTreeMixin {
+
+/// Updated ISBN entries.
+@JsonKey(name: 'data') List<UpdatedBook> get updates;/// Total number of updates available for the query.
+ int get total;/// Current page number.
+ int get page;/// Requested page size.
+@JsonKey(name: 'page_size') int get pageSize;
+/// Create a copy of UpdatedBookFeed
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$UpdatedBookFeedCopyWith<UpdatedBookFeed> get copyWith => _$UpdatedBookFeedCopyWithImpl<UpdatedBookFeed>(this as UpdatedBookFeed, _$identity);
+
+  /// Serializes this UpdatedBookFeed to a JSON map.
+  Map<String, dynamic> toJson();
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'UpdatedBookFeed'))
+    ..add(DiagnosticsProperty('updates', updates))..add(DiagnosticsProperty('total', total))..add(DiagnosticsProperty('page', page))..add(DiagnosticsProperty('pageSize', pageSize));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UpdatedBookFeed&&const DeepCollectionEquality().equals(other.updates, updates)&&(identical(other.total, total) || other.total == total)&&(identical(other.page, page) || other.page == page)&&(identical(other.pageSize, pageSize) || other.pageSize == pageSize));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(updates),total,page,pageSize);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'UpdatedBookFeed(updates: $updates, total: $total, page: $page, pageSize: $pageSize)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $UpdatedBookFeedCopyWith<$Res>  {
+  factory $UpdatedBookFeedCopyWith(UpdatedBookFeed value, $Res Function(UpdatedBookFeed) _then) = _$UpdatedBookFeedCopyWithImpl;
+@useResult
+$Res call({
+@JsonKey(name: 'data') List<UpdatedBook> updates, int total, int page,@JsonKey(name: 'page_size') int pageSize
+});
+
+
+
+
+}
+/// @nodoc
+class _$UpdatedBookFeedCopyWithImpl<$Res>
+    implements $UpdatedBookFeedCopyWith<$Res> {
+  _$UpdatedBookFeedCopyWithImpl(this._self, this._then);
+
+  final UpdatedBookFeed _self;
+  final $Res Function(UpdatedBookFeed) _then;
+
+/// Create a copy of UpdatedBookFeed
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? updates = null,Object? total = null,Object? page = null,Object? pageSize = null,}) {
+  return _then(_self.copyWith(
+updates: null == updates ? _self.updates : updates // ignore: cast_nullable_to_non_nullable
+as List<UpdatedBook>,total: null == total ? _self.total : total // ignore: cast_nullable_to_non_nullable
+as int,page: null == page ? _self.page : page // ignore: cast_nullable_to_non_nullable
+as int,pageSize: null == pageSize ? _self.pageSize : pageSize // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [UpdatedBookFeed].
+extension UpdatedBookFeedPatterns on UpdatedBookFeed {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _UpdatedBookFeed value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _UpdatedBookFeed() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _UpdatedBookFeed value)  $default,){
+final _that = this;
+switch (_that) {
+case _UpdatedBookFeed():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _UpdatedBookFeed value)?  $default,){
+final _that = this;
+switch (_that) {
+case _UpdatedBookFeed() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'data')  List<UpdatedBook> updates,  int total,  int page, @JsonKey(name: 'page_size')  int pageSize)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _UpdatedBookFeed() when $default != null:
+return $default(_that.updates,_that.total,_that.page,_that.pageSize);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'data')  List<UpdatedBook> updates,  int total,  int page, @JsonKey(name: 'page_size')  int pageSize)  $default,) {final _that = this;
+switch (_that) {
+case _UpdatedBookFeed():
+return $default(_that.updates,_that.total,_that.page,_that.pageSize);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'data')  List<UpdatedBook> updates,  int total,  int page, @JsonKey(name: 'page_size')  int pageSize)?  $default,) {final _that = this;
+switch (_that) {
+case _UpdatedBookFeed() when $default != null:
+return $default(_that.updates,_that.total,_that.page,_that.pageSize);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _UpdatedBookFeed with DiagnosticableTreeMixin implements UpdatedBookFeed {
+   _UpdatedBookFeed({@JsonKey(name: 'data') final  List<UpdatedBook> updates = const [], required this.total, required this.page, @JsonKey(name: 'page_size') required this.pageSize}): _updates = updates;
+  factory _UpdatedBookFeed.fromJson(Map<String, dynamic> json) => _$UpdatedBookFeedFromJson(json);
+
+/// Updated ISBN entries.
+ final  List<UpdatedBook> _updates;
+/// Updated ISBN entries.
+@override@JsonKey(name: 'data') List<UpdatedBook> get updates {
+  if (_updates is EqualUnmodifiableListView) return _updates;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_updates);
+}
+
+/// Total number of updates available for the query.
+@override final  int total;
+/// Current page number.
+@override final  int page;
+/// Requested page size.
+@override@JsonKey(name: 'page_size') final  int pageSize;
+
+/// Create a copy of UpdatedBookFeed
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$UpdatedBookFeedCopyWith<_UpdatedBookFeed> get copyWith => __$UpdatedBookFeedCopyWithImpl<_UpdatedBookFeed>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$UpdatedBookFeedToJson(this, );
+}
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'UpdatedBookFeed'))
+    ..add(DiagnosticsProperty('updates', updates))..add(DiagnosticsProperty('total', total))..add(DiagnosticsProperty('page', page))..add(DiagnosticsProperty('pageSize', pageSize));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdatedBookFeed&&const DeepCollectionEquality().equals(other._updates, _updates)&&(identical(other.total, total) || other.total == total)&&(identical(other.page, page) || other.page == page)&&(identical(other.pageSize, pageSize) || other.pageSize == pageSize));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_updates),total,page,pageSize);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'UpdatedBookFeed(updates: $updates, total: $total, page: $page, pageSize: $pageSize)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$UpdatedBookFeedCopyWith<$Res> implements $UpdatedBookFeedCopyWith<$Res> {
+  factory _$UpdatedBookFeedCopyWith(_UpdatedBookFeed value, $Res Function(_UpdatedBookFeed) _then) = __$UpdatedBookFeedCopyWithImpl;
+@override @useResult
+$Res call({
+@JsonKey(name: 'data') List<UpdatedBook> updates, int total, int page,@JsonKey(name: 'page_size') int pageSize
+});
+
+
+
+
+}
+/// @nodoc
+class __$UpdatedBookFeedCopyWithImpl<$Res>
+    implements _$UpdatedBookFeedCopyWith<$Res> {
+  __$UpdatedBookFeedCopyWithImpl(this._self, this._then);
+
+  final _UpdatedBookFeed _self;
+  final $Res Function(_UpdatedBookFeed) _then;
+
+/// Create a copy of UpdatedBookFeed
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? updates = null,Object? total = null,Object? page = null,Object? pageSize = null,}) {
+  return _then(_UpdatedBookFeed(
+updates: null == updates ? _self._updates : updates // ignore: cast_nullable_to_non_nullable
+as List<UpdatedBook>,total: null == total ? _self.total : total // ignore: cast_nullable_to_non_nullable
+as int,page: null == page ? _self.page : page // ignore: cast_nullable_to_non_nullable
+as int,pageSize: null == pageSize ? _self.pageSize : pageSize // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
 // dart format on

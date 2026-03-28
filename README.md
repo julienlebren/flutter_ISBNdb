@@ -233,6 +233,27 @@ final stats = isbnDb.getStats();
 
 Returns global dataset counters (`books`, `authors`, `publishers`, `subjects`).
 
+### Feeds
+
+* **Get recently updated ISBNs**
+
+```dart
+final feed = isbnDb.getUpdatedBookFeed(
+  page: 1,
+  pageSize: 100,
+  lastUpdated: DateTime(2026, 3, 27),
+);
+```
+
+This endpoint is available on Premium plans, keeps at most 7 days of history,
+and does not count against the daily quota according to ISBNdb's OpenAPI docs.
+
+Param | Description
+------------ | -------------
+int page | The number of page to retrieve
+int pageSize | How many items should be returned per page, maximum of 1,000
+DateTime? lastUpdated | Only return ISBNs updated on or after the given day; sent as `YYYY-MM-DD`
+
 ## Testing
 
 - Offline tests: `flutter test --exclude-tags live`

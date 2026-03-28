@@ -33,6 +33,7 @@ A `404 Not Found` for ISBN lookup can mean the book is not yet indexed and may a
 | `/book/{isbn}` | GET | Books | no | `get_app_api_book_book__invoke` | `GetBookResponse` |
 | `/books` | POST | Books | no | `post_app_api_book_bookmultiple__invoke` | `GetBooksMultipleResponse` |
 | `/books/{query}` | GET | Books | no | `get_app_api_book_searchbook__invoke` | `GetBooksMultipleResponse` |
+| `/feeds/books/updated-isbns` | GET | Feed | no | `get_app_api_feed_updatedbooks__invoke` | `UpdatedBooksResponse` |
 | `/key` | GET | default | no | `get_app_api_key__invoke` | `KeyResponse` |
 | `/publisher/{name}` | GET | Publisher | no | `get_app_api_publisher_publisherdetails__invoke` | `DetailsResponse` |
 | `/publishers/{query}` | GET | Publisher | no | `get_app_api_publisher_searchpublishers__invoke` | `SearchPublishersResponse` |
@@ -119,6 +120,24 @@ Search books by query.
 
 Responses:
 - `200`: `GetBooksMultipleResponse`
+
+### `GET /feeds/books/updated-isbns`
+
+Returns a paginated feed of recently updated ISBNs.
+
+Important notes from the OpenAPI description:
+- Premium plans only
+- History limited to the last 7 days
+- Does not count against daily API quota
+
+| Name | In | Type | Required | Default | Nullable | Description |
+| --- | --- | --- | --- | --- | --- | --- |
+| `page` | query | integer | no | `1` | yes | The number of page to retrieve |
+| `pageSize` | query | integer | no | `100` | yes | How many items should be returned per page, maximum of 1,000 |
+| `lastUpdated` | query | string | no | `null` | yes | Filter by last updated date (`YYYY-MM-DD`) |
+
+Responses:
+- `200`: `UpdatedBooksResponse`
 
 ### `GET /key`
 
@@ -280,6 +299,8 @@ Responses:
 | `GetBookResponse` | `book` | `book` |
 | `ErrorResponse` | `message`, `error_message` | `message` (deprecated), `error_message` |
 | `GetBooksMultipleResponse` | `total`, `data` | `data`, `requested` |
+| `UpdatedBook` | `isbn13`, `updated_at` | `isbn13`, `updated_at` |
+| `UpdatedBooksResponse` | `data`, `total`, `page`, `page_size` | `data`, `total`, `page`, `page_size` |
 | `PlanLimit` | `total`, `spent`, `left` | quota counters |
 | `KeyResponse` | `api_host`, `plan_limit` | host + limits |
 | `DetailsResponse` | `name`, `books`, `total`, `page`, `page_size` | publisher details |
@@ -294,6 +315,7 @@ Responses:
 
 - `Author`
 - `Books`
+- `Feed`
 - `Publisher`
 - `Search`
 - `Subject`
@@ -319,6 +341,22 @@ Responses:
 | Field | Type | Required | Nullable | Deprecated | Default | Description |
 | --- | --- | --- | --- | --- | --- | --- |
 | `isbns` | `oneOf(array<oneOf(integer,string)>, object<string,oneOf(integer,string)>)` | yes | no | no | - | ISBN list (array) or ISBN map (object) |
+
+### `UpdatedBook`
+
+| Field | Type | Required | Nullable | Deprecated | Default | Description |
+| --- | --- | --- | --- | --- | --- | --- |
+| `isbn13` | string | yes | no | no | - | ISBN-13 |
+| `updated_at` | string(date-time) | yes | no | no | - | Timestamp when the book was last updated |
+
+### `UpdatedBooksResponse`
+
+| Field | Type | Required | Nullable | Deprecated | Default | Description |
+| --- | --- | --- | --- | --- | --- | --- |
+| `data` | `array<UpdatedBook>` | yes | no | no | - | Updated ISBN entries |
+| `total` | integer | yes | no | no | - | Total results |
+| `page` | integer | yes | no | no | - | Current page |
+| `page_size` | integer | yes | no | no | - | Page size |
 
 ### `Column`
 

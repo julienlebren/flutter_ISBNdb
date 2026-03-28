@@ -278,6 +278,44 @@ void main() {
       expect(stats.subjects, 50000);
     });
 
+    test('Should get updated book feed', () async {
+      final isbndb = _createClient();
+      final feed = await isbndb.getUpdatedBookFeed();
+
+      expect(feed, isA<UpdatedBookFeed>());
+      expect(feed.total, 2);
+      expect(feed.page, 1);
+      expect(feed.pageSize, 100);
+      expect(feed.updates, hasLength(2));
+      expect(feed.updates.first.isbn13, "9781092297370");
+      expect(
+        feed.updates.first.updatedAt,
+        DateTime.parse("2026-03-27T12:30:00Z"),
+      );
+    });
+
+    test(
+      'Should send expected query parameters for updated book feed',
+      () async {
+        RequestOptions? options;
+        final isbndb = _createClient(
+          onRequestCallback: (requestOptions) => options = requestOptions,
+        );
+
+        await isbndb.getUpdatedBookFeed(
+          page: 2,
+          pageSize: 250,
+          lastUpdated: DateTime(2026, 3, 27, 15, 45),
+        );
+
+        expect(options, isNotNull);
+        expect(options!.queryParameters["page"], 2);
+        expect(options!.queryParameters["pageSize"], 250);
+        expect(options!.queryParameters["lastUpdated"], "2026-03-27");
+        expect(options!.queryParameters.containsKey("page_size"), isFalse);
+      },
+    );
+
     test('Should parse getSubjects results from object map', () async {
       final isbndb = _createClient(
         responses: {
@@ -919,6 +957,15 @@ Map<String, Map<String, dynamic>> _defaultResponses() => {
     "subjects": ["flutter"],
   },
   "GET subject/flutter": {"subject": "flutter", "books": []},
+  "GET feeds/books/updated-isbns": {
+    "data": [
+      {"isbn13": "9781092297370", "updated_at": "2026-03-27T12:30:00Z"},
+      {"isbn13": "9781680506952", "updated_at": "2026-03-27T12:45:00Z"},
+    ],
+    "total": 2,
+    "page": 1,
+    "page_size": 100,
+  },
   "GET key": {
     "api_host": "https://api2.isbndb.com",
     "plan_limit": {"total": 10000, "spent": 123, "left": 9877},

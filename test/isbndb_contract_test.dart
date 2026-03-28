@@ -26,6 +26,7 @@ void main() {
           '/publishers/{query}',
           '/subject/{name}',
           '/subjects/{query}',
+          '/feeds/books/updated-isbns',
           '/key',
           '/stats',
         }),
@@ -59,6 +60,19 @@ void main() {
 
       expect(content.keys, contains('application/json'));
       expect(content.keys, contains('application/x-www-form-urlencoded'));
+    });
+
+    test('/feeds/books/updated-isbns documents the update feed filters', () {
+      final parameterNames = _parameterNames(
+        spec,
+        '/feeds/books/updated-isbns',
+        'get',
+      );
+
+      expect(
+        parameterNames,
+        containsAll(<String>{'page', 'pageSize', 'lastUpdated'}),
+      );
     });
   });
 
