@@ -1,3 +1,10 @@
+## 1.0.3 - 2026-03-31
+
+- ISBNdb changed the updated-books feed endpoint from `/feeds/books/updated-isbns` to `/feeds/books/updates`; `getUpdatedBookFeed()` now follows the new path.
+- The feed response may no longer include `total`; `UpdatedBookFeed.total` is now nullable.
+- Refreshed the bundled OpenAPI snapshot and API docs, and updated contract/tests to catch this type of drift earlier.
+- Migration note: if your app used `feed.total` as non-null, handle the nullable value (for example `feed.total ?? 0`).
+
 ## 1.0.2 - 2026-03-28
 
 - Added support for ISBNdb's new `/feeds/books/updated-isbns` endpoint.
