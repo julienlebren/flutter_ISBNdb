@@ -372,13 +372,13 @@
                 ]
             }
         },
-        "/feeds/books/updated-isbns": {
+        "/feeds/books/updates": {
             "get": {
                 "tags": [
                     "Feed"
                 ],
                 "summary": "Get recently updated book ISBNs",
-                "description": "Retrieves a list of book ISBNs that have been added or modified. This endpoint is designed for frequent incremental synchronization.\n\n**Important Notes:**\n* **Plan limits:** Available exclusively for **Premium** plans and higher.\n* **History limit:** The update history is strictly limited to the last **7 days**.\n* **Quota:** Calling this endpoint does not count towards your daily API limits.",
+                "description": "Retrieves a list of book ISBNs that have been added or modified. This endpoint is designed for frequent incremental synchronization.\n\n**Important Notes:**\n* **Plan limits:** Available exclusively for **Premium** plans and higher.\n* **History limit:** The update history is strictly limited to the last **7 days**.\n* **Quota:** Calling this endpoint does not count towards your daily API limits.\n* **Pagination:** The response does not include a total field. To fetch all updates, continue requesting subsequent pages (incrementing the page parameter) until the data array in the response is empty.",
                 "operationId": "get_app_api_feed_updatedbooks__invoke",
                 "parameters": [
                     {
@@ -1607,7 +1607,6 @@
             "UpdatedBooksResponse": {
                 "required": [
                     "data",
-                    "total",
                     "page",
                     "page_size"
                 ],
@@ -1617,9 +1616,6 @@
                         "items": {
                             "$ref": "#/components/schemas/UpdatedBook"
                         }
-                    },
-                    "total": {
-                        "type": "integer"
                     },
                     "page": {
                         "type": "integer"

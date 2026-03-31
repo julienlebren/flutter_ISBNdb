@@ -241,7 +241,7 @@ _UpdatedBookFeed _$UpdatedBookFeedFromJson(Map<String, dynamic> json) =>
               ?.map((e) => UpdatedBook.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
-      total: (json['total'] as num).toInt(),
+      total: (json['total'] as num?)?.toInt(),
       page: (json['page'] as num).toInt(),
       pageSize: (json['page_size'] as num).toInt(),
     );

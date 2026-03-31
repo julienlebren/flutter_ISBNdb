@@ -283,7 +283,7 @@ void main() {
       final feed = await isbndb.getUpdatedBookFeed();
 
       expect(feed, isA<UpdatedBookFeed>());
-      expect(feed.total, 2);
+      expect(feed.total, isNull);
       expect(feed.page, 1);
       expect(feed.pageSize, 100);
       expect(feed.updates, hasLength(2));
@@ -309,6 +309,7 @@ void main() {
         );
 
         expect(options, isNotNull);
+        expect(options!.path, contains("feeds/books/updates"));
         expect(options!.queryParameters["page"], 2);
         expect(options!.queryParameters["pageSize"], 250);
         expect(options!.queryParameters["lastUpdated"], "2026-03-27");
@@ -957,12 +958,11 @@ Map<String, Map<String, dynamic>> _defaultResponses() => {
     "subjects": ["flutter"],
   },
   "GET subject/flutter": {"subject": "flutter", "books": []},
-  "GET feeds/books/updated-isbns": {
+  "GET feeds/books/updates": {
     "data": [
       {"isbn13": "9781092297370", "updated_at": "2026-03-27T12:30:00Z"},
       {"isbn13": "9781680506952", "updated_at": "2026-03-27T12:45:00Z"},
     ],
-    "total": 2,
     "page": 1,
     "page_size": 100,
   },

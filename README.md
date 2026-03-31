@@ -247,6 +247,8 @@ final feed = isbnDb.getUpdatedBookFeed(
 
 This endpoint is available on Premium plans, keeps at most 7 days of history,
 and does not count against the daily quota according to ISBNdb's OpenAPI docs.
+The API may omit a `total` field in this response, so pagination should continue
+until `updates` is empty.
 
 Param | Description
 ------------ | -------------

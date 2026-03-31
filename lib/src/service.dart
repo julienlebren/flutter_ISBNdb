@@ -412,7 +412,7 @@ class ISBNdb {
     int pageSize = 100,
     DateTime? lastUpdated,
   }) async {
-    const path = "feeds/books/updated-isbns";
+    const path = "feeds/books/updates";
     final response = await _get(
       path,
       queryParameters: <String, Object?>{

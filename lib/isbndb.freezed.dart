@@ -3860,8 +3860,8 @@ as DateTime,
 mixin _$UpdatedBookFeed implements DiagnosticableTreeMixin {
 
 /// Updated ISBN entries.
-@JsonKey(name: 'data') List<UpdatedBook> get updates;/// Total number of updates available for the query.
- int get total;/// Current page number.
+@JsonKey(name: 'data') List<UpdatedBook> get updates;/// Total number of updates available for the query, when provided.
+ int? get total;/// Current page number.
  int get page;/// Requested page size.
 @JsonKey(name: 'page_size') int get pageSize;
 /// Create a copy of UpdatedBookFeed
@@ -3902,7 +3902,7 @@ abstract mixin class $UpdatedBookFeedCopyWith<$Res>  {
   factory $UpdatedBookFeedCopyWith(UpdatedBookFeed value, $Res Function(UpdatedBookFeed) _then) = _$UpdatedBookFeedCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(name: 'data') List<UpdatedBook> updates, int total, int page,@JsonKey(name: 'page_size') int pageSize
+@JsonKey(name: 'data') List<UpdatedBook> updates, int? total, int page,@JsonKey(name: 'page_size') int pageSize
 });
 
 
@@ -3919,11 +3919,11 @@ class _$UpdatedBookFeedCopyWithImpl<$Res>
 
 /// Create a copy of UpdatedBookFeed
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? updates = null,Object? total = null,Object? page = null,Object? pageSize = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? updates = null,Object? total = freezed,Object? page = null,Object? pageSize = null,}) {
   return _then(_self.copyWith(
 updates: null == updates ? _self.updates : updates // ignore: cast_nullable_to_non_nullable
-as List<UpdatedBook>,total: null == total ? _self.total : total // ignore: cast_nullable_to_non_nullable
-as int,page: null == page ? _self.page : page // ignore: cast_nullable_to_non_nullable
+as List<UpdatedBook>,total: freezed == total ? _self.total : total // ignore: cast_nullable_to_non_nullable
+as int?,page: null == page ? _self.page : page // ignore: cast_nullable_to_non_nullable
 as int,pageSize: null == pageSize ? _self.pageSize : pageSize // ignore: cast_nullable_to_non_nullable
 as int,
   ));
@@ -4007,7 +4007,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'data')  List<UpdatedBook> updates,  int total,  int page, @JsonKey(name: 'page_size')  int pageSize)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'data')  List<UpdatedBook> updates,  int? total,  int page, @JsonKey(name: 'page_size')  int pageSize)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UpdatedBookFeed() when $default != null:
 return $default(_that.updates,_that.total,_that.page,_that.pageSize);case _:
@@ -4028,7 +4028,7 @@ return $default(_that.updates,_that.total,_that.page,_that.pageSize);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'data')  List<UpdatedBook> updates,  int total,  int page, @JsonKey(name: 'page_size')  int pageSize)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'data')  List<UpdatedBook> updates,  int? total,  int page, @JsonKey(name: 'page_size')  int pageSize)  $default,) {final _that = this;
 switch (_that) {
 case _UpdatedBookFeed():
 return $default(_that.updates,_that.total,_that.page,_that.pageSize);}
@@ -4045,7 +4045,7 @@ return $default(_that.updates,_that.total,_that.page,_that.pageSize);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'data')  List<UpdatedBook> updates,  int total,  int page, @JsonKey(name: 'page_size')  int pageSize)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'data')  List<UpdatedBook> updates,  int? total,  int page, @JsonKey(name: 'page_size')  int pageSize)?  $default,) {final _that = this;
 switch (_that) {
 case _UpdatedBookFeed() when $default != null:
 return $default(_that.updates,_that.total,_that.page,_that.pageSize);case _:
@@ -4060,7 +4060,7 @@ return $default(_that.updates,_that.total,_that.page,_that.pageSize);case _:
 @JsonSerializable()
 
 class _UpdatedBookFeed with DiagnosticableTreeMixin implements UpdatedBookFeed {
-   _UpdatedBookFeed({@JsonKey(name: 'data') final  List<UpdatedBook> updates = const [], required this.total, required this.page, @JsonKey(name: 'page_size') required this.pageSize}): _updates = updates;
+   _UpdatedBookFeed({@JsonKey(name: 'data') final  List<UpdatedBook> updates = const [], this.total, required this.page, @JsonKey(name: 'page_size') required this.pageSize}): _updates = updates;
   factory _UpdatedBookFeed.fromJson(Map<String, dynamic> json) => _$UpdatedBookFeedFromJson(json);
 
 /// Updated ISBN entries.
@@ -4072,8 +4072,8 @@ class _UpdatedBookFeed with DiagnosticableTreeMixin implements UpdatedBookFeed {
   return EqualUnmodifiableListView(_updates);
 }
 
-/// Total number of updates available for the query.
-@override final  int total;
+/// Total number of updates available for the query, when provided.
+@override final  int? total;
 /// Current page number.
 @override final  int page;
 /// Requested page size.
@@ -4118,7 +4118,7 @@ abstract mixin class _$UpdatedBookFeedCopyWith<$Res> implements $UpdatedBookFeed
   factory _$UpdatedBookFeedCopyWith(_UpdatedBookFeed value, $Res Function(_UpdatedBookFeed) _then) = __$UpdatedBookFeedCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(name: 'data') List<UpdatedBook> updates, int total, int page,@JsonKey(name: 'page_size') int pageSize
+@JsonKey(name: 'data') List<UpdatedBook> updates, int? total, int page,@JsonKey(name: 'page_size') int pageSize
 });
 
 
@@ -4135,11 +4135,11 @@ class __$UpdatedBookFeedCopyWithImpl<$Res>
 
 /// Create a copy of UpdatedBookFeed
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? updates = null,Object? total = null,Object? page = null,Object? pageSize = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? updates = null,Object? total = freezed,Object? page = null,Object? pageSize = null,}) {
   return _then(_UpdatedBookFeed(
 updates: null == updates ? _self._updates : updates // ignore: cast_nullable_to_non_nullable
-as List<UpdatedBook>,total: null == total ? _self.total : total // ignore: cast_nullable_to_non_nullable
-as int,page: null == page ? _self.page : page // ignore: cast_nullable_to_non_nullable
+as List<UpdatedBook>,total: freezed == total ? _self.total : total // ignore: cast_nullable_to_non_nullable
+as int?,page: null == page ? _self.page : page // ignore: cast_nullable_to_non_nullable
 as int,pageSize: null == pageSize ? _self.pageSize : pageSize // ignore: cast_nullable_to_non_nullable
 as int,
   ));

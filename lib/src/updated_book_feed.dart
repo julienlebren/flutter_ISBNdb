@@ -1,6 +1,6 @@
 part of isbndb_flutter;
 
-/// A single book update entry returned by `/feeds/books/updated-isbns`.
+/// A single book update entry returned by `/feeds/books/updates`.
 @freezed
 sealed class UpdatedBook with _$UpdatedBook {
   factory UpdatedBook({
@@ -23,8 +23,8 @@ sealed class UpdatedBookFeed with _$UpdatedBookFeed {
     /// Updated ISBN entries.
     @JsonKey(name: 'data') @Default([]) List<UpdatedBook> updates,
 
-    /// Total number of updates available for the query.
-    required int total,
+    /// Total number of updates available for the query, when provided.
+    int? total,
 
     /// Current page number.
     required int page,

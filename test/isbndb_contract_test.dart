@@ -26,7 +26,7 @@ void main() {
           '/publishers/{query}',
           '/subject/{name}',
           '/subjects/{query}',
-          '/feeds/books/updated-isbns',
+          '/feeds/books/updates',
           '/key',
           '/stats',
         }),
@@ -62,10 +62,10 @@ void main() {
       expect(content.keys, contains('application/x-www-form-urlencoded'));
     });
 
-    test('/feeds/books/updated-isbns documents the update feed filters', () {
+    test('/feeds/books/updates documents the update feed filters', () {
       final parameterNames = _parameterNames(
         spec,
-        '/feeds/books/updated-isbns',
+        '/feeds/books/updates',
         'get',
       );
 
@@ -73,6 +73,14 @@ void main() {
         parameterNames,
         containsAll(<String>{'page', 'pageSize', 'lastUpdated'}),
       );
+    });
+
+    test('UpdatedBooksResponse no longer requires total', () {
+      final schema = _schema(spec, 'UpdatedBooksResponse');
+      final requiredFields = List<String>.from(schema['required'] as List);
+
+      expect(requiredFields, containsAll(<String>['data', 'page', 'page_size']));
+      expect(requiredFields, isNot(contains('total')));
     });
   });
 
@@ -144,4 +152,10 @@ Set<String> _parameterNames(
     ),
   );
   return parameters.map((parameter) => parameter['name'] as String).toSet();
+}
+
+Map<String, dynamic> _schema(Map<String, dynamic> spec, String name) {
+  final components = Map<String, dynamic>.from(spec['components'] as Map);
+  final schemas = Map<String, dynamic>.from(components['schemas'] as Map);
+  return Map<String, dynamic>.from(schemas[name] as Map);
 }
