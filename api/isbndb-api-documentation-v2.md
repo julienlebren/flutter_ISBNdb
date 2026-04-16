@@ -56,8 +56,9 @@ Returns the author name and a list of books.
 | `name` | path | string | yes | - | no | Author name |
 | `language` | query | string | no | `null` | yes | Language code (`en`, `fr`, ...) |
 | `page` | query | integer | no | `1` | yes | Page number |
-| `page_size` | query | integer | no | `20` | yes | Items per page (max 1000) |
-| `offset` | query | integer | no | - | no | Offset |
+| `pageSize` | query | integer | no | `20` | yes | Items per page (max 1000) |
+| `publishedFrom` | query | string | no | `null` | yes | Only return books published on or after this date (`YYYY-MM-DD`) |
+| `publishedTo` | query | string | no | `null` | yes | Only return books published on or before this date (`YYYY-MM-DD`) |
 
 Responses:
 - `200`: `AuthorDetailsResponse`
@@ -111,12 +112,13 @@ Search books by query.
 | `query` | path | string | yes | - | no | Search string |
 | `year` | query | integer | no | `null` | yes | Publication year |
 | `edition` | query | integer | no | `null` | yes | Edition |
-| `should_match_all` | query | boolean | no | `false` | yes | Match all words in title/author |
+| `shouldMatchAll` | query | boolean | no | `false` | yes | Match all words in title/author |
 | `language` | query | string | no | `null` | yes | Language code |
-| `column_enum` | query | enum(`Column`) | no | - | yes | One of: `title`, `author`, `date_published`, `subjects` |
+| `column` | query | enum(`Column`) | no | - | yes | One of: `title`, `author`, `date_published`, `subjects` |
 | `page` | query | integer | no | `1` | yes | Page number |
-| `page_size` | query | integer | no | `20` | yes | Items per page (max 1000) |
-| `offset` | query | integer | no | - | no | Offset |
+| `pageSize` | query | integer | no | `20` | yes | Items per page (max 1000) |
+| `publishedFrom` | query | string | no | `null` | yes | Only return books published on or after this date (`YYYY-MM-DD`) |
+| `publishedTo` | query | string | no | `null` | yes | Only return books published on or before this date (`YYYY-MM-DD`) |
 
 Responses:
 - `200`: `GetBooksMultipleResponse`
@@ -156,8 +158,9 @@ Returns publisher details and books.
 | `name` | path | string | yes | - | no | Publisher name |
 | `language` | query | string | no | `null` | yes | Language code |
 | `page` | query | integer | no | `1` | yes | Page number |
-| `page_size` | query | integer | no | `20` | yes | Items per page (max 1000) |
-| `offset` | query | integer | no | - | no | Offset |
+| `pageSize` | query | integer | no | `20` | yes | Items per page (max 1000) |
+| `publishedFrom` | query | string | no | `null` | yes | Only return books published on or after this date (`YYYY-MM-DD`) |
+| `publishedTo` | query | string | no | `null` | yes | Only return books published on or before this date (`YYYY-MM-DD`) |
 
 Responses:
 - `200`: `DetailsResponse`
@@ -197,14 +200,15 @@ Search the books index with optional filters.
 | Name | In | Type | Required | Default | Nullable | Description |
 | --- | --- | --- | --- | --- | --- | --- |
 | `page` | query | integer | no | `1` | yes | Page number |
-| `page_size` | query | integer | no | `20` | yes | Items per page |
-| `offset` | query | integer | yes | - | no | Offset |
+| `pageSize` | query | integer | no | `20` | yes | Items per page |
 | `isbn` | query | string | no | - | yes | ISBN-10 |
 | `isbn13` | query | string | no | - | yes | ISBN-13 |
 | `author` | query | string | no | - | yes | Author name |
 | `text` | query | string | no | - | yes | Free text |
 | `subject` | query | string | no | - | yes | Subject |
 | `publisher` | query | string | no | - | yes | Publisher name |
+| `publishedFrom` | query | string | no | `null` | yes | Only return books published on or after this date (`YYYY-MM-DD`) |
+| `publishedTo` | query | string | no | `null` | yes | Only return books published on or before this date (`YYYY-MM-DD`) |
 
 Responses:
 - `200`: `SearchBookResponse`
@@ -267,8 +271,9 @@ Returns subject details and related books.
 | `name` | path | string | yes | - | no | Subject name |
 | `language` | query | string | no | `null` | yes | Language code |
 | `page` | query | integer | no | `1` | yes | Page number |
-| `page_size` | query | integer | no | `20` | yes | Items per page (max 1000) |
-| `offset` | query | integer | no | - | no | Offset |
+| `pageSize` | query | integer | no | `20` | yes | Items per page (max 1000) |
+| `publishedFrom` | query | string | no | `null` | yes | Only return books published on or after this date (`YYYY-MM-DD`) |
+| `publishedTo` | query | string | no | `null` | yes | Only return books published on or before this date (`YYYY-MM-DD`) |
 
 Responses:
 - `200`: `SubjectDetailsResponse`
@@ -290,8 +295,8 @@ Responses:
 | `PaginationFilters` | `offset` | `page`, `page_size`, `offset` |
 | `GetBooksMultipleRequest` | `isbns` | `isbns` (array or object) |
 | `Column` | - | enum: `title`, `author`, `date_published`, `subjects` |
-| `SearchBookFilters` | - | `year`, `edition`, `should_match_all`, `language`, `column_enum` |
-| `SearchBookFilters2` | - | `isbn`, `isbn13`, `author`, `text`, `subject`, `publisher` |
+| `SearchBookFilters` | - | `year`, `edition`, `shouldMatchAll`, `language`, `column`, `publishedFrom`, `publishedTo` |
+| `SearchBookFilters2` | - | `isbn`, `isbn13`, `author`, `text`, `subject`, `publisher`, `publishedFrom`, `publishedTo` |
 | `Point` | `x`, `y` | `x`, `y` |
 | `Price` | `condition`, `merchant`, `merchant_logo`, `merchant_logo_offset`, `shipping`, `price`, `total`, `link` | price row fields |
 | `Book` | `title`, `title_long`, `isbn`, `isbn13`, `date_published` | `isbn10`, `dewey_decimal`, `binding`, `publisher`, `language`, `edition`, `pages`, `dimensions`, `dimensions_structured`, `overview`, `image`, `image_original`, `msrp`, `excerpt`, `synopsis`, `authors`, `subjects`, `reviews`, `prices`, `related`, `other_isbns` |

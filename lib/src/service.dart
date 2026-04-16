@@ -189,6 +189,13 @@ class ISBNdb {
     }
   }
 
+  String? _formatQueryDate(DateTime? value) {
+    if (value == null) {
+      return null;
+    }
+    return DateFormat("yyyy-MM-dd").format(value);
+  }
+
   /// Get book details from an ISBN
   Future<Book?> getBook(String isbn, {bool withPrices = false}) async {
     final path = "book/$isbn";
@@ -224,6 +231,8 @@ class ISBNdb {
     bool? shouldMatchAll,
     String? language,
     BookColumn? column,
+    DateTime? publishedFrom,
+    DateTime? publishedTo,
     @Deprecated('No longer supported by ISBNdb API contract.') int? offset,
   }) async {
     final path = "books/$query";
@@ -235,6 +244,8 @@ class ISBNdb {
       "shouldMatchAll": shouldMatchAll,
       "language": language,
       "column": column?.name,
+      "publishedFrom": _formatQueryDate(publishedFrom),
+      "publishedTo": _formatQueryDate(publishedTo),
     }..removeWhere((_, value) => value == null);
 
     final response = await _get(path, queryParameters: queryParameters);
@@ -262,6 +273,8 @@ class ISBNdb {
     int page = 1,
     int pageSize = 20,
     String? language,
+    DateTime? publishedFrom,
+    DateTime? publishedTo,
     @Deprecated('No longer supported by ISBNdb API contract.')
     BookColumn? column,
   }) async {
@@ -272,6 +285,8 @@ class ISBNdb {
         "page": page,
         "pageSize": pageSize,
         "language": language,
+        "publishedFrom": _formatQueryDate(publishedFrom),
+        "publishedTo": _formatQueryDate(publishedTo),
       }..removeWhere((_, value) => value == null),
     );
     return _parseModel(
@@ -305,6 +320,8 @@ class ISBNdb {
     int page = 1,
     int pageSize = 20,
     String? language,
+    DateTime? publishedFrom,
+    DateTime? publishedTo,
   }) async {
     final path = "publisher/$name";
     final response = await _get(
@@ -313,6 +330,8 @@ class ISBNdb {
         "page": page,
         "pageSize": pageSize,
         "language": language,
+        "publishedFrom": _formatQueryDate(publishedFrom),
+        "publishedTo": _formatQueryDate(publishedTo),
       }..removeWhere((_, value) => value == null),
     );
     return _parseModel(
@@ -346,6 +365,8 @@ class ISBNdb {
     int page = 1,
     int pageSize = 20,
     String? language,
+    DateTime? publishedFrom,
+    DateTime? publishedTo,
   }) async {
     final path = "subject/$name";
     final response = await _get(
@@ -354,6 +375,8 @@ class ISBNdb {
         "page": page,
         "pageSize": pageSize,
         "language": language,
+        "publishedFrom": _formatQueryDate(publishedFrom),
+        "publishedTo": _formatQueryDate(publishedTo),
       }..removeWhere((_, value) => value == null),
     );
     return _parseModel(
@@ -418,9 +441,7 @@ class ISBNdb {
       queryParameters: <String, Object?>{
         "page": page,
         "pageSize": pageSize,
-        "lastUpdated": lastUpdated == null
-            ? null
-            : DateFormat("yyyy-MM-dd").format(lastUpdated),
+        "lastUpdated": _formatQueryDate(lastUpdated),
       }..removeWhere((_, value) => value == null),
     );
     return _parseModel(

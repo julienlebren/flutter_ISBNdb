@@ -87,6 +87,8 @@ final books = isbnDb.getBooks(
   shouldMatchAll: true,
   language: "en",
   column: BookColumn.subjects,
+  publishedFrom: DateTime(2020, 1, 1),
+  publishedTo: DateTime(2024, 12, 31),
 );
 ```
 
@@ -100,6 +102,8 @@ int? edition | Filter books by edition
 bool? shouldMatchAll | If true, title/author must contain all searched words
 String? language | Language code filter (for example `en`, `fr`)
 BookColumn? column | Search limited to a column
+DateTime? publishedFrom | Only return books published on or after this day; sent as `YYYY-MM-DD`
+DateTime? publishedTo | Only return books published on or before this day; sent as `YYYY-MM-DD`
 
 `BookColumn` is an enum with the following values:
 * title - Only searches in Books Title
@@ -117,6 +121,8 @@ final book = isbnDb.getAuthor(
   page: 1,
   pageSize: 20,
   language: "fr",
+  publishedFrom: DateTime(2020, 1, 1),
+  publishedTo: DateTime(2024, 12, 31),
 );
 ```
 
@@ -126,6 +132,8 @@ String name | The name of an author in the Author's database
 int page | The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them
 int pageSize | How many items should be returned per page, maximum of 1,000
 String? language | Language code filter (for example `en`, `fr`)
+DateTime? publishedFrom | Only return books published on or after this day; sent as `YYYY-MM-DD`
+DateTime? publishedTo | Only return books published on or before this day; sent as `YYYY-MM-DD`
 
 * **Search authors**
 
@@ -153,6 +161,8 @@ final book = isbnDb.getPublisher(
   page: 1,
   pageSize: 20,
   language: "fr",
+  publishedFrom: DateTime(2020, 1, 1),
+  publishedTo: DateTime(2024, 12, 31),
 );
 ```
 
@@ -162,6 +172,8 @@ String name | The name of a publisher in the Publisher's database
 int page | The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them
 int pageSize | How many items should be returned per page, maximum of 1,000
 String? language | Language code filter (for example `en`, `fr`)
+DateTime? publishedFrom | Only return books published on or after this day; sent as `YYYY-MM-DD`
+DateTime? publishedTo | Only return books published on or before this day; sent as `YYYY-MM-DD`
 
 * **Search publishers**
 
@@ -189,6 +201,8 @@ final book = isbnDb.getSubject(
   page: 1,
   pageSize: 20,
   language: "en",
+  publishedFrom: DateTime(2020, 1, 1),
+  publishedTo: DateTime(2024, 12, 31),
 );
 ```
 
@@ -198,6 +212,8 @@ String name | A subject in the Subject's database
 int page | The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them
 int pageSize | How many items should be returned per page, maximum of 1,000
 String? language | Language code filter (for example `en`, `fr`)
+DateTime? publishedFrom | Only return books published on or after this day; sent as `YYYY-MM-DD`
+DateTime? publishedTo | Only return books published on or before this day; sent as `YYYY-MM-DD`
 
 * **Search subjects**
 

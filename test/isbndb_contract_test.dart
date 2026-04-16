@@ -47,8 +47,32 @@ void main() {
           'shouldMatchAll',
           'language',
           'column',
+          'publishedFrom',
+          'publishedTo',
         }),
       );
+    });
+
+    test('detail endpoints document publication range filters', () {
+      for (final path in <String>[
+        '/author/{name}',
+        '/publisher/{name}',
+        '/subject/{name}',
+      ]) {
+        final parameterNames = _parameterNames(spec, path, 'get');
+
+        expect(
+          parameterNames,
+          containsAll(<String>{
+            'language',
+            'page',
+            'pageSize',
+            'publishedFrom',
+            'publishedTo',
+          }),
+          reason: 'Missing expected filters on $path',
+        );
+      }
     });
 
     test('/books keeps POST body contract for ISBN batch lookup', () {
@@ -79,7 +103,10 @@ void main() {
       final schema = _schema(spec, 'UpdatedBooksResponse');
       final requiredFields = List<String>.from(schema['required'] as List);
 
-      expect(requiredFields, containsAll(<String>['data', 'page', 'page_size']));
+      expect(
+        requiredFields,
+        containsAll(<String>['data', 'page', 'page_size']),
+      );
       expect(requiredFields, isNot(contains('total')));
     });
   });

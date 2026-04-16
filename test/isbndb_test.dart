@@ -395,6 +395,8 @@ void main() {
           shouldMatchAll: true,
           language: "en",
           column: BookColumn.subjects,
+          publishedFrom: DateTime(2020, 1, 2),
+          publishedTo: DateTime(2024, 12, 31),
         );
 
         expect(options, isNotNull);
@@ -405,6 +407,8 @@ void main() {
         expect(options!.queryParameters["shouldMatchAll"], true);
         expect(options!.queryParameters["language"], "en");
         expect(options!.queryParameters["column"], "subjects");
+        expect(options!.queryParameters["publishedFrom"], "2020-01-02");
+        expect(options!.queryParameters["publishedTo"], "2024-12-31");
         expect(options!.queryParameters.containsKey("column_enum"), isFalse);
         expect(options!.queryParameters.containsKey("offset"), isFalse);
       },
@@ -425,6 +429,8 @@ void main() {
       expect(options!.queryParameters.containsKey("edition"), isFalse);
       expect(options!.queryParameters.containsKey("shouldMatchAll"), isFalse);
       expect(options!.queryParameters.containsKey("language"), isFalse);
+      expect(options!.queryParameters.containsKey("publishedFrom"), isFalse);
+      expect(options!.queryParameters.containsKey("publishedTo"), isFalse);
       expect(options!.queryParameters.containsKey("column_enum"), isFalse);
       expect(options!.queryParameters.containsKey("column"), isFalse);
       expect(options!.queryParameters.containsKey("offset"), isFalse);
@@ -443,27 +449,47 @@ void main() {
       expect(options!.queryParameters["shouldMatchAll"], isFalse);
     });
 
-    test('Should send language for details endpoints when provided', () async {
-      final capturedRequests = <RequestOptions>[];
-      final isbndb = _createClient(
-        onRequestCallback: (requestOptions) {
-          if (requestOptions.path.contains('/author/') ||
-              requestOptions.path.contains('/publisher/') ||
-              requestOptions.path.contains('/subject/')) {
-            capturedRequests.add(requestOptions);
-          }
-        },
-      );
+    test(
+      'Should send language and publication range for details endpoints',
+      () async {
+        final capturedRequests = <RequestOptions>[];
+        final isbndb = _createClient(
+          onRequestCallback: (requestOptions) {
+            if (requestOptions.path.contains('/author/') ||
+                requestOptions.path.contains('/publisher/') ||
+                requestOptions.path.contains('/subject/')) {
+              capturedRequests.add(requestOptions);
+            }
+          },
+        );
 
-      await isbndb.getAuthor("Bussi Michel", language: "fr");
-      await isbndb.getPublisher("Nathan", language: "fr");
-      await isbndb.getSubject("flutter", language: "fr");
+        await isbndb.getAuthor(
+          "Bussi Michel",
+          language: "fr",
+          publishedFrom: DateTime(2020, 1, 2),
+          publishedTo: DateTime(2024, 12, 31),
+        );
+        await isbndb.getPublisher(
+          "Nathan",
+          language: "fr",
+          publishedFrom: DateTime(2020, 1, 2),
+          publishedTo: DateTime(2024, 12, 31),
+        );
+        await isbndb.getSubject(
+          "flutter",
+          language: "fr",
+          publishedFrom: DateTime(2020, 1, 2),
+          publishedTo: DateTime(2024, 12, 31),
+        );
 
-      expect(capturedRequests, hasLength(3));
-      for (final request in capturedRequests) {
-        expect(request.queryParameters["language"], "fr");
-      }
-    });
+        expect(capturedRequests, hasLength(3));
+        for (final request in capturedRequests) {
+          expect(request.queryParameters["language"], "fr");
+          expect(request.queryParameters["publishedFrom"], "2020-01-02");
+          expect(request.queryParameters["publishedTo"], "2024-12-31");
+        }
+      },
+    );
 
     test('Should not throw when msrp is non-numeric', () async {
       final isbndb = _createClient(

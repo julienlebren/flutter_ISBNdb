@@ -24,6 +24,7 @@
                     {
                         "name": "name",
                         "in": "path",
+                        "description": "The author name. **Max length: 150 characters**.",
                         "required": true,
                         "schema": {
                             "type": "string"
@@ -32,12 +33,13 @@
                     {
                         "name": "language",
                         "in": "query",
-                        "description": "Language code to filter books by language (e.g., `en` for English, `fr` for French, etc.)",
+                        "description": "Language code to filter books by language (e.g., `eng` for English, `fra` for French, etc.)",
                         "required": false,
                         "schema": {
-                            "description": "Language code to filter books by language (e.g., `en` for English, `fr` for French, etc.)",
+                            "description": "Language code to filter books by language (e.g., `eng` for English, `fra` for French, etc.)",
                             "type": "string",
                             "default": null,
+                            "maxLength": 50,
                             "nullable": true
                         }
                     },
@@ -62,6 +64,32 @@
                             "description": "How many items should be returned per page, maximum of 1,000",
                             "type": "integer",
                             "default": 20,
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "publishedFrom",
+                        "in": "query",
+                        "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                        "required": false,
+                        "schema": {
+                            "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                            "type": "string",
+                            "default": null,
+                            "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "publishedTo",
+                        "in": "query",
+                        "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                        "required": false,
+                        "schema": {
+                            "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                            "type": "string",
+                            "default": null,
+                            "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
                             "nullable": true
                         }
                     }
@@ -97,6 +125,7 @@
                     {
                         "name": "query",
                         "in": "path",
+                        "description": "The search query string. **Max length: 150 characters**.",
                         "required": true,
                         "schema": {
                             "type": "string"
@@ -257,6 +286,7 @@
                     {
                         "name": "query",
                         "in": "path",
+                        "description": "The search query string. **Max length: 150 characters**.",
                         "required": true,
                         "schema": {
                             "type": "string"
@@ -319,12 +349,13 @@
                     {
                         "name": "language",
                         "in": "query",
-                        "description": "Language code to filter books by language (e.g., `en` for English, `fr` for French, etc.)",
+                        "description": "Language code to filter books by language (e.g., `eng` for English, `fra` for French, etc.)",
                         "required": false,
                         "schema": {
-                            "description": "Language code to filter books by language (e.g., `en` for English, `fr` for French, etc.)",
+                            "description": "Language code to filter books by language (e.g., `eng` for English, `fra` for French, etc.)",
                             "type": "string",
                             "default": null,
+                            "maxLength": 50,
                             "nullable": true
                         }
                     },
@@ -349,6 +380,32 @@
                             "description": "How many items should be returned per page, maximum of 1,000",
                             "type": "integer",
                             "default": 20,
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "publishedFrom",
+                        "in": "query",
+                        "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                        "required": false,
+                        "schema": {
+                            "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                            "type": "string",
+                            "default": null,
+                            "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "publishedTo",
+                        "in": "query",
+                        "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                        "required": false,
+                        "schema": {
+                            "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                            "type": "string",
+                            "default": null,
+                            "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
                             "nullable": true
                         }
                     }
@@ -474,6 +531,7 @@
                     {
                         "name": "name",
                         "in": "path",
+                        "description": "The publisher name. **Max length: 150 characters**.",
                         "required": true,
                         "schema": {
                             "type": "string"
@@ -482,12 +540,13 @@
                     {
                         "name": "language",
                         "in": "query",
-                        "description": "Language code to filter books by language (e.g., `en` for English, `fr` for French, etc.)",
+                        "description": "Language code to filter books by language (e.g., `eng` for English, `fra` for French, etc.)",
                         "required": false,
                         "schema": {
-                            "description": "Language code to filter books by language (e.g., `en` for English, `fr` for French, etc.)",
+                            "description": "Language code to filter books by language (e.g., `eng` for English, `fra` for French, etc.)",
                             "type": "string",
                             "default": null,
+                            "maxLength": 50,
                             "nullable": true
                         }
                     },
@@ -512,6 +571,32 @@
                             "description": "How many items should be returned per page, maximum of 1,000",
                             "type": "integer",
                             "default": 20,
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "publishedFrom",
+                        "in": "query",
+                        "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                        "required": false,
+                        "schema": {
+                            "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                            "type": "string",
+                            "default": null,
+                            "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "publishedTo",
+                        "in": "query",
+                        "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                        "required": false,
+                        "schema": {
+                            "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                            "type": "string",
+                            "default": null,
+                            "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
                             "nullable": true
                         }
                     }
@@ -547,6 +632,7 @@
                     {
                         "name": "query",
                         "in": "path",
+                        "description": "The search query string. **Max length: 150 characters**.",
                         "required": true,
                         "schema": {
                             "type": "string"
@@ -699,6 +785,7 @@
                         "schema": {
                             "description": "an ISBN 10 in the Books database",
                             "type": "string",
+                            "maxLength": 20,
                             "nullable": true
                         }
                     },
@@ -710,6 +797,7 @@
                         "schema": {
                             "description": "an ISBN 13 in the Books database",
                             "type": "string",
+                            "maxLength": 20,
                             "nullable": true
                         }
                     },
@@ -721,6 +809,7 @@
                         "schema": {
                             "description": "The name of an author in the Author's database",
                             "type": "string",
+                            "maxLength": 150,
                             "nullable": true
                         }
                     },
@@ -732,6 +821,7 @@
                         "schema": {
                             "description": "A string to search for determinated index database",
                             "type": "string",
+                            "maxLength": 150,
                             "nullable": true
                         }
                     },
@@ -743,6 +833,7 @@
                         "schema": {
                             "description": "A subject in the Subject's database",
                             "type": "string",
+                            "maxLength": 150,
                             "nullable": true
                         }
                     },
@@ -754,6 +845,33 @@
                         "schema": {
                             "description": "The name of a publisher in the Publisher's database",
                             "type": "string",
+                            "maxLength": 150,
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "publishedFrom",
+                        "in": "query",
+                        "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                        "required": false,
+                        "schema": {
+                            "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                            "type": "string",
+                            "default": null,
+                            "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "publishedTo",
+                        "in": "query",
+                        "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                        "required": false,
+                        "schema": {
+                            "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                            "type": "string",
+                            "default": null,
+                            "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
                             "nullable": true
                         }
                     }
@@ -935,6 +1053,7 @@
                     {
                         "name": "query",
                         "in": "path",
+                        "description": "The search query string. **Max length: 150 characters**.",
                         "required": true,
                         "schema": {
                             "type": "string"
@@ -996,6 +1115,7 @@
                     {
                         "name": "name",
                         "in": "path",
+                        "description": "The subject name. **Max length: 150 characters**.",
                         "required": true,
                         "schema": {
                             "type": "string"
@@ -1004,12 +1124,13 @@
                     {
                         "name": "language",
                         "in": "query",
-                        "description": "Language code to filter books by language (e.g., `en` for English, `fr` for French, etc.)",
+                        "description": "Language code to filter books by language (e.g., `eng` for English, `fra` for French, etc.)",
                         "required": false,
                         "schema": {
-                            "description": "Language code to filter books by language (e.g., `en` for English, `fr` for French, etc.)",
+                            "description": "Language code to filter books by language (e.g., `eng` for English, `fra` for French, etc.)",
                             "type": "string",
                             "default": null,
+                            "maxLength": 50,
                             "nullable": true
                         }
                     },
@@ -1034,6 +1155,32 @@
                             "description": "How many items should be returned per page, maximum of 1,000",
                             "type": "integer",
                             "default": 20,
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "publishedFrom",
+                        "in": "query",
+                        "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                        "required": false,
+                        "schema": {
+                            "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                            "type": "string",
+                            "default": null,
+                            "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
+                            "nullable": true
+                        }
+                    },
+                    {
+                        "name": "publishedTo",
+                        "in": "query",
+                        "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                        "required": false,
+                        "schema": {
+                            "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                            "type": "string",
+                            "default": null,
+                            "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
                             "nullable": true
                         }
                     }
@@ -1063,9 +1210,10 @@
             "LanguageFilters": {
                 "properties": {
                     "language": {
-                        "description": "Language code to filter books by language (e.g., `en` for English, `fr` for French, etc.)",
+                        "description": "Language code to filter books by language (e.g., `eng` for English, `fra` for French, etc.)",
                         "type": "string",
                         "default": null,
+                        "maxLength": 50,
                         "nullable": true
                     }
                 },
@@ -1083,6 +1231,25 @@
                         "description": "How many items should be returned per page, maximum of 1,000",
                         "type": "integer",
                         "default": 20,
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "DateRangeFilters": {
+                "properties": {
+                    "publishedFrom": {
+                        "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                        "type": "string",
+                        "default": null,
+                        "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
+                        "nullable": true
+                    },
+                    "publishedTo": {
+                        "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                        "type": "string",
+                        "default": null,
+                        "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
                         "nullable": true
                     }
                 },
@@ -1159,9 +1326,10 @@
                         "nullable": true
                     },
                     "language": {
-                        "description": "Language code to filter books by language (e.g., `en` for English, `fr` for French, etc.)",
+                        "description": "Language code to filter books by language (e.g., `eng` for English, `fra` for French, etc.)",
                         "type": "string",
                         "default": null,
+                        "maxLength": 50,
                         "nullable": true
                     }
                 },
@@ -1203,31 +1371,37 @@
                     "isbn": {
                         "description": "an ISBN 10 in the Books database",
                         "type": "string",
+                        "maxLength": 20,
                         "nullable": true
                     },
                     "isbn13": {
                         "description": "an ISBN 13 in the Books database",
                         "type": "string",
+                        "maxLength": 20,
                         "nullable": true
                     },
                     "author": {
                         "description": "The name of an author in the Author's database",
                         "type": "string",
+                        "maxLength": 150,
                         "nullable": true
                     },
                     "text": {
                         "description": "A string to search for determinated index database",
                         "type": "string",
+                        "maxLength": 150,
                         "nullable": true
                     },
                     "subject": {
                         "description": "A subject in the Subject's database",
                         "type": "string",
+                        "maxLength": 150,
                         "nullable": true
                     },
                     "publisher": {
                         "description": "The name of a publisher in the Publisher's database",
                         "type": "string",
+                        "maxLength": 150,
                         "nullable": true
                     }
                 },
@@ -1261,27 +1435,34 @@
                 ],
                 "properties": {
                     "condition": {
+                        "description": "Condition of the book offered at this price (e.g. new, used, digital)",
                         "type": "string"
                     },
                     "merchant": {
+                        "description": "Name of the merchant offering this price",
                         "type": "string"
                     },
                     "merchant_logo": {
+                        "description": "URL of the merchant logo image",
                         "type": "string"
                     },
                     "merchant_logo_offset": {
                         "$ref": "#/components/schemas/Point"
                     },
                     "shipping": {
+                        "description": "Shipping cost for this offer",
                         "type": "string"
                     },
                     "price": {
+                        "description": "Item price excluding shipping",
                         "type": "string"
                     },
                     "total": {
+                        "description": "Total price including shipping",
                         "type": "string"
                     },
                     "link": {
+                        "description": "URL to purchase the book from this merchant",
                         "type": "string"
                     }
                 },
@@ -1294,9 +1475,11 @@
                 ],
                 "properties": {
                     "isbn": {
+                        "description": "ISBN-13 of the related edition",
                         "type": "string"
                     },
                     "binding": {
+                        "description": "Binding type of the related edition (e.g. Hardcover, Paperback)",
                         "type": "string"
                     }
                 },
@@ -1335,6 +1518,7 @@
                         "nullable": true
                     },
                     "dewey_decimal": {
+                        "description": "Dewey Decimal Classification numbers assigned to the book",
                         "type": "array",
                         "items": {
                             "type": "string"
@@ -1342,14 +1526,17 @@
                         "nullable": true
                     },
                     "binding": {
+                        "description": "Book binding type (e.g. Hardcover, Paperback, eBook)",
                         "type": "string",
                         "nullable": true
                     },
                     "publisher": {
+                        "description": "Name of the publisher",
                         "type": "string",
                         "nullable": true
                     },
                     "language": {
+                        "description": "Language of the book (ISO 639-1 code or full name)",
                         "type": "string",
                         "nullable": true
                     },
@@ -1360,19 +1547,23 @@
                         "example": "2023-10-26"
                     },
                     "edition": {
+                        "description": "Edition of the book (e.g. 3rd, Revised)",
                         "type": "string",
                         "nullable": true
                     },
                     "pages": {
+                        "description": "Number of pages in the book",
                         "type": "integer",
                         "nullable": true
                     },
                     "dimensions": {
+                        "description": "Physical dimensions of the book as a formatted string",
                         "type": "string",
                         "nullable": true,
                         "deprecated": true
                     },
                     "dimensions_structured": {
+                        "description": "Structured physical dimensions of the book (height, width, weight, etc.)",
                         "nullable": true,
                         "oneOf": [
                             {
@@ -1390,32 +1581,39 @@
                         ]
                     },
                     "overview": {
+                        "description": "Brief overview or description of the book",
                         "type": "string",
                         "nullable": true,
                         "deprecated": true
                     },
                     "image": {
+                        "description": "Image link. Maximum height is 500px.",
                         "type": "string",
                         "nullable": true
                     },
                     "image_original": {
+                        "description": "Original image link. Note: This URL is temporary and will expire 2 hours after the API response is generated.",
                         "type": "string",
                         "nullable": true
                     },
                     "msrp": {
+                        "description": "Manufacturer's suggested retail price",
                         "type": "number",
                         "format": "float",
                         "nullable": true
                     },
                     "excerpt": {
+                        "description": "Short excerpt from the book",
                         "type": "string",
                         "nullable": true
                     },
                     "synopsis": {
+                        "description": "Full synopsis or summary of the book",
                         "type": "string",
                         "nullable": true
                     },
                     "authors": {
+                        "description": "List of authors of the book",
                         "type": "array",
                         "items": {
                             "type": "string"
@@ -1423,6 +1621,7 @@
                         "nullable": true
                     },
                     "subjects": {
+                        "description": "List of subjects or categories the book belongs to",
                         "type": "array",
                         "items": {
                             "type": "string"
@@ -1430,6 +1629,7 @@
                         "nullable": true
                     },
                     "reviews": {
+                        "description": "User or editorial reviews of the book",
                         "type": "array",
                         "items": {
                             "type": "string"
@@ -1438,6 +1638,7 @@
                         "deprecated": true
                     },
                     "prices": {
+                        "description": "Available prices from various merchants",
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/Price"
@@ -1445,6 +1646,7 @@
                         "nullable": true
                     },
                     "related": {
+                        "description": "Related books",
                         "nullable": true,
                         "deprecated": true,
                         "oneOf": [
@@ -1463,6 +1665,7 @@
                         ]
                     },
                     "other_isbns": {
+                        "description": "Other ISBNs associated with this book (e.g. different formats or editions)",
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/RelatedIsbn"
