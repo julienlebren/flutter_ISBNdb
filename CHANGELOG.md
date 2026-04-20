@@ -1,3 +1,9 @@
+## 1.0.4 - 2026-04-20
+
+- Added support for ISBNdb's `publishedFrom` and `publishedTo` filters on book search and detail endpoints.
+- Refreshed the bundled OpenAPI snapshot and API documentation to match the live API contract.
+- Expanded contract and request tests to catch this kind of API drift earlier.
+
 ## 1.0.3 - 2026-03-31
 
 - ISBNdb changed the updated-books feed endpoint from `/feeds/books/updated-isbns` to `/feeds/books/updates`; `getUpdatedBookFeed()` now follows the new path.
