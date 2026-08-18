@@ -152,6 +152,7 @@ void main() {
       final keyDetails = await isbndb.getKeyDetails();
 
       expect(keyDetails.apiHost, isNotEmpty);
+      expect(keyDetails.planName, isNotEmpty);
       expect(keyDetails.planLimit.total, greaterThanOrEqualTo(0));
       expect(keyDetails.planLimit.spent, greaterThanOrEqualTo(0));
       expect(keyDetails.planLimit.left, greaterThanOrEqualTo(0));

@@ -109,6 +109,15 @@ void main() {
       );
       expect(requiredFields, isNot(contains('total')));
     });
+
+    test('KeyResponse requires the current plan name', () {
+      final schema = _schema(spec, 'KeyResponse');
+      final requiredFields = List<String>.from(schema['required'] as List);
+      final properties = Map<String, dynamic>.from(schema['properties'] as Map);
+
+      expect(requiredFields, contains('plan_name'));
+      expect(properties['plan_name'], containsPair('type', 'string'));
+    });
   });
 
   group('Live smoke fixtures', () {

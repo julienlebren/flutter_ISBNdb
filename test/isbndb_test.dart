@@ -264,8 +264,18 @@ void main() {
       final keyDetails = await isbndb.getKeyDetails();
       expect(keyDetails, isA<KeyDetails>());
       expect(keyDetails.apiHost, "https://api2.isbndb.com");
+      expect(keyDetails.planName, "Pro");
       expect(keyDetails.planLimit.total, 10000);
       expect(keyDetails.planLimit.left, 9877);
+    });
+
+    test('Should keep parsing key details captured before API 2.7.1', () {
+      final keyDetails = KeyDetails.fromJson({
+        "api_host": "https://api2.isbndb.com",
+        "plan_limit": {"total": 10000, "spent": 123, "left": 9877},
+      });
+
+      expect(keyDetails.planName, isEmpty);
     });
 
     test('Should get API global stats', () async {
@@ -994,6 +1004,7 @@ Map<String, Map<String, dynamic>> _defaultResponses() => {
   },
   "GET key": {
     "api_host": "https://api2.isbndb.com",
+    "plan_name": "Pro",
     "plan_limit": {"total": 10000, "spent": 123, "left": 9877},
   },
   "GET stats": {
