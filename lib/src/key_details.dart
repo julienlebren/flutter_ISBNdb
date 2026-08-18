@@ -7,6 +7,11 @@ sealed class KeyDetails with _$KeyDetails {
     /// API host tied to this key.
     @JsonKey(name: 'api_host') required String apiHost,
 
+    /// Name of the subscription plan attached to this key.
+    ///
+    /// Empty only for legacy payloads captured before API 2.7.1.
+    @JsonKey(name: 'plan_name') @Default('') String planName,
+
     /// Plan usage details.
     @JsonKey(name: 'plan_limit') required PlanLimit planLimit,
   }) = _KeyDetails;

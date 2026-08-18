@@ -75,6 +75,36 @@ normalize_spec() {
   local output="$2"
 
   jq -S '
+    def normalize_schema:
+      if type != "object" then .
+      else
+        del(.description, .title, .example, .examples, .externalDocs)
+        | if (.required? | type) == "array" then .required |= sort else . end
+        | if (.enum? | type) == "array" then .enum |= sort_by(tostring) else . end
+        | if (.properties? | type) == "object" then
+            .properties |= (
+              to_entries
+              | sort_by(.key)
+              | map(.value |= normalize_schema)
+              | from_entries
+            )
+          else . end
+        | if (.items? | type) == "object" then .items |= normalize_schema else . end
+        | if (.additionalProperties? | type) == "object" then
+            .additionalProperties |= normalize_schema
+          else . end
+        | if (.oneOf? | type) == "array" then
+            .oneOf |= map(normalize_schema)
+          else . end
+        | if (.anyOf? | type) == "array" then
+            .anyOf |= map(normalize_schema)
+          else . end
+        | if (.allOf? | type) == "array" then
+            .allOf |= map(normalize_schema)
+          else . end
+        | if (.not? | type) == "object" then .not |= normalize_schema else . end
+      end;
+
     {
       openapi,
       info: {
@@ -82,6 +112,15 @@ normalize_spec() {
         version: .info.version
       },
       servers: ((.servers // []) | map({url, description})),
+      components: {
+        schemas: (
+          (.components.schemas // {})
+          | to_entries
+          | sort_by(.key)
+          | map(.value |= normalize_schema)
+          | from_entries
+        )
+      },
       paths: (
         (.paths // {})
         | to_entries
@@ -103,22 +142,7 @@ normalize_spec() {
                           name,
                           in,
                           required: (.required // false),
-                          schema: (
-                            .schema // {}
-                            | {
-                                type,
-                                format,
-                                enum,
-                                default,
-                                nullable,
-                                oneOf: ((.oneOf // []) | map({
-                                  "$ref": .["$ref"],
-                                  type,
-                                  enum,
-                                  nullable
-                                }))
-                              }
-                          )
+                          schema: ((.schema // {}) | normalize_schema)
                         })
                       | sort_by(.in, .name)
                     ),
@@ -127,12 +151,12 @@ normalize_spec() {
                       else {
                         required: (.value.requestBody.required // false),
                         contentTypes: ((.value.requestBody.content // {}) | keys | sort),
-                        schemaRefs: (
+                        schemas: (
                           (.value.requestBody.content // {})
                           | to_entries
                           | map({
                               contentType: .key,
-                              schemaRef: (.value.schema["$ref"] // null)
+                              schema: ((.value.schema // {}) | normalize_schema)
                             })
                           | sort_by(.contentType)
                         )
@@ -145,7 +169,15 @@ normalize_spec() {
                       | sort_by(.key)
                       | map({
                           code: .key,
-                          schemaRef: (.value.content["application/json"].schema["$ref"] // null)
+                          schemas: (
+                            (.value.content // {})
+                            | to_entries
+                            | map({
+                                contentType: .key,
+                                schema: ((.value.schema // {}) | normalize_schema)
+                              })
+                            | sort_by(.contentType)
+                          )
                         })
                     )
                   }
@@ -246,6 +278,18 @@ jq -r '
 comm -3 "${tmp_dir}/reference.ops" "${tmp_dir}/candidate.ops" \
   | sed 's/^/  - /' \
   | head -n 60
+
+echo "Changed component schemas:"
+jq -r -n \
+  --slurpfile reference "${normalized_reference}" \
+  --slurpfile candidate "${normalized_candidate}" '
+    ($reference[0].components.schemas // {}) as $reference_schemas
+    | ($candidate[0].components.schemas // {}) as $candidate_schemas
+    | (($reference_schemas | keys) + ($candidate_schemas | keys) | unique[])
+      as $schema_name
+    | select($reference_schemas[$schema_name] != $candidate_schemas[$schema_name])
+    | $schema_name
+  ' | sed 's/^/  - /'
 
 echo "Diff excerpt (first 120 lines):"
 head -n 120 "${tmp_dir}/spec.diff"

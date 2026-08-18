@@ -1,11 +1,11 @@
-# ISBNdb API v2 (OpenAPI 2.7.0)
+# ISBNdb API Documentation v2 (OpenAPI 2.7.1)
 
-Source: user-provided `doc.json` (OpenAPI 3.0.0)
+Source: `https://api2.isbndb.com/doc.json` (OpenAPI 3.0.0)
 
 ## API metadata
 
-- Title: `ISBNdb API v2`
-- Version: `2.7.0`
+- Title: `ISBNdb API Documentation v2`
+- Version: `2.7.1`
 - Server: `https://api2.isbndb.com`
 - Security: `ApiKeyAuth` (`Authorization` header)
 
@@ -299,7 +299,7 @@ Responses:
 | `SearchBookFilters2` | - | `isbn`, `isbn13`, `author`, `text`, `subject`, `publisher`, `publishedFrom`, `publishedTo` |
 | `Point` | `x`, `y` | `x`, `y` |
 | `Price` | `condition`, `merchant`, `merchant_logo`, `merchant_logo_offset`, `shipping`, `price`, `total`, `link` | price row fields |
-| `Book` | `title`, `title_long`, `isbn`, `isbn13`, `date_published` | `isbn10`, `dewey_decimal`, `binding`, `publisher`, `language`, `edition`, `pages`, `dimensions`, `dimensions_structured`, `overview`, `image`, `image_original`, `msrp`, `excerpt`, `synopsis`, `authors`, `subjects`, `reviews`, `prices`, `related`, `other_isbns` |
+| `Book` | `title`, `title_long`, `isbn`, `isbn13`, `date_published` | `isbn10`, `binding`, `publisher`, `language`, `edition`, `pages`, `dimensions`, `dimensions_structured`, `overview`, `image`, `image_original`, `msrp`, `excerpt`, `synopsis`, `authors`, `subjects`, `reviews`, `prices`, `related`, `other_isbns` |
 | `AuthorDetailsResponse` | `author`, `name`, `books`, `total`, `page`, `page_size` | author + books + pagination |
 | `SearchAuthorsResponse` | `name`, `authors`, `total`, `page`, `page_size` | authors list + pagination |
 | `GetBookResponse` | `book` | `book` |
@@ -308,7 +308,7 @@ Responses:
 | `UpdatedBook` | `isbn13`, `updated_at` | `isbn13`, `updated_at` |
 | `UpdatedBooksResponse` | `data`, `page`, `page_size` | `data`, `page`, `page_size` |
 | `PlanLimit` | `total`, `spent`, `left` | quota counters |
-| `KeyResponse` | `api_host`, `plan_limit` | host + limits |
+| `KeyResponse` | `api_host`, `plan_limit`, `plan_name` | host + plan name + limits |
 | `DetailsResponse` | `name`, `books`, `total`, `page`, `page_size` | publisher details |
 | `SearchPublishersResponse` | `name`, `publishers`, `total`, `page`, `page_size` | publishers list + pagination |
 | `SearchBaseResponse` | `name`, `data`, `total`, `page`, `page_size` | generic search payload |
@@ -418,7 +418,6 @@ Enum values: `title`, `author`, `date_published`, `subjects`
 | `isbn` | string | yes | no | yes | - | Legacy ISBN-13 field |
 | `isbn13` | string | yes | no | no | - | ISBN-13 |
 | `isbn10` | string | no | yes | no | - | ISBN-10 if available |
-| `dewey_decimal` | `array<string>` | no | yes | no | - | Dewey decimals |
 | `binding` | string | no | yes | no | - | Binding |
 | `publisher` | string | no | yes | no | - | Publisher |
 | `language` | string | no | yes | no | - | Language |
@@ -496,6 +495,7 @@ Enum values: `title`, `author`, `date_published`, `subjects`
 | --- | --- | --- | --- | --- | --- | --- |
 | `api_host` | string | yes | no | no | - | API host |
 | `plan_limit` | `PlanLimit` | yes | no | no | - | Plan quota details |
+| `plan_name` | string | yes | no | no | - | Subscription plan name |
 
 ### `DetailsResponse`
 

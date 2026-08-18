@@ -236,10 +236,10 @@ int pageSize | How many items should be returned per page, maximum of 1,000
 * **Get key details**
 
 ```dart
-final keyDetails = isbnDb.getKeyDetails();
+final keyDetails = await isbnDb.getKeyDetails();
 ```
 
-Returns your API host and current plan usage (`total`, `spent`, `left`).
+Returns your API host, plan name, and current usage (`total`, `spent`, `left`).
 
 * **Get global API stats**
 
@@ -399,6 +399,7 @@ books | List<Book> | An array containing the books related to this subject
 Name | Type | Description
 ------------ | ------------- | -------------
 apiHost | String | API host attached to your key
+planName | String | Name of the subscription plan attached to your key
 planLimit | PlanLimit | Usage details of the current API plan
 
 **PlanLimit**

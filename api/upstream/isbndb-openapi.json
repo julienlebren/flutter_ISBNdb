@@ -1,9 +1,9 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "ISBNdb API v2",
-        "description": "Definition of ISBNdb.com API v2.\n\n***Note: A 404 Not Found response for an ISBN lookup typically\nindicates that the book information is not yet available in our database.\nHowever, due to frequent updates, there is a high probability that the data will be \nadded shortly, often within a minute or up to 24 hours. We recommend trying your request \nagain after a while, as the information may soon become accessible***\n",
-        "version": "2.7.0"
+        "title": "ISBNdb API Documentation v2",
+        "description": "Welcome to the ISBNdb API documentation. Our REST API allows you to retrieve\ninformation about millions of books.\n\n## Authentication\n\nInclude your API key in the HTTP headers of every request:\n\n```http\nGET /book/9780134093413 HTTP/1.1\nHost: api2.isbndb.com\nAuthorization: YOUR_REST_KEY\nAccept: */*\n```\n\nPassing your API key via query parameters is **not** supported and will result\nin an error:\n\n```text\nhttps://api2.isbndb.com/book/9780134093413?Authorization=YOUR_REST_KEY\n```\n\n## Error responses\n\n**400 Bad Request** \u2014 the request is invalid or fails validation, for example\nan incorrect ISBN format.\n\n**401 Unauthorized** \u2014 your API key is missing or invalid, or your subscription\nis inactive:\n\n```json\n{\"message\": \"Full authentication is required to access this resource.\"}\n```\n\n**404 Not Found** \u2014 the requested ISBN is not in our database:\n\n```json\n{\"message\": \"Not Found\"}\n```\n\n**429 Too Many Requests** \u2014 the per minute or the daily limit of your plan is\nreached:\n\n```json\n{\"message\": \"Per minute quota exceeded, please try again later\"}\n```\n\n```json\n{\"message\": \"Daily quota exceeded, please try again later\"}\n```\n\n***Note on 404 errors: a 404 response indicates that the book information is not\nyet available in our database. However, due to frequent updates, there is a high\nprobability that the data will be added shortly, often within a minute or up to\n24 hours. We recommend trying your request again after a while, as the\ninformation may soon become accessible.***\n\n## Rate limits\n\nYou can programmatically monitor your usage and limits by inspecting the\nstandard `ratelimit-policy` and `ratelimit` headers we send with every response:\n\n**`ratelimit-policy`** defines the limit rules of your subscription plan, where\n`q` is the quota (maximum allowed requests) and `w` is the window (timeframe in\nseconds):\n\n```text\nratelimit-policy: \"rate\";q=300;w=60\nratelimit-policy: \"daily\";q=50000;w=86400\n```\n\n**`ratelimit`** displays your current real-time usage status, where `r` is the\nremaining requests in the current window and `t` is the time until the limit\nresets (in seconds):\n\n```text\nratelimit: \"rate\";r=297;t=1\nratelimit: \"daily\";r=48999;t=56312\n```\n\nAll daily limits reset at **00:00 UTC** every day.\n",
+        "version": "2.7.1"
     },
     "servers": [
         {
@@ -27,7 +27,8 @@
                         "description": "The author name. **Max length: 150 characters**.",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "pattern": ".+"
                         }
                     },
                     {
@@ -38,9 +39,9 @@
                         "schema": {
                             "description": "Language code to filter books by language (e.g., `eng` for English, `fra` for French, etc.)",
                             "type": "string",
+                            "nullable": true,
                             "default": null,
-                            "maxLength": 50,
-                            "nullable": true
+                            "maxLength": 50
                         }
                     },
                     {
@@ -51,8 +52,8 @@
                         "schema": {
                             "description": "The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them",
                             "type": "integer",
-                            "default": 1,
-                            "nullable": true
+                            "nullable": true,
+                            "default": 1
                         }
                     },
                     {
@@ -63,8 +64,8 @@
                         "schema": {
                             "description": "How many items should be returned per page, maximum of 1,000",
                             "type": "integer",
-                            "default": 20,
-                            "nullable": true
+                            "nullable": true,
+                            "default": 20
                         }
                     },
                     {
@@ -75,9 +76,9 @@
                         "schema": {
                             "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
                             "type": "string",
-                            "default": null,
                             "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
-                            "nullable": true
+                            "nullable": true,
+                            "default": null
                         }
                     },
                     {
@@ -88,9 +89,9 @@
                         "schema": {
                             "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
                             "type": "string",
-                            "default": null,
                             "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
-                            "nullable": true
+                            "nullable": true,
+                            "default": null
                         }
                     }
                 ],
@@ -128,7 +129,8 @@
                         "description": "The search query string. **Max length: 150 characters**.",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "pattern": ".+"
                         }
                     },
                     {
@@ -139,8 +141,8 @@
                         "schema": {
                             "description": "The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them",
                             "type": "integer",
-                            "default": 1,
-                            "nullable": true
+                            "nullable": true,
+                            "default": 1
                         }
                     },
                     {
@@ -151,8 +153,8 @@
                         "schema": {
                             "description": "How many items should be returned per page, maximum of 1,000",
                             "type": "integer",
-                            "default": 20,
-                            "nullable": true
+                            "nullable": true,
+                            "default": 20
                         }
                     }
                 ],
@@ -187,7 +189,7 @@
                     {
                         "name": "with_prices",
                         "in": "query",
-                        "description": "Whether to include prices in the response. \n        \n***Performance Impact:*** Enabling this will increase response time, as current prices are fetched from vendors in real time.",
+                        "description": "Whether to include prices in the response. \n\n***Available starting from Pro plan***\n\n***Performance Impact:*** Enabling this will increase response time, as current prices are fetched from vendors in real-time.",
                         "required": false,
                         "schema": {
                             "type": "boolean",
@@ -289,7 +291,8 @@
                         "description": "The search query string. **Max length: 150 characters**.",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "pattern": ".+"
                         }
                     },
                     {
@@ -300,8 +303,8 @@
                         "schema": {
                             "description": "Filter books by year of publication",
                             "type": "integer",
-                            "default": null,
-                            "nullable": true
+                            "nullable": true,
+                            "default": null
                         }
                     },
                     {
@@ -312,8 +315,8 @@
                         "schema": {
                             "description": "Filter books by edition",
                             "type": "integer",
-                            "default": null,
-                            "nullable": true
+                            "nullable": true,
+                            "default": null
                         }
                     },
                     {
@@ -324,8 +327,8 @@
                         "schema": {
                             "description": "If set to `1` or `true`, the API will return books where the title \n        or author exactly contains all the words entered by the user.",
                             "type": "boolean",
-                            "default": false,
-                            "nullable": true
+                            "nullable": true,
+                            "default": false
                         }
                     },
                     {
@@ -336,14 +339,14 @@
                         "schema": {
                             "description": "Search limited to this column:\n* `` - Empty value search in every column\n* `title` - Only searches in Books Title\n* `author` - Only searches books by the given Author\n* `date_published` - Only searches books in a given year, e.g. 1998\n* `subjects` - Only searches books by the given subject, e.g. physics",
                             "type": "string",
+                            "nullable": true,
                             "default": null,
                             "enum": [
                                 "title",
                                 "author",
                                 "date_published",
                                 "subjects"
-                            ],
-                            "nullable": true
+                            ]
                         }
                     },
                     {
@@ -354,9 +357,9 @@
                         "schema": {
                             "description": "Language code to filter books by language (e.g., `eng` for English, `fra` for French, etc.)",
                             "type": "string",
+                            "nullable": true,
                             "default": null,
-                            "maxLength": 50,
-                            "nullable": true
+                            "maxLength": 50
                         }
                     },
                     {
@@ -367,8 +370,8 @@
                         "schema": {
                             "description": "The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them",
                             "type": "integer",
-                            "default": 1,
-                            "nullable": true
+                            "nullable": true,
+                            "default": 1
                         }
                     },
                     {
@@ -379,8 +382,8 @@
                         "schema": {
                             "description": "How many items should be returned per page, maximum of 1,000",
                             "type": "integer",
-                            "default": 20,
-                            "nullable": true
+                            "nullable": true,
+                            "default": 20
                         }
                     },
                     {
@@ -391,9 +394,9 @@
                         "schema": {
                             "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
                             "type": "string",
-                            "default": null,
                             "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
-                            "nullable": true
+                            "nullable": true,
+                            "default": null
                         }
                     },
                     {
@@ -404,9 +407,9 @@
                         "schema": {
                             "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
                             "type": "string",
-                            "default": null,
                             "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
-                            "nullable": true
+                            "nullable": true,
+                            "default": null
                         }
                     }
                 ],
@@ -446,9 +449,9 @@
                         "schema": {
                             "description": "The number of page to retrieve",
                             "type": "integer",
+                            "nullable": true,
                             "default": 1,
-                            "minimum": 1,
-                            "nullable": true
+                            "minimum": 1
                         }
                     },
                     {
@@ -459,10 +462,10 @@
                         "schema": {
                             "description": "How many items should be returned per page, maximum of 1,000",
                             "type": "integer",
+                            "nullable": true,
                             "default": 100,
                             "maximum": 1000,
-                            "minimum": 1,
-                            "nullable": true
+                            "minimum": 1
                         }
                     },
                     {
@@ -473,8 +476,8 @@
                         "schema": {
                             "description": "Filter by last updated date (Format: YYYY-MM-DD)",
                             "type": "string",
-                            "default": null,
-                            "nullable": true
+                            "nullable": true,
+                            "default": null
                         }
                     }
                 ],
@@ -534,7 +537,8 @@
                         "description": "The publisher name. **Max length: 150 characters**.",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "pattern": ".+"
                         }
                     },
                     {
@@ -545,9 +549,9 @@
                         "schema": {
                             "description": "Language code to filter books by language (e.g., `eng` for English, `fra` for French, etc.)",
                             "type": "string",
+                            "nullable": true,
                             "default": null,
-                            "maxLength": 50,
-                            "nullable": true
+                            "maxLength": 50
                         }
                     },
                     {
@@ -558,8 +562,8 @@
                         "schema": {
                             "description": "The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them",
                             "type": "integer",
-                            "default": 1,
-                            "nullable": true
+                            "nullable": true,
+                            "default": 1
                         }
                     },
                     {
@@ -570,8 +574,8 @@
                         "schema": {
                             "description": "How many items should be returned per page, maximum of 1,000",
                             "type": "integer",
-                            "default": 20,
-                            "nullable": true
+                            "nullable": true,
+                            "default": 20
                         }
                     },
                     {
@@ -582,9 +586,9 @@
                         "schema": {
                             "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
                             "type": "string",
-                            "default": null,
                             "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
-                            "nullable": true
+                            "nullable": true,
+                            "default": null
                         }
                     },
                     {
@@ -595,9 +599,9 @@
                         "schema": {
                             "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
                             "type": "string",
-                            "default": null,
                             "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
-                            "nullable": true
+                            "nullable": true,
+                            "default": null
                         }
                     }
                 ],
@@ -635,7 +639,8 @@
                         "description": "The search query string. **Max length: 150 characters**.",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "pattern": ".+"
                         }
                     },
                     {
@@ -646,8 +651,8 @@
                         "schema": {
                             "description": "The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them",
                             "type": "integer",
-                            "default": 1,
-                            "nullable": true
+                            "nullable": true,
+                            "default": 1
                         }
                     },
                     {
@@ -658,8 +663,8 @@
                         "schema": {
                             "description": "How many items should be returned per page, maximum of 1,000",
                             "type": "integer",
-                            "default": 20,
-                            "nullable": true
+                            "nullable": true,
+                            "default": 20
                         }
                     }
                 ],
@@ -707,8 +712,8 @@
                         "schema": {
                             "description": "The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them",
                             "type": "integer",
-                            "default": 1,
-                            "nullable": true
+                            "nullable": true,
+                            "default": 1
                         }
                     },
                     {
@@ -719,8 +724,8 @@
                         "schema": {
                             "description": "How many items should be returned per page, maximum of 1,000",
                             "type": "integer",
-                            "default": 20,
-                            "nullable": true
+                            "nullable": true,
+                            "default": 20
                         }
                     }
                 ],
@@ -761,8 +766,8 @@
                         "schema": {
                             "description": "The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them",
                             "type": "integer",
-                            "default": 1,
-                            "nullable": true
+                            "nullable": true,
+                            "default": 1
                         }
                     },
                     {
@@ -773,8 +778,8 @@
                         "schema": {
                             "description": "How many items should be returned per page, maximum of 1,000",
                             "type": "integer",
-                            "default": 20,
-                            "nullable": true
+                            "nullable": true,
+                            "default": 20
                         }
                     },
                     {
@@ -785,8 +790,8 @@
                         "schema": {
                             "description": "an ISBN 10 in the Books database",
                             "type": "string",
-                            "maxLength": 20,
-                            "nullable": true
+                            "nullable": true,
+                            "maxLength": 20
                         }
                     },
                     {
@@ -797,8 +802,8 @@
                         "schema": {
                             "description": "an ISBN 13 in the Books database",
                             "type": "string",
-                            "maxLength": 20,
-                            "nullable": true
+                            "nullable": true,
+                            "maxLength": 20
                         }
                     },
                     {
@@ -809,8 +814,8 @@
                         "schema": {
                             "description": "The name of an author in the Author's database",
                             "type": "string",
-                            "maxLength": 150,
-                            "nullable": true
+                            "nullable": true,
+                            "maxLength": 150
                         }
                     },
                     {
@@ -821,8 +826,8 @@
                         "schema": {
                             "description": "A string to search for determinated index database",
                             "type": "string",
-                            "maxLength": 150,
-                            "nullable": true
+                            "nullable": true,
+                            "maxLength": 150
                         }
                     },
                     {
@@ -833,8 +838,8 @@
                         "schema": {
                             "description": "A subject in the Subject's database",
                             "type": "string",
-                            "maxLength": 150,
-                            "nullable": true
+                            "nullable": true,
+                            "maxLength": 150
                         }
                     },
                     {
@@ -845,8 +850,8 @@
                         "schema": {
                             "description": "The name of a publisher in the Publisher's database",
                             "type": "string",
-                            "maxLength": 150,
-                            "nullable": true
+                            "nullable": true,
+                            "maxLength": 150
                         }
                     },
                     {
@@ -857,9 +862,9 @@
                         "schema": {
                             "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
                             "type": "string",
-                            "default": null,
                             "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
-                            "nullable": true
+                            "nullable": true,
+                            "default": null
                         }
                     },
                     {
@@ -870,9 +875,9 @@
                         "schema": {
                             "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
                             "type": "string",
-                            "default": null,
                             "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
-                            "nullable": true
+                            "nullable": true,
+                            "default": null
                         }
                     }
                 ],
@@ -920,8 +925,8 @@
                         "schema": {
                             "description": "The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them",
                             "type": "integer",
-                            "default": 1,
-                            "nullable": true
+                            "nullable": true,
+                            "default": 1
                         }
                     },
                     {
@@ -932,8 +937,8 @@
                         "schema": {
                             "description": "How many items should be returned per page, maximum of 1,000",
                             "type": "integer",
-                            "default": 20,
-                            "nullable": true
+                            "nullable": true,
+                            "default": 20
                         }
                     }
                 ],
@@ -982,8 +987,8 @@
                         "schema": {
                             "description": "The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them",
                             "type": "integer",
-                            "default": 1,
-                            "nullable": true
+                            "nullable": true,
+                            "default": 1
                         }
                     },
                     {
@@ -994,8 +999,8 @@
                         "schema": {
                             "description": "How many items should be returned per page, maximum of 1,000",
                             "type": "integer",
-                            "default": 20,
-                            "nullable": true
+                            "nullable": true,
+                            "default": 20
                         }
                     }
                 ],
@@ -1056,7 +1061,8 @@
                         "description": "The search query string. **Max length: 150 characters**.",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "pattern": ".+"
                         }
                     },
                     {
@@ -1067,8 +1073,8 @@
                         "schema": {
                             "description": "The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them",
                             "type": "integer",
-                            "default": 1,
-                            "nullable": true
+                            "nullable": true,
+                            "default": 1
                         }
                     },
                     {
@@ -1079,8 +1085,8 @@
                         "schema": {
                             "description": "How many items should be returned per page, maximum of 1,000",
                             "type": "integer",
-                            "default": 20,
-                            "nullable": true
+                            "nullable": true,
+                            "default": 20
                         }
                     }
                 ],
@@ -1118,7 +1124,8 @@
                         "description": "The subject name. **Max length: 150 characters**.",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "pattern": ".+"
                         }
                     },
                     {
@@ -1129,9 +1136,9 @@
                         "schema": {
                             "description": "Language code to filter books by language (e.g., `eng` for English, `fra` for French, etc.)",
                             "type": "string",
+                            "nullable": true,
                             "default": null,
-                            "maxLength": 50,
-                            "nullable": true
+                            "maxLength": 50
                         }
                     },
                     {
@@ -1142,8 +1149,8 @@
                         "schema": {
                             "description": "The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them",
                             "type": "integer",
-                            "default": 1,
-                            "nullable": true
+                            "nullable": true,
+                            "default": 1
                         }
                     },
                     {
@@ -1154,8 +1161,8 @@
                         "schema": {
                             "description": "How many items should be returned per page, maximum of 1,000",
                             "type": "integer",
-                            "default": 20,
-                            "nullable": true
+                            "nullable": true,
+                            "default": 20
                         }
                     },
                     {
@@ -1166,9 +1173,9 @@
                         "schema": {
                             "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
                             "type": "string",
-                            "default": null,
                             "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
-                            "nullable": true
+                            "nullable": true,
+                            "default": null
                         }
                     },
                     {
@@ -1179,9 +1186,9 @@
                         "schema": {
                             "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
                             "type": "string",
-                            "default": null,
                             "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
-                            "nullable": true
+                            "nullable": true,
+                            "default": null
                         }
                     }
                 ],
@@ -1212,9 +1219,9 @@
                     "language": {
                         "description": "Language code to filter books by language (e.g., `eng` for English, `fra` for French, etc.)",
                         "type": "string",
+                        "nullable": true,
                         "default": null,
-                        "maxLength": 50,
-                        "nullable": true
+                        "maxLength": 50
                     }
                 },
                 "type": "object"
@@ -1224,14 +1231,14 @@
                     "page": {
                         "description": "The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them",
                         "type": "integer",
-                        "default": 1,
-                        "nullable": true
+                        "nullable": true,
+                        "default": 1
                     },
                     "pageSize": {
                         "description": "How many items should be returned per page, maximum of 1,000",
                         "type": "integer",
-                        "default": 20,
-                        "nullable": true
+                        "nullable": true,
+                        "default": 20
                     }
                 },
                 "type": "object"
@@ -1241,16 +1248,16 @@
                     "publishedFrom": {
                         "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
                         "type": "string",
-                        "default": null,
                         "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
-                        "nullable": true
+                        "nullable": true,
+                        "default": null
                     },
                     "publishedTo": {
                         "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
                         "type": "string",
-                        "default": null,
                         "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
-                        "nullable": true
+                        "nullable": true,
+                        "default": null
                     }
                 },
                 "type": "object"
@@ -1298,39 +1305,39 @@
                     "year": {
                         "description": "Filter books by year of publication",
                         "type": "integer",
-                        "default": null,
-                        "nullable": true
+                        "nullable": true,
+                        "default": null
                     },
                     "edition": {
                         "description": "Filter books by edition",
                         "type": "integer",
-                        "default": null,
-                        "nullable": true
+                        "nullable": true,
+                        "default": null
                     },
                     "shouldMatchAll": {
                         "description": "If set to `1` or `true`, the API will return books where the title \n        or author exactly contains all the words entered by the user.",
                         "type": "boolean",
-                        "default": false,
-                        "nullable": true
+                        "nullable": true,
+                        "default": false
                     },
                     "column": {
                         "description": "Search limited to this column:\n* `` - Empty value search in every column\n* `title` - Only searches in Books Title\n* `author` - Only searches books by the given Author\n* `date_published` - Only searches books in a given year, e.g. 1998\n* `subjects` - Only searches books by the given subject, e.g. physics",
                         "type": "string",
+                        "nullable": true,
                         "default": null,
                         "enum": [
                             "title",
                             "author",
                             "date_published",
                             "subjects"
-                        ],
-                        "nullable": true
+                        ]
                     },
                     "language": {
                         "description": "Language code to filter books by language (e.g., `eng` for English, `fra` for French, etc.)",
                         "type": "string",
+                        "nullable": true,
                         "default": null,
-                        "maxLength": 50,
-                        "nullable": true
+                        "maxLength": 50
                     }
                 },
                 "type": "object"
@@ -1340,17 +1347,17 @@
                     "page": {
                         "description": "The number of page to retrieve",
                         "type": "integer",
+                        "nullable": true,
                         "default": 1,
-                        "minimum": 1,
-                        "nullable": true
+                        "minimum": 1
                     },
                     "pageSize": {
                         "description": "How many items should be returned per page, maximum of 1,000",
                         "type": "integer",
+                        "nullable": true,
                         "default": 100,
                         "maximum": 1000,
-                        "minimum": 1,
-                        "nullable": true
+                        "minimum": 1
                     }
                 },
                 "type": "object"
@@ -1360,8 +1367,8 @@
                     "lastUpdated": {
                         "description": "Filter by last updated date (Format: YYYY-MM-DD)",
                         "type": "string",
-                        "default": null,
-                        "nullable": true
+                        "nullable": true,
+                        "default": null
                     }
                 },
                 "type": "object"
@@ -1371,38 +1378,38 @@
                     "isbn": {
                         "description": "an ISBN 10 in the Books database",
                         "type": "string",
-                        "maxLength": 20,
-                        "nullable": true
+                        "nullable": true,
+                        "maxLength": 20
                     },
                     "isbn13": {
                         "description": "an ISBN 13 in the Books database",
                         "type": "string",
-                        "maxLength": 20,
-                        "nullable": true
+                        "nullable": true,
+                        "maxLength": 20
                     },
                     "author": {
                         "description": "The name of an author in the Author's database",
                         "type": "string",
-                        "maxLength": 150,
-                        "nullable": true
+                        "nullable": true,
+                        "maxLength": 150
                     },
                     "text": {
                         "description": "A string to search for determinated index database",
                         "type": "string",
-                        "maxLength": 150,
-                        "nullable": true
+                        "nullable": true,
+                        "maxLength": 150
                     },
                     "subject": {
                         "description": "A subject in the Subject's database",
                         "type": "string",
-                        "maxLength": 150,
-                        "nullable": true
+                        "nullable": true,
+                        "maxLength": 150
                     },
                     "publisher": {
                         "description": "The name of a publisher in the Publisher's database",
                         "type": "string",
-                        "maxLength": 150,
-                        "nullable": true
+                        "nullable": true,
+                        "maxLength": 150
                     }
                 },
                 "type": "object"
@@ -1515,14 +1522,6 @@
                     "isbn10": {
                         "description": "Book ISBN-10, if available",
                         "type": "string",
-                        "nullable": true
-                    },
-                    "dewey_decimal": {
-                        "description": "Dewey Decimal Classification numbers assigned to the book",
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
                         "nullable": true
                     },
                     "binding": {
@@ -1783,8 +1782,8 @@
                     },
                     "requested": {
                         "type": "integer",
-                        "default": null,
-                        "nullable": true
+                        "nullable": true,
+                        "default": null
                     }
                 },
                 "type": "object"
@@ -1851,7 +1850,8 @@
             "KeyResponse": {
                 "required": [
                     "api_host",
-                    "plan_limit"
+                    "plan_limit",
+                    "plan_name"
                 ],
                 "properties": {
                     "api_host": {
@@ -1859,6 +1859,9 @@
                     },
                     "plan_limit": {
                         "$ref": "#/components/schemas/PlanLimit"
+                    },
+                    "plan_name": {
+                        "type": "string"
                     }
                 },
                 "type": "object"

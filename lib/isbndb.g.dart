@@ -160,12 +160,14 @@ Map<String, dynamic> _$PublisherToJson(_Publisher instance) =>
 
 _KeyDetails _$KeyDetailsFromJson(Map<String, dynamic> json) => _KeyDetails(
   apiHost: json['api_host'] as String,
+  planName: json['plan_name'] as String? ?? '',
   planLimit: PlanLimit.fromJson(json['plan_limit'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$KeyDetailsToJson(_KeyDetails instance) =>
     <String, dynamic>{
       'api_host': instance.apiHost,
+      'plan_name': instance.planName,
       'plan_limit': instance.planLimit,
     };
 
