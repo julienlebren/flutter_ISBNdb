@@ -1,3 +1,10 @@
+## Unreleased
+
+- Aligned the bundled API contract and documentation with ISBNdb OpenAPI 2.7.2.
+- Added pagination metadata to `BookQueryResult` for text-search responses.
+- Added support for the current `errorMessage` error field while preserving legacy error payloads.
+- Added support for partial publication dates: `YYYY` maps to January 1st and `YYYY-MM` maps to the first day of that month.
+
 ## 1.0.4 - 2026-04-20
 
 - Added support for ISBNdb's `publishedFrom` and `publishedTo` filters on book search and detail endpoints.

@@ -11,6 +11,12 @@ void main() {
       spec = _readJsonFile('api/upstream/isbndb-openapi.json');
     });
 
+    test('tracks ISBNdb OpenAPI 2.7.2', () {
+      final info = Map<String, dynamic>.from(spec['info'] as Map);
+
+      expect(info['version'], '2.7.2');
+    });
+
     test('contains all public endpoints currently exposed by the package', () {
       final paths = _paths(spec).keys.toSet();
 
@@ -84,6 +90,74 @@ void main() {
 
       expect(content.keys, contains('application/json'));
       expect(content.keys, contains('application/x-www-form-urlencoded'));
+
+      final requestSchema = _schema(spec, 'GetBooksMultipleRequest');
+      final properties = Map<String, dynamic>.from(
+        requestSchema['properties'] as Map,
+      );
+      final isbns = Map<String, dynamic>.from(properties['isbns'] as Map);
+      final items = Map<String, dynamic>.from(isbns['items'] as Map);
+
+      expect(isbns['type'], 'array');
+      expect(isbns['maxItems'], 1000);
+      expect(items['type'], 'string');
+    });
+
+    test('/books/{query} documents its paginated response', () {
+      final operation = _operation(spec, '/books/{query}', 'get');
+      final responses = Map<String, dynamic>.from(
+        operation['responses'] as Map,
+      );
+      final success = Map<String, dynamic>.from(responses['200'] as Map);
+      final content = Map<String, dynamic>.from(success['content'] as Map);
+      final json = Map<String, dynamic>.from(
+        content['application/json'] as Map,
+      );
+      final responseSchema = Map<String, dynamic>.from(json['schema'] as Map);
+
+      expect(
+        responseSchema[r'$ref'],
+        '#/components/schemas/SearchBooksPaginatedResponse',
+      );
+
+      final paginatedSchema = _schema(spec, 'SearchBooksPaginatedResponse');
+      final requiredFields = List<String>.from(
+        paginatedSchema['required'] as List,
+      );
+      expect(
+        requiredFields,
+        containsAll(<String>['books', 'total', 'page', 'page_size']),
+      );
+    });
+
+    test('documents current book, prices, dates, and error contracts', () {
+      final book = _schema(spec, 'Book');
+      final bookProperties = Map<String, dynamic>.from(
+        book['properties'] as Map,
+      );
+      final publishedDate = Map<String, dynamic>.from(
+        bookProperties['date_published'] as Map,
+      );
+
+      expect(publishedDate['type'], 'string');
+      expect(publishedDate, isNot(contains('format')));
+      expect(bookProperties, isNot(contains('prices')));
+
+      final getBookResponse = _schema(spec, 'GetBookResponse');
+      final getBookProperties = Map<String, dynamic>.from(
+        getBookResponse['properties'] as Map,
+      );
+      final responseBook = Map<String, dynamic>.from(
+        getBookProperties['book'] as Map,
+      );
+      expect(responseBook[r'$ref'], '#/components/schemas/BookWithPrices');
+
+      final errorResponse = _schema(spec, 'ErrorResponse');
+      final errorProperties = Map<String, dynamic>.from(
+        errorResponse['properties'] as Map,
+      );
+      expect(errorProperties, contains('errorMessage'));
+      expect(errorProperties, isNot(contains('error_message')));
     });
 
     test('/feeds/books/updates documents the update feed filters', () {
