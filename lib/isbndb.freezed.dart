@@ -583,7 +583,9 @@ mixin _$BookQueryResult implements DiagnosticableTreeMixin {
 
 /// The number of results for this query
  int get total;/// The list of the books matching the query
-@JsonKey(readValue: _readBookQueryBooks) List<Book> get books;
+@JsonKey(readValue: _readBookQueryBooks) List<Book> get books;/// The page returned by a paginated book search
+@JsonKey(includeIfNull: false) int? get page;/// The page size returned by a paginated book search
+@JsonKey(name: 'page_size', includeIfNull: false) int? get pageSize;
 /// Create a copy of BookQueryResult
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -597,21 +599,21 @@ $BookQueryResultCopyWith<BookQueryResult> get copyWith => _$BookQueryResultCopyW
 void debugFillProperties(DiagnosticPropertiesBuilder properties) {
   properties
     ..add(DiagnosticsProperty('type', 'BookQueryResult'))
-    ..add(DiagnosticsProperty('total', total))..add(DiagnosticsProperty('books', books));
+    ..add(DiagnosticsProperty('total', total))..add(DiagnosticsProperty('books', books))..add(DiagnosticsProperty('page', page))..add(DiagnosticsProperty('pageSize', pageSize));
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BookQueryResult&&(identical(other.total, total) || other.total == total)&&const DeepCollectionEquality().equals(other.books, books));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BookQueryResult&&(identical(other.total, total) || other.total == total)&&const DeepCollectionEquality().equals(other.books, books)&&(identical(other.page, page) || other.page == page)&&(identical(other.pageSize, pageSize) || other.pageSize == pageSize));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,total,const DeepCollectionEquality().hash(books));
+int get hashCode => Object.hash(runtimeType,total,const DeepCollectionEquality().hash(books),page,pageSize);
 
 @override
 String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
-  return 'BookQueryResult(total: $total, books: $books)';
+  return 'BookQueryResult(total: $total, books: $books, page: $page, pageSize: $pageSize)';
 }
 
 
@@ -622,7 +624,7 @@ abstract mixin class $BookQueryResultCopyWith<$Res>  {
   factory $BookQueryResultCopyWith(BookQueryResult value, $Res Function(BookQueryResult) _then) = _$BookQueryResultCopyWithImpl;
 @useResult
 $Res call({
- int total,@JsonKey(readValue: _readBookQueryBooks) List<Book> books
+ int total,@JsonKey(readValue: _readBookQueryBooks) List<Book> books,@JsonKey(includeIfNull: false) int? page,@JsonKey(name: 'page_size', includeIfNull: false) int? pageSize
 });
 
 
@@ -639,11 +641,13 @@ class _$BookQueryResultCopyWithImpl<$Res>
 
 /// Create a copy of BookQueryResult
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? total = null,Object? books = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? total = null,Object? books = null,Object? page = freezed,Object? pageSize = freezed,}) {
   return _then(_self.copyWith(
 total: null == total ? _self.total : total // ignore: cast_nullable_to_non_nullable
 as int,books: null == books ? _self.books : books // ignore: cast_nullable_to_non_nullable
-as List<Book>,
+as List<Book>,page: freezed == page ? _self.page : page // ignore: cast_nullable_to_non_nullable
+as int?,pageSize: freezed == pageSize ? _self.pageSize : pageSize // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 
@@ -725,10 +729,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int total, @JsonKey(readValue: _readBookQueryBooks)  List<Book> books)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int total, @JsonKey(readValue: _readBookQueryBooks)  List<Book> books, @JsonKey(includeIfNull: false)  int? page, @JsonKey(name: 'page_size', includeIfNull: false)  int? pageSize)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _BookQueryResult() when $default != null:
-return $default(_that.total,_that.books);case _:
+return $default(_that.total,_that.books,_that.page,_that.pageSize);case _:
   return orElse();
 
 }
@@ -746,10 +750,10 @@ return $default(_that.total,_that.books);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int total, @JsonKey(readValue: _readBookQueryBooks)  List<Book> books)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int total, @JsonKey(readValue: _readBookQueryBooks)  List<Book> books, @JsonKey(includeIfNull: false)  int? page, @JsonKey(name: 'page_size', includeIfNull: false)  int? pageSize)  $default,) {final _that = this;
 switch (_that) {
 case _BookQueryResult():
-return $default(_that.total,_that.books);}
+return $default(_that.total,_that.books,_that.page,_that.pageSize);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -763,10 +767,10 @@ return $default(_that.total,_that.books);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int total, @JsonKey(readValue: _readBookQueryBooks)  List<Book> books)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int total, @JsonKey(readValue: _readBookQueryBooks)  List<Book> books, @JsonKey(includeIfNull: false)  int? page, @JsonKey(name: 'page_size', includeIfNull: false)  int? pageSize)?  $default,) {final _that = this;
 switch (_that) {
 case _BookQueryResult() when $default != null:
-return $default(_that.total,_that.books);case _:
+return $default(_that.total,_that.books,_that.page,_that.pageSize);case _:
   return null;
 
 }
@@ -778,7 +782,7 @@ return $default(_that.total,_that.books);case _:
 @JsonSerializable()
 
 class _BookQueryResult with DiagnosticableTreeMixin implements BookQueryResult {
-   _BookQueryResult({required this.total, @JsonKey(readValue: _readBookQueryBooks) final  List<Book> books = const []}): _books = books;
+   _BookQueryResult({required this.total, @JsonKey(readValue: _readBookQueryBooks) final  List<Book> books = const [], @JsonKey(includeIfNull: false) this.page, @JsonKey(name: 'page_size', includeIfNull: false) this.pageSize}): _books = books;
   factory _BookQueryResult.fromJson(Map<String, dynamic> json) => _$BookQueryResultFromJson(json);
 
 /// The number of results for this query
@@ -792,6 +796,10 @@ class _BookQueryResult with DiagnosticableTreeMixin implements BookQueryResult {
   return EqualUnmodifiableListView(_books);
 }
 
+/// The page returned by a paginated book search
+@override@JsonKey(includeIfNull: false) final  int? page;
+/// The page size returned by a paginated book search
+@override@JsonKey(name: 'page_size', includeIfNull: false) final  int? pageSize;
 
 /// Create a copy of BookQueryResult
 /// with the given fields replaced by the non-null parameter values.
@@ -807,21 +815,21 @@ Map<String, dynamic> toJson() {
 void debugFillProperties(DiagnosticPropertiesBuilder properties) {
   properties
     ..add(DiagnosticsProperty('type', 'BookQueryResult'))
-    ..add(DiagnosticsProperty('total', total))..add(DiagnosticsProperty('books', books));
+    ..add(DiagnosticsProperty('total', total))..add(DiagnosticsProperty('books', books))..add(DiagnosticsProperty('page', page))..add(DiagnosticsProperty('pageSize', pageSize));
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BookQueryResult&&(identical(other.total, total) || other.total == total)&&const DeepCollectionEquality().equals(other._books, _books));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BookQueryResult&&(identical(other.total, total) || other.total == total)&&const DeepCollectionEquality().equals(other._books, _books)&&(identical(other.page, page) || other.page == page)&&(identical(other.pageSize, pageSize) || other.pageSize == pageSize));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,total,const DeepCollectionEquality().hash(_books));
+int get hashCode => Object.hash(runtimeType,total,const DeepCollectionEquality().hash(_books),page,pageSize);
 
 @override
 String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
-  return 'BookQueryResult(total: $total, books: $books)';
+  return 'BookQueryResult(total: $total, books: $books, page: $page, pageSize: $pageSize)';
 }
 
 
@@ -832,7 +840,7 @@ abstract mixin class _$BookQueryResultCopyWith<$Res> implements $BookQueryResult
   factory _$BookQueryResultCopyWith(_BookQueryResult value, $Res Function(_BookQueryResult) _then) = __$BookQueryResultCopyWithImpl;
 @override @useResult
 $Res call({
- int total,@JsonKey(readValue: _readBookQueryBooks) List<Book> books
+ int total,@JsonKey(readValue: _readBookQueryBooks) List<Book> books,@JsonKey(includeIfNull: false) int? page,@JsonKey(name: 'page_size', includeIfNull: false) int? pageSize
 });
 
 
@@ -849,11 +857,13 @@ class __$BookQueryResultCopyWithImpl<$Res>
 
 /// Create a copy of BookQueryResult
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? total = null,Object? books = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? total = null,Object? books = null,Object? page = freezed,Object? pageSize = freezed,}) {
   return _then(_BookQueryResult(
 total: null == total ? _self.total : total // ignore: cast_nullable_to_non_nullable
 as int,books: null == books ? _self._books : books // ignore: cast_nullable_to_non_nullable
-as List<Book>,
+as List<Book>,page: freezed == page ? _self.page : page // ignore: cast_nullable_to_non_nullable
+as int?,pageSize: freezed == pageSize ? _self.pageSize : pageSize // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 
@@ -872,7 +882,10 @@ mixin _$Book implements DiagnosticableTreeMixin {
 @_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal') String? get deweyDecimal;/// Not documented in the official API
  String? get binding;/// The name of the publisher
  String? get publisher;/// Language of the book
- String? get language;/// Date when the book was published. Can be a year or a full date.
+ String? get language;/// Date when the book was published.
+///
+/// Partial API values are normalized to the start of their period: a year
+/// becomes January 1st and a year-month becomes the first day of the month.
 @_DateConverter()@JsonKey(name: 'date_published') DateTime? get datePublished;/// Details about the edition
  String? get edition;/// Number of pages of the book
  int? get pages;/// Dimensions of the book
@@ -1120,7 +1133,10 @@ class _Book with DiagnosticableTreeMixin implements Book {
 @override final  String? publisher;
 /// Language of the book
 @override final  String? language;
-/// Date when the book was published. Can be a year or a full date.
+/// Date when the book was published.
+///
+/// Partial API values are normalized to the start of their period: a year
+/// becomes January 1st and a year-month becomes the first day of the month.
 @override@_DateConverter()@JsonKey(name: 'date_published') final  DateTime? datePublished;
 /// Details about the edition
 @override final  String? edition;

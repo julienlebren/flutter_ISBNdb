@@ -2,8 +2,8 @@
     "openapi": "3.0.0",
     "info": {
         "title": "ISBNdb API Documentation v2",
-        "description": "Welcome to the ISBNdb API documentation. Our REST API allows you to retrieve\ninformation about millions of books.\n\n## Authentication\n\nInclude your API key in the HTTP headers of every request:\n\n```http\nGET /book/9780134093413 HTTP/1.1\nHost: api2.isbndb.com\nAuthorization: YOUR_REST_KEY\nAccept: */*\n```\n\nPassing your API key via query parameters is **not** supported and will result\nin an error:\n\n```text\nhttps://api2.isbndb.com/book/9780134093413?Authorization=YOUR_REST_KEY\n```\n\n## Error responses\n\n**400 Bad Request** \u2014 the request is invalid or fails validation, for example\nan incorrect ISBN format.\n\n**401 Unauthorized** \u2014 your API key is missing or invalid, or your subscription\nis inactive:\n\n```json\n{\"message\": \"Full authentication is required to access this resource.\"}\n```\n\n**404 Not Found** \u2014 the requested ISBN is not in our database:\n\n```json\n{\"message\": \"Not Found\"}\n```\n\n**429 Too Many Requests** \u2014 the per minute or the daily limit of your plan is\nreached:\n\n```json\n{\"message\": \"Per minute quota exceeded, please try again later\"}\n```\n\n```json\n{\"message\": \"Daily quota exceeded, please try again later\"}\n```\n\n***Note on 404 errors: a 404 response indicates that the book information is not\nyet available in our database. However, due to frequent updates, there is a high\nprobability that the data will be added shortly, often within a minute or up to\n24 hours. We recommend trying your request again after a while, as the\ninformation may soon become accessible.***\n\n## Rate limits\n\nYou can programmatically monitor your usage and limits by inspecting the\nstandard `ratelimit-policy` and `ratelimit` headers we send with every response:\n\n**`ratelimit-policy`** defines the limit rules of your subscription plan, where\n`q` is the quota (maximum allowed requests) and `w` is the window (timeframe in\nseconds):\n\n```text\nratelimit-policy: \"rate\";q=300;w=60\nratelimit-policy: \"daily\";q=50000;w=86400\n```\n\n**`ratelimit`** displays your current real-time usage status, where `r` is the\nremaining requests in the current window and `t` is the time until the limit\nresets (in seconds):\n\n```text\nratelimit: \"rate\";r=297;t=1\nratelimit: \"daily\";r=48999;t=56312\n```\n\nAll daily limits reset at **00:00 UTC** every day.\n",
-        "version": "2.7.1"
+        "description": "Welcome to the ISBNdb API documentation. Our REST API allows you to retrieve\ninformation about millions of books.\n\n## Authentication\n\nInclude your API key in the HTTP headers of every request:\n\n```http\nGET /book/9780134093413 HTTP/1.1\nHost: api2.isbndb.com\nAuthorization: YOUR_REST_KEY\nAccept: */*\n```\n\nThe header is the only way to authenticate. Passing your API key as a query\nparameter is **not** supported \u2014 query strings are recorded in server logs,\nproxies and browser history, so a key sent that way is far easier to leak. Such a\nrequest is rejected as unauthenticated:\n\n```text\nhttps://api2.isbndb.com/book/9780134093413?Authorization=YOUR_REST_KEY\n```\n\n## Error responses\n\nEvery error carries the same body, with the reason repeated under two keys.\n`errorMessage` is the current one; `message` is kept for older clients. Error\nbodies are the one place the API does not use snake_case:\n\n```json\n{\"message\": \"Book not found\", \"errorMessage\": \"Book not found\"}\n```\n\n**400 Bad Request** \u2014 the request is invalid or fails validation, for example\nan incorrect ISBN format, a query over 150 characters, or a filter combination\nthe endpoint does not allow.\n\n**401 Unauthorized** \u2014 your API key is missing, unknown, or the subscription\nbehind it is inactive. The reason differs by case: `Full authentication is\nrequired to access this resource.` when no key was sent, `Bad credentials.`\nwhen the key is unknown, `Api key is not active` when the subscription lapsed.\n\n**404 Not Found** \u2014 the requested ISBN is not in our database:\n\n```json\n{\"message\": \"Book not found\", \"errorMessage\": \"Book not found\"}\n```\n\n**429 Too Many Requests** \u2014 the per minute or the daily limit of your plan is\nreached:\n\n```json\n{\"message\": \"Per minute quota exceeded, please try again later\"}\n```\n\n```json\n{\"message\": \"Daily quota exceeded, please try again later\"}\n```\n\n**503 Service Unavailable** \u2014 the search backend is briefly unreachable. Retry\nafter the number of seconds in the `Retry-After` header.\n\n***Note on 404 errors: a 404 response indicates that the book information is not\nyet available in our database. However, due to frequent updates, there is a high\nprobability that the data will be added shortly, often within a minute or up to\n24 hours. We recommend trying your request again after a while, as the\ninformation may soon become accessible.***\n\n## Rate limits\n\nYou can programmatically monitor your usage and limits by inspecting the\nstandard `ratelimit-policy` and `ratelimit` headers we send with every response:\n\n**`ratelimit-policy`** defines the limit rules of your subscription plan, where\n`q` is the quota (maximum allowed requests) and `w` is the window (timeframe in\nseconds):\n\n```text\nratelimit-policy: \"rate\";q=300;w=60\nratelimit-policy: \"daily\";q=50000;w=86400\n```\n\n**`ratelimit`** displays your current real-time usage status, where `r` is the\nnumber of requests left in the window and `t` is how many seconds you have to\nwait before the next request is allowed. While you still have quota, `t` is `0`\n\u2014 there is nothing to wait for:\n\n```text\nratelimit: \"rate\";r=297;t=0\nratelimit: \"daily\";r=48999;t=56312\n```\n\nAll daily limits reset at **00:00 UTC** every day.\n\n## Pagination\n\nPaginated endpoints take `page` and `pageSize` as query parameters and echo them\nback as `page` and `page_size` in the response body. Query parameters are\ncamelCase, response fields are snake_case \u2014 that difference is intentional and\napplies across the whole API (error bodies excepted, see above).\n\nOn the search and detail endpoints `pageSize` is capped at 1,000: a larger value\nis quietly reduced rather than rejected. Paging stops at 10,000 results \u2014 a\nrequest whose offset would reach past that is answered with a **400 Bad\nRequest**, and the last page before the ceiling is trimmed to fit. `total` is\nlikewise counted only up to 10,000, so a broad query reports exactly `10000`\ninstead of the real figure. Narrow the query rather than paging deeper.\n\n`GET /feeds/books/updates` paginates differently: there is no 10,000 ceiling and\nno `total`, and a `pageSize` above 1,000 is rejected with a **400 Bad Request**\ninstead of being reduced. Keep requesting pages until `data` comes back empty.\n\n## Null values\n\nFields with no value are left out of the response rather than sent as `null`.\nThe schemas below mark them nullable, but in practice you should treat a missing\nkey and a null value the same way.\n",
+        "version": "2.7.2"
     },
     "servers": [
         {
@@ -17,9 +17,9 @@
                 "tags": [
                     "Author"
                 ],
-                "summary": "Gets author details",
+                "summary": "Get an author's books",
                 "description": "Returns the name and a list of books by the author.",
-                "operationId": "get_app_api_author_authordetails__invoke",
+                "operationId": "getAuthorBooks",
                 "parameters": [
                     {
                         "name": "name",
@@ -29,15 +29,16 @@
                         "schema": {
                             "type": "string",
                             "pattern": ".+"
-                        }
+                        },
+                        "example": "Jane B. Reece"
                     },
                     {
                         "name": "language",
                         "in": "query",
-                        "description": "Language code to filter books by language (e.g., `eng` for English, `fra` for French, etc.)",
+                        "description": "Filter by language. Matches the ISO 639-3 code held in the index, e.g. `eng` for English, `fra` for French. On `/books/{query}` full names and two-letter codes are normalised for you; every other endpoint matches the code exactly.",
                         "required": false,
                         "schema": {
-                            "description": "Language code to filter books by language (e.g., `eng` for English, `fra` for French, etc.)",
+                            "description": "Filter by language. Matches the ISO 639-3 code held in the index, e.g. `eng` for English, `fra` for French. On `/books/{query}` full names and two-letter codes are normalised for you; every other endpoint matches the code exactly.",
                             "type": "string",
                             "nullable": true,
                             "default": null,
@@ -71,10 +72,10 @@
                     {
                         "name": "publishedFrom",
                         "in": "query",
-                        "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                        "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. `publishedFrom` must not be later than `publishedTo`. On `/books/{query}` this cannot be combined with the `year` parameter.",
                         "required": false,
                         "schema": {
-                            "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                            "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. `publishedFrom` must not be later than `publishedTo`. On `/books/{query}` this cannot be combined with the `year` parameter.",
                             "type": "string",
                             "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
                             "nullable": true,
@@ -84,10 +85,10 @@
                     {
                         "name": "publishedTo",
                         "in": "query",
-                        "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                        "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. `publishedFrom` must not be later than `publishedTo`. On `/books/{query}` this cannot be combined with the `year` parameter.",
                         "required": false,
                         "schema": {
-                            "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                            "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. `publishedFrom` must not be later than `publishedTo`. On `/books/{query}` this cannot be combined with the `year` parameter.",
                             "type": "string",
                             "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
                             "nullable": true,
@@ -97,7 +98,21 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Returns the book details",
+                        "description": "Returns the author and their books for the requested page",
+                        "headers": {
+                            "ratelimit-policy": {
+                                "description": "The quota rules of the plan, where `q` is the maximum number of requests and `w` the window in seconds, for example `\"rate\";q=300;w=60`.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "ratelimit": {
+                                "description": "Current usage, where `r` is the number of requests left in the window and `t` the seconds until it resets, for example `\"rate\";r=297;t=1`.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -105,6 +120,18 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/TooManyRequests"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/ServiceUnavailable"
                     }
                 },
                 "security": [
@@ -119,9 +146,9 @@
                 "tags": [
                     "Author"
                 ],
-                "summary": "Search authors",
+                "summary": "Search author names",
                 "description": "This returns a list of authors whos name matches the given query",
-                "operationId": "get_app_api_author_searchauthors__invoke",
+                "operationId": "searchAuthorNames",
                 "parameters": [
                     {
                         "name": "query",
@@ -131,7 +158,8 @@
                         "schema": {
                             "type": "string",
                             "pattern": ".+"
-                        }
+                        },
+                        "example": "Jane B. Reece"
                     },
                     {
                         "name": "page",
@@ -161,6 +189,20 @@
                 "responses": {
                     "200": {
                         "description": "The query string found results in the author's database",
+                        "headers": {
+                            "ratelimit-policy": {
+                                "description": "The quota rules of the plan, where `q` is the maximum number of requests and `w` the window in seconds, for example `\"rate\";q=300;w=60`.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "ratelimit": {
+                                "description": "Current usage, where `r` is the number of requests left in the window and `t` the seconds until it resets, for example `\"rate\";r=297;t=1`.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -168,6 +210,18 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/TooManyRequests"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/ServiceUnavailable"
                     }
                 },
                 "security": [
@@ -182,32 +236,49 @@
                 "tags": [
                     "Books"
                 ],
-                "summary": "Get book details by isbn.",
+                "summary": "Get a book by ISBN",
                 "description": "Returns the book details. \n        \n**A 404 Not Found response for an ISBN lookup typically indicates that the book information is not yet available\nin our database. However, due to frequent updates, there is a high probability that the data will be added shortly,\noften within a minute or up to 24 hours. We recommend trying your request again after a while, as the information\nmay soon become accessible.**",
-                "operationId": "get_app_api_book_book__invoke",
+                "operationId": "getBook",
                 "parameters": [
+                    {
+                        "name": "isbn",
+                        "in": "path",
+                        "description": "An ISBN-10 or ISBN-13, with or without hyphens. The response always reports the book under its ISBN-13.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "9780134093413"
+                    },
                     {
                         "name": "with_prices",
                         "in": "query",
-                        "description": "Whether to include prices in the response. \n\n***Available starting from Pro plan***\n\n***Performance Impact:*** Enabling this will increase response time, as current prices are fetched from vendors in real-time.",
+                        "description": "Whether to include prices in the response. \n\n***Requires a plan with price access (Pro and above).*** On plans without it the parameter is ignored and the book is returned without prices - the request is not rejected.\n\n***Performance Impact:*** Enabling this will increase response time, as current prices are fetched from vendors in real-time.",
                         "required": false,
                         "schema": {
                             "type": "boolean",
                             "default": false
-                        }
-                    },
-                    {
-                        "name": "isbn",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        },
+                        "example": false
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "Returns the book details",
+                        "headers": {
+                            "ratelimit-policy": {
+                                "description": "The quota rules of the plan, where `q` is the maximum number of requests and `w` the window in seconds, for example `\"rate\";q=300;w=60`.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "ratelimit": {
+                                "description": "Current usage, where `r` is the number of requests left in the window and `t` the seconds until it resets, for example `\"rate\";r=297;t=1`.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -225,6 +296,18 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/TooManyRequests"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/ServiceUnavailable"
                     }
                 },
                 "security": [
@@ -239,9 +322,9 @@
                 "tags": [
                     "Books"
                 ],
-                "summary": "Search books",
-                "description": "\nRetrieves a list of books matching the provided array of ISBNs. This endpoint is available on all plans and does not use pagination.\n\n**Request Limits per Plan:**\n* **Academic:** Up to 10 ISBNs per request.\n* **Basic:** Up to 100 ISBNs per request.\n* **Pro, Premium, and higher:** Up to 1,000 ISBNs per request.\n\n**Quota Usage (Important):** Each requested ISBN counts as a separate API call against your daily limit. For example, a single request containing 100 ISBNs will deduct 100 calls from your daily quota.\n\n**Response Behavior:**\n* The response will only include books that successfully match an ISBN in our database. \n* Any submitted ISBNs that are not found will be silently ignored and excluded from the response.\n* **Note:** Pricing information is not returned by this endpoint.\n",
-                "operationId": "post_app_api_book_bookmultiple__invoke",
+                "summary": "Get many books by ISBN",
+                "description": "\nRetrieves a list of books matching the provided array of ISBNs. This endpoint is available on all plans and does not use pagination.\n\n**Request Limits per Plan:**\n* **Academic:** Up to 10 ISBNs per request.\n* **Basic:** Up to 100 ISBNs per request.\n* **Pro, Premium, and higher:** Up to 1,000 ISBNs per request.\n\nExceeding the limit returns a **400 Bad Request** naming the exact limit for your plan.\n\n**Quota Usage (Important):** Each requested ISBN counts as a separate API call against your daily limit. For example, a single request containing 100 ISBNs will deduct 100 calls from your daily quota. Duplicates are collapsed and unusable ISBNs are discarded before the charge is calculated, so the amount actually deducted is the `requested` field of the response.\n\n**Response Behavior:**\n* The response will only include books that successfully match an ISBN in our database. \n* Any submitted ISBNs that are not found will be silently ignored and excluded from the response.\n* **Note:** Pricing information is not returned by this endpoint.\n",
+                "operationId": "getBooksByIsbn",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -260,6 +343,20 @@
                 "responses": {
                     "200": {
                         "description": "Returns books details",
+                        "headers": {
+                            "ratelimit-policy": {
+                                "description": "The quota rules of the plan, where `q` is the maximum number of requests and `w` the window in seconds, for example `\"rate\";q=300;w=60`.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "ratelimit": {
+                                "description": "Current usage, where `r` is the number of requests left in the window and `t` the seconds until it resets, for example `\"rate\";r=297;t=1`.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -267,6 +364,18 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/TooManyRequests"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/ServiceUnavailable"
                     }
                 },
                 "security": [
@@ -281,9 +390,9 @@
                 "tags": [
                     "Books"
                 ],
-                "summary": "Search books",
+                "summary": "Search books by text",
                 "description": "This returns a list of books that match the query.\n\n**This endpoint does not return pricing information.**",
-                "operationId": "get_app_api_book_searchbook__invoke",
+                "operationId": "searchBooks",
                 "parameters": [
                     {
                         "name": "query",
@@ -293,7 +402,8 @@
                         "schema": {
                             "type": "string",
                             "pattern": ".+"
-                        }
+                        },
+                        "example": "campbell biology"
                     },
                     {
                         "name": "year",
@@ -352,10 +462,10 @@
                     {
                         "name": "language",
                         "in": "query",
-                        "description": "Language code to filter books by language (e.g., `eng` for English, `fra` for French, etc.)",
+                        "description": "Filter by language. Matches the ISO 639-3 code held in the index, e.g. `eng` for English, `fra` for French. On `/books/{query}` full names and two-letter codes are normalised for you; every other endpoint matches the code exactly.",
                         "required": false,
                         "schema": {
-                            "description": "Language code to filter books by language (e.g., `eng` for English, `fra` for French, etc.)",
+                            "description": "Filter by language. Matches the ISO 639-3 code held in the index, e.g. `eng` for English, `fra` for French. On `/books/{query}` full names and two-letter codes are normalised for you; every other endpoint matches the code exactly.",
                             "type": "string",
                             "nullable": true,
                             "default": null,
@@ -389,10 +499,10 @@
                     {
                         "name": "publishedFrom",
                         "in": "query",
-                        "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                        "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. `publishedFrom` must not be later than `publishedTo`. On `/books/{query}` this cannot be combined with the `year` parameter.",
                         "required": false,
                         "schema": {
-                            "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                            "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. `publishedFrom` must not be later than `publishedTo`. On `/books/{query}` this cannot be combined with the `year` parameter.",
                             "type": "string",
                             "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
                             "nullable": true,
@@ -402,10 +512,10 @@
                     {
                         "name": "publishedTo",
                         "in": "query",
-                        "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                        "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. `publishedFrom` must not be later than `publishedTo`. On `/books/{query}` this cannot be combined with the `year` parameter.",
                         "required": false,
                         "schema": {
-                            "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                            "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. `publishedFrom` must not be later than `publishedTo`. On `/books/{query}` this cannot be combined with the `year` parameter.",
                             "type": "string",
                             "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
                             "nullable": true,
@@ -416,13 +526,39 @@
                 "responses": {
                     "200": {
                         "description": "Returns the book details",
+                        "headers": {
+                            "ratelimit-policy": {
+                                "description": "The quota rules of the plan, where `q` is the maximum number of requests and `w` the window in seconds, for example `\"rate\";q=300;w=60`.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "ratelimit": {
+                                "description": "Current usage, where `r` is the number of requests left in the window and `t` the seconds until it resets, for example `\"rate\";r=297;t=1`.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/GetBooksMultipleResponse"
+                                    "$ref": "#/components/schemas/SearchBooksPaginatedResponse"
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/TooManyRequests"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/ServiceUnavailable"
                     }
                 },
                 "security": [
@@ -437,9 +573,9 @@
                 "tags": [
                     "Feed"
                 ],
-                "summary": "Get recently updated book ISBNs",
-                "description": "Retrieves a list of book ISBNs that have been added or modified. This endpoint is designed for frequent incremental synchronization.\n\n**Important Notes:**\n* **Plan limits:** Available exclusively for **Premium** plans and higher.\n* **History limit:** The update history is strictly limited to the last **7 days**.\n* **Quota:** Calling this endpoint does not count towards your daily API limits.\n* **Pagination:** The response does not include a total field. To fetch all updates, continue requesting subsequent pages (incrementing the page parameter) until the data array in the response is empty.",
-                "operationId": "get_app_api_feed_updatedbooks__invoke",
+                "summary": "Get recently updated ISBNs",
+                "description": "Retrieves a list of book ISBNs that have been added or modified. This endpoint is designed for frequent incremental synchronization.\n\n**Important Notes:**\n* **Plan limits:** Available exclusively for **Premium** plans and higher. Other plans get a **403 Forbidden**.\n* **History limit:** The update history is strictly limited to the last **7 days**.\n* **Quota:** Calling this endpoint does not count towards your daily API limits.\n* **Pagination:** The response does not include a total field. To fetch all updates, continue requesting subsequent pages (incrementing the page parameter) until the data array in the response is empty.",
+                "operationId": "getBookUpdates",
                 "parameters": [
                     {
                         "name": "page",
@@ -484,6 +620,20 @@
                 "responses": {
                     "200": {
                         "description": "Returns a list of recently updated book ISBNs",
+                        "headers": {
+                            "ratelimit-policy": {
+                                "description": "The quota rules of the plan, where `q` is the maximum number of requests and `w` the window in seconds, for example `\"rate\";q=300;w=60`.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "ratelimit": {
+                                "description": "Current usage, where `r` is the number of requests left in the window and `t` the seconds until it resets, for example `\"rate\";r=297;t=1`.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -491,6 +641,25 @@
                                 }
                             }
                         }
+                    },
+                    "403": {
+                        "description": "The plan behind the API key does not include the updates feed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/TooManyRequests"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/ServiceUnavailable"
                     }
                 },
                 "security": [
@@ -502,10 +671,29 @@
         },
         "/key": {
             "get": {
-                "operationId": "get_app_api_key__invoke",
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Get plan and remaining quota",
+                "description": "Returns the plan behind the API key and how much of the daily quota it has already spent today. Calling this endpoint does not count towards the daily limit.",
+                "operationId": "getApiKey",
                 "responses": {
                     "200": {
                         "description": "Returns key details",
+                        "headers": {
+                            "ratelimit-policy": {
+                                "description": "The quota rules of the plan, where `q` is the maximum number of requests and `w` the window in seconds, for example `\"rate\";q=300;w=60`.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "ratelimit": {
+                                "description": "Current usage, where `r` is the number of requests left in the window and `t` the seconds until it resets, for example `\"rate\";r=297;t=1`.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -513,6 +701,15 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/TooManyRequests"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/ServiceUnavailable"
                     }
                 },
                 "security": [
@@ -527,9 +724,9 @@
                 "tags": [
                     "Publisher"
                 ],
-                "summary": "Gets publisher details",
+                "summary": "Get a publisher's books",
                 "description": "Returns the name and a list of books by the publisher.",
-                "operationId": "get_app_api_publisher_publisherdetails__invoke",
+                "operationId": "getPublisherBooks",
                 "parameters": [
                     {
                         "name": "name",
@@ -539,15 +736,16 @@
                         "schema": {
                             "type": "string",
                             "pattern": ".+"
-                        }
+                        },
+                        "example": "Pearson"
                     },
                     {
                         "name": "language",
                         "in": "query",
-                        "description": "Language code to filter books by language (e.g., `eng` for English, `fra` for French, etc.)",
+                        "description": "Filter by language. Matches the ISO 639-3 code held in the index, e.g. `eng` for English, `fra` for French. On `/books/{query}` full names and two-letter codes are normalised for you; every other endpoint matches the code exactly.",
                         "required": false,
                         "schema": {
-                            "description": "Language code to filter books by language (e.g., `eng` for English, `fra` for French, etc.)",
+                            "description": "Filter by language. Matches the ISO 639-3 code held in the index, e.g. `eng` for English, `fra` for French. On `/books/{query}` full names and two-letter codes are normalised for you; every other endpoint matches the code exactly.",
                             "type": "string",
                             "nullable": true,
                             "default": null,
@@ -581,10 +779,10 @@
                     {
                         "name": "publishedFrom",
                         "in": "query",
-                        "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                        "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. `publishedFrom` must not be later than `publishedTo`. On `/books/{query}` this cannot be combined with the `year` parameter.",
                         "required": false,
                         "schema": {
-                            "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                            "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. `publishedFrom` must not be later than `publishedTo`. On `/books/{query}` this cannot be combined with the `year` parameter.",
                             "type": "string",
                             "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
                             "nullable": true,
@@ -594,10 +792,10 @@
                     {
                         "name": "publishedTo",
                         "in": "query",
-                        "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                        "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. `publishedFrom` must not be later than `publishedTo`. On `/books/{query}` this cannot be combined with the `year` parameter.",
                         "required": false,
                         "schema": {
-                            "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                            "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. `publishedFrom` must not be later than `publishedTo`. On `/books/{query}` this cannot be combined with the `year` parameter.",
                             "type": "string",
                             "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
                             "nullable": true,
@@ -607,7 +805,21 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Returns the book details",
+                        "description": "Returns the publisher and their books for the requested page",
+                        "headers": {
+                            "ratelimit-policy": {
+                                "description": "The quota rules of the plan, where `q` is the maximum number of requests and `w` the window in seconds, for example `\"rate\";q=300;w=60`.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "ratelimit": {
+                                "description": "Current usage, where `r` is the number of requests left in the window and `t` the seconds until it resets, for example `\"rate\";r=297;t=1`.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -615,6 +827,18 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/TooManyRequests"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/ServiceUnavailable"
                     }
                 },
                 "security": [
@@ -629,9 +853,9 @@
                 "tags": [
                     "Publisher"
                 ],
-                "summary": "Search publishers",
+                "summary": "Search publisher names",
                 "description": "This returns a list of publishers whose name matches the given query",
-                "operationId": "get_app_api_publisher_searchpublishers__invoke",
+                "operationId": "searchPublisherNames",
                 "parameters": [
                     {
                         "name": "query",
@@ -641,7 +865,8 @@
                         "schema": {
                             "type": "string",
                             "pattern": ".+"
-                        }
+                        },
+                        "example": "Pearson"
                     },
                     {
                         "name": "page",
@@ -671,6 +896,20 @@
                 "responses": {
                     "200": {
                         "description": "The query string found results in the author's database",
+                        "headers": {
+                            "ratelimit-policy": {
+                                "description": "The quota rules of the plan, where `q` is the maximum number of requests and `w` the window in seconds, for example `\"rate\";q=300;w=60`.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "ratelimit": {
+                                "description": "Current usage, where `r` is the number of requests left in the window and `t` the seconds until it resets, for example `\"rate\";r=297;t=1`.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -678,6 +917,18 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/TooManyRequests"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/ServiceUnavailable"
                     }
                 },
                 "security": [
@@ -692,17 +943,19 @@
                 "tags": [
                     "Search"
                 ],
-                "summary": "Search all ISBNDB databases",
-                "description": "\n*Deprecated* use /authors/{query}\n        \nUses a determined index and query string to search in any of the ISBNDB's databases",
-                "operationId": "get_app_api_search_searchauthors__invoke",
+                "summary": "Search author names (deprecated)",
+                "description": "\n**Deprecated.** Use `GET /authors/{query}` instead, which returns the same results with the query in the path.\n        \nUses a determined index and query string to search in any of the ISBNDB's databases",
+                "operationId": "searchAuthorNamesLegacy",
                 "parameters": [
                     {
                         "name": "text",
                         "in": "query",
+                        "description": "The string to search for. **Max length: 150 characters**.",
                         "required": true,
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "Jane B. Reece"
                     },
                     {
                         "name": "page",
@@ -732,6 +985,20 @@
                 "responses": {
                     "200": {
                         "description": "The query string found results in the author's database",
+                        "headers": {
+                            "ratelimit-policy": {
+                                "description": "The quota rules of the plan, where `q` is the maximum number of requests and `w` the window in seconds, for example `\"rate\";q=300;w=60`.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "ratelimit": {
+                                "description": "Current usage, where `r` is the number of requests left in the window and `t` the seconds until it resets, for example `\"rate\";r=297;t=1`.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -739,6 +1006,18 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/TooManyRequests"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/ServiceUnavailable"
                     }
                 },
                 "deprecated": true,
@@ -754,9 +1033,9 @@
                 "tags": [
                     "Search"
                 ],
-                "summary": "Search all ISBNDB databases",
-                "description": "Uses a determined index and query string to search in any of the ISBNDB's databases",
-                "operationId": "get_app_api_search_searchbooks__invoke",
+                "summary": "Search books by field",
+                "description": "\nField-level search over the book catalogue.\n\n**At least one filter is required.** Supply either an identifier (`isbn` or `isbn13`) or one or more\nsearch fields (`author`, `text`, `subject`, `publisher`). Mixing the two groups is rejected with a\n**400 Bad Request**, and so is sending none of them.\n\nPassing `isbn` or `isbn13` skips the search index and resolves the book directly.\n\nThis endpoint does not return pricing information.",
+                "operationId": "searchBooksByField",
                 "parameters": [
                     {
                         "name": "page",
@@ -785,10 +1064,10 @@
                     {
                         "name": "isbn",
                         "in": "query",
-                        "description": "an ISBN 10 in the Books database",
+                        "description": "An ISBN-10 or ISBN-13. Either form is accepted and normalised to ISBN-13. Cannot be combined with `author`, `text`, `subject` or `publisher`.",
                         "required": false,
                         "schema": {
-                            "description": "an ISBN 10 in the Books database",
+                            "description": "An ISBN-10 or ISBN-13. Either form is accepted and normalised to ISBN-13. Cannot be combined with `author`, `text`, `subject` or `publisher`.",
                             "type": "string",
                             "nullable": true,
                             "maxLength": 20
@@ -797,10 +1076,10 @@
                     {
                         "name": "isbn13",
                         "in": "query",
-                        "description": "an ISBN 13 in the Books database",
+                        "description": "An ISBN-10 or ISBN-13. Either form is accepted and normalised to ISBN-13. Cannot be combined with `author`, `text`, `subject` or `publisher`.",
                         "required": false,
                         "schema": {
-                            "description": "an ISBN 13 in the Books database",
+                            "description": "An ISBN-10 or ISBN-13. Either form is accepted and normalised to ISBN-13. Cannot be combined with `author`, `text`, `subject` or `publisher`.",
                             "type": "string",
                             "nullable": true,
                             "maxLength": 20
@@ -857,10 +1136,10 @@
                     {
                         "name": "publishedFrom",
                         "in": "query",
-                        "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                        "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. `publishedFrom` must not be later than `publishedTo`. On `/books/{query}` this cannot be combined with the `year` parameter.",
                         "required": false,
                         "schema": {
-                            "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                            "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. `publishedFrom` must not be later than `publishedTo`. On `/books/{query}` this cannot be combined with the `year` parameter.",
                             "type": "string",
                             "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
                             "nullable": true,
@@ -870,10 +1149,10 @@
                     {
                         "name": "publishedTo",
                         "in": "query",
-                        "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                        "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. `publishedFrom` must not be later than `publishedTo`. On `/books/{query}` this cannot be combined with the `year` parameter.",
                         "required": false,
                         "schema": {
-                            "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                            "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. `publishedFrom` must not be later than `publishedTo`. On `/books/{query}` this cannot be combined with the `year` parameter.",
                             "type": "string",
                             "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
                             "nullable": true,
@@ -884,6 +1163,20 @@
                 "responses": {
                     "200": {
                         "description": "The query string found results in the books's database",
+                        "headers": {
+                            "ratelimit-policy": {
+                                "description": "The quota rules of the plan, where `q` is the maximum number of requests and `w` the window in seconds, for example `\"rate\";q=300;w=60`.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "ratelimit": {
+                                "description": "Current usage, where `r` is the number of requests left in the window and `t` the seconds until it resets, for example `\"rate\";r=297;t=1`.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -891,6 +1184,15 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/TooManyRequests"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/ServiceUnavailable"
                     }
                 },
                 "security": [
@@ -905,17 +1207,19 @@
                 "tags": [
                     "Search"
                 ],
-                "summary": "Search all ISBNDB databases",
-                "description": "\n*Deprecated* use /publishers/{query}\n        \nUses a determined index and query string to search in any of the ISBNDB's databases",
-                "operationId": "get_app_api_search_searchpublishers__invoke",
+                "summary": "Search publisher names (deprecated)",
+                "description": "\n**Deprecated.** Use `GET /publishers/{query}` instead, which returns the same results with the query in the path.\n        \nUses a determined index and query string to search in any of the ISBNDB's databases",
+                "operationId": "searchPublisherNamesLegacy",
                 "parameters": [
                     {
                         "name": "text",
                         "in": "query",
+                        "description": "The string to search for. **Max length: 150 characters**.",
                         "required": true,
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "Pearson"
                     },
                     {
                         "name": "page",
@@ -945,6 +1249,20 @@
                 "responses": {
                     "200": {
                         "description": "The query string found results in the publisher's database",
+                        "headers": {
+                            "ratelimit-policy": {
+                                "description": "The quota rules of the plan, where `q` is the maximum number of requests and `w` the window in seconds, for example `\"rate\";q=300;w=60`.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "ratelimit": {
+                                "description": "Current usage, where `r` is the number of requests left in the window and `t` the seconds until it resets, for example `\"rate\";r=297;t=1`.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -952,6 +1270,18 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/TooManyRequests"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/ServiceUnavailable"
                     }
                 },
                 "deprecated": true,
@@ -967,17 +1297,19 @@
                 "tags": [
                     "Search"
                 ],
-                "summary": "Search all ISBNDB databases",
-                "description": "\n*Deprecated* use /publishers/{query}\n        \nUses a determined index and query string to search in any of the ISBNDB's databases",
-                "operationId": "get_app_api_search_searchsubjects__invoke",
+                "summary": "Search subject names (deprecated)",
+                "description": "\n**Deprecated.** Use `GET /subjects/{query}` instead, which returns the same results with the query in the path.\n        \nUses a determined index and query string to search in any of the ISBNDB's databases",
+                "operationId": "searchSubjectNamesLegacy",
                 "parameters": [
                     {
                         "name": "text",
                         "in": "query",
+                        "description": "The string to search for. **Max length: 150 characters**.",
                         "required": true,
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": "Biology"
                     },
                     {
                         "name": "page",
@@ -1007,6 +1339,20 @@
                 "responses": {
                     "200": {
                         "description": "The query string found results in the subjects's database",
+                        "headers": {
+                            "ratelimit-policy": {
+                                "description": "The quota rules of the plan, where `q` is the maximum number of requests and `w` the window in seconds, for example `\"rate\";q=300;w=60`.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "ratelimit": {
+                                "description": "Current usage, where `r` is the number of requests left in the window and `t` the seconds until it resets, for example `\"rate\";r=297;t=1`.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1014,6 +1360,18 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/TooManyRequests"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/ServiceUnavailable"
                     }
                 },
                 "deprecated": true,
@@ -1026,10 +1384,29 @@
         },
         "/stats": {
             "get": {
-                "operationId": "get_app_api_stats_getstats__invoke",
+                "tags": [
+                    "Stats"
+                ],
+                "summary": "Get catalogue size",
+                "description": "Returns how many books, authors, publishers and subjects the database currently holds. The counts are cached for one hour.",
+                "operationId": "getCatalogueStats",
                 "responses": {
                     "200": {
-                        "description": "Returns books details",
+                        "description": "Returns the current size of each database",
+                        "headers": {
+                            "ratelimit-policy": {
+                                "description": "The quota rules of the plan, where `q` is the maximum number of requests and `w` the window in seconds, for example `\"rate\";q=300;w=60`.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "ratelimit": {
+                                "description": "Current usage, where `r` is the number of requests left in the window and `t` the seconds until it resets, for example `\"rate\";r=297;t=1`.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1037,6 +1414,15 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/TooManyRequests"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/ServiceUnavailable"
                     }
                 },
                 "security": [
@@ -1051,9 +1437,9 @@
                 "tags": [
                     "Subject"
                 ],
-                "summary": "Search subjects",
+                "summary": "Search subject names",
                 "description": "This returns a list of subjects that match the given query",
-                "operationId": "get_app_api_subject_searchsubjects__invoke",
+                "operationId": "searchSubjectNames",
                 "parameters": [
                     {
                         "name": "query",
@@ -1063,7 +1449,8 @@
                         "schema": {
                             "type": "string",
                             "pattern": ".+"
-                        }
+                        },
+                        "example": "biology"
                     },
                     {
                         "name": "page",
@@ -1093,6 +1480,20 @@
                 "responses": {
                     "200": {
                         "description": "The query string found results in the author's database",
+                        "headers": {
+                            "ratelimit-policy": {
+                                "description": "The quota rules of the plan, where `q` is the maximum number of requests and `w` the window in seconds, for example `\"rate\";q=300;w=60`.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "ratelimit": {
+                                "description": "Current usage, where `r` is the number of requests left in the window and `t` the seconds until it resets, for example `\"rate\";r=297;t=1`.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1100,6 +1501,18 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/TooManyRequests"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/ServiceUnavailable"
                     }
                 },
                 "security": [
@@ -1114,9 +1527,9 @@
                 "tags": [
                     "Subject"
                 ],
-                "summary": "Gets subject details",
+                "summary": "Get a subject's books",
                 "description": "Returns the name and a list of books by the subject.",
-                "operationId": "get_app_api_subject_subjectsdetails__invoke",
+                "operationId": "getSubjectBooks",
                 "parameters": [
                     {
                         "name": "name",
@@ -1126,15 +1539,16 @@
                         "schema": {
                             "type": "string",
                             "pattern": ".+"
-                        }
+                        },
+                        "example": "Biology"
                     },
                     {
                         "name": "language",
                         "in": "query",
-                        "description": "Language code to filter books by language (e.g., `eng` for English, `fra` for French, etc.)",
+                        "description": "Filter by language. Matches the ISO 639-3 code held in the index, e.g. `eng` for English, `fra` for French. On `/books/{query}` full names and two-letter codes are normalised for you; every other endpoint matches the code exactly.",
                         "required": false,
                         "schema": {
-                            "description": "Language code to filter books by language (e.g., `eng` for English, `fra` for French, etc.)",
+                            "description": "Filter by language. Matches the ISO 639-3 code held in the index, e.g. `eng` for English, `fra` for French. On `/books/{query}` full names and two-letter codes are normalised for you; every other endpoint matches the code exactly.",
                             "type": "string",
                             "nullable": true,
                             "default": null,
@@ -1168,10 +1582,10 @@
                     {
                         "name": "publishedFrom",
                         "in": "query",
-                        "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                        "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. `publishedFrom` must not be later than `publishedTo`. On `/books/{query}` this cannot be combined with the `year` parameter.",
                         "required": false,
                         "schema": {
-                            "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                            "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. `publishedFrom` must not be later than `publishedTo`. On `/books/{query}` this cannot be combined with the `year` parameter.",
                             "type": "string",
                             "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
                             "nullable": true,
@@ -1181,10 +1595,10 @@
                     {
                         "name": "publishedTo",
                         "in": "query",
-                        "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                        "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. `publishedFrom` must not be later than `publishedTo`. On `/books/{query}` this cannot be combined with the `year` parameter.",
                         "required": false,
                         "schema": {
-                            "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
+                            "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. `publishedFrom` must not be later than `publishedTo`. On `/books/{query}` this cannot be combined with the `year` parameter.",
                             "type": "string",
                             "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
                             "nullable": true,
@@ -1194,7 +1608,21 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Returns the book details",
+                        "description": "Returns the subject and its books for the requested page",
+                        "headers": {
+                            "ratelimit-policy": {
+                                "description": "The quota rules of the plan, where `q` is the maximum number of requests and `w` the window in seconds, for example `\"rate\";q=300;w=60`.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "ratelimit": {
+                                "description": "Current usage, where `r` is the number of requests left in the window and `t` the seconds until it resets, for example `\"rate\";r=297;t=1`.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1202,6 +1630,18 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/BadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Unauthorized"
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/TooManyRequests"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/ServiceUnavailable"
                     }
                 },
                 "security": [
@@ -1214,175 +1654,16 @@
     },
     "components": {
         "schemas": {
-            "LanguageFilters": {
-                "properties": {
-                    "language": {
-                        "description": "Language code to filter books by language (e.g., `eng` for English, `fra` for French, etc.)",
-                        "type": "string",
-                        "nullable": true,
-                        "default": null,
-                        "maxLength": 50
-                    }
-                },
-                "type": "object"
-            },
-            "PaginationFilters": {
-                "properties": {
-                    "page": {
-                        "description": "The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them",
-                        "type": "integer",
-                        "nullable": true,
-                        "default": 1
-                    },
-                    "pageSize": {
-                        "description": "How many items should be returned per page, maximum of 1,000",
-                        "type": "integer",
-                        "nullable": true,
-                        "default": 20
-                    }
-                },
-                "type": "object"
-            },
-            "DateRangeFilters": {
-                "properties": {
-                    "publishedFrom": {
-                        "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
-                        "type": "string",
-                        "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
-                        "nullable": true,
-                        "default": null
-                    },
-                    "publishedTo": {
-                        "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. Cannot be combined with the `year` parameter.",
-                        "type": "string",
-                        "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
-                        "nullable": true,
-                        "default": null
-                    }
-                },
-                "type": "object"
-            },
-            "GetBooksMultipleRequest": {
-                "required": [
-                    "isbns"
-                ],
-                "properties": {
-                    "isbns": {
-                        "oneOf": [
-                            {
-                                "type": "array",
-                                "items": {
-                                    "oneOf": [
-                                        {
-                                            "type": "integer"
-                                        },
-                                        {
-                                            "type": "string"
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                "type": "object",
-                                "additionalProperties": {
-                                    "oneOf": [
-                                        {
-                                            "type": "integer"
-                                        },
-                                        {
-                                            "type": "string"
-                                        }
-                                    ]
-                                }
-                            }
-                        ]
-                    }
-                },
-                "type": "object"
-            },
-            "SearchBookFilters": {
-                "properties": {
-                    "year": {
-                        "description": "Filter books by year of publication",
-                        "type": "integer",
-                        "nullable": true,
-                        "default": null
-                    },
-                    "edition": {
-                        "description": "Filter books by edition",
-                        "type": "integer",
-                        "nullable": true,
-                        "default": null
-                    },
-                    "shouldMatchAll": {
-                        "description": "If set to `1` or `true`, the API will return books where the title \n        or author exactly contains all the words entered by the user.",
-                        "type": "boolean",
-                        "nullable": true,
-                        "default": false
-                    },
-                    "column": {
-                        "description": "Search limited to this column:\n* `` - Empty value search in every column\n* `title` - Only searches in Books Title\n* `author` - Only searches books by the given Author\n* `date_published` - Only searches books in a given year, e.g. 1998\n* `subjects` - Only searches books by the given subject, e.g. physics",
-                        "type": "string",
-                        "nullable": true,
-                        "default": null,
-                        "enum": [
-                            "title",
-                            "author",
-                            "date_published",
-                            "subjects"
-                        ]
-                    },
-                    "language": {
-                        "description": "Language code to filter books by language (e.g., `eng` for English, `fra` for French, etc.)",
-                        "type": "string",
-                        "nullable": true,
-                        "default": null,
-                        "maxLength": 50
-                    }
-                },
-                "type": "object"
-            },
-            "UnlimitedPaginationFilter": {
-                "properties": {
-                    "page": {
-                        "description": "The number of page to retrieve",
-                        "type": "integer",
-                        "nullable": true,
-                        "default": 1,
-                        "minimum": 1
-                    },
-                    "pageSize": {
-                        "description": "How many items should be returned per page, maximum of 1,000",
-                        "type": "integer",
-                        "nullable": true,
-                        "default": 100,
-                        "maximum": 1000,
-                        "minimum": 1
-                    }
-                },
-                "type": "object"
-            },
-            "LastUpdatedFilter": {
-                "properties": {
-                    "lastUpdated": {
-                        "description": "Filter by last updated date (Format: YYYY-MM-DD)",
-                        "type": "string",
-                        "nullable": true,
-                        "default": null
-                    }
-                },
-                "type": "object"
-            },
-            "SearchBookFilters2": {
+            "SearchQueryFilters": {
                 "properties": {
                     "isbn": {
-                        "description": "an ISBN 10 in the Books database",
+                        "description": "An ISBN-10 or ISBN-13. Either form is accepted and normalised to ISBN-13. Cannot be combined with `author`, `text`, `subject` or `publisher`.",
                         "type": "string",
                         "nullable": true,
                         "maxLength": 20
                     },
                     "isbn13": {
-                        "description": "an ISBN 13 in the Books database",
+                        "description": "An ISBN-10 or ISBN-13. Either form is accepted and normalised to ISBN-13. Cannot be combined with `author`, `text`, `subject` or `publisher`.",
                         "type": "string",
                         "nullable": true,
                         "maxLength": 20
@@ -1421,10 +1702,14 @@
                 ],
                 "properties": {
                     "x": {
-                        "type": "string"
+                        "description": "Horizontal offset of the merchant logo, in pixels",
+                        "type": "string",
+                        "example": "0"
                     },
                     "y": {
-                        "type": "string"
+                        "description": "Vertical offset of the merchant logo, in pixels",
+                        "type": "string",
+                        "example": "-42"
                     }
                 },
                 "type": "object"
@@ -1475,6 +1760,183 @@
                 },
                 "type": "object"
             },
+            "BookWithPrices": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/Book"
+                    },
+                    {
+                        "properties": {
+                            "prices": {
+                                "description": "Live merchant offers. Returned only by `GET /book/{isbn}` with `with_prices=1`, on a plan that includes price access; omitted everywhere else.",
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/Price"
+                                },
+                                "nullable": true
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "LanguageFilters": {
+                "properties": {
+                    "language": {
+                        "description": "Filter by language. Matches the ISO 639-3 code held in the index, e.g. `eng` for English, `fra` for French. On `/books/{query}` full names and two-letter codes are normalised for you; every other endpoint matches the code exactly.",
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 50
+                    }
+                },
+                "type": "object"
+            },
+            "PaginationFilters": {
+                "properties": {
+                    "page": {
+                        "description": "The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them",
+                        "type": "integer",
+                        "nullable": true,
+                        "default": 1
+                    },
+                    "pageSize": {
+                        "description": "How many items should be returned per page, maximum of 1,000",
+                        "type": "integer",
+                        "nullable": true,
+                        "default": 20
+                    }
+                },
+                "type": "object"
+            },
+            "DateRangeFilters": {
+                "properties": {
+                    "publishedFrom": {
+                        "description": "Filter books published on or after this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. `publishedFrom` must not be later than `publishedTo`. On `/books/{query}` this cannot be combined with the `year` parameter.",
+                        "type": "string",
+                        "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "publishedTo": {
+                        "description": "Filter books published on or before this date. Accepted formats: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`. `publishedFrom` must not be later than `publishedTo`. On `/books/{query}` this cannot be combined with the `year` parameter.",
+                        "type": "string",
+                        "pattern": ".*(^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$).*",
+                        "nullable": true,
+                        "default": null
+                    }
+                },
+                "type": "object"
+            },
+            "GetBooksMultipleRequest": {
+                "required": [
+                    "isbns"
+                ],
+                "properties": {
+                    "isbns": {
+                        "description": "ISBN-10 or ISBN-13 values to look up. The maximum number of ISBNs per request depends on the plan: 10 on Academic, 100 on Basic, 1,000 on Pro and above. Each ISBN counts as a separate call against the daily quota.",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "maxItems": 1000
+                    }
+                },
+                "type": "object"
+            },
+            "SearchBookFilters": {
+                "properties": {
+                    "year": {
+                        "description": "Filter books by year of publication",
+                        "type": "integer",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "edition": {
+                        "description": "Filter books by edition",
+                        "type": "integer",
+                        "nullable": true,
+                        "default": null
+                    },
+                    "shouldMatchAll": {
+                        "description": "If set to `1` or `true`, the API will return books where the title \n        or author exactly contains all the words entered by the user.",
+                        "type": "boolean",
+                        "nullable": true,
+                        "default": false
+                    },
+                    "column": {
+                        "description": "Search limited to this column:\n* `` - Empty value search in every column\n* `title` - Only searches in Books Title\n* `author` - Only searches books by the given Author\n* `date_published` - Only searches books in a given year, e.g. 1998\n* `subjects` - Only searches books by the given subject, e.g. physics",
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "enum": [
+                            "title",
+                            "author",
+                            "date_published",
+                            "subjects"
+                        ]
+                    },
+                    "language": {
+                        "description": "Filter by language. Matches the ISO 639-3 code held in the index, e.g. `eng` for English, `fra` for French. On `/books/{query}` full names and two-letter codes are normalised for you; every other endpoint matches the code exactly.",
+                        "type": "string",
+                        "nullable": true,
+                        "default": null,
+                        "maxLength": 50
+                    }
+                },
+                "type": "object"
+            },
+            "UnlimitedPaginationFilter": {
+                "properties": {
+                    "page": {
+                        "description": "The number of page to retrieve",
+                        "type": "integer",
+                        "nullable": true,
+                        "default": 1,
+                        "minimum": 1
+                    },
+                    "pageSize": {
+                        "description": "How many items should be returned per page, maximum of 1,000",
+                        "type": "integer",
+                        "nullable": true,
+                        "default": 100,
+                        "maximum": 1000,
+                        "minimum": 1
+                    }
+                },
+                "type": "object"
+            },
+            "LastUpdatedFilter": {
+                "properties": {
+                    "lastUpdated": {
+                        "description": "Filter by last updated date (Format: YYYY-MM-DD)",
+                        "type": "string",
+                        "nullable": true,
+                        "default": null
+                    }
+                },
+                "type": "object"
+            },
+            "ErrorResponse": {
+                "required": [
+                    "message",
+                    "errorMessage"
+                ],
+                "properties": {
+                    "message": {
+                        "description": "Same value as `errorMessage`. Kept for backwards compatibility.",
+                        "type": "string",
+                        "example": "Book not found",
+                        "deprecated": true
+                    },
+                    "errorMessage": {
+                        "description": "Human readable reason the request failed. Error bodies are the one place the API does not use snake_case.",
+                        "type": "string",
+                        "example": "Book not found"
+                    }
+                },
+                "type": "object"
+            },
             "RelatedIsbn": {
                 "required": [
                     "isbn",
@@ -1503,61 +1965,71 @@
                 "properties": {
                     "title": {
                         "description": "Title",
-                        "type": "string"
+                        "type": "string",
+                        "example": "Campbell Biology"
                     },
                     "title_long": {
-                        "description": "Title",
+                        "description": "Same value as `title`. Kept for backwards compatibility.",
                         "type": "string",
+                        "example": "Campbell Biology",
                         "deprecated": true
                     },
                     "isbn": {
-                        "description": "ISBN-13",
+                        "description": "Same value as `isbn13`. Kept for backwards compatibility.",
                         "type": "string",
+                        "example": "9780134093413",
                         "deprecated": true
                     },
                     "isbn13": {
                         "description": "ISBN-13",
-                        "type": "string"
+                        "type": "string",
+                        "example": "9780134093413"
                     },
                     "isbn10": {
                         "description": "Book ISBN-10, if available",
                         "type": "string",
+                        "example": "0134093410",
                         "nullable": true
                     },
                     "binding": {
                         "description": "Book binding type (e.g. Hardcover, Paperback, eBook)",
                         "type": "string",
+                        "example": "Hardcover",
                         "nullable": true
                     },
                     "publisher": {
                         "description": "Name of the publisher",
                         "type": "string",
+                        "example": "Pearson",
                         "nullable": true
                     },
                     "language": {
-                        "description": "Language of the book (ISO 639-1 code or full name)",
+                        "description": "Language of the book as recorded by the source, usually an ISO 639-3 code",
                         "type": "string",
+                        "example": "eng",
                         "nullable": true
                     },
                     "date_published": {
-                        "description": "A publication date in YYYY-MM-DD, YYYY-MM, or YYYY format.",
+                        "description": "A publication date in YYYY-MM-DD, YYYY-MM, or YYYY format. Partial dates are common, so do not assume a full date.",
                         "type": "string",
-                        "format": "date",
-                        "example": "2023-10-26"
+                        "example": "2017"
                     },
                     "edition": {
                         "description": "Edition of the book (e.g. 3rd, Revised)",
                         "type": "string",
+                        "example": "11",
                         "nullable": true
                     },
                     "pages": {
                         "description": "Number of pages in the book",
                         "type": "integer",
+                        "example": 1488,
                         "nullable": true
                     },
                     "dimensions": {
                         "description": "Physical dimensions of the book as a formatted string",
                         "type": "string",
+                        "example": "Height: 11.1 Inches, Length: 9 Inches, Weight: 7.6 Pounds, Width: 1.8 Inches",
                         "nullable": true,
                         "deprecated": true
                     },
@@ -1580,14 +2052,15 @@
                         ]
                     },
                     "overview": {
-                        "description": "Brief overview or description of the book",
+                        "description": "Never populated. Present in the schema for backwards compatibility only; use `synopsis`.",
                         "type": "string",
                         "nullable": true,
                         "deprecated": true
                     },
                     "image": {
-                        "description": "Image link. Maximum height is 500px.",
+                        "description": "Cover image link, always present. Maximum height is 500px; the image itself may be a placeholder if no cover is on file.",
                         "type": "string",
+                        "example": "https://images.isbndb.com/covers/9780134093413.jpg",
                         "nullable": true
                     },
                     "image_original": {
@@ -1599,10 +2072,11 @@
                         "description": "Manufacturer's suggested retail price",
                         "type": "number",
                         "format": "float",
+                        "example": 249.99,
                         "nullable": true
                     },
                     "excerpt": {
-                        "description": "Short excerpt from the book",
+                        "description": "Short excerpt from the book. Rarely available.",
                         "type": "string",
                         "nullable": true
                     },
@@ -1617,6 +2091,13 @@
                         "items": {
                             "type": "string"
                         },
+                        "example": [
+                            "Lisa A. Urry",
+                            "Michael L. Cain",
+                            "Steven A. Wasserman",
+                            "Peter V. Minorsky",
+                            "Jane B. Reece"
+                        ],
                         "nullable": true
                     },
                     "subjects": {
@@ -1625,10 +2106,14 @@
                         "items": {
                             "type": "string"
                         },
+                        "example": [
+                            "Biology",
+                            "Textbooks"
+                        ],
                         "nullable": true
                     },
                     "reviews": {
-                        "description": "User or editorial reviews of the book",
+                        "description": "Never populated. Present in the schema for backwards compatibility only.",
                         "type": "array",
                         "items": {
                             "type": "string"
@@ -1636,16 +2121,8 @@
                         "nullable": true,
                         "deprecated": true
                     },
-                    "prices": {
-                        "description": "Available prices from various merchants",
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/Price"
-                        },
-                        "nullable": true
-                    },
                     "related": {
-                        "description": "Related books",
+                        "description": "Never populated. Present in the schema for backwards compatibility only; use `other_isbns`.",
                         "nullable": true,
                         "deprecated": true,
                         "oneOf": [
@@ -1685,25 +2162,36 @@
                 ],
                 "properties": {
                     "author": {
-                        "type": "string"
+                        "description": "The name from the request, echoed back verbatim. Same value as `name`.",
+                        "type": "string",
+                        "example": "Jane B. Reece"
                     },
                     "name": {
-                        "type": "string"
+                        "description": "The name from the request, echoed back verbatim",
+                        "type": "string",
+                        "example": "Jane B. Reece"
                     },
                     "books": {
+                        "description": "Books attributed to this name, for the requested page",
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/Book"
                         }
                     },
                     "total": {
-                        "type": "integer"
+                        "description": "Number of matching records, counted up to 10,000. Broader queries report exactly 10000 rather than the true figure, and paging stops there as well.",
+                        "type": "integer",
+                        "example": 1024
                     },
                     "page": {
-                        "type": "integer"
+                        "description": "The page this response was built from",
+                        "type": "integer",
+                        "example": 1
                     },
                     "page_size": {
-                        "type": "integer"
+                        "description": "Page size the response was built with. The result array can be shorter than this: records that cannot be resolved are dropped after the match.",
+                        "type": "integer",
+                        "example": 20
                     }
                 },
                 "type": "object"
@@ -1718,22 +2206,35 @@
                 ],
                 "properties": {
                     "name": {
-                        "type": "string"
+                        "description": "The query these results were produced from",
+                        "type": "string",
+                        "example": "Jane"
                     },
                     "authors": {
+                        "description": "Author names matching the query",
                         "type": "array",
                         "items": {
                             "type": "string"
-                        }
+                        },
+                        "example": [
+                            "Jane B. Reece",
+                            "Lisa A. Urry"
+                        ]
                     },
                     "total": {
-                        "type": "integer"
+                        "description": "Number of matching records, counted up to 10,000. Broader queries report exactly 10000 rather than the true figure, and paging stops there as well.",
+                        "type": "integer",
+                        "example": 1024
                     },
                     "page": {
-                        "type": "integer"
+                        "description": "The page this response was built from",
+                        "type": "integer",
+                        "example": 1
                     },
                     "page_size": {
-                        "type": "integer"
+                        "description": "Page size the response was built with. The result array can be shorter than this: records that cannot be resolved are dropped after the match.",
+                        "type": "integer",
+                        "example": 20
                     }
                 },
                 "type": "object"
@@ -1744,23 +2245,7 @@
                 ],
                 "properties": {
                     "book": {
-                        "$ref": "#/components/schemas/Book"
-                    }
-                },
-                "type": "object"
-            },
-            "ErrorResponse": {
-                "required": [
-                    "message",
-                    "error_message"
-                ],
-                "properties": {
-                    "message": {
-                        "type": "string",
-                        "deprecated": true
-                    },
-                    "error_message": {
-                        "type": "string"
+                        "$ref": "#/components/schemas/BookWithPrices"
                     }
                 },
                 "type": "object"
@@ -1772,18 +2257,56 @@
                 ],
                 "properties": {
                     "total": {
-                        "type": "integer"
+                        "description": "Number of books returned. ISBNs that were not found are silently skipped, so this can be lower than `requested`.",
+                        "type": "integer",
+                        "example": 3
                     },
                     "data": {
+                        "description": "The books that matched one of the submitted ISBNs",
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/Book"
                         }
                     },
                     "requested": {
+                        "description": "Number of valid, unique ISBNs taken from the request. This is what the daily quota is charged for.",
                         "type": "integer",
+                        "example": 5,
                         "nullable": true,
                         "default": null
+                    }
+                },
+                "type": "object"
+            },
+            "SearchBooksPaginatedResponse": {
+                "required": [
+                    "books",
+                    "total",
+                    "page",
+                    "page_size"
+                ],
+                "properties": {
+                    "books": {
+                        "description": "Matching books, for the requested page",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Book"
+                        }
+                    },
+                    "total": {
+                        "description": "Number of matching records, counted up to 10,000. Broader queries report exactly 10000 rather than the true figure, and paging stops there as well.",
+                        "type": "integer",
+                        "example": 1024
+                    },
+                    "page": {
+                        "description": "The page this response was built from",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "page_size": {
+                        "description": "Page size the response was built with. The result array can be shorter than this: records that cannot be resolved are dropped after the match.",
+                        "type": "integer",
+                        "example": 20
                     }
                 },
                 "type": "object"
@@ -1814,16 +2337,21 @@
                 ],
                 "properties": {
                     "data": {
+                        "description": "ISBNs updated in the requested window. An empty array means there is nothing after this page.",
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/UpdatedBook"
                         }
                     },
                     "page": {
-                        "type": "integer"
+                        "description": "The page this response was built from",
+                        "type": "integer",
+                        "example": 1
                     },
                     "page_size": {
-                        "type": "integer"
+                        "description": "Number of records on this page",
+                        "type": "integer",
+                        "example": 100
                     }
                 },
                 "type": "object"
@@ -1836,13 +2364,19 @@
                 ],
                 "properties": {
                     "total": {
-                        "type": "integer"
+                        "description": "Daily call allowance of the plan",
+                        "type": "integer",
+                        "example": 50000
                     },
                     "spent": {
-                        "type": "integer"
+                        "description": "Calls charged so far today. Resets at 00:00 UTC.",
+                        "type": "integer",
+                        "example": 1001
                     },
                     "left": {
-                        "type": "integer"
+                        "description": "Calls still available today",
+                        "type": "integer",
+                        "example": 48999
                     }
                 },
                 "type": "object"
@@ -1855,13 +2389,17 @@
                 ],
                 "properties": {
                     "api_host": {
-                        "type": "string"
+                        "description": "Host this key should be used against",
+                        "type": "string",
+                        "example": "api2.isbndb.com"
                     },
                     "plan_limit": {
                         "$ref": "#/components/schemas/PlanLimit"
                     },
                     "plan_name": {
-                        "type": "string"
+                        "description": "Subscription plan behind the key",
+                        "type": "string",
+                        "example": "Pro"
                     }
                 },
                 "type": "object"
@@ -1876,22 +2414,31 @@
                 ],
                 "properties": {
                     "name": {
-                        "type": "string"
+                        "description": "The name from the request, echoed back verbatim",
+                        "type": "string",
+                        "example": "Jane B. Reece"
                     },
                     "books": {
+                        "description": "Books attributed to this name, for the requested page",
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/Book"
                         }
                     },
                     "total": {
-                        "type": "integer"
+                        "description": "Number of matching records, counted up to 10,000. Broader queries report exactly 10000 rather than the true figure, and paging stops there as well.",
+                        "type": "integer",
+                        "example": 1024
                     },
                     "page": {
-                        "type": "integer"
+                        "description": "The page this response was built from",
+                        "type": "integer",
+                        "example": 1
                     },
                     "page_size": {
-                        "type": "integer"
+                        "description": "Page size the response was built with. The result array can be shorter than this: records that cannot be resolved are dropped after the match.",
+                        "type": "integer",
+                        "example": 20
                     }
                 },
                 "type": "object"
@@ -1906,22 +2453,35 @@
                 ],
                 "properties": {
                     "name": {
-                        "type": "string"
+                        "description": "The query these results were produced from",
+                        "type": "string",
+                        "example": "Pearson"
                     },
                     "publishers": {
+                        "description": "Publisher names matching the query",
                         "type": "array",
                         "items": {
                             "type": "string"
-                        }
+                        },
+                        "example": [
+                            "Pearson",
+                            "Pearson Education"
+                        ]
                     },
                     "total": {
-                        "type": "integer"
+                        "description": "Number of matching records, counted up to 10,000. Broader queries report exactly 10000 rather than the true figure, and paging stops there as well.",
+                        "type": "integer",
+                        "example": 1024
                     },
                     "page": {
-                        "type": "integer"
+                        "description": "The page this response was built from",
+                        "type": "integer",
+                        "example": 1
                     },
                     "page_size": {
-                        "type": "integer"
+                        "description": "Page size the response was built with. The result array can be shorter than this: records that cannot be resolved are dropped after the match.",
+                        "type": "integer",
+                        "example": 20
                     }
                 },
                 "type": "object"
@@ -1936,22 +2496,35 @@
                 ],
                 "properties": {
                     "name": {
-                        "type": "string"
+                        "description": "The query these results were produced from",
+                        "type": "string",
+                        "example": "Biology"
                     },
                     "data": {
+                        "description": "Matching names, for the requested page",
                         "type": "array",
                         "items": {
                             "type": "string"
-                        }
+                        },
+                        "example": [
+                            "Biology",
+                            "Marine biology"
+                        ]
                     },
                     "total": {
-                        "type": "integer"
+                        "description": "Number of matching records, counted up to 10,000. Broader queries report exactly 10000 rather than the true figure, and paging stops there as well.",
+                        "type": "integer",
+                        "example": 1024
                     },
                     "page": {
-                        "type": "integer"
+                        "description": "The page this response was built from",
+                        "type": "integer",
+                        "example": 1
                     },
                     "page_size": {
-                        "type": "integer"
+                        "description": "Page size the response was built with. The result array can be shorter than this: records that cannot be resolved are dropped after the match.",
+                        "type": "integer",
+                        "example": 20
                     }
                 },
                 "type": "object"
@@ -1965,19 +2538,26 @@
                 ],
                 "properties": {
                     "data": {
+                        "description": "Matching books, for the requested page",
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/Book"
                         }
                     },
                     "total": {
-                        "type": "integer"
+                        "description": "Number of matching records, counted up to 10,000. Broader queries report exactly 10000 rather than the true figure, and paging stops there as well.",
+                        "type": "integer",
+                        "example": 1024
                     },
                     "page": {
-                        "type": "integer"
+                        "description": "The page this response was built from",
+                        "type": "integer",
+                        "example": 1
                     },
                     "page_size": {
-                        "type": "integer"
+                        "description": "Page size the response was built with. The result array can be shorter than this: records that cannot be resolved are dropped after the match.",
+                        "type": "integer",
+                        "example": 20
                     }
                 },
                 "type": "object"
@@ -1991,16 +2571,24 @@
                 ],
                 "properties": {
                     "books": {
-                        "type": "integer"
+                        "description": "Books in the database",
+                        "type": "integer",
+                        "example": 111800000
                     },
                     "authors": {
-                        "type": "integer"
+                        "description": "Distinct authors in the database",
+                        "type": "integer",
+                        "example": 33000000
                     },
                     "publishers": {
-                        "type": "integer"
+                        "description": "Distinct publishers in the database",
+                        "type": "integer",
+                        "example": 1400000
                     },
                     "subjects": {
-                        "type": "integer"
+                        "description": "Distinct subjects in the database",
+                        "type": "integer",
+                        "example": 3400000
                     }
                 },
                 "type": "object"
@@ -2015,22 +2603,35 @@
                 ],
                 "properties": {
                     "name": {
-                        "type": "string"
+                        "description": "The query these results were produced from",
+                        "type": "string",
+                        "example": "Biology"
                     },
                     "subjects": {
+                        "description": "Subject names matching the query",
                         "type": "array",
                         "items": {
                             "type": "string"
-                        }
+                        },
+                        "example": [
+                            "Biology",
+                            "Marine biology"
+                        ]
                     },
                     "total": {
-                        "type": "integer"
+                        "description": "Number of matching records, counted up to 10,000. Broader queries report exactly 10000 rather than the true figure, and paging stops there as well.",
+                        "type": "integer",
+                        "example": 1024
                     },
                     "page": {
-                        "type": "integer"
+                        "description": "The page this response was built from",
+                        "type": "integer",
+                        "example": 1
                     },
                     "page_size": {
-                        "type": "integer"
+                        "description": "Page size the response was built with. The result array can be shorter than this: records that cannot be resolved are dropped after the match.",
+                        "type": "integer",
+                        "example": 20
                     }
                 },
                 "type": "object"
@@ -2046,28 +2647,81 @@
                 ],
                 "properties": {
                     "subject": {
-                        "type": "string"
+                        "description": "The subject from the request, echoed back verbatim. Same value as `name`.",
+                        "type": "string",
+                        "example": "Biology"
                     },
                     "name": {
-                        "type": "string"
+                        "description": "The name from the request, echoed back verbatim",
+                        "type": "string",
+                        "example": "Jane B. Reece"
                     },
                     "books": {
+                        "description": "Books attributed to this name, for the requested page",
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/Book"
                         }
                     },
                     "total": {
-                        "type": "integer"
+                        "description": "Number of matching records, counted up to 10,000. Broader queries report exactly 10000 rather than the true figure, and paging stops there as well.",
+                        "type": "integer",
+                        "example": 1024
                     },
                     "page": {
-                        "type": "integer"
+                        "description": "The page this response was built from",
+                        "type": "integer",
+                        "example": 1
                     },
                     "page_size": {
-                        "type": "integer"
+                        "description": "Page size the response was built with. The result array can be shorter than this: records that cannot be resolved are dropped after the match.",
+                        "type": "integer",
+                        "example": 20
                     }
                 },
                 "type": "object"
+            }
+        },
+        "responses": {
+            "BadRequest": {
+                "description": "The request failed validation, for example a malformed ISBN, a query longer than 150 characters, or `year` combined with `publishedFrom`/`publishedTo`.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "Unauthorized": {
+                "description": "The `Authorization` header is missing or holds an unknown key, or the subscription behind the key is not active. Passing the key as a query parameter is not supported.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "TooManyRequests": {
+                "description": "The per minute or the daily quota of the plan is exhausted. The `ratelimit` header states how long until the window resets; daily quotas reset at 00:00 UTC.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "ServiceUnavailable": {
+                "description": "The service is temporarily unavailable. Retry after the number of seconds given in `Retry-After`.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/ErrorResponse"
+                        }
+                    }
+                }
             }
         },
         "securitySchemes": {
@@ -2080,28 +2734,36 @@
     },
     "tags": [
         {
-            "name": "Author",
-            "description": "Author"
-        },
-        {
             "name": "Books",
-            "description": "Books"
-        },
-        {
-            "name": "Feed",
-            "description": "Feed"
-        },
-        {
-            "name": "Publisher",
-            "description": "Publisher"
+            "description": "Look up a single book by ISBN, fetch many at once, or search the book catalogue."
         },
         {
             "name": "Search",
-            "description": "Search"
+            "description": "Field-level search across the catalogue. The three text-query endpoints here are deprecated in favour of the per-entity search endpoints."
+        },
+        {
+            "name": "Author",
+            "description": "Author names and the books attributed to them."
+        },
+        {
+            "name": "Publisher",
+            "description": "Publisher names and the books they released."
         },
         {
             "name": "Subject",
-            "description": "Subject"
+            "description": "Subject headings and the books filed under them."
+        },
+        {
+            "name": "Feed",
+            "description": "Incremental synchronisation of recently changed ISBNs. Premium plans and above; history is limited to the last 7 days."
+        },
+        {
+            "name": "Account",
+            "description": "The plan behind your API key and how much of today's quota it has spent."
+        },
+        {
+            "name": "Stats",
+            "description": "Size of the ISBNdb catalogue."
         }
     ]
 }

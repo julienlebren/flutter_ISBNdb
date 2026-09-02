@@ -30,7 +30,10 @@ sealed class Book with _$Book {
     /// Language of the book
     String? language,
 
-    /// Date when the book was published. Can be a year or a full date.
+    /// Date when the book was published.
+    ///
+    /// Partial API values are normalized to the start of their period: a year
+    /// becomes January 1st and a year-month becomes the first day of the month.
     @_DateConverter() @JsonKey(name: 'date_published') DateTime? datePublished,
 
     /// Details about the edition
@@ -111,19 +114,33 @@ class _DateConverter implements JsonConverter<DateTime?, dynamic> {
   DateTime? fromJson(dynamic value) {
     if (value is int) {
       return DateTime(value);
-    } else if (value is String) {
-      if (value.length == 4) {
-        return DateTime(int.parse(value));
-      } else if (value.length == 20) {
-        return DateTime.parse(value.toUpperCase());
-      }
     }
-    return null;
+    if (value is! String) {
+      return null;
+    }
+
+    final normalized = value.trim();
+    final partialDate = RegExp(
+      r'^(\d{4})(?:-(\d{2})(?:-(\d{2}))?)?$',
+    ).firstMatch(normalized);
+    if (partialDate != null) {
+      final year = int.parse(partialDate.group(1)!);
+      final month = int.tryParse(partialDate.group(2) ?? '') ?? 1;
+      final day = int.tryParse(partialDate.group(3) ?? '') ?? 1;
+      final date = DateTime(year, month, day);
+
+      if (date.year == year && date.month == month && date.day == day) {
+        return date;
+      }
+      return null;
+    }
+
+    return DateTime.tryParse(normalized.toUpperCase());
   }
 
   @override
   dynamic toJson(DateTime? value) =>
-      value != null ? DateFormat().format(value) : null;
+      value == null ? null : DateFormat('yyyy-MM-dd').format(value);
 }
 
 /// A json converter that handles the msrp field of the API

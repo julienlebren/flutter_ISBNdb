@@ -1,11 +1,11 @@
-# ISBNdb API Documentation v2 (OpenAPI 2.7.1)
+# ISBNdb API Documentation v2 (OpenAPI 2.7.2)
 
 Source: `https://api2.isbndb.com/doc.json` (OpenAPI 3.0.0)
 
 ## API metadata
 
 - Title: `ISBNdb API Documentation v2`
-- Version: `2.7.1`
+- Version: `2.7.2`
 - Server: `https://api2.isbndb.com`
 - Security: `ApiKeyAuth` (`Authorization` header)
 
@@ -32,7 +32,7 @@ A `404 Not Found` for ISBN lookup can mean the book is not yet indexed and may a
 | `/authors/{query}` | GET | Author | no | `get_app_api_author_searchauthors__invoke` | `SearchAuthorsResponse` |
 | `/book/{isbn}` | GET | Books | no | `get_app_api_book_book__invoke` | `GetBookResponse` |
 | `/books` | POST | Books | no | `post_app_api_book_bookmultiple__invoke` | `GetBooksMultipleResponse` |
-| `/books/{query}` | GET | Books | no | `get_app_api_book_searchbook__invoke` | `GetBooksMultipleResponse` |
+| `/books/{query}` | GET | Books | no | `get_app_api_book_searchbook__invoke` | `SearchBooksPaginatedResponse` |
 | `/feeds/books/updates` | GET | Feed | no | `get_app_api_feed_updatedbooks__invoke` | `UpdatedBooksResponse` |
 | `/key` | GET | default | no | `get_app_api_key__invoke` | `KeyResponse` |
 | `/publisher/{name}` | GET | Publisher | no | `get_app_api_publisher_publisherdetails__invoke` | `DetailsResponse` |
@@ -62,6 +62,7 @@ Returns the author name and a list of books.
 
 Responses:
 - `200`: `AuthorDetailsResponse`
+- `400`, `401`, `429`, `503`: error response
 
 ### `GET /authors/{query}`
 
@@ -71,11 +72,11 @@ Search authors by query.
 | --- | --- | --- | --- | --- | --- | --- |
 | `query` | path | string | yes | - | no | Search string |
 | `page` | query | integer | no | `1` | yes | Page number |
-| `page_size` | query | integer | no | `20` | yes | Items per page (max 1000) |
-| `offset` | query | integer | no | - | no | Offset |
+| `pageSize` | query | integer | no | `20` | yes | Items per page (max 1000) |
 
 Responses:
 - `200`: `SearchAuthorsResponse`
+- `400`, `401`, `429`, `503`: error response
 
 ### `GET /book/{isbn}`
 
@@ -89,6 +90,7 @@ Returns book details.
 Responses:
 - `200`: `GetBookResponse`
 - `404`: `ErrorResponse`
+- `400`, `401`, `429`, `503`: error response
 
 ### `POST /books`
 
@@ -102,6 +104,7 @@ Request body:
 
 Responses:
 - `200`: `GetBooksMultipleResponse`
+- `400`, `401`, `429`, `503`: error response
 
 ### `GET /books/{query}`
 
@@ -121,7 +124,8 @@ Search books by query.
 | `publishedTo` | query | string | no | `null` | yes | Only return books published on or before this date (`YYYY-MM-DD`) |
 
 Responses:
-- `200`: `GetBooksMultipleResponse`
+- `200`: `SearchBooksPaginatedResponse`
+- `400`, `401`, `429`, `503`: error response
 
 ### `GET /feeds/books/updates`
 
@@ -141,6 +145,7 @@ Important notes from the OpenAPI description:
 
 Responses:
 - `200`: `UpdatedBooksResponse`
+- `401`, `403`, `429`, `503`: error response
 
 ### `GET /key`
 
@@ -148,6 +153,7 @@ Returns key details.
 
 Responses:
 - `200`: `KeyResponse`
+- `401`, `429`, `503`: error response
 
 ### `GET /publisher/{name}`
 
@@ -164,6 +170,7 @@ Returns publisher details and books.
 
 Responses:
 - `200`: `DetailsResponse`
+- `400`, `401`, `429`, `503`: error response
 
 ### `GET /publishers/{query}`
 
@@ -173,11 +180,11 @@ Search publishers by query.
 | --- | --- | --- | --- | --- | --- | --- |
 | `query` | path | string | yes | - | no | Search string |
 | `page` | query | integer | no | `1` | yes | Page number |
-| `page_size` | query | integer | no | `20` | yes | Items per page (max 1000) |
-| `offset` | query | integer | no | - | no | Offset |
+| `pageSize` | query | integer | no | `20` | yes | Items per page (max 1000) |
 
 Responses:
 - `200`: `SearchPublishersResponse`
+- `400`, `401`, `429`, `503`: error response
 
 ### `GET /search/authors` (deprecated)
 
@@ -187,11 +194,11 @@ Deprecated in favor of `/authors/{query}`.
 | --- | --- | --- | --- | --- | --- | --- |
 | `text` | query | string | yes | - | no | Search text |
 | `page` | query | integer | no | `1` | yes | Page number |
-| `page_size` | query | integer | no | `20` | yes | Items per page |
-| `offset` | query | integer | yes | - | no | Offset |
+| `pageSize` | query | integer | no | `20` | yes | Items per page |
 
 Responses:
 - `200`: `SearchBaseResponse`
+- `400`, `401`, `429`, `503`: error response
 
 ### `GET /search/books`
 
@@ -212,6 +219,7 @@ Search the books index with optional filters.
 
 Responses:
 - `200`: `SearchBookResponse`
+- `401`, `429`, `503`: error response
 
 ### `GET /search/publishers` (deprecated)
 
@@ -221,11 +229,11 @@ Deprecated in favor of `/publishers/{query}`.
 | --- | --- | --- | --- | --- | --- | --- |
 | `text` | query | string | yes | - | no | Search text |
 | `page` | query | integer | no | `1` | yes | Page number |
-| `page_size` | query | integer | no | `20` | yes | Items per page |
-| `offset` | query | integer | yes | - | no | Offset |
+| `pageSize` | query | integer | no | `20` | yes | Items per page |
 
 Responses:
 - `200`: `SearchBaseResponse`
+- `400`, `401`, `429`, `503`: error response
 
 ### `GET /search/subjects` (deprecated)
 
@@ -235,11 +243,11 @@ Deprecated endpoint.
 | --- | --- | --- | --- | --- | --- | --- |
 | `text` | query | string | yes | - | no | Search text |
 | `page` | query | integer | no | `1` | yes | Page number |
-| `page_size` | query | integer | no | `20` | yes | Items per page |
-| `offset` | query | integer | yes | - | no | Offset |
+| `pageSize` | query | integer | no | `20` | yes | Items per page |
 
 Responses:
 - `200`: `SearchBaseResponse`
+- `400`, `401`, `429`, `503`: error response
 
 ### `GET /stats`
 
@@ -247,6 +255,7 @@ Returns global counts.
 
 Responses:
 - `200`: `BaseStatsResponse`
+- `401`, `429`, `503`: error response
 
 ### `GET /subjects/{query}`
 
@@ -256,11 +265,11 @@ Search subjects by query.
 | --- | --- | --- | --- | --- | --- | --- |
 | `query` | path | string | yes | - | no | Search string |
 | `page` | query | integer | no | `1` | yes | Page number |
-| `page_size` | query | integer | no | `20` | yes | Items per page (max 1000) |
-| `offset` | query | integer | no | - | no | Offset |
+| `pageSize` | query | integer | no | `20` | yes | Items per page (max 1000) |
 
 Responses:
 - `200`: `SearchSubjectResponse`
+- `400`, `401`, `429`, `503`: error response
 
 ### `GET /subject/{name}`
 
@@ -277,6 +286,7 @@ Returns subject details and related books.
 
 Responses:
 - `200`: `SubjectDetailsResponse`
+- `400`, `401`, `429`, `503`: error response
 
 ## Components
 
@@ -293,18 +303,20 @@ Responses:
 | --- | --- | --- |
 | `LanguageFilters` | - | `language` |
 | `PaginationFilters` | `offset` | `page`, `page_size`, `offset` |
-| `GetBooksMultipleRequest` | `isbns` | `isbns` (array or object) |
+| `GetBooksMultipleRequest` | `isbns` | `isbns` (`array<string>`, max 1000) |
 | `Column` | - | enum: `title`, `author`, `date_published`, `subjects` |
 | `SearchBookFilters` | - | `year`, `edition`, `shouldMatchAll`, `language`, `column`, `publishedFrom`, `publishedTo` |
-| `SearchBookFilters2` | - | `isbn`, `isbn13`, `author`, `text`, `subject`, `publisher`, `publishedFrom`, `publishedTo` |
+| `SearchQueryFilters` | - | `isbn`, `isbn13`, `author`, `text`, `subject`, `publisher` |
 | `Point` | `x`, `y` | `x`, `y` |
 | `Price` | `condition`, `merchant`, `merchant_logo`, `merchant_logo_offset`, `shipping`, `price`, `total`, `link` | price row fields |
-| `Book` | `title`, `title_long`, `isbn`, `isbn13`, `date_published` | `isbn10`, `binding`, `publisher`, `language`, `edition`, `pages`, `dimensions`, `dimensions_structured`, `overview`, `image`, `image_original`, `msrp`, `excerpt`, `synopsis`, `authors`, `subjects`, `reviews`, `prices`, `related`, `other_isbns` |
+| `Book` | `title`, `title_long`, `isbn`, `isbn13`, `date_published` | book metadata; prices are excluded |
+| `BookWithPrices` | inherited from `Book` | `Book` plus optional live `prices` |
 | `AuthorDetailsResponse` | `author`, `name`, `books`, `total`, `page`, `page_size` | author + books + pagination |
 | `SearchAuthorsResponse` | `name`, `authors`, `total`, `page`, `page_size` | authors list + pagination |
 | `GetBookResponse` | `book` | `book` |
-| `ErrorResponse` | `message`, `error_message` | `message` (deprecated), `error_message` |
+| `ErrorResponse` | `message`, `errorMessage` | `message` (deprecated), `errorMessage` |
 | `GetBooksMultipleResponse` | `total`, `data` | `data`, `requested` |
+| `SearchBooksPaginatedResponse` | `books`, `total`, `page`, `page_size` | books + pagination |
 | `UpdatedBook` | `isbn13`, `updated_at` | `isbn13`, `updated_at` |
 | `UpdatedBooksResponse` | `data`, `page`, `page_size` | `data`, `page`, `page_size` |
 | `PlanLimit` | `total`, `spent`, `left` | quota counters |
@@ -346,7 +358,7 @@ Responses:
 
 | Field | Type | Required | Nullable | Deprecated | Default | Description |
 | --- | --- | --- | --- | --- | --- | --- |
-| `isbns` | `oneOf(array<oneOf(integer,string)>, object<string,oneOf(integer,string)>)` | yes | no | no | - | ISBN list (array) or ISBN map (object) |
+| `isbns` | `array<string>` (max 1000) | yes | no | no | - | ISBN-10 or ISBN-13 values; plan-specific limits also apply |
 
 ### `UpdatedBook`
 
@@ -378,12 +390,12 @@ Enum values: `title`, `author`, `date_published`, `subjects`
 | `language` | string | no | yes | no | `null` | Language code (`en`, `fr`, ...) |
 | `column_enum` | `oneOf(Column)` | no | yes | no | - | Column filter |
 
-### `SearchBookFilters2`
+### `SearchQueryFilters`
 
 | Field | Type | Required | Nullable | Deprecated | Default | Description |
 | --- | --- | --- | --- | --- | --- | --- |
-| `isbn` | string | no | yes | no | - | ISBN-10 |
-| `isbn13` | string | no | yes | no | - | ISBN-13 |
+| `isbn` | string | no | yes | no | - | ISBN-10 or ISBN-13; cannot be combined with other search fields |
+| `isbn13` | string | no | yes | no | - | ISBN-10 or ISBN-13; cannot be combined with other search fields |
 | `author` | string | no | yes | no | - | Author name |
 | `text` | string | no | yes | no | - | Generic text query |
 | `subject` | string | no | yes | no | - | Subject |
@@ -421,7 +433,7 @@ Enum values: `title`, `author`, `date_published`, `subjects`
 | `binding` | string | no | yes | no | - | Binding |
 | `publisher` | string | no | yes | no | - | Publisher |
 | `language` | string | no | yes | no | - | Language |
-| `date_published` | string(date) | yes | no | no | - | Publication date (`YYYY-MM-DD`, `YYYY-MM`, or `YYYY`) |
+| `date_published` | string | yes | no | no | - | Publication date (`YYYY-MM-DD`, `YYYY-MM`, or `YYYY`); partial dates are common |
 | `edition` | string | no | yes | no | - | Edition |
 | `pages` | integer | no | yes | no | - | Number of pages |
 | `dimensions` | string | no | yes | yes | - | Legacy dimensions |
@@ -435,9 +447,18 @@ Enum values: `title`, `author`, `date_published`, `subjects`
 | `authors` | `oneOf(array<nullable>, object<string,nullable>)` | no | yes | no | - | Authors |
 | `subjects` | `oneOf(array<nullable>, object<string,nullable>)` | no | yes | no | - | Subjects |
 | `reviews` | `oneOf(array<nullable>, object<string,nullable>)` | no | yes | yes | - | Legacy reviews |
-| `prices` | `array<Price>` | no | yes | no | - | Vendor prices |
 | `related` | `oneOf(array<nullable>, object<string,nullable>)` | no | yes | yes | - | Legacy related books |
 | `other_isbns` | `oneOf(array<nullable>, object<string,nullable>)` | no | yes | no | - | Other ISBNs |
+
+### `BookWithPrices`
+
+Extends `Book` with an optional `prices` array. Prices are returned only by
+`GET /book/{isbn}` when `with_prices=1` and the subscription plan includes
+price access.
+
+| Field | Type | Required | Nullable | Deprecated | Default | Description |
+| --- | --- | --- | --- | --- | --- | --- |
+| `prices` | `array<Price>` | no | yes | no | - | Live merchant offers |
 
 ### `AuthorDetailsResponse`
 
@@ -464,22 +485,31 @@ Enum values: `title`, `author`, `date_published`, `subjects`
 
 | Field | Type | Required | Nullable | Deprecated | Default | Description |
 | --- | --- | --- | --- | --- | --- | --- |
-| `book` | `Book` | yes | no | no | - | Book payload |
+| `book` | `BookWithPrices` | yes | no | no | - | Book payload, optionally including live prices |
 
 ### `ErrorResponse`
 
 | Field | Type | Required | Nullable | Deprecated | Default | Description |
 | --- | --- | --- | --- | --- | --- | --- |
 | `message` | string | yes | no | yes | - | Legacy error field |
-| `error_message` | string | yes | no | no | - | Current error field |
+| `errorMessage` | string | yes | no | no | - | Current error field |
 
 ### `GetBooksMultipleResponse`
 
 | Field | Type | Required | Nullable | Deprecated | Default | Description |
 | --- | --- | --- | --- | --- | --- | --- |
 | `total` | integer | yes | no | no | - | Number of returned books |
-| `data` | `oneOf(array<Book>, object<string,Book>)` | yes | no | no | - | Books payload |
+| `data` | `array<Book>` | yes | no | no | - | Books matching submitted ISBNs |
 | `requested` | integer | no | yes | no | `null` | Number of requested ISBNs |
+
+### `SearchBooksPaginatedResponse`
+
+| Field | Type | Required | Nullable | Deprecated | Default | Description |
+| --- | --- | --- | --- | --- | --- | --- |
+| `books` | `array<Book>` | yes | no | no | - | Matching books for the requested page |
+| `total` | integer | yes | no | no | - | Matching records, capped at 10,000 |
+| `page` | integer | yes | no | no | - | Current page |
+| `page_size` | integer | yes | no | no | - | Requested page size |
 
 ### `PlanLimit`
 

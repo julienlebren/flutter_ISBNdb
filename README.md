@@ -326,6 +326,8 @@ Name | Type | Description
 ------------ | ------------- | -------------
 total | int | Number of results
 books | List<Book> | An array containing the books of this query
+page | int? | Current page for paginated search responses
+pageSize | int? | Page size for paginated search responses
 
 **Book**
 
@@ -338,7 +340,7 @@ isbn13 | String | New 13-digit ISBN
 deweyDecimal | String | Not documented in the official API
 binding | String | Not documented in the official API
 publisher | String | The name of the publisher
-datePublished | DateTime | Date when the book was published. Can be a year or a full date.
+datePublished | DateTime | Date when the book was published. Partial dates are normalized to the first day of their period.
 edition | String | Details about the edition
 pages | int | Number of pages of the book
 dimensions | String | Dimensions of the book
@@ -350,7 +352,7 @@ synopsys | String | Synopsys of the book
 authors | List<String> | List of the authors
 subjects | List<String> | List of the subjects of the book
 reviews | List<String> | Not documented in the official API
-prices | List<Merchant> | List of the merchants selling this book with real-time prices
+prices | List<Merchant> | Real-time prices returned by `getBook` when `withPrices` is enabled and supported by the plan
 related | List<String> | Not documented in the official API
 
 **Merchant**

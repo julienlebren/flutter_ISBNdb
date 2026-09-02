@@ -88,6 +88,8 @@ void main() {
       final books = await isbndb.getBooks("Google Flutter");
       expect(books, isA<BookQueryResult>());
       expect(books.books.length, 1);
+      expect(books.page, 1);
+      expect(books.pageSize, 20);
     });
 
     test('Should parse getBooks response from data array', () async {
@@ -177,6 +179,10 @@ void main() {
       expect(books, isA<BookQueryResult>());
       expect(books.books.length, 2);
       expect(books.books.first, isA<Book>());
+      expect(books.page, isNull);
+      expect(books.pageSize, isNull);
+      expect(books.toJson(), isNot(contains('page')));
+      expect(books.toJson(), isNot(contains('page_size')));
     });
 
     test('Should send ISBN list payload for batch endpoint', () async {
@@ -621,6 +627,29 @@ void main() {
       );
     });
 
+    test('Should read errorMessage field from API error payload', () async {
+      final isbndb = _createClient(
+        responses: {
+          ..._defaultResponses(),
+          "POST books": {"errorMessage": "Too many ISBNs."},
+        },
+        statusCodes: {"POST books": 400},
+      );
+
+      await expectLater(
+        () => isbndb.getBooksFromISBNs(["9781092297370"]),
+        throwsA(
+          isA<ISBNdbException>()
+              .having((exception) => exception.statusCode, "statusCode", 400)
+              .having(
+                (exception) => exception.message,
+                "message",
+                "Too many ISBNs.",
+              ),
+        ),
+      );
+    });
+
     test(
       'Should fallback to raw text message for non-JSON API errors',
       () async {
@@ -862,7 +891,7 @@ void main() {
       );
     });
 
-    test('Should parse year-only and ISO date_published values', () async {
+    test('Should parse partial and ISO date_published values', () async {
       final yearBook = Book.fromJson({
         ..._book(
           title: "Year Book",
@@ -870,6 +899,22 @@ void main() {
           isbn13: "9781111111111",
         ),
         "date_published": "1998",
+      });
+      final monthBook = Book.fromJson({
+        ..._book(
+          title: "Month Book",
+          isbn: "3333333333",
+          isbn13: "9783333333333",
+        ),
+        "date_published": "2022-03",
+      });
+      final dateBook = Book.fromJson({
+        ..._book(
+          title: "Date Book",
+          isbn: "4444444444",
+          isbn13: "9784444444444",
+        ),
+        "date_published": "2022-03-25",
       });
       final isoBook = Book.fromJson({
         ..._book(
@@ -881,7 +926,23 @@ void main() {
       });
 
       expect(yearBook.datePublished, DateTime(1998));
+      expect(monthBook.datePublished, DateTime(2022, 3));
+      expect(dateBook.datePublished, DateTime(2022, 3, 25));
       expect(isoBook.datePublished, DateTime.parse("2022-03-25T10:20:30Z"));
+      expect(dateBook.toJson()["date_published"], "2022-03-25");
+    });
+
+    test('Should reject invalid date_published values', () {
+      final book = Book.fromJson({
+        ..._book(
+          title: "Invalid Date Book",
+          isbn: "5555555555",
+          isbn13: "9785555555555",
+        ),
+        "date_published": "2022-02-31",
+      });
+
+      expect(book.datePublished, isNull);
     });
   });
 }
@@ -961,6 +1022,8 @@ Map<String, Map<String, dynamic>> _defaultResponses() => {
   },
   "GET books/Google Flutter": {
     "total": 1,
+    "page": 1,
+    "page_size": 20,
     "books": [
       _book(
         title: "Learn Google Flutter Fast",
