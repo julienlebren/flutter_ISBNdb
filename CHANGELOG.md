@@ -1,9 +1,11 @@
-## Unreleased
+## 2.0.0 - 2026-09-02
 
 - Aligned the bundled API contract and documentation with ISBNdb OpenAPI 2.7.2.
+- Added the current subscription plan name to `KeyDetails`.
 - Added pagination metadata to `BookQueryResult` for text-search responses.
 - Added support for the current `errorMessage` error field while preserving legacy error payloads.
 - Added support for partial publication dates: `YYYY` maps to January 1st and `YYYY-MM` maps to the first day of that month.
+- Migration: Freezed-generated `when` and `maybeWhen` callbacks for `KeyDetails` and `BookQueryResult` now receive the newly added fields. Update callbacks that destructure these models.
 
 ## 1.0.4 - 2026-04-20
 
