@@ -9,6 +9,12 @@ sealed class BookQueryResult with _$BookQueryResult {
 
     /// The list of the books matching the query
     @JsonKey(readValue: _readBookQueryBooks) @Default([]) List<Book> books,
+
+    /// The page returned by a paginated book search
+    @JsonKey(includeIfNull: false) int? page,
+
+    /// The page size returned by a paginated book search
+    @JsonKey(name: 'page_size', includeIfNull: false) int? pageSize,
   }) = _BookQueryResult;
 
   /// Used to build the object from the response of the ISBNdb API

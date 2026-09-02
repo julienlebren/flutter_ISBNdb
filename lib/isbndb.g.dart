@@ -41,10 +41,17 @@ _BookQueryResult _$BookQueryResultFromJson(Map<String, dynamic> json) =>
               ?.map((e) => Book.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
+      page: (json['page'] as num?)?.toInt(),
+      pageSize: (json['page_size'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$BookQueryResultToJson(_BookQueryResult instance) =>
-    <String, dynamic>{'total': instance.total, 'books': instance.books};
+    <String, dynamic>{
+      'total': instance.total,
+      'books': instance.books,
+      'page': ?instance.page,
+      'page_size': ?instance.pageSize,
+    };
 
 _Book _$BookFromJson(Map<String, dynamic> json) => _Book(
   title: json['title'] as String,

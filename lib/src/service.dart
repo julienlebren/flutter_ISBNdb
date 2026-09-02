@@ -161,7 +161,7 @@ class ISBNdb {
   }
 
   String? _extractMessageFromMap(Map<dynamic, dynamic> json) {
-    for (final key in ['error_message', 'message', 'error']) {
+    for (final key in ['errorMessage', 'error_message', 'message', 'error']) {
       final value = json[key];
       if (value is String && value.trim().isNotEmpty) {
         return value.trim();
