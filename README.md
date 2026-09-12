@@ -46,6 +46,15 @@ try {
 }
 ```
 
+### Pagination
+
+ISBNdb limits `pageSize` to 100 on search and detail endpoints. A larger value
+returns `400 Bad Request`. Subscriptions created before this limit was introduced
+retain the previous limit of 1,000 until October 10, 2026. The updated-books feed
+uses a separate limit of 1,000. During the transition, this package forwards the
+requested value unchanged so eligible subscriptions can keep using their legacy
+limit.
+
 ### Books
 
 * **Get book details**
@@ -96,7 +105,7 @@ Param | Description
 ------------ | -------------
 String query | A string to search for in the Book’s database
 int page | The number of page to retrieve. The API returns up to 10,000 results in total
-int pageSize | How many items should be returned per page, maximum of 1,000
+int pageSize | How many items should be returned per page, maximum of 100
 int? year | Filter books by year of publication
 int? edition | Filter books by edition
 bool? shouldMatchAll | If true, title/author must contain all searched words
@@ -130,7 +139,7 @@ Param | Description
 ------------ | -------------
 String name | The name of an author in the Author's database
 int page | The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them
-int pageSize | How many items should be returned per page, maximum of 1,000
+int pageSize | How many items should be returned per page, maximum of 100
 String? language | Language code filter (for example `en`, `fr`)
 DateTime? publishedFrom | Only return books published on or after this day; sent as `YYYY-MM-DD`
 DateTime? publishedTo | Only return books published on or before this day; sent as `YYYY-MM-DD`
@@ -149,7 +158,7 @@ Param | Description
 ------------ | -------------
 String query | A string to search for in the Author’s database
 int page | The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them
-int pageSize | How many items should be returned per page, maximum of 1,000
+int pageSize | How many items should be returned per page, maximum of 100
 
 ### Publishers
 
@@ -170,7 +179,7 @@ Param | Description
 ------------ | -------------
 String name | The name of a publisher in the Publisher's database
 int page | The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them
-int pageSize | How many items should be returned per page, maximum of 1,000
+int pageSize | How many items should be returned per page, maximum of 100
 String? language | Language code filter (for example `en`, `fr`)
 DateTime? publishedFrom | Only return books published on or after this day; sent as `YYYY-MM-DD`
 DateTime? publishedTo | Only return books published on or before this day; sent as `YYYY-MM-DD`
@@ -189,7 +198,7 @@ Param | Description
 ------------ | -------------
 String query | A string to search for in the Publisher’s database
 int page | The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them
-int pageSize | How many items should be returned per page, maximum of 1,000
+int pageSize | How many items should be returned per page, maximum of 100
 
 ### Subjects
 
@@ -210,7 +219,7 @@ Param | Description
 ------------ | -------------
 String name | A subject in the Subject's database
 int page | The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them
-int pageSize | How many items should be returned per page, maximum of 1,000
+int pageSize | How many items should be returned per page, maximum of 100
 String? language | Language code filter (for example `en`, `fr`)
 DateTime? publishedFrom | Only return books published on or after this day; sent as `YYYY-MM-DD`
 DateTime? publishedTo | Only return books published on or before this day; sent as `YYYY-MM-DD`
@@ -229,7 +238,7 @@ Param | Description
 ------------ | -------------
 String query | A string to search for in the Subject’s database
 int page | The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them
-int pageSize | How many items should be returned per page, maximum of 1,000
+int pageSize | How many items should be returned per page, maximum of 100
 
 ### Account & API stats
 

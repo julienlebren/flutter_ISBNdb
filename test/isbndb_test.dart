@@ -453,6 +453,18 @@ void main() {
       expect(options!.queryParameters.containsKey("page_size"), isFalse);
     });
 
+    test('Should preserve legacy page size during transition', () async {
+      RequestOptions? options;
+      final isbndb = _createClient(
+        onRequestCallback: (requestOptions) => options = requestOptions,
+      );
+
+      await isbndb.getBooks("Google Flutter", pageSize: 250);
+
+      expect(options, isNotNull);
+      expect(options!.queryParameters["pageSize"], 250);
+    });
+
     test('Should send shouldMatchAll=false when explicitly provided', () async {
       RequestOptions? options;
       final isbndb = _createClient(
