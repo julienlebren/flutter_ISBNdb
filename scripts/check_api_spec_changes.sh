@@ -190,6 +190,12 @@ normalize_spec() {
       and $path[-2] == "responses"
       and is_named_map($path[0:-1]);
 
+    def is_server_object($path):
+      ($path | length) > 1
+      and $path[-2] == "servers"
+      and ($path[-1] | type) == "number"
+      and (is_identifier_key($path; ($path | length) - 2) | not);
+
     def is_http_method:
       . == "get"
       or . == "post"
@@ -287,7 +293,10 @@ normalize_spec() {
          end)
       | (if .attribute? == false then del(.attribute) else . end)
       | (if .wrapped? == false then del(.wrapped) else . end)
-      | (if .additionalProperties? == true then del(.additionalProperties) else . end)
+      | (if is_schema_object($path) and .additionalProperties? == true then
+           del(.additionalProperties)
+         else .
+         end)
       | (if (.required? | type) == "array" then
          .required |= sort
        else .
@@ -326,7 +335,13 @@ normalize_spec() {
          else .
          end)
       | (if (.parameters? | type) == "array" then
-           .parameters |= sort_by(.in // "", .name // "", ."$ref" // "")
+           .parameters |= sort_by(
+             if type == "object" then
+               [0, .in // "", .name // "", ."$ref" // ""]
+             else
+               [1, type, tojson]
+             end
+           )
          else .
          end)
       | (if .parameters? == [] then del(.parameters) else . end)
@@ -353,8 +368,13 @@ normalize_spec() {
            | (if .content? == {} then del(.content) else . end)
          else .
          end)
+      | (if is_server_object($path) and .variables? == {} then
+           del(.variables)
+         else .
+         end)
       | (if is_schema_object($path) then
-           reduce [
+           del(."$comment")
+           | reduce [
              "properties",
              "patternProperties",
              "$defs",
@@ -374,7 +394,9 @@ normalize_spec() {
               and $path != ["components", "headers"] then
              with_entries(.key |= ascii_downcase)
            elif $is_named_map and $path[-1] == "scopes" then
-             with_entries(.value = null)
+             with_entries(
+               if (.value | type) == "string" then .value = null else . end
+             )
            elif $is_named_map and $path[-1] == "dependentRequired" then
              with_entries(
                if (.value | type) == "array" then .value |= sort else . end
@@ -627,19 +649,91 @@ extract_behavioral_descriptions() {
         $parameter.name // "unknown"
       end;
 
-    def canonical_behavior_identity:
+    def canonical_json_identity:
       if type == "object" then
-        del(.description, .summary, .title, .externalDocs, .example, .examples)
+        to_entries
+        | sort_by(.key)
+        | map(.value |= canonical_json_identity)
+        | from_entries
+      elif type == "array" then
+        map(canonical_json_identity)
+      else .
+      end;
+
+    def canonical_schema_identity($openapi_version):
+      if type == "object" then
+        del(
+          .description,
+          .summary,
+          .title,
+          .externalDocs,
+          .example,
+          .examples,
+          ."$comment"
+        )
         | to_entries
         | sort_by(.key)
-        | map(.value |= canonical_behavior_identity)
+        | map(
+            .key as $key
+            | if ($key == "properties"
+                  or $key == "patternProperties"
+                  or $key == "$defs"
+                  or $key == "definitions"
+                  or $key == "dependentSchemas")
+                and (.value | type) == "object" then
+                .value |= (
+                  to_entries
+                  | sort_by(.key)
+                  | map(.value |= canonical_schema_identity($openapi_version))
+                  | from_entries
+                )
+              elif $key == "dependentRequired"
+                  and (.value | type) == "object" then
+                .value |= with_entries(
+                  if (.value | type) == "array" then
+                    .value |= sort_by(tojson)
+                  else .
+                  end
+                )
+              elif $key == "default" or $key == "enum" or $key == "const" then
+                .value |= canonical_json_identity
+              else
+                .value |= canonical_schema_identity($openapi_version)
+              end
+          )
         | from_entries
+        | (if .deprecated? == false then del(.deprecated) else . end)
+        | (if .allowReserved? == false then del(.allowReserved) else . end)
+        | (if .allowEmptyValue? == false then del(.allowEmptyValue) else . end)
+        | (if .nullable? == false then del(.nullable) else . end)
+        | (if .readOnly? == false then del(.readOnly) else . end)
+        | (if .writeOnly? == false then del(.writeOnly) else . end)
+        | (if .uniqueItems? == false then del(.uniqueItems) else . end)
+        | (if .attribute? == false then del(.attribute) else . end)
+        | (if .wrapped? == false then del(.wrapped) else . end)
+        | (if .additionalProperties? == true then
+             del(.additionalProperties)
+           else .
+           end)
+        | (if ($openapi_version | type) == "string"
+             and ($openapi_version | startswith("3.0."))
+             and .exclusiveMinimum? == false then
+             del(.exclusiveMinimum)
+           else .
+           end)
+        | (if ($openapi_version | type) == "string"
+             and ($openapi_version | startswith("3.0."))
+             and .exclusiveMaximum? == false then
+             del(.exclusiveMaximum)
+           else .
+           end)
         | (if (.required? | type) == "array" then
              .required |= sort_by(tojson)
            else .
            end)
+        | (if .required? == [] then del(.required) else . end)
         | (if (.enum? | type) == "array" then
-             .enum |= sort_by(tojson)
+             .enum |= (map(canonical_json_identity) | sort_by(tojson))
            else .
            end)
         | (if (.type? | type) == "array" then
@@ -658,8 +752,17 @@ extract_behavioral_descriptions() {
              .allOf |= sort_by(tojson)
            else .
            end)
+        | reduce [
+            "properties",
+            "patternProperties",
+            "$defs",
+            "definitions",
+            "dependentSchemas",
+            "dependentRequired"
+          ][] as $key
+            (.; if .[$key]? == {} then del(.[$key]) else . end)
       elif type == "array" then
-        map(canonical_behavior_identity)
+        map(canonical_schema_identity($openapi_version))
       else .
       end;
 
@@ -698,16 +801,14 @@ extract_behavioral_descriptions() {
                 | if $matching_url_count == 1 then
                     "server:\($server.url)"
                   else
-                    ($server | canonical_behavior_identity | tojson) as $identity
-                    | ([
+                    ([
                          range(0; $server_index) as $prior
                          | select(
-                             ($servers[$prior]
-                              | canonical_behavior_identity
-                              | tojson) == $identity
+                             ($servers[$prior].url | type) == "string"
+                             and $servers[$prior].url == $server.url
                            )
                        ] | length) as $occurrence
-                    | "server:\($server.url):\($identity)#\($occurrence)"
+                    | "server:\($server.url)#\($occurrence)"
                   end
               else
                 $path[$index]
@@ -715,12 +816,16 @@ extract_behavioral_descriptions() {
           elif is_composition_array_index($path; $index) then
             ($document | getpath($path[0:$index])) as $branches
             | $path[$index] as $branch_index
-            | ($branches[$branch_index] | canonical_behavior_identity | tojson)
+            | ($branches[$branch_index]
+               | canonical_schema_identity($document.openapi)
+               | tojson)
               as $identity
             | ([
                  range(0; $branch_index) as $prior
                  | select(
-                     ($branches[$prior] | canonical_behavior_identity | tojson)
+                     ($branches[$prior]
+                      | canonical_schema_identity($document.openapi)
+                      | tojson)
                      == $identity
                    )
                ] | length) as $occurrence

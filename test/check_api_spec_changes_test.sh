@@ -277,6 +277,18 @@ assert_contains \
   "${tmp_dir}/composition-order.log" \
   "No OpenAPI drift detected."
 
+jq '.components.schemas.Composed.oneOf[0].readOnly = false' \
+  "${tmp_dir}/composition-order-reference.json" \
+  > "${tmp_dir}/composition-default-candidate.json"
+run_check \
+  "composition-default" \
+  0 \
+  "${tmp_dir}/composition-default-candidate.json" \
+  "${tmp_dir}/composition-order-reference.json"
+assert_contains \
+  "${tmp_dir}/composition-default.log" \
+  "No OpenAPI drift detected."
+
 jq '
   .components.links.Next = {
     "operationId": "getBooks",
@@ -496,6 +508,25 @@ assert_contains \
   "${tmp_dir}/exclusive-bound.md" \
   "- Structural contract: changed"
 
+jq '
+  .openapi = "3.1.0"
+  | .components.schemas.Commented = {
+      "type": "string",
+      "$comment": "First maintainer note"
+    }
+' "${REFERENCE}" > "${tmp_dir}/schema-comment-reference.json"
+jq '.components.schemas.Commented["$comment"] = "Second maintainer note"' \
+  "${tmp_dir}/schema-comment-reference.json" \
+  > "${tmp_dir}/schema-comment-candidate.json"
+run_check \
+  "schema-comment" \
+  0 \
+  "${tmp_dir}/schema-comment-candidate.json" \
+  "${tmp_dir}/schema-comment-reference.json"
+assert_contains \
+  "${tmp_dir}/schema-comment.log" \
+  "No OpenAPI drift detected."
+
 jq '.servers = [
   {"url":"https://primary.example.com", "description":"Primary endpoint"},
   {"url":"https://backup.example.com", "description":"Backup endpoint"}
@@ -525,7 +556,7 @@ assert_contains \
 
 jq 'del(.servers)' \
   "${REFERENCE}" > "${tmp_dir}/implicit-root-server-reference.json"
-jq '.servers = [{"url": "/"}]' \
+jq '.servers = [{"url": "/", "variables": {}}]' \
   "${tmp_dir}/implicit-root-server-reference.json" \
   > "${tmp_dir}/implicit-root-server-candidate.json"
 run_check \
@@ -568,19 +599,19 @@ assert_contains \
   "${tmp_dir}/duplicate-server-description.md" \
   "- Behavioral descriptions: changed (1)"
 
-jq '.servers |= reverse' \
+jq '.servers[0].variables.environment.default = "updated-primary"' \
   "${tmp_dir}/duplicate-server-reference.json" \
-  > "${tmp_dir}/duplicate-server-order.json"
+  > "${tmp_dir}/duplicate-server-variable.json"
 run_check \
-  "duplicate-server-order" \
+  "duplicate-server-variable" \
   2 \
-  "${tmp_dir}/duplicate-server-order.json" \
+  "${tmp_dir}/duplicate-server-variable.json" \
   "${tmp_dir}/duplicate-server-reference.json"
 assert_contains \
-  "${tmp_dir}/duplicate-server-order.md" \
+  "${tmp_dir}/duplicate-server-variable.md" \
   "- Structural contract: changed"
 assert_contains \
-  "${tmp_dir}/duplicate-server-order.md" \
+  "${tmp_dir}/duplicate-server-variable.md" \
   "- Behavioral descriptions: unchanged"
 
 jq '
@@ -765,6 +796,16 @@ run_check \
 assert_contains \
   "${tmp_dir}/additional-properties-default.log" \
   "No OpenAPI drift detected."
+
+jq '.paths["/key"].get.additionalProperties = true' \
+  "${REFERENCE}" > "${tmp_dir}/invalid-operation-additional-properties.json"
+run_check \
+  "invalid-operation-additional-properties" \
+  2 \
+  "${tmp_dir}/invalid-operation-additional-properties.json"
+assert_contains \
+  "${tmp_dir}/invalid-operation-additional-properties.md" \
+  "- Structural contract: changed"
 
 jq '.components.callbacks = {}' \
   "${REFERENCE}" > "${tmp_dir}/empty-component-section.json"
@@ -1000,6 +1041,31 @@ assert_contains \
   "${tmp_dir}/oauth-scope-description.md" \
   "scopes.books:read"
 
+jq '
+  .components.securitySchemes.InvalidScope = {
+    "type": "oauth2",
+    "flows": {
+      "clientCredentials": {
+        "tokenUrl": "https://auth.example.com/token",
+        "scopes": {"books:read": ""}
+      }
+    }
+  }
+' "${REFERENCE}" > "${tmp_dir}/oauth-scope-type-reference.json"
+jq '
+  .components.securitySchemes.InvalidScope.flows.clientCredentials
+    .scopes["books:read"] = 1
+' "${tmp_dir}/oauth-scope-type-reference.json" \
+  > "${tmp_dir}/oauth-scope-type-candidate.json"
+run_check \
+  "oauth-scope-type" \
+  2 \
+  "${tmp_dir}/oauth-scope-type-candidate.json" \
+  "${tmp_dir}/oauth-scope-type-reference.json"
+assert_contains \
+  "${tmp_dir}/oauth-scope-type.md" \
+  "- Structural contract: changed"
+
 jq '.security = [{"ApiKeyAuth": []}]' \
   "${REFERENCE}" > "${tmp_dir}/top-level-security.json"
 run_check "top-level-security" 2 "${tmp_dir}/top-level-security.json"
@@ -1018,6 +1084,13 @@ run_check "empty-parameters" 0 "${tmp_dir}/empty-parameters.json"
 assert_contains \
   "${tmp_dir}/empty-parameters.log" \
   "No OpenAPI drift detected."
+
+jq '.paths["/key"].get.parameters += ["malformed"]' \
+  "${REFERENCE}" > "${tmp_dir}/scalar-parameter.json"
+run_check "scalar-parameter" 2 "${tmp_dir}/scalar-parameter.json"
+assert_contains \
+  "${tmp_dir}/scalar-parameter.md" \
+  "- Structural contract: changed"
 
 jq 'del(.paths["/key"].get.tags)' \
   "${REFERENCE}" > "${tmp_dir}/empty-tags-reference.json"
