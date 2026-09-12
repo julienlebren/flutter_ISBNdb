@@ -110,6 +110,9 @@ normalize_spec() {
           and $path[-2] == "security"
           and ($path[-1] | type) == "number");
 
+    def is_link_object($path):
+      ($path | length) > 1 and $path[-2] == "links";
+
     def canonical_json:
       if type == "object" then
         to_entries
@@ -122,7 +125,12 @@ normalize_spec() {
       end;
 
     def normalize_openapi_object:
-      (if (.required? | type) == "array" then
+      (if .deprecated? == false then del(.deprecated) else . end)
+      | (if (.required? | type) == "boolean" and .required == false then
+           del(.required)
+         else .
+         end)
+      | (if (.required? | type) == "array" then
          .required |= sort
        else .
        end)
@@ -181,6 +189,9 @@ normalize_spec() {
             | if ($is_named_map | not)
                 and ($key == "default" or $key == "enum" or $key == "const")
               then .
+              elif is_link_object($path)
+                  and ($key == "requestBody" or $key == "parameters")
+              then .
               else .value |= normalize_value($path + [$key])
               end
           )
@@ -203,8 +214,14 @@ normalize_spec() {
       },
       servers: (.servers // []),
       security: (.security // []),
-      components: (.components // {}),
-      paths: (.paths // {}),
+      components: (
+        (.components // {})
+        | with_entries(select(.key | startswith("x-") | not))
+      ),
+      paths: (
+        (.paths // {})
+        | with_entries(select(.key | startswith("x-") | not))
+      ),
       webhooks: (.webhooks // {})
     }
     | normalize_value([])
@@ -252,12 +269,16 @@ extract_behavioral_descriptions() {
       [
         range(0; $path | length) as $index
         | select(
-            ($path[$index] == "default"
-             or $path[$index] == "enum"
-             or $path[$index] == "const"
-             or $path[$index] == "example"
-             or $path[$index] == "examples")
-            and (is_identifier_key($path; $index) | not)
+            ((($path[$index] == "default"
+               or $path[$index] == "enum"
+               or $path[$index] == "const"
+               or $path[$index] == "example"
+               or $path[$index] == "examples")
+              and (is_identifier_key($path; $index) | not))
+            or ($index > 1
+                and $path[$index - 2] == "links"
+                and ($path[$index] == "requestBody"
+                     or $path[$index] == "parameters")))
           )
       ]
       | length > 0;
@@ -283,12 +304,25 @@ extract_behavioral_descriptions() {
               else
                 "parameter:\($parameter.in // "unknown"):\($parameter.name // "unknown")"
               end
+          elif $index > 0
+              and $path[$index - 1] == "tags"
+              and ($path[$index] | type) == "number" then
+            ($document | getpath($path[0:($index + 1)])) as $tag
+            | if ($tag | type) == "object" and ($tag.name | type) == "string" then
+                "tag:\($tag.name)"
+              else
+                $path[$index]
+              end
           else
             $path[$index]
           end
       ];
 
-    . as $document
+    (if (.paths? | type) == "object" then
+       .paths |= with_entries(select(.key | startswith("x-") | not))
+     else .
+     end)
+    | . as $document
     | [
       paths(scalars) as $path
       | select($path[-1] == "description" or $path[-1] == "summary")

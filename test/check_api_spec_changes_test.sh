@@ -63,6 +63,13 @@ assert_contains \
   "${tmp_dir}/parameter-order-only.log" \
   "No OpenAPI drift detected."
 
+jq '.tags |= reverse' \
+  "${REFERENCE}" > "${tmp_dir}/tag-order.json"
+run_check "tag-order-only" 0 "${tmp_dir}/tag-order.json"
+assert_contains \
+  "${tmp_dir}/tag-order-only.log" \
+  "No OpenAPI drift detected."
+
 jq '
   .paths["/book/{isbn}"].get.parameters[0].example = {
     "description": "A documentation-only example payload",
@@ -108,6 +115,38 @@ run_check \
 assert_contains \
   "${tmp_dir}/literal-default-array-order.md" \
   "- Structural contract: changed"
+
+jq '
+  .components.links.Next = {
+    "operationId": "getBooks",
+    "requestBody": {
+      "example": "first",
+      "description": "Literal request data",
+      "tags": ["alpha", "beta"]
+    },
+    "parameters": {
+      "payload": {
+        "example": "first",
+        "tags": ["alpha", "beta"]
+      }
+    }
+  }
+' "${REFERENCE}" > "${tmp_dir}/link-literal-reference.json"
+jq '
+  .components.links.Next.requestBody.example = "second"
+  | .components.links.Next.requestBody.description = "Changed literal request data"
+  | .components.links.Next.parameters.payload.example = "second"
+' "${tmp_dir}/link-literal-reference.json" \
+  > "${tmp_dir}/link-literal-candidate.json"
+run_check \
+  "link-literal" \
+  2 \
+  "${tmp_dir}/link-literal-candidate.json" \
+  "${tmp_dir}/link-literal-reference.json"
+assert_contains "${tmp_dir}/link-literal.md" "- Structural contract: changed"
+assert_contains \
+  "${tmp_dir}/link-literal.md" \
+  "- Behavioral descriptions: unchanged"
 
 jq '.info.title = "Renamed ISBNdb API"' \
   "${REFERENCE}" > "${tmp_dir}/title.json"
@@ -162,11 +201,30 @@ assert_contains \
   "${tmp_dir}/security-key-order.log" \
   "No OpenAPI drift detected."
 
+jq '
+  .paths["/book/{isbn}"].get.deprecated = false
+  | (.paths["/book/{isbn}"].get.parameters[]
+     | select(.name == "with_prices")
+     | .required) = false
+' "${REFERENCE}" > "${tmp_dir}/explicit-defaults.json"
+run_check "explicit-defaults" 0 "${tmp_dir}/explicit-defaults.json"
+assert_contains \
+  "${tmp_dir}/explicit-defaults.log" \
+  "No OpenAPI drift detected."
+
 jq '.info.version = "9.9.9"' "${REFERENCE}" > "${tmp_dir}/version.json"
 run_check "version-only" 2 "${tmp_dir}/version.json"
 assert_contains "${tmp_dir}/version-only.md" "- Metadata version: changed"
 assert_contains "${tmp_dir}/version-only.md" "- Structural contract: unchanged"
 assert_contains "${tmp_dir}/version-only.md" "- Behavioral descriptions: unchanged"
+
+jq '
+  .paths["x-generated-by"] = "test-generator"
+  | .info.version = "9.9.9"
+' "${REFERENCE}" > "${tmp_dir}/path-extension.json"
+run_check "path-extension" 2 "${tmp_dir}/path-extension.json"
+assert_contains "${tmp_dir}/path-extension.md" "- Metadata version: changed"
+assert_contains "${tmp_dir}/path-extension.md" "- Structural contract: unchanged"
 
 jq '
   (.paths["/books/{query}"].get.parameters[]
