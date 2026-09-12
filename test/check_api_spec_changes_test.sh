@@ -2044,4 +2044,103 @@ assert_contains \
   "${tmp_dir}/default-encoding-content-type.log" \
   "No OpenAPI drift detected."
 
+jq '
+  .paths["/book/{isbn}"].get.responses["404"].externalDocs = {
+    "url": "https://example.com/invalid-response-docs"
+  }
+' "${REFERENCE}" > "${tmp_dir}/invalid-response-external-docs.json"
+run_check \
+  "invalid-response-external-docs" \
+  2 \
+  "${tmp_dir}/invalid-response-external-docs.json"
+assert_contains \
+  "${tmp_dir}/invalid-response-external-docs.md" \
+  "- Structural contract: changed"
+
+jq '.tags[0].unexpected = 1' \
+  "${REFERENCE}" > "${tmp_dir}/invalid-root-tag-field.json"
+run_check \
+  "invalid-root-tag-field" \
+  2 \
+  "${tmp_dir}/invalid-root-tag-field.json"
+assert_contains \
+  "${tmp_dir}/invalid-root-tag-field.md" \
+  "- Structural contract: changed"
+
+jq '.paths["/book/{isbn}"].get.tags += [.paths["/book/{isbn}"].get.tags[0]]' \
+  "${REFERENCE}" > "${tmp_dir}/duplicate-operation-tag.json"
+run_check \
+  "duplicate-operation-tag" \
+  0 \
+  "${tmp_dir}/duplicate-operation-tag.json"
+assert_contains \
+  "${tmp_dir}/duplicate-operation-tag.log" \
+  "No OpenAPI drift detected."
+
+jq '
+  .components.requestBodies.MediaTypeCase = {
+    "content": {
+      "application/json": {
+        "schema": {"type": "object"}
+      }
+    }
+  }
+' "${REFERENCE}" > "${tmp_dir}/media-type-case-reference.json"
+jq '
+  .components.requestBodies.MediaTypeCase.content
+    |= with_entries(.key = "Application/JSON")
+' "${tmp_dir}/media-type-case-reference.json" \
+  > "${tmp_dir}/media-type-case-candidate.json"
+run_check \
+  "media-type-case" \
+  0 \
+  "${tmp_dir}/media-type-case-candidate.json" \
+  "${tmp_dir}/media-type-case-reference.json"
+assert_contains \
+  "${tmp_dir}/media-type-case.log" \
+  "No OpenAPI drift detected."
+
+jq '
+  .components.requestBodies.MediaTypeCase.content["Application/JSON"] = {
+    "schema": {"type": "string"}
+  }
+' "${tmp_dir}/media-type-case-reference.json" \
+  > "${tmp_dir}/media-type-case-collision.json"
+run_check \
+  "media-type-case-collision" \
+  2 \
+  "${tmp_dir}/media-type-case-collision.json" \
+  "${tmp_dir}/media-type-case-reference.json"
+assert_contains \
+  "${tmp_dir}/media-type-case-collision.md" \
+  "- Structural contract: changed"
+
+jq '
+  .components.links.ServerLink = {
+    "operationId": "getBooks",
+    "server": {"url": "https://api.example.com"}
+  }
+' "${REFERENCE}" > "${tmp_dir}/link-server-reference.json"
+jq '.components.links.ServerLink.server.variables = {}' \
+  "${tmp_dir}/link-server-reference.json" \
+  > "${tmp_dir}/link-server-candidate.json"
+run_check \
+  "empty-link-server-variables" \
+  0 \
+  "${tmp_dir}/link-server-candidate.json" \
+  "${tmp_dir}/link-server-reference.json"
+assert_contains \
+  "${tmp_dir}/empty-link-server-variables.log" \
+  "No OpenAPI drift detected."
+
+jq '.components.schemas.Book.additionalProperties = {}' \
+  "${REFERENCE}" > "${tmp_dir}/empty-additional-properties.json"
+run_check \
+  "empty-additional-properties" \
+  0 \
+  "${tmp_dir}/empty-additional-properties.json"
+assert_contains \
+  "${tmp_dir}/empty-additional-properties.log" \
+  "No OpenAPI drift detected."
+
 echo "API spec drift diagnostics tests passed."

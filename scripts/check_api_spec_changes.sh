@@ -175,6 +175,11 @@ normalize_spec() {
       and $path[-2] == "links"
       and is_named_map($path[0:-1]);
 
+    def is_root_tag_object($path):
+      ($path | length) == 2
+      and $path[0] == "tags"
+      and ($path[1] | type) == "number";
+
     def is_header_object($path):
       ($path | length) > 1
       and $path[-2] == "headers"
@@ -201,10 +206,13 @@ normalize_spec() {
       and is_named_map($path[0:-1]);
 
     def is_server_object($path):
-      ($path | length) > 1
-      and $path[-2] == "servers"
-      and ($path[-1] | type) == "number"
-      and (is_identifier_key($path; ($path | length) - 2) | not);
+      (($path | length) > 1
+       and $path[-2] == "servers"
+       and ($path[-1] | type) == "number"
+       and (is_identifier_key($path; ($path | length) - 2) | not))
+      or (($path | length) > 0
+          and $path[-1] == "server"
+          and is_link_object($path[0:-1]));
 
     def is_server_variable_object($path):
       ($path | length) > 1
@@ -315,6 +323,33 @@ normalize_spec() {
     def has_case_insensitive_key_collision:
       (keys | map(ascii_downcase)) as $normalized_keys
       | ($normalized_keys | length) != ($normalized_keys | unique | length);
+
+    def normalized_media_type_key:
+      . as $key
+      | (try capture(
+          "^(?<type>[^/;[:space:]]+)/(?<subtype>[^;[:space:]]+)(?<parameters>.*)$"
+        ) catch null) as $parts
+      | if $parts == null then $key
+        else
+          "\($parts.type | ascii_downcase)/\($parts.subtype | ascii_downcase)\($parts.parameters)"
+        end;
+
+    def has_media_type_key_collision:
+      (keys | map(normalized_media_type_key)) as $normalized_keys
+      | ($normalized_keys | length) != ($normalized_keys | unique | length);
+
+    def valid_root_tag:
+      type == "object"
+      and (.name | type) == "string"
+      and ((has("description") | not) or (.description | type) == "string")
+      and ((has("externalDocs") | not) or (.externalDocs | type) == "object")
+      and all(
+        keys[];
+        . == "name"
+        or . == "description"
+        or . == "externalDocs"
+        or startswith("x-")
+      );
 
     def unknown_root_fields:
       with_entries(
@@ -499,7 +534,9 @@ normalize_spec() {
            del(.wrapped)
          else .
          end)
-      | (if is_schema_object($path) and .additionalProperties? == true then
+      | (if is_schema_object($path)
+           and (.additionalProperties? == true
+                or .additionalProperties? == {}) then
            del(.additionalProperties)
          else .
          end)
@@ -543,12 +580,13 @@ normalize_spec() {
            .allOf |= (map(canonical_json) | sort_by(tojson))
          else .
          end)
-      | (if (($path | length) == 0 or is_operation_object($path))
-           and (.tags? | type) == "array" then
-           .tags |= sort
+      | (if is_operation_object($path)
+           and (.tags? | type) == "array"
+           and all(.tags[]; type == "string") then
+           .tags |= (sort | unique)
          else .
          end)
-      | (if (($path | length) == 0 or is_operation_object($path))
+      | (if (is_operation_object($path) or ($path | length) == 0)
            and .tags? == [] then
            del(.tags)
          else .
@@ -683,6 +721,10 @@ normalize_spec() {
              with_entries(
                if (.value | type) == "array" then .value |= sort else . end
              )
+           elif $is_named_map and $path[-1] == "content" then
+             if has_media_type_key_collision then .
+             else with_entries(.key |= normalized_media_type_key)
+             end
            elif $is_named_map then .
            else
             (if is_response_object($path)
@@ -700,7 +742,11 @@ normalize_spec() {
                 else .
                 end)
              | (if has("externalDocs")
-                   and (.externalDocs | type) == "object" then
+                   and (.externalDocs | type) == "object"
+                   and (($path | length) == 0
+                        or is_schema_object($path)
+                        or is_operation_object($path)
+                        or is_root_tag_object($path)) then
                   del(.externalDocs)
                 else .
                 end)
@@ -878,10 +924,7 @@ normalize_spec() {
           if has("tags") then
             if (.tags | type) == "array" then
               ([.tags[]
-                | select(
-                    type != "object"
-                    or (.name | type) != "string"
-                  )
+                | select(valid_root_tag | not)
                ]) as $invalid_tags
               | if ($invalid_tags | length) > 0 then
                   {tags: $invalid_tags}
@@ -1221,7 +1264,8 @@ extract_behavioral_descriptions() {
            end)
         | (if .attribute? == false then del(.attribute) else . end)
         | (if .wrapped? == false then del(.wrapped) else . end)
-        | (if .additionalProperties? == true then
+        | (if .additionalProperties? == true
+              or .additionalProperties? == {} then
              del(.additionalProperties)
            else .
            end)
