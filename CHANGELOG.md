@@ -2,6 +2,7 @@
 
 - Aligned the bundled API contract and documentation with ISBNdb OpenAPI 2.7.5.
 - Documented the new `pageSize` limit of 100 for search and detail endpoints. Existing subscriptions retain the previous limit of 1,000 until October 10, 2026; the updated-books feed remains limited to 1,000.
+- Improved API drift diagnostics to distinguish version metadata, structural contract changes, and behavioral descriptions, and to include the resulting report in automated issues.
 
 ## 2.0.0 - 2026-09-02
 

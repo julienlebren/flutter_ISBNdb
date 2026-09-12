@@ -9,6 +9,7 @@ REFERENCE_FILE="api/upstream/isbndb-openapi.json"
 SOURCE_URL="${ISBNDB_OPENAPI_SOURCE_URL:-}"
 SOURCE_FILE=""
 WRITE_FETCHED=""
+WRITE_REPORT=""
 
 usage() {
   cat <<'USAGE'
@@ -19,6 +20,7 @@ Options:
   --source-url <url>      OpenAPI source URL to compare against
   --source-file <path>    Local OpenAPI file to compare against
   --write-fetched <path>  Persist fetched source JSON to this path
+  --write-report <path>   Persist the Markdown drift report to this path
   -h, --help              Show help
 
 Environment:
@@ -57,6 +59,11 @@ parse_args() {
       --write-fetched)
         [[ $# -ge 2 ]] || fail "Missing value for --write-fetched"
         WRITE_FETCHED="$2"
+        shift 2
+        ;;
+      --write-report)
+        [[ $# -ge 2 ]] || fail "Missing value for --write-report"
+        WRITE_REPORT="$2"
         shift 2
         ;;
       -h|--help)
@@ -108,8 +115,7 @@ normalize_spec() {
     {
       openapi,
       info: {
-        title: .info.title,
-        version: .info.version
+        title: .info.title
       },
       servers: ((.servers // []) | map({url, description})),
       components: {
@@ -130,6 +136,18 @@ normalize_spec() {
             value: (
               (.value // {})
               | to_entries
+              | map(
+                  select(
+                    .key == "get"
+                    or .key == "post"
+                    or .key == "put"
+                    or .key == "patch"
+                    or .key == "delete"
+                    or .key == "options"
+                    or .key == "head"
+                    or .key == "trace"
+                  )
+                )
               | sort_by(.key)
               | map({
                   key: .key,
@@ -191,6 +209,101 @@ normalize_spec() {
   ' "${input}" > "${output}"
 }
 
+extract_behavioral_descriptions() {
+  local input="$1"
+  local output="$2"
+
+  jq -S '
+    def is_http_method:
+      . == "get"
+      or . == "post"
+      or . == "put"
+      or . == "patch"
+      or . == "delete"
+      or . == "options"
+      or . == "head"
+      or . == "trace";
+
+    def joined_descriptions:
+      map(select(type == "string" and length > 0))
+      | map(gsub("[[:space:]]+"; " ") | sub("^ "; "") | sub(" $"; ""))
+      | unique
+      | join("\n");
+
+    def normalized_description:
+      if type != "string" then ""
+      else gsub("[[:space:]]+"; " ") | sub("^ "; "") | sub(" $"; "")
+      end;
+
+    [
+      {
+        id: "info.description",
+        kind: "info",
+        label: "General API description",
+        value: (.info.description | normalized_description)
+      },
+      (
+        (.paths // {})
+        | to_entries[] as $path
+        | ($path.value // {})
+        | to_entries[]
+        | select(.key | is_http_method)
+        | .key as $method
+        | .value as $operation
+        | {
+            id: "operation|\($method)|\($path.key)",
+            kind: "operation",
+            label: "\($method | ascii_upcase) \($path.key)",
+            value: ($operation.description | normalized_description)
+          },
+          (
+            ($operation.parameters // [])[]
+            | {
+                id: "parameter|\($method)|\($path.key)|\(.in // "unknown")|\(.name // "unknown")",
+                kind: "parameter",
+                label: "\($method | ascii_upcase) \($path.key) — \(.in // "unknown") parameter \(.name // "unknown")",
+                value: ([.description, .schema.description] | joined_descriptions)
+              }
+          )
+      ),
+      (
+        (.components.schemas // {})
+        | to_entries[] as $schema
+        | {
+            id: "schema|\($schema.key)",
+            kind: "schema",
+            label: "Component schema \($schema.key)",
+            value: ($schema.value.description | normalized_description)
+          },
+          (
+            ($schema.value.properties // {})
+            | to_entries[]
+            | {
+                id: "schema-property|\($schema.key)|\(.key)",
+                kind: "schema-property",
+                label: "Component property \($schema.key).\(.key)",
+                value: (.value.description | normalized_description)
+              }
+          )
+      )
+    ]
+    | map(select(.value != ""))
+    | sort_by(.id)
+  ' "${input}" > "${output}"
+}
+
+write_report() {
+  local report="$1"
+
+  cat "${report}"
+
+  if [[ -n "${WRITE_REPORT}" ]]; then
+    mkdir -p "$(dirname "${WRITE_REPORT}")"
+    cp "${report}" "${WRITE_REPORT}"
+    echo "Drift report written to ${WRITE_REPORT}"
+  fi
+}
+
 parse_args "$@"
 
 if [[ ! -f "${REFERENCE_FILE}" ]]; then
@@ -232,54 +345,97 @@ fi
 
 normalized_reference="${tmp_dir}/reference.normalized.json"
 normalized_candidate="${tmp_dir}/candidate.normalized.json"
+reference_descriptions="${tmp_dir}/reference.descriptions.json"
+candidate_descriptions="${tmp_dir}/candidate.descriptions.json"
+description_diff="${tmp_dir}/descriptions.diff.json"
 
 normalize_spec "${REFERENCE_FILE}" "${normalized_reference}"
 normalize_spec "${candidate_file}" "${normalized_candidate}"
+extract_behavioral_descriptions "${REFERENCE_FILE}" "${reference_descriptions}"
+extract_behavioral_descriptions "${candidate_file}" "${candidate_descriptions}"
 
+contract_changed=false
 if diff -u "${normalized_reference}" "${normalized_candidate}" > "${tmp_dir}/spec.diff"; then
-  echo "No OpenAPI drift detected."
-  exit 0
+  contract_changed=false
+else
+  diff_status=$?
+  if [[ "${diff_status}" -ne 1 ]]; then
+    fail "Unable to compare normalized OpenAPI contracts"
+  fi
+  contract_changed=true
 fi
 
 reference_version="$(jq -r '.info.version // "unknown"' "${REFERENCE_FILE}")"
 candidate_version="$(jq -r '.info.version // "unknown"' "${candidate_file}")"
 
-echo "OpenAPI drift detected."
-echo "Reference version: ${reference_version}"
-echo "Candidate version: ${candidate_version}"
+jq -S -n \
+  --slurpfile reference "${reference_descriptions}" \
+  --slurpfile candidate "${candidate_descriptions}" '
+    ($reference[0] | map({key: .id, value: .}) | from_entries) as $reference_entries
+    | ($candidate[0] | map({key: .id, value: .}) | from_entries) as $candidate_entries
+    | [
+        (($reference_entries | keys) + ($candidate_entries | keys) | unique[])
+        as $id
+        | select(
+            ($reference_entries[$id].value // null)
+            != ($candidate_entries[$id].value // null)
+          )
+        | {
+            id: $id,
+            kind: (($candidate_entries[$id] // $reference_entries[$id]).kind),
+            label: (($candidate_entries[$id] // $reference_entries[$id]).label),
+            before: ($reference_entries[$id].value // null),
+            after: ($candidate_entries[$id].value // null)
+          }
+      ]
+  ' > "${description_diff}"
 
-echo "Changed endpoints (normalized diff):"
-comm -3 \
-  <(jq -r '.paths | keys[]' "${normalized_reference}" | sort) \
-  <(jq -r '.paths | keys[]' "${normalized_candidate}" | sort) \
-  | sed 's/^/  - /'
+metadata_changed=false
+if [[ "${reference_version}" != "${candidate_version}" ]]; then
+  metadata_changed=true
+fi
 
-echo "Changed operations (method-level):"
-jq -r '
-  def ops:
-    .paths
-    | to_entries[] as $path
-    | $path.value
-    | to_entries[]
-    | "\($path.key) \(.key):\(.value | @json)";
-  ops
-' "${normalized_reference}" | sort > "${tmp_dir}/reference.ops"
+description_change_count="$(jq 'length' "${description_diff}")"
+descriptions_changed=false
+if [[ "${description_change_count}" -gt 0 ]]; then
+  descriptions_changed=true
+fi
 
-jq -r '
-  def ops:
-    .paths
-    | to_entries[] as $path
-    | $path.value
-    | to_entries[]
-    | "\($path.key) \(.key):\(.value | @json)";
-  ops
-' "${normalized_candidate}" | sort > "${tmp_dir}/candidate.ops"
+if [[ "${metadata_changed}" == false \
+  && "${contract_changed}" == false \
+  && "${descriptions_changed}" == false ]]; then
+  echo "No OpenAPI drift detected."
+  exit 0
+fi
 
-comm -3 "${tmp_dir}/reference.ops" "${tmp_dir}/candidate.ops" \
-  | sed 's/^/  - /' \
-  | head -n 60
+jq -r '.paths | keys[]' "${normalized_reference}" | sort \
+  > "${tmp_dir}/reference.paths"
+jq -r '.paths | keys[]' "${normalized_candidate}" | sort \
+  > "${tmp_dir}/candidate.paths"
+comm -23 "${tmp_dir}/reference.paths" "${tmp_dir}/candidate.paths" \
+  > "${tmp_dir}/removed.paths"
+comm -13 "${tmp_dir}/reference.paths" "${tmp_dir}/candidate.paths" \
+  > "${tmp_dir}/added.paths"
 
-echo "Changed component schemas:"
+jq -r -n \
+  --slurpfile reference "${normalized_reference}" \
+  --slurpfile candidate "${normalized_candidate}" '
+    ($reference[0].paths // {}) as $reference_paths
+    | ($candidate[0].paths // {}) as $candidate_paths
+    | (($reference_paths | keys) + ($candidate_paths | keys) | unique[])
+      as $path
+    | (
+        (($reference_paths[$path] // {} | keys)
+          + ($candidate_paths[$path] // {} | keys)
+          | unique[])
+      ) as $method
+    | select(
+        $reference_paths[$path][$method]
+        != $candidate_paths[$path][$method]
+      )
+    | "\($method | ascii_upcase) \($path)"
+  ' | sort > "${tmp_dir}/changed.operations"
+
 jq -r -n \
   --slurpfile reference "${normalized_reference}" \
   --slurpfile candidate "${normalized_candidate}" '
@@ -289,20 +445,82 @@ jq -r -n \
       as $schema_name
     | select($reference_schemas[$schema_name] != $candidate_schemas[$schema_name])
     | $schema_name
-  ' | sed 's/^/  - /'
+  ' | sort > "${tmp_dir}/changed.schemas"
 
-echo "Diff excerpt (first 120 lines):"
-head -n 120 "${tmp_dir}/spec.diff"
+report="${tmp_dir}/drift-report.md"
+{
+  echo "## ISBNdb OpenAPI drift report"
+  echo ""
+  echo "- Reference version: \`${reference_version}\`"
+  echo "- Candidate version: \`${candidate_version}\`"
+  echo ""
+  echo "### Classification"
+  echo ""
+  echo "- Metadata version: $([[ "${metadata_changed}" == true ]] && echo changed || echo unchanged)"
+  echo "- Structural contract: $([[ "${contract_changed}" == true ]] && echo changed || echo unchanged)"
+  echo "- Behavioral descriptions: $([[ "${descriptions_changed}" == true ]] && echo "changed (${description_change_count})" || echo unchanged)"
+
+  if [[ "${contract_changed}" == true ]]; then
+    echo ""
+    echo "### Structural changes"
+    echo ""
+    echo "Changed endpoints:"
+    if [[ -s "${tmp_dir}/removed.paths" || -s "${tmp_dir}/added.paths" ]]; then
+      sed 's/^/- Removed: `/' "${tmp_dir}/removed.paths" | sed 's/$/`/'
+      sed 's/^/- Added: `/' "${tmp_dir}/added.paths" | sed 's/$/`/'
+    else
+      echo "- None"
+    fi
+    echo ""
+    echo "Changed operations:"
+    if [[ -s "${tmp_dir}/changed.operations" ]]; then
+      sed 's/^/- `/' "${tmp_dir}/changed.operations" | sed 's/$/`/'
+    else
+      echo "- None"
+    fi
+    echo ""
+    echo "Changed component schemas:"
+    if [[ -s "${tmp_dir}/changed.schemas" ]]; then
+      sed 's/^/- `/' "${tmp_dir}/changed.schemas" | sed 's/$/`/'
+    else
+      echo "- None"
+    fi
+  fi
+
+  if [[ "${descriptions_changed}" == true ]]; then
+    echo ""
+    echo "### Behavioral description changes"
+    echo ""
+    jq -r '
+      def preview:
+        if . == null then "<missing>"
+        else
+          gsub("[[:space:]]+"; " ")
+          | if length > 240 then .[0:237] + "..." else . end
+        end;
+
+      .[]
+      | if .kind == "info" then
+          "- \(.label) changed; full text is available in the candidate artifact."
+        else
+          "- \(.label)\n\n    Before: \(.before | preview | @json)\n    After: \(.after | preview | @json)"
+        end
+    ' "${description_diff}"
+  fi
+
+  if [[ "${contract_changed}" == true ]]; then
+    echo ""
+    echo "### Structural diff excerpt"
+    echo ""
+    head -n 80 "${tmp_dir}/spec.diff" | sed 's/^/    /'
+  fi
+} > "${report}"
+
+echo "OpenAPI drift detected."
+write_report "${report}"
 
 if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
-  {
-    echo "## ISBNdb OpenAPI Drift"
-    echo ""
-    echo "- Reference version: \`${reference_version}\`"
-    echo "- Candidate version: \`${candidate_version}\`"
-    echo ""
-    echo "Drift detected in normalized API contract."
-  } >> "${GITHUB_STEP_SUMMARY}"
+  cat "${report}" >> "${GITHUB_STEP_SUMMARY}"
 fi
 
 exit 2

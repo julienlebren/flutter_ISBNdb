@@ -16,6 +16,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: API drift diagnostics tests
+        run: ./test/check_api_spec_changes_test.sh
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
