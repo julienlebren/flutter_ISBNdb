@@ -302,6 +302,24 @@ assert_contains \
   "${tmp_dir}/json-schema-dialect.md" \
   "- Structural contract: changed"
 
+jq '
+  .openapi = "3.1.0"
+  | .components.schemas.NullableString = {
+      "type": ["string", "null"]
+    }
+' "${REFERENCE}" > "${tmp_dir}/type-array-reference.json"
+jq '.components.schemas.NullableString.type |= reverse' \
+  "${tmp_dir}/type-array-reference.json" \
+  > "${tmp_dir}/type-array-candidate.json"
+run_check \
+  "type-array-order" \
+  0 \
+  "${tmp_dir}/type-array-candidate.json" \
+  "${tmp_dir}/type-array-reference.json"
+assert_contains \
+  "${tmp_dir}/type-array-order.log" \
+  "No OpenAPI drift detected."
+
 jq '.servers = [{"url":"https://primary.example.com"},{"url":"https://backup.example.com"}]' \
   "${REFERENCE}" > "${tmp_dir}/server-order-reference.json"
 jq '.servers |= reverse' \
@@ -322,6 +340,20 @@ assert_contains \
 assert_contains \
   "${tmp_dir}/top-level-server.md" \
   "https://regional.example.com"
+
+jq 'del(.servers)' \
+  "${REFERENCE}" > "${tmp_dir}/implicit-root-server-reference.json"
+jq '.servers = [{"url": "/"}]' \
+  "${tmp_dir}/implicit-root-server-reference.json" \
+  > "${tmp_dir}/implicit-root-server-candidate.json"
+run_check \
+  "implicit-root-server" \
+  0 \
+  "${tmp_dir}/implicit-root-server-candidate.json" \
+  "${tmp_dir}/implicit-root-server-reference.json"
+assert_contains \
+  "${tmp_dir}/implicit-root-server.log" \
+  "No OpenAPI drift detected."
 
 jq '
   .paths["/book/{isbn}"].get.security = [
@@ -404,6 +436,34 @@ assert_contains \
   "${tmp_dir}/header-defaults.log" \
   "No OpenAPI drift detected."
 
+jq '
+  .components.requestBodies.FormPayload = {
+    "content": {
+      "application/x-www-form-urlencoded": {
+        "schema": {"type": "object"},
+        "encoding": {
+          "value": {}
+        }
+      }
+    }
+  }
+' "${REFERENCE}" > "${tmp_dir}/encoding-defaults-reference.json"
+jq '
+  .components.requestBodies.FormPayload.content
+    ["application/x-www-form-urlencoded"].encoding.value.style = "form"
+  | .components.requestBodies.FormPayload.content
+    ["application/x-www-form-urlencoded"].encoding.value.explode = true
+' "${tmp_dir}/encoding-defaults-reference.json" \
+  > "${tmp_dir}/encoding-defaults-candidate.json"
+run_check \
+  "encoding-defaults" \
+  0 \
+  "${tmp_dir}/encoding-defaults-candidate.json" \
+  "${tmp_dir}/encoding-defaults-reference.json"
+assert_contains \
+  "${tmp_dir}/encoding-defaults.log" \
+  "No OpenAPI drift detected."
+
 jq '.components.schemas.Book.additionalProperties = true' \
   "${REFERENCE}" > "${tmp_dir}/additional-properties-default.json"
 run_check \
@@ -464,6 +524,43 @@ jq '
 run_check "empty-parameters" 0 "${tmp_dir}/empty-parameters.json"
 assert_contains \
   "${tmp_dir}/empty-parameters.log" \
+  "No OpenAPI drift detected."
+
+jq 'del(.paths["/key"].get.tags)' \
+  "${REFERENCE}" > "${tmp_dir}/empty-tags-reference.json"
+jq '.paths["/key"].get.tags = []' \
+  "${tmp_dir}/empty-tags-reference.json" \
+  > "${tmp_dir}/empty-tags-candidate.json"
+run_check \
+  "empty-tags" \
+  0 \
+  "${tmp_dir}/empty-tags-candidate.json" \
+  "${tmp_dir}/empty-tags-reference.json"
+assert_contains \
+  "${tmp_dir}/empty-tags.log" \
+  "No OpenAPI drift detected."
+
+jq '
+  .paths["/key"].get.parameters += [{
+    "name": "X-Trace-Id",
+    "in": "header",
+    "description": "Correlates the request across services",
+    "schema": {"type": "string"}
+  }]
+' "${REFERENCE}" > "${tmp_dir}/header-name-case-reference.json"
+jq '
+  (.paths["/key"].get.parameters[]
+    | select(.in == "header")
+    | .name) = "x-trace-id"
+' "${tmp_dir}/header-name-case-reference.json" \
+  > "${tmp_dir}/header-name-case-candidate.json"
+run_check \
+  "header-name-case" \
+  0 \
+  "${tmp_dir}/header-name-case-candidate.json" \
+  "${tmp_dir}/header-name-case-reference.json"
+assert_contains \
+  "${tmp_dir}/header-name-case.log" \
   "No OpenAPI drift detected."
 
 jq '.info.version = "9.9.9"' "${REFERENCE}" > "${tmp_dir}/version.json"

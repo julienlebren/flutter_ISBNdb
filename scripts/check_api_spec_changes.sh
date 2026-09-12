@@ -130,6 +130,11 @@ normalize_spec() {
       and $path[-2] == "headers"
       and is_named_map($path[0:-1]);
 
+    def is_encoding_object($path):
+      ($path | length) > 1
+      and $path[-2] == "encoding"
+      and is_named_map($path[0:-1]);
+
     def canonical_json:
       if type == "object" then
         to_entries
@@ -143,6 +148,7 @@ normalize_spec() {
 
     def normalize_serialization_defaults($path):
       (if is_header_object($path) then "simple"
+       elif is_encoding_object($path) then "form"
        elif (.in? | type) == "string" then
          (if .in == "query" or .in == "cookie" then "form"
           elif .in == "path" or .in == "header" then "simple"
@@ -183,12 +189,21 @@ normalize_spec() {
          .required |= sort
        else .
        end)
+      | (if (.type? | type) == "array" then
+           .type |= sort_by(tostring)
+         else .
+         end)
       | (if (.enum? | type) == "array" then
            .enum |= (map(canonical_json) | sort_by(tojson))
          else .
          end)
       | (if (.tags? | type) == "array" then
            .tags |= sort
+         else .
+         end)
+      | (if .tags? == [] then del(.tags) else . end)
+      | (if .in? == "header" and (.name? | type) == "string" then
+           .name |= ascii_downcase
          else .
          end)
       | (if (.parameters? | type) == "array" then
@@ -293,6 +308,7 @@ normalize_spec() {
       webhooks: (.webhooks // {})
     }
     | normalize_value([])
+    | if .servers == [{"url": "/"}] then .servers = [] else . end
   ' "${input}" > "${output}"
 }
 
@@ -384,6 +400,13 @@ extract_behavioral_descriptions() {
           end
         );
 
+    def parameter_semantic_name($parameter):
+      if $parameter.in == "header" and ($parameter.name | type) == "string" then
+        $parameter.name | ascii_downcase
+      else
+        $parameter.name // "unknown"
+      end;
+
     def semantic_path($document; $path):
       [
         range(0; $path | length) as $index
@@ -394,7 +417,7 @@ extract_behavioral_descriptions() {
             | if ($parameter["$ref"] // "") != "" then
                 "parameter:$ref:\($parameter["$ref"])"
               else
-                "parameter:\($parameter.in // "unknown"):\($parameter.name // "unknown")"
+                "parameter:\($parameter.in // "unknown"):\(parameter_semantic_name($parameter))"
               end
           elif $index > 0
               and $path[$index - 1] == "tags"
