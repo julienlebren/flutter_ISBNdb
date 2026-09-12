@@ -430,6 +430,17 @@ extract_behavioral_descriptions() {
       ]
       | length > 0;
 
+    def contains_specification_extension($path):
+      [
+        range(0; $path | length) as $index
+        | select(
+            ($path[$index] | type) == "string"
+            and ($path[$index] | startswith("x-"))
+            and (is_identifier_key($path; $index) | not)
+          )
+      ]
+      | length > 0;
+
     def path_label($path):
       reduce $path[] as $segment
         ("";
@@ -500,6 +511,7 @@ extract_behavioral_descriptions() {
               and (is_identifier_key($path; ($path | length) - 1) | not))
         )
       | select(contains_literal_payload($path) | not)
+      | select(contains_specification_extension($path) | not)
       | (getpath($path) | normalized_description) as $value
       | select($value != "")
       | semantic_path($document; $path) as $semantic_path
@@ -593,8 +605,8 @@ else
   contract_changed=true
 fi
 
-reference_version="$(jq -r '.info.version // "unknown"' "${REFERENCE_FILE}")"
-candidate_version="$(jq -r '.info.version // "unknown"' "${candidate_file}")"
+reference_version="$(jq -c '.info.version' "${REFERENCE_FILE}")"
+candidate_version="$(jq -c '.info.version' "${candidate_file}")"
 reference_openapi_version="$(jq -r '.openapi // "unknown"' "${normalized_reference}")"
 candidate_openapi_version="$(jq -r '.openapi // "unknown"' "${normalized_candidate}")"
 reference_schema_dialect="$(jq -r '.jsonSchemaDialect // "implicit"' "${normalized_reference}")"

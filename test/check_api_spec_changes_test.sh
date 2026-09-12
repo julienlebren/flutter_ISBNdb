@@ -597,6 +597,53 @@ assert_contains \
   "No OpenAPI drift detected."
 
 jq '
+  .paths["/key"].get["x-tool"] = {
+    "description": "First nested extension description"
+  }
+' "${REFERENCE}" > "${tmp_dir}/nested-extension-reference.json"
+jq '
+  .paths["/key"].get["x-tool"].description
+    = "Second nested extension description"
+' "${tmp_dir}/nested-extension-reference.json" \
+  > "${tmp_dir}/nested-extension-candidate.json"
+run_check \
+  "nested-extension" \
+  0 \
+  "${tmp_dir}/nested-extension-candidate.json" \
+  "${tmp_dir}/nested-extension-reference.json"
+assert_contains \
+  "${tmp_dir}/nested-extension.log" \
+  "No OpenAPI drift detected."
+
+jq '
+  .components.schemas.ExtensionNamedProperty = {
+    "type": "object",
+    "properties": {
+      "x-tool": {
+        "type": "string",
+        "description": "First schema property description"
+      }
+    }
+  }
+' "${REFERENCE}" > "${tmp_dir}/extension-property-reference.json"
+jq '
+  .components.schemas.ExtensionNamedProperty.properties["x-tool"].description
+    = "Second schema property description"
+' "${tmp_dir}/extension-property-reference.json" \
+  > "${tmp_dir}/extension-property-candidate.json"
+run_check \
+  "extension-property" \
+  2 \
+  "${tmp_dir}/extension-property-candidate.json" \
+  "${tmp_dir}/extension-property-reference.json"
+assert_contains \
+  "${tmp_dir}/extension-property.md" \
+  "- Structural contract: unchanged"
+assert_contains \
+  "${tmp_dir}/extension-property.md" \
+  "- Behavioral descriptions: changed (1)"
+
+jq '
   .components.securitySchemes.OAuth = {
     "type": "oauth2",
     "flows": {
@@ -690,6 +737,29 @@ run_check "version-only" 2 "${tmp_dir}/version.json"
 assert_contains "${tmp_dir}/version-only.md" "- Metadata version: changed"
 assert_contains "${tmp_dir}/version-only.md" "- Structural contract: unchanged"
 assert_contains "${tmp_dir}/version-only.md" "- Behavioral descriptions: unchanged"
+
+jq '.info.version = "1"' \
+  "${REFERENCE}" > "${tmp_dir}/version-type-reference.json"
+jq '.info.version = 1' \
+  "${tmp_dir}/version-type-reference.json" \
+  > "${tmp_dir}/version-type-candidate.json"
+run_check \
+  "version-type" \
+  2 \
+  "${tmp_dir}/version-type-candidate.json" \
+  "${tmp_dir}/version-type-reference.json"
+assert_contains \
+  "${tmp_dir}/version-type.md" \
+  "- Metadata version: changed"
+assert_contains \
+  "${tmp_dir}/version-type.md" \
+  "- Structural contract: unchanged"
+assert_contains \
+  "${tmp_dir}/version-type.md" \
+  '- Reference version: `"1"`'
+assert_contains \
+  "${tmp_dir}/version-type.md" \
+  '- Candidate version: `1`'
 
 jq '
   .paths["x-generated-by"] = "test-generator"
