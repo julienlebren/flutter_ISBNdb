@@ -55,6 +55,13 @@ assert_contains \
   "${tmp_dir}/description-whitespace-only.log" \
   "No OpenAPI drift detected."
 
+jq '.paths["/books/{query}"].get.parameters |= reverse' \
+  "${REFERENCE}" > "${tmp_dir}/parameter-order.json"
+run_check "parameter-order-only" 0 "${tmp_dir}/parameter-order.json"
+assert_contains \
+  "${tmp_dir}/parameter-order-only.log" \
+  "No OpenAPI drift detected."
+
 jq '.info.version = "9.9.9"' "${REFERENCE}" > "${tmp_dir}/version.json"
 run_check "version-only" 2 "${tmp_dir}/version.json"
 assert_contains "${tmp_dir}/version-only.md" "- Metadata version: changed"
@@ -70,8 +77,8 @@ jq '
 run_check "description-only" 2 "${tmp_dir}/description.json"
 assert_contains "${tmp_dir}/description-only.md" "- Metadata version: unchanged"
 assert_contains "${tmp_dir}/description-only.md" "- Structural contract: unchanged"
-assert_contains "${tmp_dir}/description-only.md" "- Behavioral descriptions: changed (1)"
-assert_contains "${tmp_dir}/description-only.md" "GET /books/{query} — query parameter pageSize"
+assert_contains "${tmp_dir}/description-only.md" "- Behavioral descriptions: changed (2)"
+assert_contains "${tmp_dir}/description-only.md" "paths./books/{query}.get.parameters"
 assert_contains "${tmp_dir}/description-only.md" 'Before: "How many items should be returned per page, maximum of 100.'
 assert_contains "${tmp_dir}/description-only.md" 'After: "How many items should be returned per page, maximum of 42"'
 
@@ -82,7 +89,9 @@ jq '
 run_check "response-description" 2 "${tmp_dir}/response-description.json"
 assert_contains "${tmp_dir}/response-description.md" "- Structural contract: unchanged"
 assert_contains "${tmp_dir}/response-description.md" "- Behavioral descriptions: changed (1)"
-assert_contains "${tmp_dir}/response-description.md" "GET /book/{isbn} — response 404"
+assert_contains \
+  "${tmp_dir}/response-description.md" \
+  "paths./book/{isbn}.get.responses.404.description"
 assert_contains \
   "${tmp_dir}/response-description.md" \
   'After: "The requested book is not currently indexed"'
@@ -105,7 +114,73 @@ assert_contains "${tmp_dir}/path-parameter.md" "Changed path-level parameters:"
 assert_contains "${tmp_dir}/path-parameter.md" '/books/{query}'
 assert_contains \
   "${tmp_dir}/path-parameter.md" \
-  "/books/{query} — shared query parameter locale"
+  "paths./books/{query}.parameters[0].description"
+
+jq '
+  .components.responses.TooManyRequests.description
+  = "Too many requests; retry after the documented delay"
+' "${REFERENCE}" > "${tmp_dir}/reusable-response-description.json"
+run_check \
+  "reusable-response-description" \
+  2 \
+  "${tmp_dir}/reusable-response-description.json"
+assert_contains \
+  "${tmp_dir}/reusable-response-description.md" \
+  "- Structural contract: unchanged"
+assert_contains \
+  "${tmp_dir}/reusable-response-description.md" \
+  "components.responses.TooManyRequests.description"
+
+jq '
+  .components.schemas.BookWithPrices.allOf[1].properties.prices.description
+  = "Current offers grouped by seller"
+' "${REFERENCE}" > "${tmp_dir}/composed-schema-description.json"
+run_check \
+  "composed-schema-description" \
+  2 \
+  "${tmp_dir}/composed-schema-description.json"
+assert_contains \
+  "${tmp_dir}/composed-schema-description.md" \
+  "- Structural contract: unchanged"
+assert_contains \
+  "${tmp_dir}/composed-schema-description.md" \
+  "components.schemas.BookWithPrices.allOf[1].properties.prices.description"
+
+jq '
+  .paths["/book/{isbn}"].get.responses["200"].headers.ratelimit.description
+  = "Remaining requests in the current rate-limit window"
+' "${REFERENCE}" > "${tmp_dir}/response-header-description.json"
+run_check \
+  "response-header-description" \
+  2 \
+  "${tmp_dir}/response-header-description.json"
+assert_contains \
+  "${tmp_dir}/response-header-description.md" \
+  "- Structural contract: unchanged"
+assert_contains \
+  "${tmp_dir}/response-header-description.md" \
+  "paths./book/{isbn}.get.responses.200.headers.ratelimit.description"
+
+jq '
+  .paths["/book/{isbn}"].get.summary = "Look up one book by ISBN"
+' "${REFERENCE}" > "${tmp_dir}/operation-summary.json"
+run_check "operation-summary" 2 "${tmp_dir}/operation-summary.json"
+assert_contains \
+  "${tmp_dir}/operation-summary.md" \
+  "- Structural contract: unchanged"
+assert_contains \
+  "${tmp_dir}/operation-summary.md" \
+  "paths./book/{isbn}.get.summary"
+
+jq '
+  .paths["/books/{query}"].servers = [
+    {"url": "https://regional.example.com/{region}"}
+  ]
+' "${REFERENCE}" > "${tmp_dir}/path-server.json"
+run_check "path-server" 2 "${tmp_dir}/path-server.json"
+assert_contains "${tmp_dir}/path-server.md" "- Structural contract: changed"
+assert_contains "${tmp_dir}/path-server.md" "Changed path-level servers:"
+assert_contains "${tmp_dir}/path-server.md" '/books/{query}'
 
 jq '
   (.paths["/books/{query}"].get.parameters[]

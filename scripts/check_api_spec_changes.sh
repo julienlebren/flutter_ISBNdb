@@ -82,140 +82,64 @@ normalize_spec() {
   local output="$2"
 
   jq -S '
-    def normalize_schema:
-      if type != "object" then .
-      else
-        del(.description, .title, .example, .examples, .externalDocs)
-        | if (.required? | type) == "array" then .required |= sort else . end
-        | if (.enum? | type) == "array" then .enum |= sort_by(tostring) else . end
-        | if (.properties? | type) == "object" then
-            .properties |= (
-              to_entries
-              | sort_by(.key)
-              | map(.value |= normalize_schema)
-              | from_entries
-            )
-          else . end
-        | if (.items? | type) == "object" then .items |= normalize_schema else . end
-        | if (.additionalProperties? | type) == "object" then
-            .additionalProperties |= normalize_schema
-          else . end
-        | if (.oneOf? | type) == "array" then
-            .oneOf |= map(normalize_schema)
-          else . end
-        | if (.anyOf? | type) == "array" then
-            .anyOf |= map(normalize_schema)
-          else . end
-        | if (.allOf? | type) == "array" then
-            .allOf |= map(normalize_schema)
-          else . end
-        | if (.not? | type) == "object" then .not |= normalize_schema else . end
-      end;
+    def strip_behavioral_text:
+      walk(
+        if type == "object" then
+          (if has("description")
+              and ((.description | type) == "string" or (.description | type) == "null")
+            then del(.description)
+            else .
+            end)
+          | (if has("summary")
+                and ((.summary | type) == "string" or (.summary | type) == "null")
+              then del(.summary)
+              else .
+              end)
+        else .
+        end
+      );
 
-    def is_http_method:
-      . == "get"
-      or . == "post"
-      or . == "put"
-      or . == "patch"
-      or . == "delete"
-      or . == "options"
-      or . == "head"
-      or . == "trace";
-
-    def normalize_parameters:
-      map({
-        name,
-        in,
-        required: (.required // false),
-        schema: ((.schema // {}) | normalize_schema)
-      })
-      | sort_by(.in, .name);
+    def normalize_unordered_values:
+      walk(
+        if type == "object" then
+          (if (.required? | type) == "array" then
+             .required |= sort
+           else .
+           end)
+          | (if (.enum? | type) == "array" then
+               .enum |= sort_by(tostring)
+             else .
+             end)
+          | (if (.tags? | type) == "array" then
+               .tags |= sort
+             else .
+             end)
+          | (if (.parameters? | type) == "array" then
+               .parameters |= sort_by(.in // "", .name // "", ."$ref" // "")
+             else .
+             end)
+          | (if (.servers? | type) == "array" then
+               .servers |= sort_by(.url // "")
+             else .
+             end)
+          | (if (.security? | type) == "array" then
+               .security |= sort_by(tojson)
+             else .
+             end)
+        else .
+        end
+      );
 
     {
       openapi,
-      info: {
-        title: .info.title
-      },
-      servers: ((.servers // []) | map({url, description})),
-      components: {
-        schemas: (
-          (.components.schemas // {})
-          | to_entries
-          | sort_by(.key)
-          | map(.value |= normalize_schema)
-          | from_entries
-        )
-      },
-      paths: (
-        (.paths // {})
-        | to_entries
-        | sort_by(.key)
-        | map(
-            .key as $path
-            | (.value // {}) as $path_item
-            | {
-                key: $path,
-                value: {
-                  parameters: (
-                    ($path_item.parameters // []) | normalize_parameters
-                  ),
-                  operations: (
-                    $path_item
-                    | to_entries
-                    | map(select(.key | is_http_method))
-                    | sort_by(.key)
-                    | map({
-                        key: .key,
-                        value: {
-                          summary: (.value.summary // null),
-                          deprecated: (.value.deprecated // false),
-                          parameters: (
-                            (.value.parameters // []) | normalize_parameters
-                          ),
-                          requestBody: (
-                            if .value.requestBody == null then null
-                            else {
-                              required: (.value.requestBody.required // false),
-                              contentTypes: ((.value.requestBody.content // {}) | keys | sort),
-                              schemas: (
-                                (.value.requestBody.content // {})
-                                | to_entries
-                                | map({
-                                    contentType: .key,
-                                    schema: ((.value.schema // {}) | normalize_schema)
-                                  })
-                                | sort_by(.contentType)
-                              )
-                            }
-                            end
-                          ),
-                          responses: (
-                            (.value.responses // {})
-                            | to_entries
-                            | sort_by(.key)
-                            | map({
-                                code: .key,
-                                schemas: (
-                                  (.value.content // {})
-                                  | to_entries
-                                  | map({
-                                      contentType: .key,
-                                      schema: ((.value.schema // {}) | normalize_schema)
-                                    })
-                                  | sort_by(.contentType)
-                                )
-                              })
-                          )
-                        }
-                      })
-                    | from_entries
-                  )
-                }
-              }
-          )
-        | from_entries
-      )
+      servers: (.servers // []),
+      security: (.security // []),
+      components: (.components // {}),
+      paths: (.paths // {}),
+      webhooks: (.webhooks // {})
     }
+    | strip_behavioral_text
+    | normalize_unordered_values
   ' "${input}" > "${output}"
 }
 
@@ -224,101 +148,51 @@ extract_behavioral_descriptions() {
   local output="$2"
 
   jq -S '
-    def is_http_method:
-      . == "get"
-      or . == "post"
-      or . == "put"
-      or . == "patch"
-      or . == "delete"
-      or . == "options"
-      or . == "head"
-      or . == "trace";
-
-    def joined_descriptions:
-      map(select(type == "string" and length > 0))
-      | map(gsub("[[:space:]]+"; " ") | sub("^ "; "") | sub(" $"; ""))
-      | unique
-      | join("\n");
-
     def normalized_description:
       if type != "string" then ""
       else gsub("[[:space:]]+"; " ") | sub("^ "; "") | sub(" $"; "")
       end;
 
-    [
-      {
-        id: "info.description",
-        kind: "info",
-        label: "General API description",
-        value: (.info.description | normalized_description)
-      },
-      (
-        (.paths // {})
-        | to_entries[] as $path
-        | (
-            ($path.value.parameters // [])[]
-            | {
-                id: "path-parameter|\($path.key)|\(.in // "unknown")|\(.name // "unknown")",
-                kind: "path-parameter",
-                label: "\($path.key) — shared \(.in // "unknown") parameter \(.name // "unknown")",
-                value: ([.description, .schema.description] | joined_descriptions)
-              }
-          ),
-          (
-            ($path.value // {})
-            | to_entries[]
-            | select(.key | is_http_method)
-            | .key as $method
-            | .value as $operation
-            | {
-                id: "operation|\($method)|\($path.key)",
-                kind: "operation",
-                label: "\($method | ascii_upcase) \($path.key)",
-                value: ($operation.description | normalized_description)
-              },
-              (
-                ($operation.parameters // [])[]
-                | {
-                    id: "parameter|\($method)|\($path.key)|\(.in // "unknown")|\(.name // "unknown")",
-                    kind: "parameter",
-                    label: "\($method | ascii_upcase) \($path.key) — \(.in // "unknown") parameter \(.name // "unknown")",
-                    value: ([.description, .schema.description] | joined_descriptions)
-                  }
-              ),
-              (
-                ($operation.responses // {})
-                | to_entries[]
-                | {
-                    id: "response|\($method)|\($path.key)|\(.key)",
-                    kind: "response",
-                    label: "\($method | ascii_upcase) \($path.key) — response \(.key)",
-                    value: (.value.description | normalized_description)
-                  }
-              )
-          )
-      ),
-      (
-        (.components.schemas // {})
-        | to_entries[] as $schema
-        | {
-            id: "schema|\($schema.key)",
-            kind: "schema",
-            label: "Component schema \($schema.key)",
-            value: ($schema.value.description | normalized_description)
-          },
-          (
-            ($schema.value.properties // {})
-            | to_entries[]
-            | {
-                id: "schema-property|\($schema.key)|\(.key)",
-                kind: "schema-property",
-                label: "Component property \($schema.key).\(.key)",
-                value: (.value.description | normalized_description)
-              }
-          )
-      )
+    def path_label($path):
+      reduce $path[] as $segment
+        ("";
+          if ($segment | type) == "number" then . + "[\($segment)]"
+          elif . == "" then ($segment | tostring)
+          else . + "." + ($segment | tostring)
+          end
+        );
+
+    def normalize_description_order:
+      walk(
+        if type == "object" then
+          (if (.parameters? | type) == "array" then
+             .parameters |= sort_by(.in // "", .name // "", ."$ref" // "")
+           else .
+           end)
+          | (if (.servers? | type) == "array" then
+               .servers |= sort_by(.url // "")
+             else .
+             end)
+        else .
+        end
+      );
+
+    normalize_description_order
+    | [
+      paths(scalars) as $path
+      | select($path[-1] == "description" or $path[-1] == "summary")
+      | (getpath($path) | normalized_description) as $value
+      | select($value != "")
+      | {
+          id: ($path | tojson),
+          kind: (if $path == ["info", "description"] then "info" else $path[-1] end),
+          label: (if $path == ["info", "description"]
+                  then "General API description"
+                  else path_label($path)
+                  end),
+          value: $value
+        }
     ]
-    | map(select(.value != ""))
     | sort_by(.id)
   ' "${input}" > "${output}"
 }
@@ -465,21 +339,45 @@ jq -r -n \
 jq -r -n \
   --slurpfile reference "${normalized_reference}" \
   --slurpfile candidate "${normalized_candidate}" '
+    def is_http_method:
+      . == "get"
+      or . == "post"
+      or . == "put"
+      or . == "patch"
+      or . == "delete"
+      or . == "options"
+      or . == "head"
+      or . == "trace";
+
     ($reference[0].paths // {}) as $reference_paths
     | ($candidate[0].paths // {}) as $candidate_paths
     | (($reference_paths | keys) + ($candidate_paths | keys) | unique[])
       as $path
     | (
-        (($reference_paths[$path].operations // {} | keys)
-          + ($candidate_paths[$path].operations // {} | keys)
-          | unique[])
+        (($reference_paths[$path] // {}) | keys | map(select(is_http_method)))
+          + (($candidate_paths[$path] // {}) | keys | map(select(is_http_method)))
+        | unique[]
       ) as $method
     | select(
-        $reference_paths[$path].operations[$method]
-        != $candidate_paths[$path].operations[$method]
+        $reference_paths[$path][$method]
+        != $candidate_paths[$path][$method]
       )
     | "\($method | ascii_upcase) \($path)"
   ' | sort > "${tmp_dir}/changed.operations"
+
+jq -r -n \
+  --slurpfile reference "${normalized_reference}" \
+  --slurpfile candidate "${normalized_candidate}" '
+    ($reference[0].paths // {}) as $reference_paths
+    | ($candidate[0].paths // {}) as $candidate_paths
+    | (($reference_paths | keys) + ($candidate_paths | keys) | unique[])
+      as $path
+    | select(
+        ($reference_paths[$path].servers // [])
+        != ($candidate_paths[$path].servers // [])
+      )
+    | $path
+  ' | sort > "${tmp_dir}/changed.path-servers"
 
 jq -r -n \
   --slurpfile reference "${normalized_reference}" \
@@ -520,6 +418,13 @@ report="${tmp_dir}/drift-report.md"
     echo "Changed path-level parameters:"
     if [[ -s "${tmp_dir}/changed.path-parameters" ]]; then
       sed 's/^/- `/' "${tmp_dir}/changed.path-parameters" | sed 's/$/`/'
+    else
+      echo "- None"
+    fi
+    echo ""
+    echo "Changed path-level servers:"
+    if [[ -s "${tmp_dir}/changed.path-servers" ]]; then
+      sed 's/^/- `/' "${tmp_dir}/changed.path-servers" | sed 's/$/`/'
     else
       echo "- None"
     fi
