@@ -99,6 +99,24 @@ normalize_spec() {
         end
       );
 
+    def strip_examples:
+      delpaths([
+        path(..)
+        | select(length > 0)
+        | select(.[-1] == "example" or .[-1] == "examples")
+        | select(
+            (.[-2] // "") != "properties"
+            and (.[-2] // "") != "headers"
+            and (.[-2] // "") != "schemas"
+            and (.[-2] // "") != "responses"
+            and (.[-2] // "") != "parameters"
+            and (.[-2] // "") != "requestBodies"
+            and (.[-2] // "") != "securitySchemes"
+            and (.[-2] // "") != "links"
+            and (.[-2] // "") != "callbacks"
+          )
+      ]);
+
     def normalize_unordered_values:
       walk(
         if type == "object" then
@@ -118,12 +136,18 @@ normalize_spec() {
                .parameters |= sort_by(.in // "", .name // "", ."$ref" // "")
              else .
              end)
-          | (if (.servers? | type) == "array" then
-               .servers |= sort_by(.url // "")
-             else .
-             end)
           | (if (.security? | type) == "array" then
-               .security |= sort_by(tojson)
+               .security |= (
+                 map(
+                   if type == "object" then
+                     with_entries(
+                       if (.value | type) == "array" then .value |= sort else . end
+                     )
+                   else .
+                   end
+                 )
+                 | sort_by(tojson)
+               )
              else .
              end)
         else .
@@ -132,6 +156,9 @@ normalize_spec() {
 
     {
       openapi,
+      info: {
+        title: (.info.title // null)
+      },
       servers: (.servers // []),
       security: (.security // []),
       components: (.components // {}),
@@ -139,6 +166,7 @@ normalize_spec() {
       webhooks: (.webhooks // {})
     }
     | strip_behavioral_text
+    | strip_examples
     | normalize_unordered_values
   ' "${input}" > "${output}"
 }
@@ -153,6 +181,24 @@ extract_behavioral_descriptions() {
       else gsub("[[:space:]]+"; " ") | sub("^ "; "") | sub(" $"; "")
       end;
 
+    def strip_examples:
+      delpaths([
+        path(..)
+        | select(length > 0)
+        | select(.[-1] == "example" or .[-1] == "examples")
+        | select(
+            (.[-2] // "") != "properties"
+            and (.[-2] // "") != "headers"
+            and (.[-2] // "") != "schemas"
+            and (.[-2] // "") != "responses"
+            and (.[-2] // "") != "parameters"
+            and (.[-2] // "") != "requestBodies"
+            and (.[-2] // "") != "securitySchemes"
+            and (.[-2] // "") != "links"
+            and (.[-2] // "") != "callbacks"
+          )
+      ]);
+
     def path_label($path):
       reduce $path[] as $segment
         ("";
@@ -162,6 +208,23 @@ extract_behavioral_descriptions() {
           end
         );
 
+    def semantic_path($document; $path):
+      [
+        range(0; $path | length) as $index
+        | if $index > 0
+            and $path[$index - 1] == "parameters"
+            and ($path[$index] | type) == "number" then
+            ($document | getpath($path[0:($index + 1)])) as $parameter
+            | if ($parameter["$ref"] // "") != "" then
+                "parameter:$ref:\($parameter["$ref"])"
+              else
+                "parameter:\($parameter.in // "unknown"):\($parameter.name // "unknown")"
+              end
+          else
+            $path[$index]
+          end
+      ];
+
     def normalize_description_order:
       walk(
         if type == "object" then
@@ -169,26 +232,25 @@ extract_behavioral_descriptions() {
              .parameters |= sort_by(.in // "", .name // "", ."$ref" // "")
            else .
            end)
-          | (if (.servers? | type) == "array" then
-               .servers |= sort_by(.url // "")
-             else .
-             end)
         else .
         end
       );
 
-    normalize_description_order
+    strip_examples
+    | normalize_description_order
+    | . as $document
     | [
       paths(scalars) as $path
       | select($path[-1] == "description" or $path[-1] == "summary")
       | (getpath($path) | normalized_description) as $value
       | select($value != "")
+      | semantic_path($document; $path) as $semantic_path
       | {
-          id: ($path | tojson),
+          id: ($semantic_path | tojson),
           kind: (if $path == ["info", "description"] then "info" else $path[-1] end),
           label: (if $path == ["info", "description"]
                   then "General API description"
-                  else path_label($path)
+                  else path_label($semantic_path)
                   end),
           value: $value
         }

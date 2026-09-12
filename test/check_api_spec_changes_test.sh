@@ -26,13 +26,14 @@ run_check() {
   local name="$1"
   local expected_status="$2"
   local candidate="$3"
+  local reference="${4:-${REFERENCE}}"
   local log="${tmp_dir}/${name}.log"
   local report="${tmp_dir}/${name}.md"
   local actual_status
 
   set +e
   "${CHECK_SCRIPT}" \
-    --reference "${REFERENCE}" \
+    --reference "${reference}" \
     --source-file "${candidate}" \
     --write-report "${report}" \
     > "${log}" 2>&1
@@ -60,6 +61,49 @@ jq '.paths["/books/{query}"].get.parameters |= reverse' \
 run_check "parameter-order-only" 0 "${tmp_dir}/parameter-order.json"
 assert_contains \
   "${tmp_dir}/parameter-order-only.log" \
+  "No OpenAPI drift detected."
+
+jq '
+  .paths["/book/{isbn}"].get.parameters[0].example = {
+    "description": "A documentation-only example payload",
+    "value": "9780000000000"
+  }
+' \
+  "${REFERENCE}" > "${tmp_dir}/example-only.json"
+run_check "example-only" 0 "${tmp_dir}/example-only.json"
+assert_contains "${tmp_dir}/example-only.log" "No OpenAPI drift detected."
+
+jq '.info.title = "Renamed ISBNdb API"' \
+  "${REFERENCE}" > "${tmp_dir}/title.json"
+run_check "title" 2 "${tmp_dir}/title.json"
+assert_contains "${tmp_dir}/title.md" "- Structural contract: changed"
+
+jq '.servers = [{"url":"https://primary.example.com"},{"url":"https://backup.example.com"}]' \
+  "${REFERENCE}" > "${tmp_dir}/server-order-reference.json"
+jq '.servers |= reverse' \
+  "${tmp_dir}/server-order-reference.json" > "${tmp_dir}/server-order-candidate.json"
+run_check \
+  "server-order" \
+  2 \
+  "${tmp_dir}/server-order-candidate.json" \
+  "${tmp_dir}/server-order-reference.json"
+assert_contains "${tmp_dir}/server-order.md" "- Structural contract: changed"
+
+jq '
+  .paths["/book/{isbn}"].get.security = [
+    {"OAuth": ["books:read", "prices:read"]}
+  ]
+' "${REFERENCE}" > "${tmp_dir}/security-scope-reference.json"
+jq '.paths["/book/{isbn}"].get.security[0].OAuth |= reverse' \
+  "${tmp_dir}/security-scope-reference.json" \
+  > "${tmp_dir}/security-scope-candidate.json"
+run_check \
+  "security-scope-order" \
+  0 \
+  "${tmp_dir}/security-scope-candidate.json" \
+  "${tmp_dir}/security-scope-reference.json"
+assert_contains \
+  "${tmp_dir}/security-scope-order.log" \
   "No OpenAPI drift detected."
 
 jq '.info.version = "9.9.9"' "${REFERENCE}" > "${tmp_dir}/version.json"
@@ -114,7 +158,28 @@ assert_contains "${tmp_dir}/path-parameter.md" "Changed path-level parameters:"
 assert_contains "${tmp_dir}/path-parameter.md" '/books/{query}'
 assert_contains \
   "${tmp_dir}/path-parameter.md" \
-  "paths./books/{query}.parameters[0].description"
+  "paths./books/{query}.parameters.parameter:query:locale.description"
+
+jq '
+  .paths["/books/{query}"].get.parameters += [
+    {
+      "name": "a-new-filter",
+      "in": "query",
+      "description": "A newly documented filter",
+      "schema": {
+        "type": "string",
+        "description": "A newly documented filter value"
+      }
+    }
+  ]
+' "${REFERENCE}" > "${tmp_dir}/inserted-parameter.json"
+run_check "inserted-parameter" 2 "${tmp_dir}/inserted-parameter.json"
+assert_contains \
+  "${tmp_dir}/inserted-parameter.md" \
+  "- Behavioral descriptions: changed (2)"
+assert_contains \
+  "${tmp_dir}/inserted-parameter.md" \
+  "parameter:query:a-new-filter.description"
 
 jq '
   .components.responses.TooManyRequests.description
