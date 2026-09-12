@@ -129,8 +129,28 @@ normalize_spec() {
       else .
       end;
 
+    def normalize_parameter_defaults:
+      if (.in? | type) == "string" then
+        (if .in == "query" or .in == "cookie" then "form"
+         elif .in == "path" or .in == "header" then "simple"
+         else null
+         end) as $default_style
+        | if $default_style == null then .
+          else
+            (.style // $default_style) as $effective_style
+            | (if .style? == $default_style then del(.style) else . end)
+            | (if (.explode? | type) == "boolean"
+                  and .explode == ($effective_style == "form")
+               then del(.explode)
+               else .
+               end)
+          end
+      else .
+      end;
+
     def normalize_openapi_object:
-      (if .deprecated? == false then del(.deprecated) else . end)
+      normalize_parameter_defaults
+      | (if .deprecated? == false then del(.deprecated) else . end)
       | (if (.required? | type) == "boolean" and .required == false then
            del(.required)
          else .
@@ -523,6 +543,13 @@ if [[ "${reference_servers}" != "${candidate_servers}" ]]; then
   top_level_servers_changed=true
 fi
 
+reference_security="$(jq -c '.security // []' "${normalized_reference}")"
+candidate_security="$(jq -c '.security // []' "${normalized_candidate}")"
+top_level_security_changed=false
+if [[ "${reference_security}" != "${candidate_security}" ]]; then
+  top_level_security_changed=true
+fi
+
 jq -r -n \
   --slurpfile reference "${normalized_reference}" \
   --slurpfile candidate "${normalized_candidate}" '
@@ -635,6 +662,14 @@ report="${tmp_dir}/drift-report.md"
     if [[ "${top_level_servers_changed}" == true ]]; then
       echo "- Reference: \`${reference_servers}\`"
       echo "- Candidate: \`${candidate_servers}\`"
+    else
+      echo "- None"
+    fi
+    echo ""
+    echo "Changed top-level security requirements:"
+    if [[ "${top_level_security_changed}" == true ]]; then
+      echo "- Reference: \`${reference_security}\`"
+      echo "- Candidate: \`${candidate_security}\`"
     else
       echo "- None"
     fi

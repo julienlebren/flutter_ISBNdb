@@ -272,6 +272,18 @@ jq '
   | (.paths["/book/{isbn}"].get.parameters[]
      | select(.name == "with_prices")
      | (.required, .allowReserved, .allowEmptyValue)) = false
+  | (.paths["/book/{isbn}"].get.parameters[]
+     | select(.name == "with_prices")
+     | .style) = "form"
+  | (.paths["/book/{isbn}"].get.parameters[]
+     | select(.name == "with_prices")
+     | .explode) = true
+  | (.paths["/book/{isbn}"].get.parameters[]
+     | select(.name == "isbn")
+     | .style) = "simple"
+  | (.paths["/book/{isbn}"].get.parameters[]
+     | select(.name == "isbn")
+     | .explode) = false
   | (.components.schemas.Book
      | (.nullable, .readOnly, .writeOnly, .uniqueItems)) = false
 ' "${REFERENCE}" > "${tmp_dir}/explicit-defaults.json"
@@ -312,6 +324,16 @@ assert_contains \
 assert_contains \
   "${tmp_dir}/oauth-scope-description.md" \
   "scopes.books:read"
+
+jq '.security = [{"ApiKeyAuth": []}]' \
+  "${REFERENCE}" > "${tmp_dir}/top-level-security.json"
+run_check "top-level-security" 2 "${tmp_dir}/top-level-security.json"
+assert_contains \
+  "${tmp_dir}/top-level-security.md" \
+  "Changed top-level security requirements:"
+assert_contains \
+  "${tmp_dir}/top-level-security.md" \
+  "ApiKeyAuth"
 
 jq '.info.version = "9.9.9"' "${REFERENCE}" > "${tmp_dir}/version.json"
 run_check "version-only" 2 "${tmp_dir}/version.json"
