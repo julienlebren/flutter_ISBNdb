@@ -125,6 +125,11 @@ normalize_spec() {
       and $path[-2] == "links"
       and is_named_map($path[0:-1]);
 
+    def is_header_object($path):
+      ($path | length) > 1
+      and $path[-2] == "headers"
+      and is_named_map($path[0:-1]);
+
     def canonical_json:
       if type == "object" then
         to_entries
@@ -136,27 +141,28 @@ normalize_spec() {
       else .
       end;
 
-    def normalize_parameter_defaults:
-      if (.in? | type) == "string" then
-        (if .in == "query" or .in == "cookie" then "form"
-         elif .in == "path" or .in == "header" then "simple"
-         else null
-         end) as $default_style
-        | if $default_style == null then .
-          else
-            (.style // $default_style) as $effective_style
-            | (if .style? == $default_style then del(.style) else . end)
-            | (if (.explode? | type) == "boolean"
-                  and .explode == ($effective_style == "form")
-               then del(.explode)
-               else .
-               end)
-          end
-      else .
-      end;
+    def normalize_serialization_defaults($path):
+      (if is_header_object($path) then "simple"
+       elif (.in? | type) == "string" then
+         (if .in == "query" or .in == "cookie" then "form"
+          elif .in == "path" or .in == "header" then "simple"
+          else null
+          end)
+       else null
+       end) as $default_style
+      | if $default_style == null then .
+        else
+          (.style // $default_style) as $effective_style
+          | (if .style? == $default_style then del(.style) else . end)
+          | (if (.explode? | type) == "boolean"
+                and .explode == ($effective_style == "form")
+             then del(.explode)
+             else .
+             end)
+        end;
 
-    def normalize_openapi_object:
-      normalize_parameter_defaults
+    def normalize_openapi_object($path):
+      normalize_serialization_defaults($path)
       | (if .deprecated? == false then del(.deprecated) else . end)
       | (if (.required? | type) == "boolean" and .required == false then
            del(.required)
@@ -172,6 +178,7 @@ normalize_spec() {
       | (if .exclusiveMaximum? == false then del(.exclusiveMaximum) else . end)
       | (if .attribute? == false then del(.attribute) else . end)
       | (if .wrapped? == false then del(.wrapped) else . end)
+      | (if .additionalProperties? == true then del(.additionalProperties) else . end)
       | (if (.required? | type) == "array" then
          .required |= sort
        else .
@@ -256,7 +263,7 @@ normalize_spec() {
               end
           )
         | from_entries
-        | if $is_named_map then . else normalize_openapi_object end
+        | if $is_named_map then . else normalize_openapi_object($path) end
       elif type == "array" then
         to_entries
         | map(

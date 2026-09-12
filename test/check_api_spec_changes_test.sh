@@ -386,6 +386,35 @@ assert_contains \
   "No OpenAPI drift detected."
 
 jq '
+  .components.headers.RequestId = {
+    "schema": {"type": "string"}
+  }
+' "${REFERENCE}" > "${tmp_dir}/header-defaults-reference.json"
+jq '
+  .components.headers.RequestId.style = "simple"
+  | .components.headers.RequestId.explode = false
+' "${tmp_dir}/header-defaults-reference.json" \
+  > "${tmp_dir}/header-defaults-candidate.json"
+run_check \
+  "header-defaults" \
+  0 \
+  "${tmp_dir}/header-defaults-candidate.json" \
+  "${tmp_dir}/header-defaults-reference.json"
+assert_contains \
+  "${tmp_dir}/header-defaults.log" \
+  "No OpenAPI drift detected."
+
+jq '.components.schemas.Book.additionalProperties = true' \
+  "${REFERENCE}" > "${tmp_dir}/additional-properties-default.json"
+run_check \
+  "additional-properties-default" \
+  0 \
+  "${tmp_dir}/additional-properties-default.json"
+assert_contains \
+  "${tmp_dir}/additional-properties-default.log" \
+  "No OpenAPI drift detected."
+
+jq '
   .components.securitySchemes.OAuth = {
     "type": "oauth2",
     "flows": {
