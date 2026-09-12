@@ -844,12 +844,27 @@ jq '.components.schemas.Book.required = []' \
   "${tmp_dir}/empty-required-reference.json" \
   > "${tmp_dir}/empty-required-candidate.json"
 run_check \
-  "empty-required" \
-  0 \
+  "invalid-30-empty-required" \
+  2 \
   "${tmp_dir}/empty-required-candidate.json" \
   "${tmp_dir}/empty-required-reference.json"
 assert_contains \
-  "${tmp_dir}/empty-required.log" \
+  "${tmp_dir}/invalid-30-empty-required.md" \
+  "- Structural contract: changed"
+
+jq '.openapi = "3.1.0"' \
+  "${tmp_dir}/empty-required-reference.json" \
+  > "${tmp_dir}/empty-required-31-reference.json"
+jq '.components.schemas.Book.required = []' \
+  "${tmp_dir}/empty-required-31-reference.json" \
+  > "${tmp_dir}/empty-required-31-candidate.json"
+run_check \
+  "empty-required-31" \
+  0 \
+  "${tmp_dir}/empty-required-31-candidate.json" \
+  "${tmp_dir}/empty-required-31-reference.json"
+assert_contains \
+  "${tmp_dir}/empty-required-31.log" \
   "No OpenAPI drift detected."
 
 jq '
@@ -1659,5 +1674,205 @@ run_check \
 assert_contains \
   "${tmp_dir}/invalid-operation-zero-bound.md" \
   "- Structural contract: changed"
+
+jq '.info.unexpected = 1' \
+  "${REFERENCE}" > "${tmp_dir}/unknown-info-field.json"
+run_check "unknown-info-field" 2 "${tmp_dir}/unknown-info-field.json"
+assert_contains \
+  "${tmp_dir}/unknown-info-field.md" \
+  "- Structural contract: changed"
+
+jq '.externalDocs = null' \
+  "${REFERENCE}" > "${tmp_dir}/malformed-root-external-docs.json"
+run_check \
+  "malformed-root-external-docs" \
+  2 \
+  "${tmp_dir}/malformed-root-external-docs.json"
+assert_contains \
+  "${tmp_dir}/malformed-root-external-docs.md" \
+  "- Structural contract: changed"
+
+jq '
+  .components.schemas.ModifiedBranch.oneOf[0].type = "integer"
+  | .components.schemas.ModifiedBranch.oneOf[0].description
+      as $first_description
+  | .components.schemas.ModifiedBranch.oneOf[1].description
+      as $second_description
+  | .components.schemas.ModifiedBranch.oneOf[0].description
+      = $second_description
+  | .components.schemas.ModifiedBranch.oneOf[1].description
+      = $first_description
+' "${tmp_dir}/modified-branch-reference.json" \
+  > "${tmp_dir}/modified-and-swapped-branch-candidate.json"
+run_check \
+  "modified-and-swapped-branch" \
+  2 \
+  "${tmp_dir}/modified-and-swapped-branch-candidate.json" \
+  "${tmp_dir}/modified-branch-reference.json"
+assert_contains \
+  "${tmp_dir}/modified-and-swapped-branch.md" \
+  "- Structural contract: changed"
+assert_contains \
+  "${tmp_dir}/modified-and-swapped-branch.md" \
+  "- Behavioral descriptions: changed (2)"
+
+jq '.paths["/key"].get.title = "Invalid operation title"' \
+  "${REFERENCE}" > "${tmp_dir}/invalid-operation-title.json"
+run_check \
+  "invalid-operation-title" \
+  2 \
+  "${tmp_dir}/invalid-operation-title.json"
+assert_contains \
+  "${tmp_dir}/invalid-operation-title.md" \
+  "- Structural contract: changed"
+
+jq '.webhooks = {}' \
+  "${REFERENCE}" > "${tmp_dir}/invalid-30-empty-webhooks.json"
+run_check \
+  "invalid-30-empty-webhooks" \
+  2 \
+  "${tmp_dir}/invalid-30-empty-webhooks.json"
+assert_contains \
+  "${tmp_dir}/invalid-30-empty-webhooks.md" \
+  "- Structural contract: changed"
+
+jq '.tags += ["malformed"]' \
+  "${REFERENCE}" > "${tmp_dir}/malformed-root-tag.json"
+run_check "malformed-root-tag" 2 "${tmp_dir}/malformed-root-tag.json"
+assert_contains \
+  "${tmp_dir}/malformed-root-tag.md" \
+  "- Structural contract: changed"
+
+jq '.paths["/key"].get.security += [.paths["/key"].get.security[0]]' \
+  "${REFERENCE}" > "${tmp_dir}/duplicate-security-alternative.json"
+run_check \
+  "duplicate-security-alternative" \
+  0 \
+  "${tmp_dir}/duplicate-security-alternative.json"
+assert_contains \
+  "${tmp_dir}/duplicate-security-alternative.log" \
+  "No OpenAPI drift detected."
+
+jq '
+  .openapi = "3.1.0"
+  | del(.jsonSchemaDialect)
+' "${REFERENCE}" > "${tmp_dir}/schema-dialect-keyword-reference.json"
+jq '
+  .components.schemas.Book["$schema"]
+    = "https://spec.openapis.org/oas/3.1/dialect/base"
+' "${tmp_dir}/schema-dialect-keyword-reference.json" \
+  > "${tmp_dir}/schema-dialect-keyword-candidate.json"
+run_check \
+  "schema-dialect-keyword" \
+  0 \
+  "${tmp_dir}/schema-dialect-keyword-candidate.json" \
+  "${tmp_dir}/schema-dialect-keyword-reference.json"
+assert_contains \
+  "${tmp_dir}/schema-dialect-keyword.log" \
+  "No OpenAPI drift detected."
+
+jq '
+  .openapi = "3.1.0"
+  | .jsonSchemaDialect = "https://json-schema.org/draft/2020-12/schema"
+' "${REFERENCE}" > "${tmp_dir}/custom-schema-dialect-reference.json"
+jq '
+  .components.schemas.Book["$schema"] = .jsonSchemaDialect
+' "${tmp_dir}/custom-schema-dialect-reference.json" \
+  > "${tmp_dir}/custom-schema-dialect-candidate.json"
+run_check \
+  "custom-schema-dialect-keyword" \
+  0 \
+  "${tmp_dir}/custom-schema-dialect-candidate.json" \
+  "${tmp_dir}/custom-schema-dialect-reference.json"
+assert_contains \
+  "${tmp_dir}/custom-schema-dialect-keyword.log" \
+  "No OpenAPI drift detected."
+
+jq 'del(.paths)' \
+  "${REFERENCE}" > "${tmp_dir}/missing-required-paths.json"
+run_check \
+  "missing-required-paths" \
+  2 \
+  "${tmp_dir}/missing-required-paths.json"
+assert_contains \
+  "${tmp_dir}/missing-required-paths.md" \
+  "- Structural contract: changed"
+
+jq '
+  .components.requestBodies.EncodingHeaders = {
+    "content": {
+      "multipart/form-data": {
+        "schema": {"type": "object"},
+        "encoding": {"value": {}}
+      }
+    }
+  }
+' "${REFERENCE}" > "${tmp_dir}/encoding-headers-reference.json"
+jq '
+  .components.requestBodies.EncodingHeaders.content["multipart/form-data"]
+    .encoding.value.headers = {}
+' "${tmp_dir}/encoding-headers-reference.json" \
+  > "${tmp_dir}/encoding-headers-candidate.json"
+run_check \
+  "empty-encoding-headers" \
+  0 \
+  "${tmp_dir}/encoding-headers-candidate.json" \
+  "${tmp_dir}/encoding-headers-reference.json"
+assert_contains \
+  "${tmp_dir}/empty-encoding-headers.log" \
+  "No OpenAPI drift detected."
+
+jq '
+  .openapi = "3.1.0"
+  | .components.schemas.Tuple = {"type": "array"}
+' "${REFERENCE}" > "${tmp_dir}/empty-prefix-items-reference.json"
+jq '.components.schemas.Tuple.prefixItems = []' \
+  "${tmp_dir}/empty-prefix-items-reference.json" \
+  > "${tmp_dir}/empty-prefix-items-candidate.json"
+run_check \
+  "empty-prefix-items" \
+  0 \
+  "${tmp_dir}/empty-prefix-items-candidate.json" \
+  "${tmp_dir}/empty-prefix-items-reference.json"
+assert_contains \
+  "${tmp_dir}/empty-prefix-items.log" \
+  "No OpenAPI drift detected."
+
+jq '.paths["/book/{isbn}"].get.responses["404"].description = ""' \
+  "${REFERENCE}" > "${tmp_dir}/required-response-description-reference.json"
+jq 'del(.paths["/book/{isbn}"].get.responses["404"].description)' \
+  "${tmp_dir}/required-response-description-reference.json" \
+  > "${tmp_dir}/required-response-description-candidate.json"
+run_check \
+  "missing-response-description" \
+  2 \
+  "${tmp_dir}/required-response-description-candidate.json" \
+  "${tmp_dir}/required-response-description-reference.json"
+assert_contains \
+  "${tmp_dir}/missing-response-description.md" \
+  "- Structural contract: changed"
+
+jq '
+  .components.requestBodies.EmptyEncoding = {
+    "content": {
+      "multipart/form-data": {
+        "schema": {"type": "object"}
+      }
+    }
+  }
+' "${REFERENCE}" > "${tmp_dir}/empty-media-encoding-reference.json"
+jq '
+  .components.requestBodies.EmptyEncoding.content["multipart/form-data"]
+    .encoding = {}
+' "${tmp_dir}/empty-media-encoding-reference.json" \
+  > "${tmp_dir}/empty-media-encoding-candidate.json"
+run_check \
+  "empty-media-encoding" \
+  0 \
+  "${tmp_dir}/empty-media-encoding-candidate.json" \
+  "${tmp_dir}/empty-media-encoding-reference.json"
+assert_contains \
+  "${tmp_dir}/empty-media-encoding.log" \
+  "No OpenAPI drift detected."
 
 echo "API spec drift diagnostics tests passed."

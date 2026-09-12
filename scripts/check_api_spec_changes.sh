@@ -185,6 +185,11 @@ normalize_spec() {
       and $path[-2] == "encoding"
       and is_named_map($path[0:-1]);
 
+    def is_media_type_object($path):
+      ($path | length) > 1
+      and $path[-2] == "content"
+      and is_named_map($path[0:-1]);
+
     def is_response_object($path):
       ($path | length) > 1
       and $path[-2] == "responses"
@@ -347,7 +352,7 @@ normalize_spec() {
              end)
         end;
 
-    def normalize_openapi_object($path; $openapi_version):
+    def normalize_openapi_object($path; $openapi_version; $schema_dialect):
       normalize_serialization_defaults($path)
       | (if is_deprecated_context($path) and .deprecated? == false then
            del(.deprecated)
@@ -440,8 +445,16 @@ normalize_spec() {
            .required |= sort
          else .
          end)
-      | (if is_schema_object($path) and .required? == [] then
+      | (if is_schema_object($path)
+           and supports_json_schema_2020_12($openapi_version)
+           and .required? == [] then
            del(.required)
+         else .
+         end)
+      | (if is_schema_object($path)
+           and supports_json_schema_2020_12($openapi_version)
+           and .prefixItems? == [] then
+           del(.prefixItems)
          else .
          end)
       | (if is_schema_object($path) and (.type? | type) == "array" then
@@ -515,6 +528,7 @@ normalize_spec() {
                end
              )
              | sort_by(tojson)
+             | unique_by(tojson)
            )
          else .
          end)
@@ -528,6 +542,14 @@ normalize_spec() {
            | (if .content? == {} then del(.content) else . end)
          else .
          end)
+      | (if is_encoding_object($path) and .headers? == {} then
+           del(.headers)
+         else .
+         end)
+      | (if is_media_type_object($path) and .encoding? == {} then
+           del(.encoding)
+         else .
+         end)
       | (if is_server_object($path) and .variables? == {} then
            del(.variables)
          else .
@@ -537,6 +559,12 @@ normalize_spec() {
               del(."$comment")
             else .
             end)
+           | (if ($schema_dialect | type) == "string"
+                 and (."$schema"? | type) == "string"
+                 and ."$schema" == $schema_dialect then
+                del(."$schema")
+              else .
+              end)
            | (
                ["properties"]
                + (if supports_json_schema_2020_12($openapi_version) then
@@ -554,7 +582,7 @@ normalize_spec() {
          else .
          end);
 
-    def normalize_value($path; $openapi_version):
+    def normalize_value($path; $openapi_version; $schema_dialect):
       if type == "object" then
         (is_named_map($path)) as $is_named_map
         | (if $is_named_map
@@ -575,9 +603,13 @@ normalize_spec() {
              )
            elif $is_named_map then .
            else
-            (if has("description")
-                and (.description | type) == "string"
-              then del(.description)
+            (if is_response_object($path)
+                and has("description")
+                and (.description | type) == "string" then
+               .description = true
+             elif has("description")
+                and (.description | type) == "string" then
+               del(.description)
               else .
               end)
             | (if has("summary")
@@ -585,8 +617,12 @@ normalize_spec() {
                 then del(.summary)
                 else .
                 end)
-             | del(.externalDocs)
-            | (if $path != ["info"]
+             | (if has("externalDocs")
+                   and (.externalDocs | type) == "object" then
+                  del(.externalDocs)
+                else .
+                end)
+            | (if is_schema_object($path)
                    and has("title")
                    and (.title | type) == "string"
                  then del(.title)
@@ -607,18 +643,30 @@ normalize_spec() {
               elif is_link_object($path)
                   and ($key == "requestBody" or $key == "parameters")
               then .
-              else .value |= normalize_value($path + [$key]; $openapi_version)
+              else .value |= normalize_value(
+                $path + [$key];
+                $openapi_version;
+                $schema_dialect
+              )
               end
           )
         | from_entries
         | if $is_named_map then .
-          else normalize_openapi_object($path; $openapi_version)
+          else normalize_openapi_object(
+            $path;
+            $openapi_version;
+            $schema_dialect
+          )
           end
       elif type == "array" then
         to_entries
         | map(
             .key as $index
-            | .value |= normalize_value($path + [$index]; $openapi_version)
+            | .value |= normalize_value(
+              $path + [$index];
+              $openapi_version;
+              $schema_dialect
+            )
           )
         | map(.value)
       else .
@@ -629,6 +677,14 @@ normalize_spec() {
     else
       . as $root
       | .openapi as $openapi_version
+      | (if has("jsonSchemaDialect") then
+           if (.jsonSchemaDialect | type) == "string" then
+             .jsonSchemaDialect
+           else null
+           end
+         else
+           default_json_schema_dialect($openapi_version)
+         end) as $schema_dialect
       | (
         {
           openapi,
@@ -636,7 +692,9 @@ normalize_spec() {
             if has("info") then
               .info as $info
               | if ($info | type) == "object" then
-                  {title: (if ($info | has("title")) then $info.title else null end)}
+                  ($info
+                   | with_entries(select(.key | startswith("x-") | not))
+                   | del(.version, .termsOfService, .contact, .license))
                 else $info
                 end
             else null
@@ -656,22 +714,68 @@ normalize_spec() {
                 )
             else .
             end
-        ),
-        paths: (
-          (if has("paths") then .paths else {} end)
-          | if type == "object" then
-              with_entries(select(.key | startswith("x-") | not))
-            else .
-            end
-        ),
-        webhooks: (
-          (if has("webhooks") then .webhooks else {} end)
-          | if type == "object" then
-              with_entries(select(.key | startswith("x-") | not))
-            else .
-            end
         )
         }
+        + (
+          if supports_json_schema_2020_12($openapi_version) then
+            {paths: (
+              (if has("paths") then .paths else {} end)
+              | if type == "object" then
+                  with_entries(select(.key | startswith("x-") | not))
+                else .
+                end
+            )}
+          elif has("paths") then
+            {paths: (
+              .paths
+              | if type == "object" then
+                  with_entries(select(.key | startswith("x-") | not))
+                else .
+                end
+            )}
+          else {}
+          end
+        )
+        + (
+          if supports_json_schema_2020_12($openapi_version) then
+            {webhooks: (
+              (if has("webhooks") then .webhooks else {} end)
+              | if type == "object" then
+                  with_entries(select(.key | startswith("x-") | not))
+                else .
+                end
+            )}
+          elif has("webhooks") then
+            {webhooks: .webhooks}
+          else {}
+          end
+        )
+        + (
+          if has("externalDocs")
+              and (.externalDocs | type) != "object" then
+            {externalDocs: .externalDocs}
+          else {}
+          end
+        )
+        + (
+          if has("tags") then
+            if (.tags | type) == "array" then
+              ([.tags[]
+                | select(
+                    type != "object"
+                    or (.name | type) != "string"
+                  )
+               ]) as $invalid_tags
+              | if ($invalid_tags | length) > 0 then
+                  {tags: $invalid_tags}
+                else {}
+                end
+            else
+              {tags: .tags}
+            end
+          else {}
+          end
+        )
         + (
         (default_json_schema_dialect(.openapi)) as $default_dialect
         | if has("jsonSchemaDialect") then
@@ -687,7 +791,7 @@ normalize_spec() {
         )
         + ($root | unknown_root_fields)
       )
-      | normalize_value([]; $openapi_version)
+      | normalize_value([]; $openapi_version; $schema_dialect)
       | if .servers == [{"url": "/"}] then .servers = [] else . end
     end
   ' "${input}" > "${output}"
@@ -906,7 +1010,15 @@ extract_behavioral_descriptions() {
           and ($parts.minor | tonumber) >= 1
       end;
 
-    def canonical_schema_identity($openapi_version):
+    def default_json_schema_dialect($version):
+      if supports_json_schema_2020_12($version) then
+        ($version
+         | capture("^(?<major>[0-9]+)\\.(?<minor>[0-9]+)\\.")
+         | "https://spec.openapis.org/oas/\(.major).\(.minor)/dialect/base")
+      else null
+      end;
+
+    def canonical_schema_identity($openapi_version; $schema_dialect):
       if type == "object" then
         del(
           .description,
@@ -918,6 +1030,12 @@ extract_behavioral_descriptions() {
         )
         | (if supports_json_schema_2020_12($openapi_version) then
              del(."$comment")
+           else .
+           end)
+        | (if ($schema_dialect | type) == "string"
+              and (."$schema"? | type) == "string"
+              and ."$schema" == $schema_dialect then
+             del(."$schema")
            else .
            end)
         | to_entries
@@ -933,7 +1051,10 @@ extract_behavioral_descriptions() {
                 .value |= (
                   to_entries
                   | sort_by(.key)
-                  | map(.value |= canonical_schema_identity($openapi_version))
+                  | map(.value |= canonical_schema_identity(
+                    $openapi_version;
+                    $schema_dialect
+                  ))
                   | from_entries
                 )
               elif $key == "dependentRequired"
@@ -948,7 +1069,10 @@ extract_behavioral_descriptions() {
               elif $key == "default" or $key == "enum" or $key == "const" then
                 .value |= canonical_json_identity
               else
-                .value |= canonical_schema_identity($openapi_version)
+                .value |= canonical_schema_identity(
+                  $openapi_version;
+                  $schema_dialect
+                )
               end
           )
         | from_entries
@@ -993,7 +1117,16 @@ extract_behavioral_descriptions() {
              .required |= sort_by(tojson)
            else .
            end)
-        | (if .required? == [] then del(.required) else . end)
+        | (if supports_json_schema_2020_12($openapi_version)
+              and .required? == [] then
+             del(.required)
+           else .
+           end)
+        | (if supports_json_schema_2020_12($openapi_version)
+              and .prefixItems? == [] then
+             del(.prefixItems)
+           else .
+           end)
         | (if (.enum? | type) == "array" then
              .enum |= (map(canonical_json_identity) | sort_by(tojson))
            else .
@@ -1029,12 +1162,20 @@ extract_behavioral_descriptions() {
         | reduce $empty_schema_maps[] as $key
             (.; if .[$key]? == {} then del(.[$key]) else . end)
       elif type == "array" then
-        map(canonical_schema_identity($openapi_version))
+        map(canonical_schema_identity($openapi_version; $schema_dialect))
       else .
       end;
 
     def semantic_path($document; $path):
-      [
+      (if ($document | has("jsonSchemaDialect")) then
+         if ($document.jsonSchemaDialect | type) == "string" then
+           $document.jsonSchemaDialect
+         else null
+         end
+       else
+         default_json_schema_dialect($document.openapi)
+       end) as $schema_dialect
+      | [
         range(0; $path | length) as $index
         | if $index > 0
             and $path[$index - 1] == "parameters"
@@ -1092,14 +1233,20 @@ extract_behavioral_descriptions() {
             ($document | getpath($path[0:$index])) as $branches
             | $path[$index] as $branch_index
             | ($branches[$branch_index]
-               | canonical_schema_identity($document.openapi)
+               | canonical_schema_identity(
+                 $document.openapi;
+                 $schema_dialect
+               )
                | tojson)
               as $identity
             | ([
                  range(0; $branch_index) as $prior
                  | select(
                      ($branches[$prior]
-                      | canonical_schema_identity($document.openapi)
+                      | canonical_schema_identity(
+                        $document.openapi;
+                        $schema_dialect
+                      )
                       | tojson)
                      == $identity
                    )
@@ -1299,6 +1446,66 @@ jq -S -n \
         )
       | add // [];
 
+    def changes_by_id($reference_entries; $candidate_entries):
+      [
+        $reference_entries[] as $reference_entry
+        | ($candidate_entries
+           | map(select(.id == $reference_entry.id))
+           | .[0]) as $candidate_entry
+        | select($reference_entry.value != $candidate_entry.value)
+        | {
+            id: $reference_entry.id,
+            kind: $candidate_entry.kind,
+            label: $candidate_entry.label,
+            before: $reference_entry.value,
+            after: $candidate_entry.value
+          }
+      ];
+
+    def changes_by_value($match_id; $raw_reference_entries; $raw_candidate_entries):
+      ($raw_reference_entries | add_value_occurrences) as $reference_entries
+      | ($raw_candidate_entries | add_value_occurrences) as $candidate_entries
+      | [
+          $reference_entries[]
+          | . as $entry
+          | select(
+              ([$candidate_entries[]
+                | select(
+                    .value == $entry.value
+                    and .value_occurrence == $entry.value_occurrence
+                  )
+               ] | length) == 0
+            )
+        ] as $unmatched_reference
+      | [
+          $candidate_entries[]
+          | . as $entry
+          | select(
+              ([$reference_entries[]
+                | select(
+                    .value == $entry.value
+                    and .value_occurrence == $entry.value_occurrence
+                  )
+               ] | length) == 0
+            )
+        ] as $unmatched_candidate
+      | ([
+           ($unmatched_reference | length),
+           ($unmatched_candidate | length)
+         ] | max) as $change_count
+      | [
+          range(0; $change_count) as $index
+          | ($unmatched_candidate[$index]
+             // $unmatched_reference[$index]) as $display_entry
+          | {
+              id: "\($match_id)#\($index)",
+              kind: $display_entry.kind,
+              label: $display_entry.label,
+              before: ($unmatched_reference[$index].value // null),
+              after: ($unmatched_candidate[$index].value // null)
+            }
+        ];
+
     ($reference[0] | group_by_match_id) as $reference_groups
     | ($candidate[0] | group_by_match_id) as $candidate_groups
     | [
@@ -1311,67 +1518,34 @@ jq -S -n \
         | ($raw_reference_entries | map(.id) | sort) as $reference_ids
         | ($raw_candidate_entries | map(.id) | sort) as $candidate_ids
         | if $reference_ids == $candidate_ids then
-            [
-              $raw_reference_entries[] as $reference_entry
-              | ($raw_candidate_entries
-                 | map(select(.id == $reference_entry.id))
-                 | .[0]) as $candidate_entry
-              | select($reference_entry.value != $candidate_entry.value)
-              | {
-                  id: $reference_entry.id,
-                  kind: $candidate_entry.kind,
-                  label: $candidate_entry.label,
-                  before: $reference_entry.value,
-                  after: $candidate_entry.value
-                }
-            ]
+            changes_by_id($raw_reference_entries; $raw_candidate_entries)
           else
-            ($raw_reference_entries | add_value_occurrences)
-              as $reference_entries
-            | ($raw_candidate_entries | add_value_occurrences)
-              as $candidate_entries
-            | [
-                $reference_entries[]
-                | . as $entry
-                | select(
-                    ([
-                       $candidate_entries[]
-                       | select(
-                           .value == $entry.value
-                           and .value_occurrence == $entry.value_occurrence
-                         )
-                     ] | length) == 0
-                  )
-              ] as $unmatched_reference
-            | [
-                $candidate_entries[]
-                | . as $entry
-                | select(
-                    ([
-                       $reference_entries[]
-                       | select(
-                           .value == $entry.value
-                           and .value_occurrence == $entry.value_occurrence
-                         )
-                     ] | length) == 0
-                  )
-              ] as $unmatched_candidate
-            | ([
-                 ($unmatched_reference | length),
-                 ($unmatched_candidate | length)
-               ] | max) as $change_count
-            | [
-                range(0; $change_count) as $index
-                | ($unmatched_candidate[$index]
-                   // $unmatched_reference[$index]) as $display_entry
-                | {
-                    id: "\($match_id)#\($index)",
-                    kind: $display_entry.kind,
-                    label: $display_entry.label,
-                    before: ($unmatched_reference[$index].value // null),
-                    after: ($unmatched_candidate[$index].value // null)
-                  }
-              ]
+            ([
+               $reference_ids[] as $id
+               | select(($candidate_ids | index($id)) != null)
+               | $id
+             ] | unique) as $surviving_ids
+            | ($raw_reference_entries
+               | map(.id as $id | select(($surviving_ids | index($id)) != null)))
+              as $surviving_reference_entries
+            | ($raw_candidate_entries
+               | map(.id as $id | select(($surviving_ids | index($id)) != null)))
+              as $surviving_candidate_entries
+            | ($raw_reference_entries
+               | map(.id as $id | select(($surviving_ids | index($id)) == null)))
+              as $unmatched_reference_entries
+            | ($raw_candidate_entries
+               | map(.id as $id | select(($surviving_ids | index($id)) == null)))
+              as $unmatched_candidate_entries
+            | changes_by_id(
+                $surviving_reference_entries;
+                $surviving_candidate_entries
+              )
+              + changes_by_value(
+                  $match_id;
+                  $unmatched_reference_entries;
+                  $unmatched_candidate_entries
+                )
           end
         | .[]
       ]
