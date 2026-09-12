@@ -68,6 +68,13 @@ jobs:
         with:
           script: |
             const fs = require('fs');
+            const path = require('path');
+            const {
+              sanitizeGitHubIssueReport,
+            } = require(path.join(
+              process.env.GITHUB_WORKSPACE,
+              'scripts/sanitize_github_issue_report.cjs',
+            ));
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const title = 'API drift detected in ISBNdb OpenAPI';
@@ -77,11 +84,11 @@ jobs:
             try {
               driftReport = fs
                 .readFileSync(process.env.DRIFT_REPORT_PATH, 'utf8')
-                .trim()
-                .slice(0, 30000);
+                .trim();
             } catch (error) {
               core.warning(`Unable to read drift report: ${error.message}`);
             }
+            driftReport = sanitizeGitHubIssueReport(driftReport);
             const body = [
               'The scheduled OpenAPI drift check detected changes against the repository snapshot.',
               '',

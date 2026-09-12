@@ -349,6 +349,22 @@ assert_contains \
   "${tmp_dir}/invalid-dialect.md" \
   '- Candidate JSON Schema dialect: `false`'
 
+for root_field in security components webhooks; do
+  jq --arg field "${root_field}" 'del(.[$field])' \
+    "${REFERENCE}" > "${tmp_dir}/${root_field}-false-reference.json"
+  jq --arg field "${root_field}" '.[$field] = false' \
+    "${tmp_dir}/${root_field}-false-reference.json" \
+    > "${tmp_dir}/${root_field}-false-candidate.json"
+  run_check \
+    "${root_field}-false" \
+    2 \
+    "${tmp_dir}/${root_field}-false-candidate.json" \
+    "${tmp_dir}/${root_field}-false-reference.json"
+  assert_contains \
+    "${tmp_dir}/${root_field}-false.md" \
+    "- Structural contract: changed"
+done
+
 jq '
   .openapi = "3.1.0"
   | .components.schemas.NullableString = {
@@ -634,6 +650,39 @@ assert_contains \
   "${tmp_dir}/empty-required.log" \
   "No OpenAPI drift detected."
 
+jq '.components.schemas.Book.required = false' \
+  "${tmp_dir}/empty-required-reference.json" \
+  > "${tmp_dir}/invalid-required-schema.json"
+run_check \
+  "invalid-required-schema" \
+  2 \
+  "${tmp_dir}/invalid-required-schema.json" \
+  "${tmp_dir}/empty-required-reference.json"
+assert_contains \
+  "${tmp_dir}/invalid-required-schema.md" \
+  "- Structural contract: changed"
+
+jq '
+  .components.requestBodies.OptionalBody = {
+    "content": {
+      "application/json": {
+        "schema": {"type": "string"}
+      }
+    }
+  }
+' "${REFERENCE}" > "${tmp_dir}/request-body-required-reference.json"
+jq '.components.requestBodies.OptionalBody.required = false' \
+  "${tmp_dir}/request-body-required-reference.json" \
+  > "${tmp_dir}/request-body-required-candidate.json"
+run_check \
+  "request-body-required" \
+  0 \
+  "${tmp_dir}/request-body-required-candidate.json" \
+  "${tmp_dir}/request-body-required-reference.json"
+assert_contains \
+  "${tmp_dir}/request-body-required.log" \
+  "No OpenAPI drift detected."
+
 jq '
   .["x-generator"] = {
     "description": "Root generator metadata"
@@ -710,6 +759,32 @@ run_check \
 assert_contains \
   "${tmp_dir}/webhook-extension.log" \
   "No OpenAPI drift detected."
+
+jq '
+  .components.examples.Sample = {
+    "summary": "First example summary",
+    "description": "First example description",
+    "value": {
+      "description": "Literal payload description"
+    }
+  }
+' "${REFERENCE}" > "${tmp_dir}/example-metadata-reference.json"
+jq '
+  .components.examples.Sample.summary = "Second example summary"
+  | .components.examples.Sample.description = "Second example description"
+' "${tmp_dir}/example-metadata-reference.json" \
+  > "${tmp_dir}/example-metadata-candidate.json"
+run_check \
+  "example-metadata" \
+  2 \
+  "${tmp_dir}/example-metadata-candidate.json" \
+  "${tmp_dir}/example-metadata-reference.json"
+assert_contains \
+  "${tmp_dir}/example-metadata.md" \
+  "- Structural contract: unchanged"
+assert_contains \
+  "${tmp_dir}/example-metadata.md" \
+  "- Behavioral descriptions: changed (2)"
 
 jq '
   .components.securitySchemes.OAuth = {

@@ -102,6 +102,7 @@ normalize_spec() {
       or . == "dependentRequired"
       or . == "content"
       or . == "encoding"
+      or . == "examples"
       or . == "variables"
       or . == "scopes"
       or . == "mapping";
@@ -139,6 +140,25 @@ normalize_spec() {
       ($path | length) > 1
       and $path[-2] == "responses"
       and is_named_map($path[0:-1]);
+
+    def is_http_method:
+      . == "get"
+      or . == "post"
+      or . == "put"
+      or . == "patch"
+      or . == "delete"
+      or . == "options"
+      or . == "head"
+      or . == "trace";
+
+    def is_request_body_object($path):
+      (($path | length) > 1
+       and $path[-2] == "requestBodies"
+       and is_named_map($path[0:-1]))
+      or (($path | length) > 1
+          and $path[-1] == "requestBody"
+          and ($path[-2] | type) == "string"
+          and ($path[-2] | is_http_method));
 
     def canonical_json:
       if type == "object" then
@@ -189,7 +209,9 @@ normalize_spec() {
     def normalize_openapi_object($path):
       normalize_serialization_defaults($path)
       | (if .deprecated? == false then del(.deprecated) else . end)
-      | (if (.required? | type) == "boolean" and .required == false then
+      | (if .required? == false
+           and ((.in? == "query" or .in? == "header" or .in? == "cookie")
+                or is_request_body_object($path)) then
            del(.required)
          else .
          end)
@@ -325,20 +347,29 @@ normalize_spec() {
         info: {
           title: (.info.title // null)
         },
-        servers: (.servers // []),
-        security: (.security // []),
+        servers: (if has("servers") then .servers else [] end),
+        security: (if has("security") then .security else [] end),
         components: (
-          (.components // {})
-          | with_entries(select(.key | startswith("x-") | not))
-          | with_entries(select(.value != {}))
+          (if has("components") then .components else {} end)
+          | if type == "object" then
+              with_entries(select(.key | startswith("x-") | not))
+              | with_entries(select(.value != {}))
+            else .
+            end
         ),
         paths: (
-          (.paths // {})
-          | with_entries(select(.key | startswith("x-") | not))
+          (if has("paths") then .paths else {} end)
+          | if type == "object" then
+              with_entries(select(.key | startswith("x-") | not))
+            else .
+            end
         ),
         webhooks: (
-          (.webhooks // {})
-          | with_entries(select(.key | startswith("x-") | not))
+          (if has("webhooks") then .webhooks else {} end)
+          | if type == "object" then
+              with_entries(select(.key | startswith("x-") | not))
+            else .
+            end
         )
       }
       + (
@@ -390,6 +421,7 @@ extract_behavioral_descriptions() {
       or . == "dependentRequired"
       or . == "content"
       or . == "encoding"
+      or . == "examples"
       or . == "variables"
       or . == "scopes"
       or . == "mapping";
@@ -420,6 +452,16 @@ extract_behavioral_descriptions() {
       ($path | length) > 1
       and is_named_map($path[0:-1])
       and $path[-2] == "scopes";
+
+    def is_example_object($path):
+      ($path | length) > 1
+      and $path[-2] == "examples"
+      and is_named_map($path[0:-1]);
+
+    def is_example_metadata($path):
+      ($path | length) > 0
+      and ($path[-1] == "description" or $path[-1] == "summary")
+      and is_example_object($path[0:-1]);
 
     def is_header_map_key($path; $index):
       $index > 1
@@ -536,7 +578,10 @@ extract_behavioral_descriptions() {
           or (($path[-1] == "description" or $path[-1] == "summary")
               and (is_identifier_key($path; ($path | length) - 1) | not))
         )
-      | select(contains_literal_payload($path) | not)
+      | select(
+          is_example_metadata($path)
+          or (contains_literal_payload($path) | not)
+        )
       | select(contains_specification_extension($path) | not)
       | (getpath($path) | normalized_description) as $value
       | select($value != "")
@@ -701,15 +746,15 @@ comm -23 "${tmp_dir}/reference.paths" "${tmp_dir}/candidate.paths" \
 comm -13 "${tmp_dir}/reference.paths" "${tmp_dir}/candidate.paths" \
   > "${tmp_dir}/added.paths"
 
-reference_servers="$(jq -c '.servers // []' "${normalized_reference}")"
-candidate_servers="$(jq -c '.servers // []' "${normalized_candidate}")"
+reference_servers="$(jq -c '.servers' "${normalized_reference}")"
+candidate_servers="$(jq -c '.servers' "${normalized_candidate}")"
 top_level_servers_changed=false
 if [[ "${reference_servers}" != "${candidate_servers}" ]]; then
   top_level_servers_changed=true
 fi
 
-reference_security="$(jq -c '.security // []' "${normalized_reference}")"
-candidate_security="$(jq -c '.security // []' "${normalized_candidate}")"
+reference_security="$(jq -c '.security' "${normalized_reference}")"
+candidate_security="$(jq -c '.security' "${normalized_candidate}")"
 top_level_security_changed=false
 if [[ "${reference_security}" != "${candidate_security}" ]]; then
   top_level_security_changed=true
