@@ -98,6 +98,8 @@ normalize_spec() {
       or . == "patternProperties"
       or . == "$defs"
       or . == "definitions"
+      or . == "dependentSchemas"
+      or . == "dependentRequired"
       or . == "content"
       or . == "encoding"
       or . == "variables"
@@ -181,6 +183,7 @@ normalize_spec() {
            .parameters |= sort_by(.in // "", .name // "", ."$ref" // "")
          else .
          end)
+      | (if .parameters? == [] then del(.parameters) else . end)
       | (if (.security? | type) == "array" then
            .security |= (
              map(
@@ -204,6 +207,10 @@ normalize_spec() {
         (is_named_map($path)) as $is_named_map
         | (if $is_named_map and $path[-1] == "scopes" then
              with_entries(.value = null)
+           elif $is_named_map and $path[-1] == "dependentRequired" then
+             with_entries(
+               if (.value | type) == "array" then .value |= sort else . end
+             )
            elif $is_named_map then .
            else
              (if has("description")
@@ -218,6 +225,7 @@ normalize_spec() {
                  then del(.summary)
                  else .
                  end)
+             | del(.externalDocs)
              | (if $path != ["info"]
                    and has("title")
                    and ((.title | type) == "string" or (.title | type) == "null")
@@ -229,7 +237,9 @@ normalize_spec() {
         | to_entries
         | map(
             .key as $key
-            | if $is_named_map and $path[-1] == "scopes" then
+            | if $is_named_map
+                and ($path[-1] == "scopes" or $path[-1] == "dependentRequired")
+              then
                 .
               elif ($is_named_map | not)
                 and ($key == "default" or $key == "enum" or $key == "const")
@@ -254,6 +264,7 @@ normalize_spec() {
 
     {
       openapi,
+      jsonSchemaDialect: (.jsonSchemaDialect // null),
       info: {
         title: (.info.title // null)
       },
@@ -299,6 +310,8 @@ extract_behavioral_descriptions() {
       or . == "patternProperties"
       or . == "$defs"
       or . == "definitions"
+      or . == "dependentSchemas"
+      or . == "dependentRequired"
       or . == "content"
       or . == "encoding"
       or . == "variables"
@@ -330,9 +343,10 @@ extract_behavioral_descriptions() {
         | select(
             ((($path[$index] == "default"
                or $path[$index] == "enum"
-               or $path[$index] == "const"
-               or $path[$index] == "example"
-               or $path[$index] == "examples")
+             or $path[$index] == "const"
+             or $path[$index] == "example"
+             or $path[$index] == "examples"
+             or $path[$index] == "externalDocs")
               and (is_identifier_key($path; $index) | not))
             or ($index > 1
                 and $path[$index - 2] == "links"
@@ -567,6 +581,20 @@ jq -r -n \
 jq -r -n \
   --slurpfile reference "${normalized_reference}" \
   --slurpfile candidate "${normalized_candidate}" '
+    ($reference[0].paths // {}) as $reference_paths
+    | ($candidate[0].paths // {}) as $candidate_paths
+    | (($reference_paths | keys) + ($candidate_paths | keys) | unique[])
+      as $path
+    | select(
+        ($reference_paths[$path]["$ref"] // null)
+        != ($candidate_paths[$path]["$ref"] // null)
+      )
+    | $path
+  ' | sort > "${tmp_dir}/changed.path-references"
+
+jq -r -n \
+  --slurpfile reference "${normalized_reference}" \
+  --slurpfile candidate "${normalized_candidate}" '
     def is_http_method:
       . == "get"
       or . == "post"
@@ -654,6 +682,13 @@ report="${tmp_dir}/drift-report.md"
     echo "Changed path-level parameters:"
     if [[ -s "${tmp_dir}/changed.path-parameters" ]]; then
       sed 's/^/- `/' "${tmp_dir}/changed.path-parameters" | sed 's/$/`/'
+    else
+      echo "- None"
+    fi
+    echo ""
+    echo "Changed path-level references:"
+    if [[ -s "${tmp_dir}/changed.path-references" ]]; then
+      sed 's/^/- `/' "${tmp_dir}/changed.path-references" | sed 's/$/`/'
     else
       echo "- None"
     fi

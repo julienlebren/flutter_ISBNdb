@@ -168,6 +168,48 @@ assert_contains \
   "- Behavioral descriptions: changed (1)"
 
 jq '
+  .components.schemas.Conditional = {
+    "type": "object",
+    "dependentSchemas": {
+      "example": {
+        "properties": {
+          "value": {"type": "string"}
+        }
+      }
+    },
+    "dependentRequired": {
+      "example": ["second", "first"]
+    }
+  }
+' "${REFERENCE}" > "${tmp_dir}/dependent-schema-reference.json"
+jq '
+  .components.schemas.Conditional.dependentSchemas.example
+    .properties.value.type = "integer"
+' "${tmp_dir}/dependent-schema-reference.json" \
+  > "${tmp_dir}/dependent-schema-candidate.json"
+run_check \
+  "dependent-schema" \
+  2 \
+  "${tmp_dir}/dependent-schema-candidate.json" \
+  "${tmp_dir}/dependent-schema-reference.json"
+assert_contains \
+  "${tmp_dir}/dependent-schema.md" \
+  "- Structural contract: changed"
+
+jq '
+  .components.schemas.Conditional.dependentRequired.example |= reverse
+' "${tmp_dir}/dependent-schema-reference.json" \
+  > "${tmp_dir}/dependent-required-order.json"
+run_check \
+  "dependent-required-order" \
+  0 \
+  "${tmp_dir}/dependent-required-order.json" \
+  "${tmp_dir}/dependent-schema-reference.json"
+assert_contains \
+  "${tmp_dir}/dependent-required-order.log" \
+  "No OpenAPI drift detected."
+
+jq '
   .components.links.Next = {
     "operationId": "getBooks",
     "requestBody": {
@@ -208,6 +250,26 @@ jq '.components.schemas.Book.title = "Documentation-only schema title"' \
   "${REFERENCE}" > "${tmp_dir}/schema-title.json"
 run_check "schema-title" 0 "${tmp_dir}/schema-title.json"
 assert_contains "${tmp_dir}/schema-title.log" "No OpenAPI drift detected."
+
+jq '
+  .paths["/book/{isbn}"].get.externalDocs = {
+    "url": "https://docs.example.com/books",
+    "description": "Additional book documentation"
+  }
+  | .components.schemas.Book.externalDocs = {
+      "url": "https://docs.example.com/schemas/book",
+      "description": "Additional schema documentation"
+    }
+' "${REFERENCE}" > "${tmp_dir}/external-docs.json"
+run_check "external-docs" 0 "${tmp_dir}/external-docs.json"
+assert_contains "${tmp_dir}/external-docs.log" "No OpenAPI drift detected."
+
+jq '.jsonSchemaDialect = "https://json-schema.org/draft/2020-12/schema"' \
+  "${REFERENCE}" > "${tmp_dir}/json-schema-dialect.json"
+run_check "json-schema-dialect" 2 "${tmp_dir}/json-schema-dialect.json"
+assert_contains \
+  "${tmp_dir}/json-schema-dialect.md" \
+  "- Structural contract: changed"
 
 jq '.servers = [{"url":"https://primary.example.com"},{"url":"https://backup.example.com"}]' \
   "${REFERENCE}" > "${tmp_dir}/server-order-reference.json"
@@ -334,6 +396,15 @@ assert_contains \
 assert_contains \
   "${tmp_dir}/top-level-security.md" \
   "ApiKeyAuth"
+
+jq '
+  .paths["/key"].get.parameters = []
+  | .paths["/key"].parameters = []
+' "${REFERENCE}" > "${tmp_dir}/empty-parameters.json"
+run_check "empty-parameters" 0 "${tmp_dir}/empty-parameters.json"
+assert_contains \
+  "${tmp_dir}/empty-parameters.log" \
+  "No OpenAPI drift detected."
 
 jq '.info.version = "9.9.9"' "${REFERENCE}" > "${tmp_dir}/version.json"
 run_check "version-only" 2 "${tmp_dir}/version.json"
@@ -500,6 +571,21 @@ run_check "path-server" 2 "${tmp_dir}/path-server.json"
 assert_contains "${tmp_dir}/path-server.md" "- Structural contract: changed"
 assert_contains "${tmp_dir}/path-server.md" "Changed path-level servers:"
 assert_contains "${tmp_dir}/path-server.md" '/books/{query}'
+
+jq '.paths["/alias"] = {"$ref": "#/components/pathItems/First"}' \
+  "${REFERENCE}" > "${tmp_dir}/path-reference-reference.json"
+jq '.paths["/alias"]["$ref"] = "#/components/pathItems/Second"' \
+  "${tmp_dir}/path-reference-reference.json" \
+  > "${tmp_dir}/path-reference-candidate.json"
+run_check \
+  "path-reference" \
+  2 \
+  "${tmp_dir}/path-reference-candidate.json" \
+  "${tmp_dir}/path-reference-reference.json"
+assert_contains \
+  "${tmp_dir}/path-reference.md" \
+  "Changed path-level references:"
+assert_contains "${tmp_dir}/path-reference.md" '/alias'
 
 jq '
   (.paths["/books/{query}"].get.parameters[]
