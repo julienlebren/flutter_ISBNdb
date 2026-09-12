@@ -1396,4 +1396,129 @@ assert_contains "${tmp_dir}/structural.md" 'Changed operations:'
 assert_contains "${tmp_dir}/structural.md" 'GET /books/{query}'
 assert_contains "${tmp_dir}/structural.md" 'PaginationFilters'
 
+jq '
+  .paths["/key"].get.nullable = false
+  | .paths["/key"].get.readOnly = false
+  | .paths["/key"].get.writeOnly = false
+  | .paths["/key"].get.uniqueItems = false
+' "${REFERENCE}" > "${tmp_dir}/invalid-operation-schema-defaults.json"
+run_check \
+  "invalid-operation-schema-defaults" \
+  2 \
+  "${tmp_dir}/invalid-operation-schema-defaults.json"
+assert_contains \
+  "${tmp_dir}/invalid-operation-schema-defaults.md" \
+  "- Structural contract: changed"
+
+jq '.openapi = "3.1.0" | del(.components.schemas.Book.nullable)' \
+  "${REFERENCE}" > "${tmp_dir}/nullable-31-reference.json"
+jq '.components.schemas.Book.nullable = false' \
+  "${tmp_dir}/nullable-31-reference.json" \
+  > "${tmp_dir}/nullable-31-candidate.json"
+run_check \
+  "nullable-31" \
+  2 \
+  "${tmp_dir}/nullable-31-candidate.json" \
+  "${tmp_dir}/nullable-31-reference.json"
+assert_contains \
+  "${tmp_dir}/nullable-31.md" \
+  "- Structural contract: changed"
+
+jq '.info = "malformed"' \
+  "${REFERENCE}" > "${tmp_dir}/malformed-info.json"
+run_check "malformed-info" 2 "${tmp_dir}/malformed-info.json"
+assert_contains \
+  "${tmp_dir}/malformed-info.md" \
+  "- Structural contract: changed"
+
+jq '.servers += ["malformed"]' \
+  "${REFERENCE}" > "${tmp_dir}/scalar-server.json"
+run_check "scalar-server" 2 "${tmp_dir}/scalar-server.json"
+assert_contains \
+  "${tmp_dir}/scalar-server.md" \
+  "- Structural contract: changed"
+
+jq '
+  .openapi = "3.1.0"
+  | .components.schemas.AnnotatedExample = {
+      "type": "object",
+      "examples": [{"description": "First literal description"}]
+    }
+' "${REFERENCE}" > "${tmp_dir}/schema-examples-reference.json"
+jq '
+  .components.schemas.AnnotatedExample.examples[0].description
+    = "Second literal description"
+' "${tmp_dir}/schema-examples-reference.json" \
+  > "${tmp_dir}/schema-examples-candidate.json"
+run_check \
+  "schema-examples-array" \
+  0 \
+  "${tmp_dir}/schema-examples-candidate.json" \
+  "${tmp_dir}/schema-examples-reference.json"
+assert_contains \
+  "${tmp_dir}/schema-examples-array.log" \
+  "No OpenAPI drift detected."
+
+jq '.components.schemas = "malformed"' \
+  "${REFERENCE}" > "${tmp_dir}/scalar-component-section.json"
+run_check \
+  "scalar-component-section" \
+  2 \
+  "${tmp_dir}/scalar-component-section.json"
+assert_contains \
+  "${tmp_dir}/scalar-component-section.md" \
+  "- Structural contract: changed"
+
+jq '.paths["/key"].get.callbacks = {}' \
+  "${REFERENCE}" > "${tmp_dir}/empty-operation-callbacks.json"
+run_check \
+  "empty-operation-callbacks" \
+  0 \
+  "${tmp_dir}/empty-operation-callbacks.json"
+assert_contains \
+  "${tmp_dir}/empty-operation-callbacks.log" \
+  "No OpenAPI drift detected."
+
+jq -n 'null' > "${tmp_dir}/non-object-root.json"
+run_check "non-object-root" 2 "${tmp_dir}/non-object-root.json"
+assert_contains \
+  "${tmp_dir}/non-object-root.md" \
+  "- Structural contract: changed"
+
+jq '
+  .paths["/key"].get.allowReserved = false
+  | .paths["/key"].get.allowEmptyValue = false
+' "${REFERENCE}" > "${tmp_dir}/invalid-operation-parameter-defaults.json"
+run_check \
+  "invalid-operation-parameter-defaults" \
+  2 \
+  "${tmp_dir}/invalid-operation-parameter-defaults.json"
+assert_contains \
+  "${tmp_dir}/invalid-operation-parameter-defaults.md" \
+  "- Structural contract: changed"
+
+jq '.paths["/book/{isbn}"].get.responses["404"].description = ""' \
+  "${REFERENCE}" > "${tmp_dir}/null-description-reference.json"
+jq '.paths["/book/{isbn}"].get.responses["404"].description = null' \
+  "${tmp_dir}/null-description-reference.json" \
+  > "${tmp_dir}/null-description-candidate.json"
+run_check \
+  "null-description" \
+  2 \
+  "${tmp_dir}/null-description-candidate.json" \
+  "${tmp_dir}/null-description-reference.json"
+assert_contains \
+  "${tmp_dir}/null-description.md" \
+  "- Structural contract: changed"
+assert_contains \
+  "${tmp_dir}/null-description.md" \
+  "- Behavioral descriptions: unchanged"
+
+jq '.unexpected = 1' \
+  "${REFERENCE}" > "${tmp_dir}/unknown-root-field.json"
+run_check "unknown-root-field" 2 "${tmp_dir}/unknown-root-field.json"
+assert_contains \
+  "${tmp_dir}/unknown-root-field.md" \
+  "- Structural contract: changed"
+
 echo "API spec drift diagnostics tests passed."

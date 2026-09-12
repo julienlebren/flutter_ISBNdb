@@ -215,6 +215,38 @@ normalize_spec() {
           and ($path[-2] | type) == "string"
           and ($path[-2] | is_http_method));
 
+    def is_parameter_object($path):
+      ($path | length) > 1
+      and $path[-2] == "parameters"
+      and is_named_map($path[0:-1]);
+
+    def is_operation_object($path):
+      ($path | length) > 0
+      and ($path[-1] | type) == "string"
+      and ($path[-1] | is_http_method)
+      and (is_identifier_key($path; ($path | length) - 1) | not);
+
+    def is_path_item_object($path):
+      (($path | length) > 1
+       and ($path[-2] == "paths"
+            or $path[-2] == "webhooks"
+            or $path[-2] == "pathItems")
+       and is_named_map($path[0:-1]))
+      or (($path | length) > 2
+          and $path[-3] == "callbacks"
+          and is_named_map($path[0:-2]));
+
+    def is_xml_object($path):
+      ($path | length) > 0
+      and $path[-1] == "xml"
+      and is_schema_object($path[0:-1]);
+
+    def is_deprecated_context($path):
+      is_schema_object($path)
+      or is_parameter_object($path)
+      or is_header_object($path)
+      or is_operation_object($path);
+
     def canonical_json:
       if type == "object" then
         to_entries
@@ -240,10 +272,30 @@ normalize_spec() {
           end
       end;
 
+    def unknown_root_fields:
+      with_entries(
+        .key as $key
+        | select(
+            ($key | startswith("x-") | not)
+            and ([
+              "openapi",
+              "info",
+              "jsonSchemaDialect",
+              "servers",
+              "paths",
+              "webhooks",
+              "components",
+              "security",
+              "tags",
+              "externalDocs"
+            ] | index($key) | not)
+          )
+      );
+
     def normalize_serialization_defaults($path):
       (if is_header_object($path) then "simple"
        elif is_encoding_object($path) then "form"
-       elif (.in? | type) == "string" then
+       elif is_parameter_object($path) and (.in? | type) == "string" then
          (if .in == "query" or .in == "cookie" then "form"
           elif .in == "path" or .in == "header" then "simple"
           else null
@@ -263,20 +315,49 @@ normalize_spec() {
 
     def normalize_openapi_object($path; $openapi_version):
       normalize_serialization_defaults($path)
-      | (if .deprecated? == false then del(.deprecated) else . end)
+      | (if is_deprecated_context($path) and .deprecated? == false then
+           del(.deprecated)
+         else .
+         end)
       | (if .required? == false
-           and ((.in? == "query" or .in? == "header" or .in? == "cookie")
+           and ((is_parameter_object($path)
+                 and (.in? == "query" or .in? == "header" or .in? == "cookie"))
                 or is_request_body_object($path)
                 or is_header_object($path)) then
            del(.required)
          else .
          end)
-      | (if .allowReserved? == false then del(.allowReserved) else . end)
-      | (if .allowEmptyValue? == false then del(.allowEmptyValue) else . end)
-      | (if .nullable? == false then del(.nullable) else . end)
-      | (if .readOnly? == false then del(.readOnly) else . end)
-      | (if .writeOnly? == false then del(.writeOnly) else . end)
-      | (if .uniqueItems? == false then del(.uniqueItems) else . end)
+      | (if .allowReserved? == false
+           and (is_encoding_object($path)
+                or (is_parameter_object($path) and .in? == "query")) then
+           del(.allowReserved)
+         else .
+         end)
+      | (if .allowEmptyValue? == false
+           and is_parameter_object($path)
+           and .in? == "query" then
+           del(.allowEmptyValue)
+         else .
+         end)
+      | (if is_schema_object($path)
+           and ($openapi_version | type) == "string"
+           and ($openapi_version | startswith("3.0."))
+           and .nullable? == false then
+           del(.nullable)
+         else .
+         end)
+      | (if is_schema_object($path) and .readOnly? == false then
+           del(.readOnly)
+         else .
+         end)
+      | (if is_schema_object($path) and .writeOnly? == false then
+           del(.writeOnly)
+         else .
+         end)
+      | (if is_schema_object($path) and .uniqueItems? == false then
+           del(.uniqueItems)
+         else .
+         end)
       | (if is_schema_object($path)
            and ($openapi_version | type) == "string"
            and ($openapi_version | startswith("3.0."))
@@ -291,25 +372,31 @@ normalize_spec() {
            del(.exclusiveMaximum)
          else .
          end)
-      | (if .attribute? == false then del(.attribute) else . end)
-      | (if .wrapped? == false then del(.wrapped) else . end)
+      | (if is_xml_object($path) and .attribute? == false then
+           del(.attribute)
+         else .
+         end)
+      | (if is_xml_object($path) and .wrapped? == false then
+           del(.wrapped)
+         else .
+         end)
       | (if is_schema_object($path) and .additionalProperties? == true then
            del(.additionalProperties)
          else .
          end)
-      | (if (.required? | type) == "array" then
-         .required |= sort
-       else .
-       end)
+      | (if is_schema_object($path) and (.required? | type) == "array" then
+           .required |= sort
+         else .
+         end)
       | (if is_schema_object($path) and .required? == [] then
            del(.required)
          else .
          end)
-      | (if (.type? | type) == "array" then
+      | (if is_schema_object($path) and (.type? | type) == "array" then
            .type |= sort_by(tostring)
          else .
          end)
-      | (if (.enum? | type) == "array" then
+      | (if is_schema_object($path) and (.enum? | type) == "array" then
            .enum |= (map(canonical_json) | sort_by(tojson))
          else .
          end)
@@ -325,16 +412,24 @@ normalize_spec() {
            .allOf |= (map(canonical_json) | sort_by(tojson))
          else .
          end)
-      | (if (.tags? | type) == "array" then
+      | (if (($path | length) == 0 or is_operation_object($path))
+           and (.tags? | type) == "array" then
            .tags |= sort
          else .
          end)
-      | (if .tags? == [] then del(.tags) else . end)
-      | (if .in? == "header" and (.name? | type) == "string" then
+      | (if (($path | length) == 0 or is_operation_object($path))
+           and .tags? == [] then
+           del(.tags)
+         else .
+         end)
+      | (if is_parameter_object($path)
+           and .in? == "header"
+           and (.name? | type) == "string" then
            .name |= ascii_downcase
          else .
          end)
-      | (if (.parameters? | type) == "array" then
+      | (if (is_path_item_object($path) or is_operation_object($path))
+           and (.parameters? | type) == "array" then
            .parameters |= sort_by(
              if type == "object" then
                [0, .in // "", .name // "", ."$ref" // ""]
@@ -344,8 +439,13 @@ normalize_spec() {
            )
          else .
          end)
-      | (if .parameters? == [] then del(.parameters) else . end)
-      | (if (.security? | type) == "array" then
+      | (if (is_path_item_object($path) or is_operation_object($path))
+           and .parameters? == [] then
+           del(.parameters)
+         else .
+         end)
+      | (if (($path | length) == 0 or is_operation_object($path))
+           and (.security? | type) == "array" then
            .security |= (
              map(
                if type == "object" then
@@ -360,6 +460,10 @@ normalize_spec() {
              )
              | sort_by(tojson)
            )
+         else .
+         end)
+      | (if is_operation_object($path) and .callbacks? == {} then
+           del(.callbacks)
          else .
          end)
       | (if is_response_object($path) then
@@ -403,22 +507,20 @@ normalize_spec() {
              )
            elif $is_named_map then .
            else
-             (if has("description")
-                 and ((.description | type) == "string"
-                      or (.description | type) == "null")
-               then del(.description)
-               else .
-               end)
-             | (if has("summary")
-                   and ((.summary | type) == "string"
-                        or (.summary | type) == "null")
-                 then del(.summary)
-                 else .
-                 end)
+            (if has("description")
+                and (.description | type) == "string"
+              then del(.description)
+              else .
+              end)
+            | (if has("summary")
+                  and (.summary | type) == "string"
+                then del(.summary)
+                else .
+                end)
              | del(.externalDocs)
-             | (if $path != ["info"]
+            | (if $path != ["info"]
                    and has("title")
-                   and ((.title | type) == "string" or (.title | type) == "null")
+                   and (.title | type) == "string"
                  then del(.title)
                  else .
                  end)
@@ -454,13 +556,24 @@ normalize_spec() {
       else .
       end;
 
-    .openapi as $openapi_version
-    | (
-      {
-        openapi,
-        info: {
-          title: (.info.title // null)
-        },
+    if type != "object" then
+      {"__invalid_openapi_root__": .}
+    else
+      . as $root
+      | .openapi as $openapi_version
+      | (
+        {
+          openapi,
+          info: (
+            if has("info") then
+              .info as $info
+              | if ($info | type) == "object" then
+                  {title: (if ($info | has("title")) then $info.title else null end)}
+                else $info
+                end
+            else null
+            end
+          ),
         servers: (if has("servers") then .servers else [] end),
         security: (if has("security") then .security else [] end),
         components: (
@@ -485,8 +598,8 @@ normalize_spec() {
             else .
             end
         )
-      }
-      + (
+        }
+        + (
         (default_json_schema_dialect(.openapi)) as $default_dialect
         | if has("jsonSchemaDialect") then
             if (.jsonSchemaDialect | type) == "string"
@@ -498,10 +611,12 @@ normalize_spec() {
             end
           else {}
           end
+        )
+        + ($root | unknown_root_fields)
       )
-    )
-    | normalize_value([]; $openapi_version)
-    | if .servers == [{"url": "/"}] then .servers = [] else . end
+      | normalize_value([]; $openapi_version)
+      | if .servers == [{"url": "/"}] then .servers = [] else . end
+    end
   ' "${input}" > "${output}"
 }
 
@@ -557,6 +672,52 @@ extract_behavioral_descriptions() {
     def is_identifier_key($path; $index):
       $index > 0 and is_named_map($path[0:$index]);
 
+    def is_schema_map_keyword:
+      . == "schemas"
+      or . == "properties"
+      or . == "patternProperties"
+      or . == "$defs"
+      or . == "definitions"
+      or . == "dependentSchemas";
+
+    def is_schema_child_keyword:
+      . == "items"
+      or . == "additionalProperties"
+      or . == "unevaluatedProperties"
+      or . == "not"
+      or . == "if"
+      or . == "then"
+      or . == "else"
+      or . == "contains"
+      or . == "propertyNames"
+      or . == "unevaluatedItems"
+      or . == "contentSchema";
+
+    def is_schema_array_keyword:
+      . == "oneOf"
+      or . == "anyOf"
+      or . == "allOf"
+      or . == "prefixItems";
+
+    def is_schema_object($path):
+      if ($path | length) == 0 then false
+      elif ($path | length) > 1
+          and ($path[-2] | type) == "string"
+          and ($path[-2] | is_schema_map_keyword)
+          and is_named_map($path[0:-1]) then true
+      elif $path[-1] == "schema"
+          and (is_identifier_key($path; ($path | length) - 1) | not) then true
+      elif ($path[-1] | type) == "string"
+          and ($path[-1] | is_schema_child_keyword)
+          and is_schema_object($path[0:-1]) then true
+      elif ($path | length) > 1
+          and ($path[-1] | type) == "number"
+          and ($path[-2] | type) == "string"
+          and ($path[-2] | is_schema_array_keyword)
+          and is_schema_object($path[0:-2]) then true
+      else false
+      end;
+
     def is_link_object($path):
       ($path | length) > 1
       and $path[-2] == "links"
@@ -570,7 +731,8 @@ extract_behavioral_descriptions() {
     def is_example_object($path):
       ($path | length) > 1
       and $path[-2] == "examples"
-      and is_named_map($path[0:-1]);
+      and is_named_map($path[0:-1])
+      and (is_schema_object($path[0:-2]) | not);
 
     def is_example_metadata($path):
       ($path | length) > 0
@@ -793,19 +955,27 @@ extract_behavioral_descriptions() {
             ($document | getpath($path[0:$index])) as $servers
             | $path[$index] as $server_index
             | $servers[$server_index] as $server
-            | if ($server.url | type) == "string" and $server.url != "" then
+            | if ($server | type) == "object"
+                and ($server.url | type) == "string"
+                and $server.url != "" then
                 ([
                    $servers[]
-                   | select((.url | type) == "string" and .url == $server.url)
+                   | select(
+                       type == "object"
+                       and (.url | type) == "string"
+                       and .url == $server.url
+                     )
                  ] | length) as $matching_url_count
                 | if $matching_url_count == 1 then
                     "server:\($server.url)"
                   else
                     ([
                          range(0; $server_index) as $prior
+                         | $servers[$prior] as $prior_server
                          | select(
-                             ($servers[$prior].url | type) == "string"
-                             and $servers[$prior].url == $server.url
+                             ($prior_server | type) == "object"
+                             and ($prior_server.url | type) == "string"
+                             and $prior_server.url == $server.url
                            )
                        ] | length) as $occurrence
                     | "server:\($server.url)#\($occurrence)"
@@ -835,21 +1005,24 @@ extract_behavioral_descriptions() {
           end
       ];
 
-    with_entries(select(.key | startswith("x-") | not))
-    | (if (.components? | type) == "object" then
-       .components |= with_entries(select(.key | startswith("x-") | not))
-     else .
-     end)
-    | (if (.paths? | type) == "object" then
-       .paths |= with_entries(select(.key | startswith("x-") | not))
-     else .
-     end)
-    | (if (.webhooks? | type) == "object" then
-       .webhooks |= with_entries(select(.key | startswith("x-") | not))
-     else .
-     end)
-    | . as $document
-    | [
+    if type != "object" then
+      []
+    else
+      with_entries(select(.key | startswith("x-") | not))
+      | (if (.components? | type) == "object" then
+         .components |= with_entries(select(.key | startswith("x-") | not))
+       else .
+       end)
+      | (if (.paths? | type) == "object" then
+         .paths |= with_entries(select(.key | startswith("x-") | not))
+       else .
+       end)
+      | (if (.webhooks? | type) == "object" then
+         .webhooks |= with_entries(select(.key | startswith("x-") | not))
+       else .
+       end)
+      | . as $document
+      | [
       paths(scalars) as $path
       | (is_oauth_scope_value($path)) as $is_oauth_scope
       | select(
@@ -879,8 +1052,9 @@ extract_behavioral_descriptions() {
                   end),
           value: $value
         }
-    ]
-    | sort_by(.id)
+      ]
+      | sort_by(.id)
+    end
   ' "${input}" > "${output}"
 }
 
@@ -957,8 +1131,22 @@ else
   contract_changed=true
 fi
 
-reference_version="$(jq -c '.info.version' "${REFERENCE_FILE}")"
-candidate_version="$(jq -c '.info.version' "${candidate_file}")"
+reference_version="$(
+  jq -c '
+    if type == "object" and (.info | type) == "object" then
+      .info.version
+    else null
+    end
+  ' "${REFERENCE_FILE}"
+)"
+candidate_version="$(
+  jq -c '
+    if type == "object" and (.info | type) == "object" then
+      .info.version
+    else null
+    end
+  ' "${candidate_file}"
+)"
 reference_openapi_version="$(jq -r '.openapi // "unknown"' "${normalized_reference}")"
 candidate_openapi_version="$(jq -r '.openapi // "unknown"' "${normalized_candidate}")"
 reference_schema_dialect="$(
@@ -1152,14 +1340,16 @@ jq -r -n \
     | ($candidate[0].components | object_or_empty) as $candidate_components
     | (($reference_components | keys) + ($candidate_components | keys) | unique[])
       as $section
+    | ($reference_components[$section] | object_or_empty) as $reference_section
+    | ($candidate_components[$section] | object_or_empty) as $candidate_section
     | (
-        (($reference_components[$section] | object_or_empty) | keys)
-        + (($candidate_components[$section] | object_or_empty) | keys)
+        ($reference_section | keys)
+        + ($candidate_section | keys)
         | unique[]
       ) as $component_name
     | select(
-        $reference_components[$section][$component_name]
-        != $candidate_components[$section][$component_name]
+        $reference_section[$component_name]
+        != $candidate_section[$component_name]
       )
     | "\($section).\($component_name)"
   ' | sort > "${tmp_dir}/changed.components"
