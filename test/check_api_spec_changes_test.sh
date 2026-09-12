@@ -242,11 +242,23 @@ assert_contains \
 
 jq '
   .components.schemas.Composed = {
-    "oneOf": [{"type": "string"}, {"type": "integer"}],
-    "anyOf": [{"type": "boolean"}, {"type": "null"}],
+    "oneOf": [
+      {"type": "string", "description": "A string value"},
+      {"type": "integer", "description": "An integer value"}
+    ],
+    "anyOf": [
+      {"type": "boolean", "description": "A boolean value"},
+      {"type": "null", "description": "A null value"}
+    ],
     "allOf": [
-      {"properties": {"first": {"type": "string"}}},
-      {"properties": {"second": {"type": "integer"}}}
+      {
+        "description": "The first object part",
+        "properties": {"first": {"type": "string"}}
+      },
+      {
+        "description": "The second object part",
+        "properties": {"second": {"type": "integer"}}
+      }
     ]
   }
 ' "${REFERENCE}" > "${tmp_dir}/composition-order-reference.json"
@@ -341,6 +353,29 @@ assert_contains \
   "${tmp_dir}/external-docs-url.log" \
   "No OpenAPI drift detected."
 
+jq '
+  .components.examples.ExternalDocsPayload = {
+    "value": {
+      "externalDocs": {
+        "description": "Literal payload documentation"
+      }
+    }
+  }
+' "${REFERENCE}" > "${tmp_dir}/external-docs-payload-reference.json"
+jq '
+  .components.examples.ExternalDocsPayload.value.externalDocs.description
+    = "Changed literal payload documentation"
+' "${tmp_dir}/external-docs-payload-reference.json" \
+  > "${tmp_dir}/external-docs-payload-candidate.json"
+run_check \
+  "external-docs-payload" \
+  0 \
+  "${tmp_dir}/external-docs-payload-candidate.json" \
+  "${tmp_dir}/external-docs-payload-reference.json"
+assert_contains \
+  "${tmp_dir}/external-docs-payload.log" \
+  "No OpenAPI drift detected."
+
 jq '.jsonSchemaDialect = "https://json-schema.org/draft/2020-12/schema"' \
   "${REFERENCE}" > "${tmp_dir}/json-schema-dialect.json"
 run_check "json-schema-dialect" 2 "${tmp_dir}/json-schema-dialect.json"
@@ -418,6 +453,13 @@ assert_contains \
   "${tmp_dir}/paths-string.md" \
   "- Structural contract: changed"
 
+jq '.paths["/key"] = "malformed"' \
+  "${REFERENCE}" > "${tmp_dir}/path-item-string.json"
+run_check "path-item-string" 2 "${tmp_dir}/path-item-string.json"
+assert_contains \
+  "${tmp_dir}/path-item-string.md" \
+  "- Structural contract: changed"
+
 jq '
   .openapi = "3.1.0"
   | .components.schemas.NullableString = {
@@ -435,6 +477,24 @@ run_check \
 assert_contains \
   "${tmp_dir}/type-array-order.log" \
   "No OpenAPI drift detected."
+
+jq '
+  .openapi = "3.1.0"
+  | .components.schemas.BoundedNumber = {"type": "number"}
+' "${REFERENCE}" > "${tmp_dir}/exclusive-bound-reference.json"
+jq '
+  .components.schemas.BoundedNumber.exclusiveMinimum = false
+  | .components.schemas.BoundedNumber.exclusiveMaximum = false
+' "${tmp_dir}/exclusive-bound-reference.json" \
+  > "${tmp_dir}/exclusive-bound-candidate.json"
+run_check \
+  "exclusive-bound" \
+  2 \
+  "${tmp_dir}/exclusive-bound-candidate.json" \
+  "${tmp_dir}/exclusive-bound-reference.json"
+assert_contains \
+  "${tmp_dir}/exclusive-bound.md" \
+  "- Structural contract: changed"
 
 jq '.servers = [
   {"url":"https://primary.example.com", "description":"Primary endpoint"},
@@ -476,6 +536,52 @@ run_check \
 assert_contains \
   "${tmp_dir}/implicit-root-server.log" \
   "No OpenAPI drift detected."
+
+jq '.servers = [
+  {
+    "url": "https://{environment}.example.com",
+    "description": "Primary environment",
+    "variables": {
+      "environment": {"default": "primary"}
+    }
+  },
+  {
+    "url": "https://{environment}.example.com",
+    "description": "Backup environment",
+    "variables": {
+      "environment": {"default": "backup"}
+    }
+  }
+]' "${REFERENCE}" > "${tmp_dir}/duplicate-server-reference.json"
+jq '.servers[0].description = "Updated primary environment"' \
+  "${tmp_dir}/duplicate-server-reference.json" \
+  > "${tmp_dir}/duplicate-server-description.json"
+run_check \
+  "duplicate-server-description" \
+  2 \
+  "${tmp_dir}/duplicate-server-description.json" \
+  "${tmp_dir}/duplicate-server-reference.json"
+assert_contains \
+  "${tmp_dir}/duplicate-server-description.md" \
+  "- Structural contract: unchanged"
+assert_contains \
+  "${tmp_dir}/duplicate-server-description.md" \
+  "- Behavioral descriptions: changed (1)"
+
+jq '.servers |= reverse' \
+  "${tmp_dir}/duplicate-server-reference.json" \
+  > "${tmp_dir}/duplicate-server-order.json"
+run_check \
+  "duplicate-server-order" \
+  2 \
+  "${tmp_dir}/duplicate-server-order.json" \
+  "${tmp_dir}/duplicate-server-reference.json"
+assert_contains \
+  "${tmp_dir}/duplicate-server-order.md" \
+  "- Structural contract: changed"
+assert_contains \
+  "${tmp_dir}/duplicate-server-order.md" \
+  "- Behavioral descriptions: unchanged"
 
 jq '
   .paths["/book/{isbn}"].get.security = [
@@ -702,6 +808,27 @@ run_check \
   "${tmp_dir}/empty-required-reference.json"
 assert_contains \
   "${tmp_dir}/empty-required.log" \
+  "No OpenAPI drift detected."
+
+jq '
+  .components.schemas.EmptySchemaMaps = {"type": "object"}
+' "${REFERENCE}" > "${tmp_dir}/empty-schema-maps-reference.json"
+jq '
+  .components.schemas.EmptySchemaMaps.properties = {}
+  | .components.schemas.EmptySchemaMaps.patternProperties = {}
+  | .components.schemas.EmptySchemaMaps["$defs"] = {}
+  | .components.schemas.EmptySchemaMaps.definitions = {}
+  | .components.schemas.EmptySchemaMaps.dependentSchemas = {}
+  | .components.schemas.EmptySchemaMaps.dependentRequired = {}
+' "${tmp_dir}/empty-schema-maps-reference.json" \
+  > "${tmp_dir}/empty-schema-maps-candidate.json"
+run_check \
+  "empty-schema-maps" \
+  0 \
+  "${tmp_dir}/empty-schema-maps-candidate.json" \
+  "${tmp_dir}/empty-schema-maps-reference.json"
+assert_contains \
+  "${tmp_dir}/empty-schema-maps.log" \
   "No OpenAPI drift detected."
 
 jq '.components.schemas.Book.required = false' \
@@ -1080,7 +1207,10 @@ assert_contains \
   "- Structural contract: unchanged"
 assert_contains \
   "${tmp_dir}/composed-schema-description.md" \
-  "components.schemas.BookWithPrices.allOf[1].properties.prices.description"
+  "components.schemas.BookWithPrices.allOf.schema-branch:"
+assert_contains \
+  "${tmp_dir}/composed-schema-description.md" \
+  ".properties.prices.description"
 
 jq '
   .paths["/book/{isbn}"].get.responses["200"].headers.ratelimit.description

@@ -121,6 +121,55 @@ normalize_spec() {
       else false
       end;
 
+    def is_identifier_key($path; $index):
+      $index > 0 and is_named_map($path[0:$index]);
+
+    def is_schema_map_keyword:
+      . == "schemas"
+      or . == "properties"
+      or . == "patternProperties"
+      or . == "$defs"
+      or . == "definitions"
+      or . == "dependentSchemas";
+
+    def is_schema_child_keyword:
+      . == "items"
+      or . == "additionalProperties"
+      or . == "unevaluatedProperties"
+      or . == "not"
+      or . == "if"
+      or . == "then"
+      or . == "else"
+      or . == "contains"
+      or . == "propertyNames"
+      or . == "unevaluatedItems"
+      or . == "contentSchema";
+
+    def is_schema_array_keyword:
+      . == "oneOf"
+      or . == "anyOf"
+      or . == "allOf"
+      or . == "prefixItems";
+
+    def is_schema_object($path):
+      if ($path | length) == 0 then false
+      elif ($path | length) > 1
+          and ($path[-2] | type) == "string"
+          and ($path[-2] | is_schema_map_keyword)
+          and is_named_map($path[0:-1]) then true
+      elif $path[-1] == "schema"
+          and (is_identifier_key($path; ($path | length) - 1) | not) then true
+      elif ($path[-1] | type) == "string"
+          and ($path[-1] | is_schema_child_keyword)
+          and is_schema_object($path[0:-1]) then true
+      elif ($path | length) > 1
+          and ($path[-1] | type) == "number"
+          and ($path[-2] | type) == "string"
+          and ($path[-2] | is_schema_array_keyword)
+          and is_schema_object($path[0:-2]) then true
+      else false
+      end;
+
     def is_link_object($path):
       ($path | length) > 1
       and $path[-2] == "links"
@@ -206,7 +255,7 @@ normalize_spec() {
              end)
         end;
 
-    def normalize_openapi_object($path):
+    def normalize_openapi_object($path; $openapi_version):
       normalize_serialization_defaults($path)
       | (if .deprecated? == false then del(.deprecated) else . end)
       | (if .required? == false
@@ -222,8 +271,20 @@ normalize_spec() {
       | (if .readOnly? == false then del(.readOnly) else . end)
       | (if .writeOnly? == false then del(.writeOnly) else . end)
       | (if .uniqueItems? == false then del(.uniqueItems) else . end)
-      | (if .exclusiveMinimum? == false then del(.exclusiveMinimum) else . end)
-      | (if .exclusiveMaximum? == false then del(.exclusiveMaximum) else . end)
+      | (if is_schema_object($path)
+           and ($openapi_version | type) == "string"
+           and ($openapi_version | startswith("3.0."))
+           and .exclusiveMinimum? == false then
+           del(.exclusiveMinimum)
+         else .
+         end)
+      | (if is_schema_object($path)
+           and ($openapi_version | type) == "string"
+           and ($openapi_version | startswith("3.0."))
+           and .exclusiveMaximum? == false then
+           del(.exclusiveMaximum)
+         else .
+         end)
       | (if .attribute? == false then del(.attribute) else . end)
       | (if .wrapped? == false then del(.wrapped) else . end)
       | (if .additionalProperties? == true then del(.additionalProperties) else . end)
@@ -231,7 +292,10 @@ normalize_spec() {
          .required |= sort
        else .
        end)
-      | (if .required? == [] then del(.required) else . end)
+      | (if is_schema_object($path) and .required? == [] then
+           del(.required)
+         else .
+         end)
       | (if (.type? | type) == "array" then
            .type |= sort_by(tostring)
          else .
@@ -240,15 +304,15 @@ normalize_spec() {
            .enum |= (map(canonical_json) | sort_by(tojson))
          else .
          end)
-      | (if (.oneOf? | type) == "array" then
+      | (if is_schema_object($path) and (.oneOf? | type) == "array" then
            .oneOf |= (map(canonical_json) | sort_by(tojson))
          else .
          end)
-      | (if (.anyOf? | type) == "array" then
+      | (if is_schema_object($path) and (.anyOf? | type) == "array" then
            .anyOf |= (map(canonical_json) | sort_by(tojson))
          else .
          end)
-      | (if (.allOf? | type) == "array" then
+      | (if is_schema_object($path) and (.allOf? | type) == "array" then
            .allOf |= (map(canonical_json) | sort_by(tojson))
          else .
          end)
@@ -288,9 +352,21 @@ normalize_spec() {
            | (if .links? == {} then del(.links) else . end)
            | (if .content? == {} then del(.content) else . end)
          else .
+         end)
+      | (if is_schema_object($path) then
+           reduce [
+             "properties",
+             "patternProperties",
+             "$defs",
+             "definitions",
+             "dependentSchemas",
+             "dependentRequired"
+           ][] as $key
+             (.; if .[$key]? == {} then del(.[$key]) else . end)
+         else .
          end);
 
-    def normalize_value($path):
+    def normalize_value($path; $openapi_version):
       if type == "object" then
         (is_named_map($path)) as $is_named_map
         | (if $is_named_map
@@ -339,22 +415,25 @@ normalize_spec() {
               elif is_link_object($path)
                   and ($key == "requestBody" or $key == "parameters")
               then .
-              else .value |= normalize_value($path + [$key])
+              else .value |= normalize_value($path + [$key]; $openapi_version)
               end
           )
         | from_entries
-        | if $is_named_map then . else normalize_openapi_object($path) end
+        | if $is_named_map then .
+          else normalize_openapi_object($path; $openapi_version)
+          end
       elif type == "array" then
         to_entries
         | map(
             .key as $index
-            | .value |= normalize_value($path + [$index])
+            | .value |= normalize_value($path + [$index]; $openapi_version)
           )
         | map(.value)
       else .
       end;
 
-    (
+    .openapi as $openapi_version
+    | (
       {
         openapi,
         info: {
@@ -399,7 +478,7 @@ normalize_spec() {
           end
       )
     )
-    | normalize_value([])
+    | normalize_value([]; $openapi_version)
     | if .servers == [{"url": "/"}] then .servers = [] else . end
   ' "${input}" > "${output}"
 }
@@ -495,6 +574,14 @@ extract_behavioral_descriptions() {
       and ($path[$index] | type) == "number"
       and (is_identifier_key($path; $index - 1) | not);
 
+    def is_composition_array_index($path; $index):
+      $index > 0
+      and ($path[$index] | type) == "number"
+      and ($path[$index - 1] == "oneOf"
+           or $path[$index - 1] == "anyOf"
+           or $path[$index - 1] == "allOf")
+      and (is_identifier_key($path; $index - 1) | not);
+
     def contains_literal_payload($path):
       [
         range(0; $path | length) as $index
@@ -540,6 +627,42 @@ extract_behavioral_descriptions() {
         $parameter.name // "unknown"
       end;
 
+    def canonical_behavior_identity:
+      if type == "object" then
+        del(.description, .summary, .title, .externalDocs, .example, .examples)
+        | to_entries
+        | sort_by(.key)
+        | map(.value |= canonical_behavior_identity)
+        | from_entries
+        | (if (.required? | type) == "array" then
+             .required |= sort_by(tojson)
+           else .
+           end)
+        | (if (.enum? | type) == "array" then
+             .enum |= sort_by(tojson)
+           else .
+           end)
+        | (if (.type? | type) == "array" then
+             .type |= sort_by(tojson)
+           else .
+           end)
+        | (if (.oneOf? | type) == "array" then
+             .oneOf |= sort_by(tojson)
+           else .
+           end)
+        | (if (.anyOf? | type) == "array" then
+             .anyOf |= sort_by(tojson)
+           else .
+           end)
+        | (if (.allOf? | type) == "array" then
+             .allOf |= sort_by(tojson)
+           else .
+           end)
+      elif type == "array" then
+        map(canonical_behavior_identity)
+      else .
+      end;
+
     def semantic_path($document; $path):
       [
         range(0; $path | length) as $index
@@ -564,12 +687,44 @@ extract_behavioral_descriptions() {
           elif is_header_map_key($path; $index) then
             $path[$index] | ascii_downcase
           elif is_server_array_index($path; $index) then
-            ($document | getpath($path[0:($index + 1)])) as $server
+            ($document | getpath($path[0:$index])) as $servers
+            | $path[$index] as $server_index
+            | $servers[$server_index] as $server
             | if ($server.url | type) == "string" and $server.url != "" then
-                "server:\($server.url)"
+                ([
+                   $servers[]
+                   | select((.url | type) == "string" and .url == $server.url)
+                 ] | length) as $matching_url_count
+                | if $matching_url_count == 1 then
+                    "server:\($server.url)"
+                  else
+                    ($server | canonical_behavior_identity | tojson) as $identity
+                    | ([
+                         range(0; $server_index) as $prior
+                         | select(
+                             ($servers[$prior]
+                              | canonical_behavior_identity
+                              | tojson) == $identity
+                           )
+                       ] | length) as $occurrence
+                    | "server:\($server.url):\($identity)#\($occurrence)"
+                  end
               else
                 $path[$index]
               end
+          elif is_composition_array_index($path; $index) then
+            ($document | getpath($path[0:$index])) as $branches
+            | $path[$index] as $branch_index
+            | ($branches[$branch_index] | canonical_behavior_identity | tojson)
+              as $identity
+            | ([
+                 range(0; $branch_index) as $prior
+                 | select(
+                     ($branches[$prior] | canonical_behavior_identity | tojson)
+                     == $identity
+                   )
+               ] | length) as $occurrence
+            | "schema-branch:\($identity)#\($occurrence)"
           else
             $path[$index]
           end
@@ -599,7 +754,8 @@ extract_behavioral_descriptions() {
         )
       | select(
           is_example_metadata($path)
-          or is_external_docs_description($path)
+          or (is_external_docs_description($path)
+              and (contains_literal_payload($path[0:-2]) | not))
           or (contains_literal_payload($path) | not)
         )
       | select(contains_specification_extension($path) | not)
@@ -791,9 +947,11 @@ jq -r -n \
     | ($candidate[0].paths | object_or_empty) as $candidate_paths
     | (($reference_paths | keys) + ($candidate_paths | keys) | unique[])
       as $path
+    | ($reference_paths[$path] | object_or_empty) as $reference_path_item
+    | ($candidate_paths[$path] | object_or_empty) as $candidate_path_item
     | select(
-        ($reference_paths[$path].parameters // [])
-        != ($candidate_paths[$path].parameters // [])
+        ($reference_path_item.parameters // [])
+        != ($candidate_path_item.parameters // [])
       )
     | $path
   ' | sort > "${tmp_dir}/changed.path-parameters"
@@ -807,9 +965,11 @@ jq -r -n \
     | ($candidate[0].paths | object_or_empty) as $candidate_paths
     | (($reference_paths | keys) + ($candidate_paths | keys) | unique[])
       as $path
+    | ($reference_paths[$path] | object_or_empty) as $reference_path_item
+    | ($candidate_paths[$path] | object_or_empty) as $candidate_path_item
     | select(
-        ($reference_paths[$path]["$ref"] // null)
-        != ($candidate_paths[$path]["$ref"] // null)
+        ($reference_path_item["$ref"] // null)
+        != ($candidate_path_item["$ref"] // null)
       )
     | $path
   ' | sort > "${tmp_dir}/changed.path-references"
@@ -833,14 +993,16 @@ jq -r -n \
     | ($candidate[0].paths | object_or_empty) as $candidate_paths
     | (($reference_paths | keys) + ($candidate_paths | keys) | unique[])
       as $path
+    | ($reference_paths[$path] | object_or_empty) as $reference_path_item
+    | ($candidate_paths[$path] | object_or_empty) as $candidate_path_item
     | (
-        (($reference_paths[$path] // {}) | keys | map(select(is_http_method)))
-          + (($candidate_paths[$path] // {}) | keys | map(select(is_http_method)))
+        ($reference_path_item | keys | map(select(is_http_method)))
+          + ($candidate_path_item | keys | map(select(is_http_method)))
         | unique[]
       ) as $method
     | select(
-        $reference_paths[$path][$method]
-        != $candidate_paths[$path][$method]
+        $reference_path_item[$method]
+        != $candidate_path_item[$method]
       )
     | "\($method | ascii_upcase) \($path)"
   ' | sort > "${tmp_dir}/changed.operations"
@@ -854,9 +1016,11 @@ jq -r -n \
     | ($candidate[0].paths | object_or_empty) as $candidate_paths
     | (($reference_paths | keys) + ($candidate_paths | keys) | unique[])
       as $path
+    | ($reference_paths[$path] | object_or_empty) as $reference_path_item
+    | ($candidate_paths[$path] | object_or_empty) as $candidate_path_item
     | select(
-        ($reference_paths[$path].servers // [])
-        != ($candidate_paths[$path].servers // [])
+        ($reference_path_item.servers // [])
+        != ($candidate_path_item.servers // [])
       )
     | $path
   ' | sort > "${tmp_dir}/changed.path-servers"
