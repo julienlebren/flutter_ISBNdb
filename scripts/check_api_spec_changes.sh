@@ -112,6 +112,25 @@ normalize_spec() {
         | if (.not? | type) == "object" then .not |= normalize_schema else . end
       end;
 
+    def is_http_method:
+      . == "get"
+      or . == "post"
+      or . == "put"
+      or . == "patch"
+      or . == "delete"
+      or . == "options"
+      or . == "head"
+      or . == "trace";
+
+    def normalize_parameters:
+      map({
+        name,
+        in,
+        required: (.required // false),
+        schema: ((.schema // {}) | normalize_schema)
+      })
+      | sort_by(.in, .name);
+
     {
       openapi,
       info: {
@@ -131,78 +150,69 @@ normalize_spec() {
         (.paths // {})
         | to_entries
         | sort_by(.key)
-        | map({
-            key: .key,
-            value: (
-              (.value // {})
-              | to_entries
-              | map(
-                  select(
-                    .key == "get"
-                    or .key == "post"
-                    or .key == "put"
-                    or .key == "patch"
-                    or .key == "delete"
-                    or .key == "options"
-                    or .key == "head"
-                    or .key == "trace"
-                  )
-                )
-              | sort_by(.key)
-              | map({
-                  key: .key,
-                  value: {
-                    summary: (.value.summary // null),
-                    deprecated: (.value.deprecated // false),
-                    parameters: (
-                      (.value.parameters // [])
-                      | map({
-                          name,
-                          in,
-                          required: (.required // false),
-                          schema: ((.schema // {}) | normalize_schema)
-                        })
-                      | sort_by(.in, .name)
-                    ),
-                    requestBody: (
-                      if .value.requestBody == null then null
-                      else {
-                        required: (.value.requestBody.required // false),
-                        contentTypes: ((.value.requestBody.content // {}) | keys | sort),
-                        schemas: (
-                          (.value.requestBody.content // {})
-                          | to_entries
-                          | map({
-                              contentType: .key,
-                              schema: ((.value.schema // {}) | normalize_schema)
-                            })
-                          | sort_by(.contentType)
-                        )
-                      }
-                      end
-                    ),
-                    responses: (
-                      (.value.responses // {})
-                      | to_entries
-                      | sort_by(.key)
-                      | map({
-                          code: .key,
-                          schemas: (
-                            (.value.content // {})
+        | map(
+            .key as $path
+            | (.value // {}) as $path_item
+            | {
+                key: $path,
+                value: {
+                  parameters: (
+                    ($path_item.parameters // []) | normalize_parameters
+                  ),
+                  operations: (
+                    $path_item
+                    | to_entries
+                    | map(select(.key | is_http_method))
+                    | sort_by(.key)
+                    | map({
+                        key: .key,
+                        value: {
+                          summary: (.value.summary // null),
+                          deprecated: (.value.deprecated // false),
+                          parameters: (
+                            (.value.parameters // []) | normalize_parameters
+                          ),
+                          requestBody: (
+                            if .value.requestBody == null then null
+                            else {
+                              required: (.value.requestBody.required // false),
+                              contentTypes: ((.value.requestBody.content // {}) | keys | sort),
+                              schemas: (
+                                (.value.requestBody.content // {})
+                                | to_entries
+                                | map({
+                                    contentType: .key,
+                                    schema: ((.value.schema // {}) | normalize_schema)
+                                  })
+                                | sort_by(.contentType)
+                              )
+                            }
+                            end
+                          ),
+                          responses: (
+                            (.value.responses // {})
                             | to_entries
+                            | sort_by(.key)
                             | map({
-                                contentType: .key,
-                                schema: ((.value.schema // {}) | normalize_schema)
+                                code: .key,
+                                schemas: (
+                                  (.value.content // {})
+                                  | to_entries
+                                  | map({
+                                      contentType: .key,
+                                      schema: ((.value.schema // {}) | normalize_schema)
+                                    })
+                                  | sort_by(.contentType)
+                                )
                               })
-                            | sort_by(.contentType)
                           )
-                        })
-                    )
-                  }
-                })
-              | from_entries
-            )
-          })
+                        }
+                      })
+                    | from_entries
+                  )
+                }
+              }
+          )
         | from_entries
       )
     }
@@ -245,25 +255,46 @@ extract_behavioral_descriptions() {
       (
         (.paths // {})
         | to_entries[] as $path
-        | ($path.value // {})
-        | to_entries[]
-        | select(.key | is_http_method)
-        | .key as $method
-        | .value as $operation
-        | {
-            id: "operation|\($method)|\($path.key)",
-            kind: "operation",
-            label: "\($method | ascii_upcase) \($path.key)",
-            value: ($operation.description | normalized_description)
-          },
-          (
-            ($operation.parameters // [])[]
+        | (
+            ($path.value.parameters // [])[]
             | {
-                id: "parameter|\($method)|\($path.key)|\(.in // "unknown")|\(.name // "unknown")",
-                kind: "parameter",
-                label: "\($method | ascii_upcase) \($path.key) — \(.in // "unknown") parameter \(.name // "unknown")",
+                id: "path-parameter|\($path.key)|\(.in // "unknown")|\(.name // "unknown")",
+                kind: "path-parameter",
+                label: "\($path.key) — shared \(.in // "unknown") parameter \(.name // "unknown")",
                 value: ([.description, .schema.description] | joined_descriptions)
               }
+          ),
+          (
+            ($path.value // {})
+            | to_entries[]
+            | select(.key | is_http_method)
+            | .key as $method
+            | .value as $operation
+            | {
+                id: "operation|\($method)|\($path.key)",
+                kind: "operation",
+                label: "\($method | ascii_upcase) \($path.key)",
+                value: ($operation.description | normalized_description)
+              },
+              (
+                ($operation.parameters // [])[]
+                | {
+                    id: "parameter|\($method)|\($path.key)|\(.in // "unknown")|\(.name // "unknown")",
+                    kind: "parameter",
+                    label: "\($method | ascii_upcase) \($path.key) — \(.in // "unknown") parameter \(.name // "unknown")",
+                    value: ([.description, .schema.description] | joined_descriptions)
+                  }
+              ),
+              (
+                ($operation.responses // {})
+                | to_entries[]
+                | {
+                    id: "response|\($method)|\($path.key)|\(.key)",
+                    kind: "response",
+                    label: "\($method | ascii_upcase) \($path.key) — response \(.key)",
+                    value: (.value.description | normalized_description)
+                  }
+              )
           )
       ),
       (
@@ -424,14 +455,28 @@ jq -r -n \
     | ($candidate[0].paths // {}) as $candidate_paths
     | (($reference_paths | keys) + ($candidate_paths | keys) | unique[])
       as $path
+    | select(
+        ($reference_paths[$path].parameters // [])
+        != ($candidate_paths[$path].parameters // [])
+      )
+    | $path
+  ' | sort > "${tmp_dir}/changed.path-parameters"
+
+jq -r -n \
+  --slurpfile reference "${normalized_reference}" \
+  --slurpfile candidate "${normalized_candidate}" '
+    ($reference[0].paths // {}) as $reference_paths
+    | ($candidate[0].paths // {}) as $candidate_paths
+    | (($reference_paths | keys) + ($candidate_paths | keys) | unique[])
+      as $path
     | (
-        (($reference_paths[$path] // {} | keys)
-          + ($candidate_paths[$path] // {} | keys)
+        (($reference_paths[$path].operations // {} | keys)
+          + ($candidate_paths[$path].operations // {} | keys)
           | unique[])
       ) as $method
     | select(
-        $reference_paths[$path][$method]
-        != $candidate_paths[$path][$method]
+        $reference_paths[$path].operations[$method]
+        != $candidate_paths[$path].operations[$method]
       )
     | "\($method | ascii_upcase) \($path)"
   ' | sort > "${tmp_dir}/changed.operations"
@@ -468,6 +513,13 @@ report="${tmp_dir}/drift-report.md"
     if [[ -s "${tmp_dir}/removed.paths" || -s "${tmp_dir}/added.paths" ]]; then
       sed 's/^/- Removed: `/' "${tmp_dir}/removed.paths" | sed 's/$/`/'
       sed 's/^/- Added: `/' "${tmp_dir}/added.paths" | sed 's/$/`/'
+    else
+      echo "- None"
+    fi
+    echo ""
+    echo "Changed path-level parameters:"
+    if [[ -s "${tmp_dir}/changed.path-parameters" ]]; then
+      sed 's/^/- `/' "${tmp_dir}/changed.path-parameters" | sed 's/$/`/'
     else
       echo "- None"
     fi

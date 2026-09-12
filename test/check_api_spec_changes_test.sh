@@ -76,6 +76,38 @@ assert_contains "${tmp_dir}/description-only.md" 'Before: "How many items should
 assert_contains "${tmp_dir}/description-only.md" 'After: "How many items should be returned per page, maximum of 42"'
 
 jq '
+  .paths["/book/{isbn}"].get.responses["404"].description
+  = "The requested book is not currently indexed"
+' "${REFERENCE}" > "${tmp_dir}/response-description.json"
+run_check "response-description" 2 "${tmp_dir}/response-description.json"
+assert_contains "${tmp_dir}/response-description.md" "- Structural contract: unchanged"
+assert_contains "${tmp_dir}/response-description.md" "- Behavioral descriptions: changed (1)"
+assert_contains "${tmp_dir}/response-description.md" "GET /book/{isbn} — response 404"
+assert_contains \
+  "${tmp_dir}/response-description.md" \
+  'After: "The requested book is not currently indexed"'
+
+jq '
+  .paths["/books/{query}"].parameters = [
+    {
+      "name": "locale",
+      "in": "query",
+      "description": "Locale applied to every operation on this path",
+      "required": false,
+      "schema": {"type": "string"}
+    }
+  ]
+' "${REFERENCE}" > "${tmp_dir}/path-parameter.json"
+run_check "path-parameter" 2 "${tmp_dir}/path-parameter.json"
+assert_contains "${tmp_dir}/path-parameter.md" "- Structural contract: changed"
+assert_contains "${tmp_dir}/path-parameter.md" "- Behavioral descriptions: changed (1)"
+assert_contains "${tmp_dir}/path-parameter.md" "Changed path-level parameters:"
+assert_contains "${tmp_dir}/path-parameter.md" '/books/{query}'
+assert_contains \
+  "${tmp_dir}/path-parameter.md" \
+  "/books/{query} — shared query parameter locale"
+
+jq '
   (.paths["/books/{query}"].get.parameters[]
     | select(.name == "pageSize")
     | .schema.default) = 42
