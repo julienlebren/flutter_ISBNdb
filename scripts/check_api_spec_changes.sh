@@ -82,33 +82,38 @@ normalize_spec() {
   local output="$2"
 
   jq -S '
+    def is_map_keyword:
+      . == "paths"
+      or . == "webhooks"
+      or . == "schemas"
+      or . == "responses"
+      or . == "parameters"
+      or . == "requestBodies"
+      or . == "headers"
+      or . == "securitySchemes"
+      or . == "links"
+      or . == "callbacks"
+      or . == "pathItems"
+      or . == "properties"
+      or . == "patternProperties"
+      or . == "$defs"
+      or . == "definitions"
+      or . == "content"
+      or . == "encoding"
+      or . == "variables"
+      or . == "scopes"
+      or . == "mapping";
+
     def is_named_map($path):
-      (($path | length) > 0
-        and (
-          $path[-1] == "paths"
-          or $path[-1] == "webhooks"
-          or $path[-1] == "schemas"
-          or $path[-1] == "responses"
-          or $path[-1] == "parameters"
-          or $path[-1] == "requestBodies"
-          or $path[-1] == "headers"
-          or $path[-1] == "securitySchemes"
-          or $path[-1] == "links"
-          or $path[-1] == "callbacks"
-          or $path[-1] == "properties"
-          or $path[-1] == "patternProperties"
-          or $path[-1] == "$defs"
-          or $path[-1] == "definitions"
-          or $path[-1] == "content"
-          or $path[-1] == "encoding"
-          or $path[-1] == "variables"
-          or $path[-1] == "scopes"
-          or $path[-1] == "mapping"
-        ))
-      or (($path | length) > 1 and $path[-2] == "callbacks")
-      or (($path | length) > 1
+      if ($path | length) == 0 then false
+      elif ($path | length) > 1 and $path[-2] == "callbacks" then true
+      elif ($path | length) > 1
           and $path[-2] == "security"
-          and ($path[-1] | type) == "number");
+          and ($path[-1] | type) == "number" then true
+      elif ($path[-1] | is_map_keyword) then
+        is_named_map($path[0:-1]) | not
+      else false
+      end;
 
     def is_link_object($path):
       ($path | length) > 1 and $path[-2] == "links";
@@ -130,6 +135,16 @@ normalize_spec() {
            del(.required)
          else .
          end)
+      | (if .allowReserved? == false then del(.allowReserved) else . end)
+      | (if .allowEmptyValue? == false then del(.allowEmptyValue) else . end)
+      | (if .nullable? == false then del(.nullable) else . end)
+      | (if .readOnly? == false then del(.readOnly) else . end)
+      | (if .writeOnly? == false then del(.writeOnly) else . end)
+      | (if .uniqueItems? == false then del(.uniqueItems) else . end)
+      | (if .exclusiveMinimum? == false then del(.exclusiveMinimum) else . end)
+      | (if .exclusiveMaximum? == false then del(.exclusiveMaximum) else . end)
+      | (if .attribute? == false then del(.attribute) else . end)
+      | (if .wrapped? == false then del(.wrapped) else . end)
       | (if (.required? | type) == "array" then
          .required |= sort
        else .
@@ -167,7 +182,9 @@ normalize_spec() {
     def normalize_value($path):
       if type == "object" then
         (is_named_map($path)) as $is_named_map
-        | (if $is_named_map then .
+        | (if $is_named_map and $path[-1] == "scopes" then
+             with_entries(.value = null)
+           elif $is_named_map then .
            else
              (if has("description")
                  and ((.description | type) == "string"
@@ -181,12 +198,20 @@ normalize_spec() {
                  then del(.summary)
                  else .
                  end)
+             | (if $path != ["info"]
+                   and has("title")
+                   and ((.title | type) == "string" or (.title | type) == "null")
+                 then del(.title)
+                 else .
+                 end)
              | del(.example, .examples)
            end)
         | to_entries
         | map(
             .key as $key
-            | if ($is_named_map | not)
+            | if $is_named_map and $path[-1] == "scopes" then
+                .
+              elif ($is_named_map | not)
                 and ($key == "default" or $key == "enum" or $key == "const")
               then .
               elif is_link_object($path)
@@ -238,7 +263,7 @@ extract_behavioral_descriptions() {
       else gsub("[[:space:]]+"; " ") | sub("^ "; "") | sub(" $"; "")
       end;
 
-    def is_named_map_name:
+    def is_map_keyword:
       . == "paths"
       or . == "webhooks"
       or . == "schemas"
@@ -249,6 +274,7 @@ extract_behavioral_descriptions() {
       or . == "securitySchemes"
       or . == "links"
       or . == "callbacks"
+      or . == "pathItems"
       or . == "properties"
       or . == "patternProperties"
       or . == "$defs"
@@ -259,11 +285,24 @@ extract_behavioral_descriptions() {
       or . == "scopes"
       or . == "mapping";
 
+    def is_named_map($path):
+      if ($path | length) == 0 then false
+      elif ($path | length) > 1 and $path[-2] == "callbacks" then true
+      elif ($path | length) > 1
+          and $path[-2] == "security"
+          and ($path[-1] | type) == "number" then true
+      elif ($path[-1] | is_map_keyword) then
+        is_named_map($path[0:-1]) | not
+      else false
+      end;
+
     def is_identifier_key($path; $index):
-      ($index > 0 and ($path[$index - 1] | is_named_map_name))
-      or ($index > 1
-          and $path[$index - 2] == "security"
-          and ($path[$index - 1] | type) == "number");
+      $index > 0 and is_named_map($path[0:$index]);
+
+    def is_oauth_scope_value($path):
+      ($path | length) > 1
+      and is_named_map($path[0:-1])
+      and $path[-2] == "scopes";
 
     def contains_literal_payload($path):
       [
@@ -325,15 +364,22 @@ extract_behavioral_descriptions() {
     | . as $document
     | [
       paths(scalars) as $path
-      | select($path[-1] == "description" or $path[-1] == "summary")
+      | (is_oauth_scope_value($path)) as $is_oauth_scope
+      | select(
+          $is_oauth_scope
+          or (($path[-1] == "description" or $path[-1] == "summary")
+              and (is_identifier_key($path; ($path | length) - 1) | not))
+        )
       | select(contains_literal_payload($path) | not)
-      | select(is_identifier_key($path; ($path | length) - 1) | not)
       | (getpath($path) | normalized_description) as $value
       | select($value != "")
       | semantic_path($document; $path) as $semantic_path
       | {
           id: ($semantic_path | tojson),
-          kind: (if $path == ["info", "description"] then "info" else $path[-1] end),
+          kind: (if $path == ["info", "description"] then "info"
+                 elif $is_oauth_scope then "oauth-scope"
+                 else $path[-1]
+                 end),
           label: (if $path == ["info", "description"]
                   then "General API description"
                   else path_label($semantic_path)
@@ -470,6 +516,13 @@ comm -23 "${tmp_dir}/reference.paths" "${tmp_dir}/candidate.paths" \
 comm -13 "${tmp_dir}/reference.paths" "${tmp_dir}/candidate.paths" \
   > "${tmp_dir}/added.paths"
 
+reference_servers="$(jq -c '.servers // []' "${normalized_reference}")"
+candidate_servers="$(jq -c '.servers // []' "${normalized_candidate}")"
+top_level_servers_changed=false
+if [[ "${reference_servers}" != "${candidate_servers}" ]]; then
+  top_level_servers_changed=true
+fi
+
 jq -r -n \
   --slurpfile reference "${normalized_reference}" \
   --slurpfile candidate "${normalized_candidate}" '
@@ -574,6 +627,14 @@ report="${tmp_dir}/drift-report.md"
     echo "Changed path-level parameters:"
     if [[ -s "${tmp_dir}/changed.path-parameters" ]]; then
       sed 's/^/- `/' "${tmp_dir}/changed.path-parameters" | sed 's/$/`/'
+    else
+      echo "- None"
+    fi
+    echo ""
+    echo "Changed top-level servers:"
+    if [[ "${top_level_servers_changed}" == true ]]; then
+      echo "- Reference: \`${reference_servers}\`"
+      echo "- Candidate: \`${candidate_servers}\`"
     else
       echo "- None"
     fi

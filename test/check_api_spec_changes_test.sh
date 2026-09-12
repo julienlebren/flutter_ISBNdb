@@ -117,6 +117,57 @@ assert_contains \
   "- Structural contract: changed"
 
 jq '
+  .components.schemas.Wrapper = {
+    "type": "object",
+    "properties": {
+      "headers": {
+        "type": "string",
+        "example": "first"
+      }
+    }
+  }
+' "${REFERENCE}" > "${tmp_dir}/named-map-reference.json"
+jq '.components.schemas.Wrapper.properties.headers.example = "second"' \
+  "${tmp_dir}/named-map-reference.json" \
+  > "${tmp_dir}/named-map-candidate.json"
+run_check \
+  "named-map-context" \
+  0 \
+  "${tmp_dir}/named-map-candidate.json" \
+  "${tmp_dir}/named-map-reference.json"
+assert_contains \
+  "${tmp_dir}/named-map-context.log" \
+  "No OpenAPI drift detected."
+
+jq '
+  .components.schemas.headers = {
+    "type": "object",
+    "properties": {
+      "example": {
+        "type": "string",
+        "description": "First property description"
+      }
+    }
+  }
+' "${REFERENCE}" > "${tmp_dir}/nested-map-name-reference.json"
+jq '
+  .components.schemas.headers.properties.example.description
+  = "Second property description"
+' "${tmp_dir}/nested-map-name-reference.json" \
+  > "${tmp_dir}/nested-map-name-candidate.json"
+run_check \
+  "nested-map-name" \
+  2 \
+  "${tmp_dir}/nested-map-name-candidate.json" \
+  "${tmp_dir}/nested-map-name-reference.json"
+assert_contains \
+  "${tmp_dir}/nested-map-name.md" \
+  "- Structural contract: unchanged"
+assert_contains \
+  "${tmp_dir}/nested-map-name.md" \
+  "- Behavioral descriptions: changed (1)"
+
+jq '
   .components.links.Next = {
     "operationId": "getBooks",
     "requestBody": {
@@ -153,6 +204,11 @@ jq '.info.title = "Renamed ISBNdb API"' \
 run_check "title" 2 "${tmp_dir}/title.json"
 assert_contains "${tmp_dir}/title.md" "- Structural contract: changed"
 
+jq '.components.schemas.Book.title = "Documentation-only schema title"' \
+  "${REFERENCE}" > "${tmp_dir}/schema-title.json"
+run_check "schema-title" 0 "${tmp_dir}/schema-title.json"
+assert_contains "${tmp_dir}/schema-title.log" "No OpenAPI drift detected."
+
 jq '.servers = [{"url":"https://primary.example.com"},{"url":"https://backup.example.com"}]' \
   "${REFERENCE}" > "${tmp_dir}/server-order-reference.json"
 jq '.servers |= reverse' \
@@ -163,6 +219,16 @@ run_check \
   "${tmp_dir}/server-order-candidate.json" \
   "${tmp_dir}/server-order-reference.json"
 assert_contains "${tmp_dir}/server-order.md" "- Structural contract: changed"
+
+jq '.servers[0].url = "https://regional.example.com"' \
+  "${REFERENCE}" > "${tmp_dir}/top-level-server.json"
+run_check "top-level-server" 2 "${tmp_dir}/top-level-server.json"
+assert_contains \
+  "${tmp_dir}/top-level-server.md" \
+  "Changed top-level servers:"
+assert_contains \
+  "${tmp_dir}/top-level-server.md" \
+  "https://regional.example.com"
 
 jq '
   .paths["/book/{isbn}"].get.security = [
@@ -205,12 +271,47 @@ jq '
   .paths["/book/{isbn}"].get.deprecated = false
   | (.paths["/book/{isbn}"].get.parameters[]
      | select(.name == "with_prices")
-     | .required) = false
+     | (.required, .allowReserved, .allowEmptyValue)) = false
+  | (.components.schemas.Book
+     | (.nullable, .readOnly, .writeOnly, .uniqueItems)) = false
 ' "${REFERENCE}" > "${tmp_dir}/explicit-defaults.json"
 run_check "explicit-defaults" 0 "${tmp_dir}/explicit-defaults.json"
 assert_contains \
   "${tmp_dir}/explicit-defaults.log" \
   "No OpenAPI drift detected."
+
+jq '
+  .components.securitySchemes.OAuth = {
+    "type": "oauth2",
+    "flows": {
+      "clientCredentials": {
+        "tokenUrl": "https://auth.example.com/token",
+        "scopes": {
+          "books:read": "Read book records"
+        }
+      }
+    }
+  }
+' "${REFERENCE}" > "${tmp_dir}/oauth-scope-reference.json"
+jq '
+  .components.securitySchemes.OAuth.flows.clientCredentials
+    .scopes["books:read"] = "Read books and prices"
+' "${tmp_dir}/oauth-scope-reference.json" \
+  > "${tmp_dir}/oauth-scope-candidate.json"
+run_check \
+  "oauth-scope-description" \
+  2 \
+  "${tmp_dir}/oauth-scope-candidate.json" \
+  "${tmp_dir}/oauth-scope-reference.json"
+assert_contains \
+  "${tmp_dir}/oauth-scope-description.md" \
+  "- Structural contract: unchanged"
+assert_contains \
+  "${tmp_dir}/oauth-scope-description.md" \
+  "- Behavioral descriptions: changed (1)"
+assert_contains \
+  "${tmp_dir}/oauth-scope-description.md" \
+  "scopes.books:read"
 
 jq '.info.version = "9.9.9"' "${REFERENCE}" > "${tmp_dir}/version.json"
 run_check "version-only" 2 "${tmp_dir}/version.json"
