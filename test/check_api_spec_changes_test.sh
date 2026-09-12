@@ -332,6 +332,23 @@ assert_contains \
   "${tmp_dir}/implicit-dialect.log" \
   "No OpenAPI drift detected."
 
+jq '.openapi = "3.1.0" | del(.jsonSchemaDialect)' \
+  "${REFERENCE}" > "${tmp_dir}/invalid-dialect-reference.json"
+jq '.jsonSchemaDialect = false' \
+  "${tmp_dir}/invalid-dialect-reference.json" \
+  > "${tmp_dir}/invalid-dialect-candidate.json"
+run_check \
+  "invalid-dialect" \
+  2 \
+  "${tmp_dir}/invalid-dialect-candidate.json" \
+  "${tmp_dir}/invalid-dialect-reference.json"
+assert_contains \
+  "${tmp_dir}/invalid-dialect.md" \
+  "- Structural contract: changed"
+assert_contains \
+  "${tmp_dir}/invalid-dialect.md" \
+  '- Candidate JSON Schema dialect: `false`'
+
 jq '
   .openapi = "3.1.0"
   | .components.schemas.NullableString = {
@@ -584,6 +601,40 @@ assert_contains \
   "No OpenAPI drift detected."
 
 jq '
+  .components.responses.EmptyOptionalMaps = {
+    "description": "Response without representation metadata"
+  }
+' "${REFERENCE}" > "${tmp_dir}/empty-response-maps-reference.json"
+jq '
+  .components.responses.EmptyOptionalMaps.headers = {}
+  | .components.responses.EmptyOptionalMaps.links = {}
+  | .components.responses.EmptyOptionalMaps.content = {}
+' "${tmp_dir}/empty-response-maps-reference.json" \
+  > "${tmp_dir}/empty-response-maps-candidate.json"
+run_check \
+  "empty-response-maps" \
+  0 \
+  "${tmp_dir}/empty-response-maps-candidate.json" \
+  "${tmp_dir}/empty-response-maps-reference.json"
+assert_contains \
+  "${tmp_dir}/empty-response-maps.log" \
+  "No OpenAPI drift detected."
+
+jq 'del(.components.schemas.Book.required)' \
+  "${REFERENCE}" > "${tmp_dir}/empty-required-reference.json"
+jq '.components.schemas.Book.required = []' \
+  "${tmp_dir}/empty-required-reference.json" \
+  > "${tmp_dir}/empty-required-candidate.json"
+run_check \
+  "empty-required" \
+  0 \
+  "${tmp_dir}/empty-required-candidate.json" \
+  "${tmp_dir}/empty-required-reference.json"
+assert_contains \
+  "${tmp_dir}/empty-required.log" \
+  "No OpenAPI drift detected."
+
+jq '
   .["x-generator"] = {
     "description": "Root generator metadata"
   }
@@ -642,6 +693,23 @@ assert_contains \
 assert_contains \
   "${tmp_dir}/extension-property.md" \
   "- Behavioral descriptions: changed (1)"
+
+jq '.openapi = "3.1.0" | del(.webhooks)' \
+  "${REFERENCE}" > "${tmp_dir}/webhook-extension-reference.json"
+jq '
+  .webhooks["x-generator"] = {
+    "description": "Generator metadata for webhooks"
+  }
+' "${tmp_dir}/webhook-extension-reference.json" \
+  > "${tmp_dir}/webhook-extension-candidate.json"
+run_check \
+  "webhook-extension" \
+  0 \
+  "${tmp_dir}/webhook-extension-candidate.json" \
+  "${tmp_dir}/webhook-extension-reference.json"
+assert_contains \
+  "${tmp_dir}/webhook-extension.log" \
+  "No OpenAPI drift detected."
 
 jq '
   .components.securitySchemes.OAuth = {

@@ -135,6 +135,11 @@ normalize_spec() {
       and $path[-2] == "encoding"
       and is_named_map($path[0:-1]);
 
+    def is_response_object($path):
+      ($path | length) > 1
+      and $path[-2] == "responses"
+      and is_named_map($path[0:-1]);
+
     def canonical_json:
       if type == "object" then
         to_entries
@@ -203,6 +208,7 @@ normalize_spec() {
          .required |= sort
        else .
        end)
+      | (if .required? == [] then del(.required) else . end)
       | (if (.type? | type) == "array" then
            .type |= sort_by(tostring)
          else .
@@ -240,6 +246,12 @@ normalize_spec() {
              )
              | sort_by(tojson)
            )
+         else .
+         end)
+      | (if is_response_object($path) then
+           (if .headers? == {} then del(.headers) else . end)
+           | (if .links? == {} then del(.links) else . end)
+           | (if .content? == {} then del(.content) else . end)
          else .
          end);
 
@@ -307,32 +319,42 @@ normalize_spec() {
       else .
       end;
 
-    {
-      openapi,
-      jsonSchemaDialect: (
+    (
+      {
+        openapi,
+        info: {
+          title: (.info.title // null)
+        },
+        servers: (.servers // []),
+        security: (.security // []),
+        components: (
+          (.components // {})
+          | with_entries(select(.key | startswith("x-") | not))
+          | with_entries(select(.value != {}))
+        ),
+        paths: (
+          (.paths // {})
+          | with_entries(select(.key | startswith("x-") | not))
+        ),
+        webhooks: (
+          (.webhooks // {})
+          | with_entries(select(.key | startswith("x-") | not))
+        )
+      }
+      + (
         (default_json_schema_dialect(.openapi)) as $default_dialect
-        | if $default_dialect != null
-            and (.jsonSchemaDialect // $default_dialect) == $default_dialect then
-            null
-          else .jsonSchemaDialect // null
+        | if has("jsonSchemaDialect") then
+            if (.jsonSchemaDialect | type) == "string"
+                and $default_dialect != null
+                and .jsonSchemaDialect == $default_dialect then
+              {}
+            else
+              {jsonSchemaDialect: .jsonSchemaDialect}
+            end
+          else {}
           end
-      ),
-      info: {
-        title: (.info.title // null)
-      },
-      servers: (.servers // []),
-      security: (.security // []),
-      components: (
-        (.components // {})
-        | with_entries(select(.key | startswith("x-") | not))
-        | with_entries(select(.value != {}))
-      ),
-      paths: (
-        (.paths // {})
-        | with_entries(select(.key | startswith("x-") | not))
-      ),
-      webhooks: (.webhooks // {})
-    }
+      )
+    )
     | normalize_value([])
     | if .servers == [{"url": "/"}] then .servers = [] else . end
   ' "${input}" > "${output}"
@@ -501,6 +523,10 @@ extract_behavioral_descriptions() {
        .paths |= with_entries(select(.key | startswith("x-") | not))
      else .
      end)
+    | (if (.webhooks? | type) == "object" then
+       .webhooks |= with_entries(select(.key | startswith("x-") | not))
+     else .
+     end)
     | . as $document
     | [
       paths(scalars) as $path
@@ -609,8 +635,22 @@ reference_version="$(jq -c '.info.version' "${REFERENCE_FILE}")"
 candidate_version="$(jq -c '.info.version' "${candidate_file}")"
 reference_openapi_version="$(jq -r '.openapi // "unknown"' "${normalized_reference}")"
 candidate_openapi_version="$(jq -r '.openapi // "unknown"' "${normalized_candidate}")"
-reference_schema_dialect="$(jq -r '.jsonSchemaDialect // "implicit"' "${normalized_reference}")"
-candidate_schema_dialect="$(jq -r '.jsonSchemaDialect // "implicit"' "${normalized_candidate}")"
+reference_schema_dialect="$(
+  jq -r '
+    if has("jsonSchemaDialect") then
+      (.jsonSchemaDialect | if type == "string" then . else tojson end)
+    else "implicit"
+    end
+  ' "${normalized_reference}"
+)"
+candidate_schema_dialect="$(
+  jq -r '
+    if has("jsonSchemaDialect") then
+      (.jsonSchemaDialect | if type == "string" then . else tojson end)
+    else "implicit"
+    end
+  ' "${normalized_candidate}"
+)"
 
 jq -S -n \
   --slurpfile reference "${reference_descriptions}" \
