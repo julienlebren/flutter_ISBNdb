@@ -196,6 +196,11 @@ normalize_spec() {
       and ($path[-1] | type) == "number"
       and (is_identifier_key($path; ($path | length) - 2) | not);
 
+    def is_server_variable_object($path):
+      ($path | length) > 1
+      and $path[-2] == "variables"
+      and is_named_map($path[0:-1]);
+
     def is_http_method:
       . == "get"
       or . == "post"
@@ -282,6 +287,20 @@ normalize_spec() {
           and ($parts.major | tonumber) == 3
           and ($parts.minor | tonumber) >= 1
       end;
+
+    def is_known_component_section($key; $version):
+      ([
+         "schemas",
+         "responses",
+         "parameters",
+         "examples",
+         "requestBodies",
+         "headers",
+         "securitySchemes",
+         "links",
+         "callbacks"
+       ] | index($key)) != null
+      or ($key == "pathItems" and supports_json_schema_2020_12($version));
 
     def has_case_insensitive_key_collision:
       (keys | map(ascii_downcase)) as $normalized_keys
@@ -374,6 +393,24 @@ normalize_spec() {
          else .
          end)
       | (if is_schema_object($path)
+           and (.minLength? | type) == "number"
+           and .minLength == 0 then
+           del(.minLength)
+         else .
+         end)
+      | (if is_schema_object($path)
+           and (.minItems? | type) == "number"
+           and .minItems == 0 then
+           del(.minItems)
+         else .
+         end)
+      | (if is_schema_object($path)
+           and (.minProperties? | type) == "number"
+           and .minProperties == 0 then
+           del(.minProperties)
+         else .
+         end)
+      | (if is_schema_object($path)
            and ($openapi_version | type) == "string"
            and ($openapi_version | startswith("3.0."))
            and .exclusiveMinimum? == false then
@@ -413,6 +450,10 @@ normalize_spec() {
          end)
       | (if is_schema_object($path) and (.enum? | type) == "array" then
            .enum |= (map(canonical_json) | sort_by(tojson))
+         elif is_server_variable_object($path)
+             and (.enum? | type) == "array"
+             and all(.enum[]; type == "string") then
+           .enum |= sort
          else .
          end)
       | (if is_schema_object($path) and (.oneOf? | type) == "array" then
@@ -492,7 +533,10 @@ normalize_spec() {
          else .
          end)
       | (if is_schema_object($path) then
-           del(."$comment")
+           (if supports_json_schema_2020_12($openapi_version) then
+              del(."$comment")
+            else .
+            end)
            | (
                ["properties"]
                + (if supports_json_schema_2020_12($openapi_version) then
@@ -604,7 +648,12 @@ normalize_spec() {
           (if has("components") then .components else {} end)
           | if type == "object" then
               with_entries(select(.key | startswith("x-") | not))
-              | with_entries(select(.value != {}))
+              | with_entries(
+                  select(
+                    .value != {}
+                    or (is_known_component_section(.key; $openapi_version) | not)
+                  )
+                )
             else .
             end
         ),
@@ -865,9 +914,12 @@ extract_behavioral_descriptions() {
           .title,
           .externalDocs,
           .example,
-          .examples,
-          ."$comment"
+          .examples
         )
+        | (if supports_json_schema_2020_12($openapi_version) then
+             del(."$comment")
+           else .
+           end)
         | to_entries
         | sort_by(.key)
         | map(
@@ -907,6 +959,18 @@ extract_behavioral_descriptions() {
         | (if .readOnly? == false then del(.readOnly) else . end)
         | (if .writeOnly? == false then del(.writeOnly) else . end)
         | (if .uniqueItems? == false then del(.uniqueItems) else . end)
+        | (if (.minLength? | type) == "number" and .minLength == 0 then
+             del(.minLength)
+           else .
+           end)
+        | (if (.minItems? | type) == "number" and .minItems == 0 then
+             del(.minItems)
+           else .
+           end)
+        | (if (.minProperties? | type) == "number" and .minProperties == 0 then
+             del(.minProperties)
+           else .
+           end)
         | (if .attribute? == false then del(.attribute) else . end)
         | (if .wrapped? == false then del(.wrapped) else . end)
         | (if .additionalProperties? == true then
@@ -1240,50 +1304,76 @@ jq -S -n \
     | [
         (($reference_groups | keys) + ($candidate_groups | keys) | unique[])
           as $match_id
-        | (($reference_groups[$match_id] // []) | add_value_occurrences)
-          as $reference_entries
-        | (($candidate_groups[$match_id] // []) | add_value_occurrences)
-          as $candidate_entries
-        | [
-            $reference_entries[]
-            | . as $entry
-            | select(
-                ([
-                   $candidate_entries[]
-                   | select(
-                       .value == $entry.value
-                       and .value_occurrence == $entry.value_occurrence
-                     )
-                 ] | length) == 0
-              )
-          ] as $unmatched_reference
-        | [
-            $candidate_entries[]
-            | . as $entry
-            | select(
-                ([
-                   $reference_entries[]
-                   | select(
-                       .value == $entry.value
-                       and .value_occurrence == $entry.value_occurrence
-                     )
-                 ] | length) == 0
-              )
-          ] as $unmatched_candidate
-        | ([
-             ($unmatched_reference | length),
-             ($unmatched_candidate | length)
-           ] | max) as $change_count
-        | range(0; $change_count) as $index
-        | ($unmatched_candidate[$index]
-           // $unmatched_reference[$index]) as $display_entry
-        | {
-            id: "\($match_id)#\($index)",
-            kind: $display_entry.kind,
-            label: $display_entry.label,
-            before: ($unmatched_reference[$index].value // null),
-            after: ($unmatched_candidate[$index].value // null)
-          }
+        | (($reference_groups[$match_id] // []) | sort_by(.id))
+          as $raw_reference_entries
+        | (($candidate_groups[$match_id] // []) | sort_by(.id))
+          as $raw_candidate_entries
+        | ($raw_reference_entries | map(.id) | sort) as $reference_ids
+        | ($raw_candidate_entries | map(.id) | sort) as $candidate_ids
+        | if $reference_ids == $candidate_ids then
+            [
+              $raw_reference_entries[] as $reference_entry
+              | ($raw_candidate_entries
+                 | map(select(.id == $reference_entry.id))
+                 | .[0]) as $candidate_entry
+              | select($reference_entry.value != $candidate_entry.value)
+              | {
+                  id: $reference_entry.id,
+                  kind: $candidate_entry.kind,
+                  label: $candidate_entry.label,
+                  before: $reference_entry.value,
+                  after: $candidate_entry.value
+                }
+            ]
+          else
+            ($raw_reference_entries | add_value_occurrences)
+              as $reference_entries
+            | ($raw_candidate_entries | add_value_occurrences)
+              as $candidate_entries
+            | [
+                $reference_entries[]
+                | . as $entry
+                | select(
+                    ([
+                       $candidate_entries[]
+                       | select(
+                           .value == $entry.value
+                           and .value_occurrence == $entry.value_occurrence
+                         )
+                     ] | length) == 0
+                  )
+              ] as $unmatched_reference
+            | [
+                $candidate_entries[]
+                | . as $entry
+                | select(
+                    ([
+                       $reference_entries[]
+                       | select(
+                           .value == $entry.value
+                           and .value_occurrence == $entry.value_occurrence
+                         )
+                     ] | length) == 0
+                  )
+              ] as $unmatched_candidate
+            | ([
+                 ($unmatched_reference | length),
+                 ($unmatched_candidate | length)
+               ] | max) as $change_count
+            | [
+                range(0; $change_count) as $index
+                | ($unmatched_candidate[$index]
+                   // $unmatched_reference[$index]) as $display_entry
+                | {
+                    id: "\($match_id)#\($index)",
+                    kind: $display_entry.kind,
+                    label: $display_entry.label,
+                    before: ($unmatched_reference[$index].value // null),
+                    after: ($unmatched_candidate[$index].value // null)
+                  }
+              ]
+          end
+        | .[]
       ]
   ' > "${description_diff}"
 

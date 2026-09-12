@@ -1571,4 +1571,93 @@ assert_contains \
   "${tmp_dir}/colliding-header-names.md" \
   "- Structural contract: changed"
 
+jq '
+  .components.schemas.ModifiedBranch.oneOf[0].description
+    as $first_description
+  | .components.schemas.ModifiedBranch.oneOf[1].description
+    as $second_description
+  | .components.schemas.ModifiedBranch.oneOf[0].description
+      = $second_description
+  | .components.schemas.ModifiedBranch.oneOf[1].description
+      = $first_description
+' "${tmp_dir}/modified-branch-reference.json" \
+  > "${tmp_dir}/swapped-branch-descriptions.json"
+run_check \
+  "swapped-branch-descriptions" \
+  2 \
+  "${tmp_dir}/swapped-branch-descriptions.json" \
+  "${tmp_dir}/modified-branch-reference.json"
+assert_contains \
+  "${tmp_dir}/swapped-branch-descriptions.md" \
+  "- Structural contract: unchanged"
+assert_contains \
+  "${tmp_dir}/swapped-branch-descriptions.md" \
+  "- Behavioral descriptions: changed (2)"
+
+jq '.components.unexpected = {}' \
+  "${REFERENCE}" > "${tmp_dir}/unknown-empty-component-section.json"
+run_check \
+  "unknown-empty-component-section" \
+  2 \
+  "${tmp_dir}/unknown-empty-component-section.json"
+assert_contains \
+  "${tmp_dir}/unknown-empty-component-section.md" \
+  "- Structural contract: changed"
+
+jq '
+  .servers += [{
+    "url": "https://{environment}.example.com",
+    "variables": {
+      "environment": {
+        "default": "prod",
+        "enum": ["prod", "staging"]
+      }
+    }
+  }]
+' "${REFERENCE}" > "${tmp_dir}/server-variable-enum-reference.json"
+jq '.servers[-1].variables.environment.enum |= reverse' \
+  "${tmp_dir}/server-variable-enum-reference.json" \
+  > "${tmp_dir}/server-variable-enum-candidate.json"
+run_check \
+  "server-variable-enum-order" \
+  0 \
+  "${tmp_dir}/server-variable-enum-candidate.json" \
+  "${tmp_dir}/server-variable-enum-reference.json"
+assert_contains \
+  "${tmp_dir}/server-variable-enum-order.log" \
+  "No OpenAPI drift detected."
+
+jq '.components.schemas.Book["$comment"] = "Invalid 3.0 annotation"' \
+  "${REFERENCE}" > "${tmp_dir}/invalid-30-schema-comment.json"
+run_check \
+  "invalid-30-schema-comment" \
+  2 \
+  "${tmp_dir}/invalid-30-schema-comment.json"
+assert_contains \
+  "${tmp_dir}/invalid-30-schema-comment.md" \
+  "- Structural contract: changed"
+
+jq '
+  .components.schemas.Book.minLength = 0
+  | .components.schemas.Book.minItems = 0
+  | .components.schemas.Book.minProperties = 0
+' "${REFERENCE}" > "${tmp_dir}/schema-zero-lower-bounds.json"
+run_check \
+  "schema-zero-lower-bounds" \
+  0 \
+  "${tmp_dir}/schema-zero-lower-bounds.json"
+assert_contains \
+  "${tmp_dir}/schema-zero-lower-bounds.log" \
+  "No OpenAPI drift detected."
+
+jq '.paths["/key"].get.minLength = 0' \
+  "${REFERENCE}" > "${tmp_dir}/invalid-operation-zero-bound.json"
+run_check \
+  "invalid-operation-zero-bound" \
+  2 \
+  "${tmp_dir}/invalid-operation-zero-bound.json"
+assert_contains \
+  "${tmp_dir}/invalid-operation-zero-bound.md" \
+  "- Structural contract: changed"
+
 echo "API spec drift diagnostics tests passed."
