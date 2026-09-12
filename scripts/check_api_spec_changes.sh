@@ -272,6 +272,21 @@ normalize_spec() {
           end
       end;
 
+    def supports_json_schema_2020_12($version):
+      if ($version | type) != "string" then false
+      else
+        ($version
+         | try capture("^(?<major>[0-9]+)\\.(?<minor>[0-9]+)\\.") catch null)
+          as $parts
+        | $parts != null
+          and ($parts.major | tonumber) == 3
+          and ($parts.minor | tonumber) >= 1
+      end;
+
+    def has_case_insensitive_key_collision:
+      (keys | map(ascii_downcase)) as $normalized_keys
+      | ($normalized_keys | length) != ($normalized_keys | unique | length);
+
     def unknown_root_fields:
       with_entries(
         .key as $key
@@ -478,14 +493,19 @@ normalize_spec() {
          end)
       | (if is_schema_object($path) then
            del(."$comment")
-           | reduce [
-             "properties",
-             "patternProperties",
-             "$defs",
-             "definitions",
-             "dependentSchemas",
-             "dependentRequired"
-           ][] as $key
+           | (
+               ["properties"]
+               + (if supports_json_schema_2020_12($openapi_version) then
+                    [
+                      "patternProperties",
+                      "$defs",
+                      "dependentSchemas",
+                      "dependentRequired"
+                    ]
+                  else []
+                  end)
+             ) as $empty_schema_maps
+           | reduce $empty_schema_maps[] as $key
              (.; if .[$key]? == {} then del(.[$key]) else . end)
          else .
          end);
@@ -496,12 +516,16 @@ normalize_spec() {
         | (if $is_named_map
               and $path[-1] == "headers"
               and $path != ["components", "headers"] then
-             with_entries(.key |= ascii_downcase)
+             if has_case_insensitive_key_collision then .
+             else with_entries(.key |= ascii_downcase)
+             end
            elif $is_named_map and $path[-1] == "scopes" then
              with_entries(
                if (.value | type) == "string" then .value = null else . end
              )
-           elif $is_named_map and $path[-1] == "dependentRequired" then
+           elif $is_named_map
+               and $path[-1] == "dependentRequired"
+               and supports_json_schema_2020_12($openapi_version) then
              with_entries(
                if (.value | type) == "array" then .value |= sort else . end
              )
@@ -822,6 +846,17 @@ extract_behavioral_descriptions() {
       else .
       end;
 
+    def supports_json_schema_2020_12($version):
+      if ($version | type) != "string" then false
+      else
+        ($version
+         | try capture("^(?<major>[0-9]+)\\.(?<minor>[0-9]+)\\.") catch null)
+          as $parts
+        | $parts != null
+          and ($parts.major | tonumber) == 3
+          and ($parts.minor | tonumber) >= 1
+      end;
+
     def canonical_schema_identity($openapi_version):
       if type == "object" then
         del(
@@ -850,6 +885,7 @@ extract_behavioral_descriptions() {
                   | from_entries
                 )
               elif $key == "dependentRequired"
+                  and supports_json_schema_2020_12($openapi_version)
                   and (.value | type) == "object" then
                 .value |= with_entries(
                   if (.value | type) == "array" then
@@ -914,14 +950,19 @@ extract_behavioral_descriptions() {
              .allOf |= sort_by(tojson)
            else .
            end)
-        | reduce [
-            "properties",
-            "patternProperties",
-            "$defs",
-            "definitions",
-            "dependentSchemas",
-            "dependentRequired"
-          ][] as $key
+        | (
+            ["properties"]
+            + (if supports_json_schema_2020_12($openapi_version) then
+                 [
+                   "patternProperties",
+                   "$defs",
+                   "dependentSchemas",
+                   "dependentRequired"
+                 ]
+               else []
+               end)
+          ) as $empty_schema_maps
+        | reduce $empty_schema_maps[] as $key
             (.; if .[$key]? == {} then del(.[$key]) else . end)
       elif type == "array" then
         map(canonical_schema_identity($openapi_version))
@@ -1042,6 +1083,16 @@ extract_behavioral_descriptions() {
       | semantic_path($document; $path) as $semantic_path
       | {
           id: ($semantic_path | tojson),
+          match_id: (
+            $semantic_path
+            | map(
+                if type == "string" and startswith("schema-branch:") then
+                  "schema-branch"
+                else .
+                end
+              )
+            | tojson
+          ),
           kind: (if $path == ["info", "description"] then "info"
                  elif $is_oauth_scope then "oauth-scope"
                  else $path[-1]
@@ -1169,21 +1220,69 @@ candidate_schema_dialect="$(
 jq -S -n \
   --slurpfile reference "${reference_descriptions}" \
   --slurpfile candidate "${candidate_descriptions}" '
-    ($reference[0] | map({key: .id, value: .}) | from_entries) as $reference_entries
-    | ($candidate[0] | map({key: .id, value: .}) | from_entries) as $candidate_entries
+    def group_by_match_id:
+      sort_by(.match_id)
+      | group_by(.match_id)
+      | map({key: .[0].match_id, value: .})
+      | from_entries;
+
+    def add_value_occurrences:
+      sort_by(.value, .id)
+      | group_by(.value)
+      | map(
+          to_entries
+          | map(.value + {value_occurrence: .key})
+        )
+      | add // [];
+
+    ($reference[0] | group_by_match_id) as $reference_groups
+    | ($candidate[0] | group_by_match_id) as $candidate_groups
     | [
-        (($reference_entries | keys) + ($candidate_entries | keys) | unique[])
-        as $id
-        | select(
-            ($reference_entries[$id].value // null)
-            != ($candidate_entries[$id].value // null)
-          )
+        (($reference_groups | keys) + ($candidate_groups | keys) | unique[])
+          as $match_id
+        | (($reference_groups[$match_id] // []) | add_value_occurrences)
+          as $reference_entries
+        | (($candidate_groups[$match_id] // []) | add_value_occurrences)
+          as $candidate_entries
+        | [
+            $reference_entries[]
+            | . as $entry
+            | select(
+                ([
+                   $candidate_entries[]
+                   | select(
+                       .value == $entry.value
+                       and .value_occurrence == $entry.value_occurrence
+                     )
+                 ] | length) == 0
+              )
+          ] as $unmatched_reference
+        | [
+            $candidate_entries[]
+            | . as $entry
+            | select(
+                ([
+                   $reference_entries[]
+                   | select(
+                       .value == $entry.value
+                       and .value_occurrence == $entry.value_occurrence
+                     )
+                 ] | length) == 0
+              )
+          ] as $unmatched_candidate
+        | ([
+             ($unmatched_reference | length),
+             ($unmatched_candidate | length)
+           ] | max) as $change_count
+        | range(0; $change_count) as $index
+        | ($unmatched_candidate[$index]
+           // $unmatched_reference[$index]) as $display_entry
         | {
-            id: $id,
-            kind: (($candidate_entries[$id] // $reference_entries[$id]).kind),
-            label: (($candidate_entries[$id] // $reference_entries[$id]).label),
-            before: ($reference_entries[$id].value // null),
-            after: ($candidate_entries[$id].value // null)
+            id: "\($match_id)#\($index)",
+            kind: $display_entry.kind,
+            label: $display_entry.label,
+            before: ($unmatched_reference[$index].value // null),
+            after: ($unmatched_candidate[$index].value // null)
           }
       ]
   ' > "${description_diff}"

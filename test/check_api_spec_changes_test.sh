@@ -199,7 +199,8 @@ assert_contains \
   "- Behavioral descriptions: changed (1)"
 
 jq '
-  .components.schemas.Conditional = {
+  .openapi = "3.1.0"
+  | .components.schemas.Conditional = {
     "type": "object",
     "dependentSchemas": {
       "example": {
@@ -852,13 +853,13 @@ assert_contains \
   "No OpenAPI drift detected."
 
 jq '
-  .components.schemas.EmptySchemaMaps = {"type": "object"}
+  .openapi = "3.1.0"
+  | .components.schemas.EmptySchemaMaps = {"type": "object"}
 ' "${REFERENCE}" > "${tmp_dir}/empty-schema-maps-reference.json"
 jq '
   .components.schemas.EmptySchemaMaps.properties = {}
   | .components.schemas.EmptySchemaMaps.patternProperties = {}
   | .components.schemas.EmptySchemaMaps["$defs"] = {}
-  | .components.schemas.EmptySchemaMaps.definitions = {}
   | .components.schemas.EmptySchemaMaps.dependentSchemas = {}
   | .components.schemas.EmptySchemaMaps.dependentRequired = {}
 ' "${tmp_dir}/empty-schema-maps-reference.json" \
@@ -1519,6 +1520,55 @@ jq '.unexpected = 1' \
 run_check "unknown-root-field" 2 "${tmp_dir}/unknown-root-field.json"
 assert_contains \
   "${tmp_dir}/unknown-root-field.md" \
+  "- Structural contract: changed"
+
+jq '
+  .components.schemas.ModifiedBranch = {
+    "oneOf": [
+      {"type": "string", "description": "The documented branch"},
+      {"type": "boolean", "description": "The fallback branch"}
+    ]
+  }
+' "${REFERENCE}" > "${tmp_dir}/modified-branch-reference.json"
+jq '.components.schemas.ModifiedBranch.oneOf[0].type = "integer"' \
+  "${tmp_dir}/modified-branch-reference.json" \
+  > "${tmp_dir}/modified-branch-candidate.json"
+run_check \
+  "modified-branch-description" \
+  2 \
+  "${tmp_dir}/modified-branch-candidate.json" \
+  "${tmp_dir}/modified-branch-reference.json"
+assert_contains \
+  "${tmp_dir}/modified-branch-description.md" \
+  "- Structural contract: changed"
+assert_contains \
+  "${tmp_dir}/modified-branch-description.md" \
+  "- Behavioral descriptions: unchanged"
+
+jq '.components.schemas.Book["$defs"] = {}' \
+  "${REFERENCE}" > "${tmp_dir}/invalid-30-empty-defs.json"
+run_check \
+  "invalid-30-empty-defs" \
+  2 \
+  "${tmp_dir}/invalid-30-empty-defs.json"
+assert_contains \
+  "${tmp_dir}/invalid-30-empty-defs.md" \
+  "- Structural contract: changed"
+
+jq '
+  .paths["/book/{isbn}"].get.responses["200"].headers.ratelimit
+    as $original
+  | .paths["/book/{isbn}"].get.responses["200"].headers.ratelimit
+      .schema.type = "integer"
+  | .paths["/book/{isbn}"].get.responses["200"].headers.RATELIMIT
+      = $original
+' "${REFERENCE}" > "${tmp_dir}/colliding-header-names.json"
+run_check \
+  "colliding-header-names" \
+  2 \
+  "${tmp_dir}/colliding-header-names.json"
+assert_contains \
+  "${tmp_dir}/colliding-header-names.md" \
   "- Structural contract: changed"
 
 echo "API spec drift diagnostics tests passed."
