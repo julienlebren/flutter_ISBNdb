@@ -146,6 +146,20 @@ normalize_spec() {
       else .
       end;
 
+    def default_json_schema_dialect($version):
+      if ($version | type) != "string" then null
+      else
+        ($version
+         | try capture("^(?<major>[0-9]+)\\.(?<minor>[0-9]+)\\.") catch null)
+          as $parts
+        | if $parts != null
+            and ($parts.major | tonumber) == 3
+            and ($parts.minor | tonumber) >= 1 then
+            "https://spec.openapis.org/oas/\($parts.major).\($parts.minor)/dialect/base"
+          else null
+          end
+      end;
+
     def normalize_serialization_defaults($path):
       (if is_header_object($path) then "simple"
        elif is_encoding_object($path) then "form"
@@ -232,7 +246,11 @@ normalize_spec() {
     def normalize_value($path):
       if type == "object" then
         (is_named_map($path)) as $is_named_map
-        | (if $is_named_map and $path[-1] == "scopes" then
+        | (if $is_named_map
+              and $path[-1] == "headers"
+              and $path != ["components", "headers"] then
+             with_entries(.key |= ascii_downcase)
+           elif $is_named_map and $path[-1] == "scopes" then
              with_entries(.value = null)
            elif $is_named_map and $path[-1] == "dependentRequired" then
              with_entries(
@@ -291,7 +309,14 @@ normalize_spec() {
 
     {
       openapi,
-      jsonSchemaDialect: (.jsonSchemaDialect // null),
+      jsonSchemaDialect: (
+        (default_json_schema_dialect(.openapi)) as $default_dialect
+        | if $default_dialect != null
+            and (.jsonSchemaDialect // $default_dialect) == $default_dialect then
+            null
+          else .jsonSchemaDialect // null
+          end
+      ),
       info: {
         title: (.info.title // null)
       },
@@ -300,6 +325,7 @@ normalize_spec() {
       components: (
         (.components // {})
         | with_entries(select(.key | startswith("x-") | not))
+        | with_entries(select(.value != {}))
       ),
       paths: (
         (.paths // {})
@@ -373,6 +399,19 @@ extract_behavioral_descriptions() {
       and is_named_map($path[0:-1])
       and $path[-2] == "scopes";
 
+    def is_header_map_key($path; $index):
+      $index > 1
+      and $path[$index - 1] == "headers"
+      and ($path[$index] | type) == "string"
+      and is_named_map($path[0:$index])
+      and $path[0:$index] != ["components", "headers"];
+
+    def is_server_array_index($path; $index):
+      $index > 0
+      and $path[$index - 1] == "servers"
+      and ($path[$index] | type) == "number"
+      and (is_identifier_key($path; $index - 1) | not);
+
     def contains_literal_payload($path):
       [
         range(0; $path | length) as $index
@@ -428,12 +467,26 @@ extract_behavioral_descriptions() {
               else
                 $path[$index]
               end
+          elif is_header_map_key($path; $index) then
+            $path[$index] | ascii_downcase
+          elif is_server_array_index($path; $index) then
+            ($document | getpath($path[0:($index + 1)])) as $server
+            | if ($server.url | type) == "string" and $server.url != "" then
+                "server:\($server.url)"
+              else
+                $path[$index]
+              end
           else
             $path[$index]
           end
       ];
 
-    (if (.paths? | type) == "object" then
+    with_entries(select(.key | startswith("x-") | not))
+    | (if (.components? | type) == "object" then
+       .components |= with_entries(select(.key | startswith("x-") | not))
+     else .
+     end)
+    | (if (.paths? | type) == "object" then
        .paths |= with_entries(select(.key | startswith("x-") | not))
      else .
      end)
@@ -542,6 +595,10 @@ fi
 
 reference_version="$(jq -r '.info.version // "unknown"' "${REFERENCE_FILE}")"
 candidate_version="$(jq -r '.info.version // "unknown"' "${candidate_file}")"
+reference_openapi_version="$(jq -r '.openapi // "unknown"' "${normalized_reference}")"
+candidate_openapi_version="$(jq -r '.openapi // "unknown"' "${normalized_candidate}")"
+reference_schema_dialect="$(jq -r '.jsonSchemaDialect // "implicit"' "${normalized_reference}")"
+candidate_schema_dialect="$(jq -r '.jsonSchemaDialect // "implicit"' "${normalized_candidate}")"
 
 jq -S -n \
   --slurpfile reference "${reference_descriptions}" \
@@ -713,6 +770,10 @@ report="${tmp_dir}/drift-report.md"
   echo ""
   echo "- Reference version: \`${reference_version}\`"
   echo "- Candidate version: \`${candidate_version}\`"
+  echo "- Reference OpenAPI version: \`${reference_openapi_version}\`"
+  echo "- Candidate OpenAPI version: \`${candidate_openapi_version}\`"
+  echo "- Reference JSON Schema dialect: \`${reference_schema_dialect}\`"
+  echo "- Candidate JSON Schema dialect: \`${candidate_schema_dialect}\`"
   echo ""
   echo "### Classification"
   echo ""

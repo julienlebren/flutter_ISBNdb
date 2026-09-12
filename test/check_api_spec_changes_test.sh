@@ -301,6 +301,36 @@ run_check "json-schema-dialect" 2 "${tmp_dir}/json-schema-dialect.json"
 assert_contains \
   "${tmp_dir}/json-schema-dialect.md" \
   "- Structural contract: changed"
+assert_contains \
+  "${tmp_dir}/json-schema-dialect.md" \
+  '- Reference JSON Schema dialect: `implicit`'
+assert_contains \
+  "${tmp_dir}/json-schema-dialect.md" \
+  '- Candidate JSON Schema dialect: `https://json-schema.org/draft/2020-12/schema`'
+
+jq '.openapi = "3.0.1"' \
+  "${REFERENCE}" > "${tmp_dir}/openapi-version.json"
+run_check "openapi-version" 2 "${tmp_dir}/openapi-version.json"
+assert_contains \
+  "${tmp_dir}/openapi-version.md" \
+  '- Reference OpenAPI version: `3.0.0`'
+assert_contains \
+  "${tmp_dir}/openapi-version.md" \
+  '- Candidate OpenAPI version: `3.0.1`'
+
+jq '.openapi = "3.1.0" | del(.jsonSchemaDialect)' \
+  "${REFERENCE}" > "${tmp_dir}/implicit-dialect-reference.json"
+jq '.jsonSchemaDialect = "https://spec.openapis.org/oas/3.1/dialect/base"' \
+  "${tmp_dir}/implicit-dialect-reference.json" \
+  > "${tmp_dir}/implicit-dialect-candidate.json"
+run_check \
+  "implicit-dialect" \
+  0 \
+  "${tmp_dir}/implicit-dialect-candidate.json" \
+  "${tmp_dir}/implicit-dialect-reference.json"
+assert_contains \
+  "${tmp_dir}/implicit-dialect.log" \
+  "No OpenAPI drift detected."
 
 jq '
   .openapi = "3.1.0"
@@ -320,7 +350,10 @@ assert_contains \
   "${tmp_dir}/type-array-order.log" \
   "No OpenAPI drift detected."
 
-jq '.servers = [{"url":"https://primary.example.com"},{"url":"https://backup.example.com"}]' \
+jq '.servers = [
+  {"url":"https://primary.example.com", "description":"Primary endpoint"},
+  {"url":"https://backup.example.com", "description":"Backup endpoint"}
+]' \
   "${REFERENCE}" > "${tmp_dir}/server-order-reference.json"
 jq '.servers |= reverse' \
   "${tmp_dir}/server-order-reference.json" > "${tmp_dir}/server-order-candidate.json"
@@ -330,6 +363,9 @@ run_check \
   "${tmp_dir}/server-order-candidate.json" \
   "${tmp_dir}/server-order-reference.json"
 assert_contains "${tmp_dir}/server-order.md" "- Structural contract: changed"
+assert_contains \
+  "${tmp_dir}/server-order.md" \
+  "- Behavioral descriptions: unchanged"
 
 jq '.servers[0].url = "https://regional.example.com"' \
   "${REFERENCE}" > "${tmp_dir}/top-level-server.json"
@@ -464,6 +500,69 @@ assert_contains \
   "${tmp_dir}/encoding-defaults.log" \
   "No OpenAPI drift detected."
 
+jq '
+  .components.responses.CaseHeaders = {
+    "description": "A response with a trace header",
+    "headers": {
+      "X-Trace-Id": {
+        "description": "Trace identifier returned by the service",
+        "schema": {"type": "string"}
+      }
+    }
+  }
+  | .components.requestBodies.EncodedHeaders = {
+      "content": {
+        "multipart/form-data": {
+          "schema": {"type": "object"},
+          "encoding": {
+            "value": {
+              "headers": {
+                "X-Trace-Id": {
+                  "description": "Trace identifier sent with this part",
+                  "schema": {"type": "string"}
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+' "${REFERENCE}" > "${tmp_dir}/header-map-case-reference.json"
+jq '
+  .components.responses.CaseHeaders.headers |= with_entries(.key |= ascii_downcase)
+  | .components.requestBodies.EncodedHeaders.content["multipart/form-data"]
+      .encoding.value.headers |= with_entries(.key |= ascii_downcase)
+' "${tmp_dir}/header-map-case-reference.json" \
+  > "${tmp_dir}/header-map-case-candidate.json"
+run_check \
+  "header-map-case" \
+  0 \
+  "${tmp_dir}/header-map-case-candidate.json" \
+  "${tmp_dir}/header-map-case-reference.json"
+assert_contains \
+  "${tmp_dir}/header-map-case.log" \
+  "No OpenAPI drift detected."
+
+jq '
+  .components.headers.TraceId = {
+    "description": "Reusable trace header",
+    "schema": {"type": "string"}
+  }
+' "${REFERENCE}" > "${tmp_dir}/component-header-name-reference.json"
+jq '
+  .components.headers.traceId = .components.headers.TraceId
+  | del(.components.headers.TraceId)
+' "${tmp_dir}/component-header-name-reference.json" \
+  > "${tmp_dir}/component-header-name-candidate.json"
+run_check \
+  "component-header-name" \
+  2 \
+  "${tmp_dir}/component-header-name-candidate.json" \
+  "${tmp_dir}/component-header-name-reference.json"
+assert_contains \
+  "${tmp_dir}/component-header-name.md" \
+  "- Structural contract: changed"
+
 jq '.components.schemas.Book.additionalProperties = true' \
   "${REFERENCE}" > "${tmp_dir}/additional-properties-default.json"
 run_check \
@@ -472,6 +571,29 @@ run_check \
   "${tmp_dir}/additional-properties-default.json"
 assert_contains \
   "${tmp_dir}/additional-properties-default.log" \
+  "No OpenAPI drift detected."
+
+jq '.components.callbacks = {}' \
+  "${REFERENCE}" > "${tmp_dir}/empty-component-section.json"
+run_check \
+  "empty-component-section" \
+  0 \
+  "${tmp_dir}/empty-component-section.json"
+assert_contains \
+  "${tmp_dir}/empty-component-section.log" \
+  "No OpenAPI drift detected."
+
+jq '
+  .["x-generator"] = {
+    "description": "Root generator metadata"
+  }
+  | .components["x-generator"] = {
+      "description": "Component generator metadata"
+    }
+' "${REFERENCE}" > "${tmp_dir}/ignored-extensions.json"
+run_check "ignored-extensions" 0 "${tmp_dir}/ignored-extensions.json"
+assert_contains \
+  "${tmp_dir}/ignored-extensions.log" \
   "No OpenAPI drift detected."
 
 jq '
