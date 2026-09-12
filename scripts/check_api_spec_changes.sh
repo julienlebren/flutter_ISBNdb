@@ -108,17 +108,22 @@ normalize_spec() {
 
     def is_named_map($path):
       if ($path | length) == 0 then false
-      elif ($path | length) > 1 and $path[-2] == "callbacks" then true
+      elif ($path | length) > 1
+          and $path[-2] == "callbacks"
+          and is_named_map($path[0:-1]) then true
       elif ($path | length) > 1
           and $path[-2] == "security"
-          and ($path[-1] | type) == "number" then true
+          and ($path[-1] | type) == "number"
+          and (is_named_map($path[0:-2]) | not) then true
       elif ($path[-1] | is_map_keyword) then
         is_named_map($path[0:-1]) | not
       else false
       end;
 
     def is_link_object($path):
-      ($path | length) > 1 and $path[-2] == "links";
+      ($path | length) > 1
+      and $path[-2] == "links"
+      and is_named_map($path[0:-1]);
 
     def canonical_json:
       if type == "object" then
@@ -320,10 +325,13 @@ extract_behavioral_descriptions() {
 
     def is_named_map($path):
       if ($path | length) == 0 then false
-      elif ($path | length) > 1 and $path[-2] == "callbacks" then true
+      elif ($path | length) > 1
+          and $path[-2] == "callbacks"
+          and is_named_map($path[0:-1]) then true
       elif ($path | length) > 1
           and $path[-2] == "security"
-          and ($path[-1] | type) == "number" then true
+          and ($path[-1] | type) == "number"
+          and (is_named_map($path[0:-2]) | not) then true
       elif ($path[-1] | is_map_keyword) then
         is_named_map($path[0:-1]) | not
       else false
@@ -331,6 +339,11 @@ extract_behavioral_descriptions() {
 
     def is_identifier_key($path; $index):
       $index > 0 and is_named_map($path[0:$index]);
+
+    def is_link_object($path):
+      ($path | length) > 1
+      and $path[-2] == "links"
+      and is_named_map($path[0:-1]);
 
     def is_oauth_scope_value($path):
       ($path | length) > 1
@@ -348,8 +361,7 @@ extract_behavioral_descriptions() {
              or $path[$index] == "examples"
              or $path[$index] == "externalDocs")
               and (is_identifier_key($path; $index) | not))
-            or ($index > 1
-                and $path[$index - 2] == "links"
+            or (is_link_object($path[0:$index])
                 and ($path[$index] == "requestBody"
                      or $path[$index] == "parameters")))
           )
@@ -638,6 +650,17 @@ jq -r -n \
 jq -r -n \
   --slurpfile reference "${normalized_reference}" \
   --slurpfile candidate "${normalized_candidate}" '
+    ($reference[0].webhooks // {}) as $reference_webhooks
+    | ($candidate[0].webhooks // {}) as $candidate_webhooks
+    | (($reference_webhooks | keys) + ($candidate_webhooks | keys) | unique[])
+      as $webhook
+    | select($reference_webhooks[$webhook] != $candidate_webhooks[$webhook])
+    | $webhook
+  ' | sort > "${tmp_dir}/changed.webhooks"
+
+jq -r -n \
+  --slurpfile reference "${normalized_reference}" \
+  --slurpfile candidate "${normalized_candidate}" '
     ($reference[0].components // {}) as $reference_components
     | ($candidate[0].components // {}) as $candidate_components
     | (($reference_components | keys) + ($candidate_components | keys) | unique[])
@@ -719,6 +742,13 @@ report="${tmp_dir}/drift-report.md"
     echo "Changed operations:"
     if [[ -s "${tmp_dir}/changed.operations" ]]; then
       sed 's/^/- `/' "${tmp_dir}/changed.operations" | sed 's/$/`/'
+    else
+      echo "- None"
+    fi
+    echo ""
+    echo "Changed webhooks:"
+    if [[ -s "${tmp_dir}/changed.webhooks" ]]; then
+      sed 's/^/- `/' "${tmp_dir}/changed.webhooks" | sed 's/$/`/'
     else
       echo "- None"
     fi

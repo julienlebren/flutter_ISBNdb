@@ -168,6 +168,37 @@ assert_contains \
   "- Behavioral descriptions: changed (1)"
 
 jq '
+  .components.schemas.CallbackHolder = {
+    "type": "object",
+    "properties": {
+      "callbacks": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "description": "First callback item description"
+        }
+      }
+    }
+  }
+' "${REFERENCE}" > "${tmp_dir}/callback-name-reference.json"
+jq '
+  .components.schemas.CallbackHolder.properties.callbacks.items.description
+  = "Second callback item description"
+' "${tmp_dir}/callback-name-reference.json" \
+  > "${tmp_dir}/callback-name-candidate.json"
+run_check \
+  "callback-name-context" \
+  2 \
+  "${tmp_dir}/callback-name-candidate.json" \
+  "${tmp_dir}/callback-name-reference.json"
+assert_contains \
+  "${tmp_dir}/callback-name-context.md" \
+  "- Structural contract: unchanged"
+assert_contains \
+  "${tmp_dir}/callback-name-context.md" \
+  "- Behavioral descriptions: changed (1)"
+
+jq '
   .components.schemas.Conditional = {
     "type": "object",
     "dependentSchemas": {
@@ -586,6 +617,35 @@ assert_contains \
   "${tmp_dir}/path-reference.md" \
   "Changed path-level references:"
 assert_contains "${tmp_dir}/path-reference.md" '/alias'
+
+jq '
+  .webhooks["book.updated"] = {
+    "post": {
+      "requestBody": {
+        "content": {
+          "application/json": {
+            "schema": {"type": "string"}
+          }
+        }
+      },
+      "responses": {
+        "200": {"description": "Webhook accepted"}
+      }
+    }
+  }
+' "${REFERENCE}" > "${tmp_dir}/webhook-reference.json"
+jq '
+  .webhooks["book.updated"].post.requestBody.content
+    ["application/json"].schema.type = "object"
+' "${tmp_dir}/webhook-reference.json" \
+  > "${tmp_dir}/webhook-candidate.json"
+run_check \
+  "webhook" \
+  2 \
+  "${tmp_dir}/webhook-candidate.json" \
+  "${tmp_dir}/webhook-reference.json"
+assert_contains "${tmp_dir}/webhook.md" "Changed webhooks:"
+assert_contains "${tmp_dir}/webhook.md" 'book.updated'
 
 jq '
   (.paths["/books/{query}"].get.parameters[]
