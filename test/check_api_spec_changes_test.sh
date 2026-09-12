@@ -73,6 +73,42 @@ jq '
 run_check "example-only" 0 "${tmp_dir}/example-only.json"
 assert_contains "${tmp_dir}/example-only.log" "No OpenAPI drift detected."
 
+jq '
+  .components.schemas.LiteralDefault = {
+    "type": "object",
+    "default": {
+      "example": "first",
+      "tags": ["alpha", "beta"]
+    }
+  }
+' "${REFERENCE}" > "${tmp_dir}/literal-default-reference.json"
+jq '.components.schemas.LiteralDefault.default.example = "second"' \
+  "${tmp_dir}/literal-default-reference.json" \
+  > "${tmp_dir}/literal-default-example.json"
+run_check \
+  "literal-default-example" \
+  2 \
+  "${tmp_dir}/literal-default-example.json" \
+  "${tmp_dir}/literal-default-reference.json"
+assert_contains \
+  "${tmp_dir}/literal-default-example.md" \
+  "- Structural contract: changed"
+assert_contains \
+  "${tmp_dir}/literal-default-example.md" \
+  "- Behavioral descriptions: unchanged"
+
+jq '.components.schemas.LiteralDefault.default.tags |= reverse' \
+  "${tmp_dir}/literal-default-reference.json" \
+  > "${tmp_dir}/literal-default-array-order.json"
+run_check \
+  "literal-default-array-order" \
+  2 \
+  "${tmp_dir}/literal-default-array-order.json" \
+  "${tmp_dir}/literal-default-reference.json"
+assert_contains \
+  "${tmp_dir}/literal-default-array-order.md" \
+  "- Structural contract: changed"
+
 jq '.info.title = "Renamed ISBNdb API"' \
   "${REFERENCE}" > "${tmp_dir}/title.json"
 run_check "title" 2 "${tmp_dir}/title.json"
@@ -104,6 +140,26 @@ run_check \
   "${tmp_dir}/security-scope-reference.json"
 assert_contains \
   "${tmp_dir}/security-scope-order.log" \
+  "No OpenAPI drift detected."
+
+jq '
+  .paths["/book/{isbn}"].get.security = [
+    {"ZetaAuth": [], "AlphaAuth": []},
+    {"MiddleAuth": []}
+  ]
+' "${REFERENCE}" > "${tmp_dir}/security-key-reference.json"
+jq '
+  .paths["/book/{isbn}"].get.security[0]
+  = {"AlphaAuth": [], "ZetaAuth": []}
+' "${tmp_dir}/security-key-reference.json" \
+  > "${tmp_dir}/security-key-candidate.json"
+run_check \
+  "security-key-order" \
+  0 \
+  "${tmp_dir}/security-key-candidate.json" \
+  "${tmp_dir}/security-key-reference.json"
+assert_contains \
+  "${tmp_dir}/security-key-order.log" \
   "No OpenAPI drift detected."
 
 jq '.info.version = "9.9.9"' "${REFERENCE}" > "${tmp_dir}/version.json"
@@ -225,6 +281,23 @@ assert_contains \
 assert_contains \
   "${tmp_dir}/response-header-description.md" \
   "paths./book/{isbn}.get.responses.200.headers.ratelimit.description"
+
+jq '
+  .components.responses.BadRequest.headers["x-trace-id"] = {
+    "description": "Trace identifier for this response",
+    "schema": {"type": "string"}
+  }
+' "${REFERENCE}" > "${tmp_dir}/reusable-response-structure.json"
+run_check \
+  "reusable-response-structure" \
+  2 \
+  "${tmp_dir}/reusable-response-structure.json"
+assert_contains \
+  "${tmp_dir}/reusable-response-structure.md" \
+  "Changed reusable components:"
+assert_contains \
+  "${tmp_dir}/reusable-response-structure.md" \
+  "responses.BadRequest"
 
 jq '
   .paths["/book/{isbn}"].get.summary = "Look up one book by ISBN"

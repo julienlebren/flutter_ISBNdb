@@ -82,77 +82,119 @@ normalize_spec() {
   local output="$2"
 
   jq -S '
-    def strip_behavioral_text:
-      walk(
-        if type == "object" then
-          (if has("description")
-              and ((.description | type) == "string" or (.description | type) == "null")
-            then del(.description)
-            else .
-            end)
-          | (if has("summary")
-                and ((.summary | type) == "string" or (.summary | type) == "null")
-              then del(.summary)
-              else .
-              end)
-        else .
-        end
-      );
+    def is_named_map($path):
+      (($path | length) > 0
+        and (
+          $path[-1] == "paths"
+          or $path[-1] == "webhooks"
+          or $path[-1] == "schemas"
+          or $path[-1] == "responses"
+          or $path[-1] == "parameters"
+          or $path[-1] == "requestBodies"
+          or $path[-1] == "headers"
+          or $path[-1] == "securitySchemes"
+          or $path[-1] == "links"
+          or $path[-1] == "callbacks"
+          or $path[-1] == "properties"
+          or $path[-1] == "patternProperties"
+          or $path[-1] == "$defs"
+          or $path[-1] == "definitions"
+          or $path[-1] == "content"
+          or $path[-1] == "encoding"
+          or $path[-1] == "variables"
+          or $path[-1] == "scopes"
+          or $path[-1] == "mapping"
+        ))
+      or (($path | length) > 1 and $path[-2] == "callbacks")
+      or (($path | length) > 1
+          and $path[-2] == "security"
+          and ($path[-1] | type) == "number");
 
-    def strip_examples:
-      delpaths([
-        path(..)
-        | select(length > 0)
-        | select(.[-1] == "example" or .[-1] == "examples")
-        | select(
-            (.[-2] // "") != "properties"
-            and (.[-2] // "") != "headers"
-            and (.[-2] // "") != "schemas"
-            and (.[-2] // "") != "responses"
-            and (.[-2] // "") != "parameters"
-            and (.[-2] // "") != "requestBodies"
-            and (.[-2] // "") != "securitySchemes"
-            and (.[-2] // "") != "links"
-            and (.[-2] // "") != "callbacks"
-          )
-      ]);
+    def canonical_json:
+      if type == "object" then
+        to_entries
+        | sort_by(.key)
+        | map(.value |= canonical_json)
+        | from_entries
+      elif type == "array" then
+        map(canonical_json)
+      else .
+      end;
 
-    def normalize_unordered_values:
-      walk(
-        if type == "object" then
-          (if (.required? | type) == "array" then
-             .required |= sort
-           else .
+    def normalize_openapi_object:
+      (if (.required? | type) == "array" then
+         .required |= sort
+       else .
+       end)
+      | (if (.enum? | type) == "array" then
+           .enum |= (map(canonical_json) | sort_by(tojson))
+         else .
+         end)
+      | (if (.tags? | type) == "array" then
+           .tags |= sort
+         else .
+         end)
+      | (if (.parameters? | type) == "array" then
+           .parameters |= sort_by(.in // "", .name // "", ."$ref" // "")
+         else .
+         end)
+      | (if (.security? | type) == "array" then
+           .security |= (
+             map(
+               if type == "object" then
+                 (to_entries
+                  | sort_by(.key)
+                  | map(
+                      if (.value | type) == "array" then .value |= sort else . end
+                    )
+                  | from_entries)
+               else .
+               end
+             )
+             | sort_by(tojson)
+           )
+         else .
+         end);
+
+    def normalize_value($path):
+      if type == "object" then
+        (is_named_map($path)) as $is_named_map
+        | (if $is_named_map then .
+           else
+             (if has("description")
+                 and ((.description | type) == "string"
+                      or (.description | type) == "null")
+               then del(.description)
+               else .
+               end)
+             | (if has("summary")
+                   and ((.summary | type) == "string"
+                        or (.summary | type) == "null")
+                 then del(.summary)
+                 else .
+                 end)
+             | del(.example, .examples)
            end)
-          | (if (.enum? | type) == "array" then
-               .enum |= sort_by(tostring)
-             else .
-             end)
-          | (if (.tags? | type) == "array" then
-               .tags |= sort
-             else .
-             end)
-          | (if (.parameters? | type) == "array" then
-               .parameters |= sort_by(.in // "", .name // "", ."$ref" // "")
-             else .
-             end)
-          | (if (.security? | type) == "array" then
-               .security |= (
-                 map(
-                   if type == "object" then
-                     with_entries(
-                       if (.value | type) == "array" then .value |= sort else . end
-                     )
-                   else .
-                   end
-                 )
-                 | sort_by(tojson)
-               )
-             else .
-             end)
-        else .
-        end
-      );
+        | to_entries
+        | map(
+            .key as $key
+            | if ($is_named_map | not)
+                and ($key == "default" or $key == "enum" or $key == "const")
+              then .
+              else .value |= normalize_value($path + [$key])
+              end
+          )
+        | from_entries
+        | if $is_named_map then . else normalize_openapi_object end
+      elif type == "array" then
+        to_entries
+        | map(
+            .key as $index
+            | .value |= normalize_value($path + [$index])
+          )
+        | map(.value)
+      else .
+      end;
 
     {
       openapi,
@@ -165,9 +207,7 @@ normalize_spec() {
       paths: (.paths // {}),
       webhooks: (.webhooks // {})
     }
-    | strip_behavioral_text
-    | strip_examples
-    | normalize_unordered_values
+    | normalize_value([])
   ' "${input}" > "${output}"
 }
 
@@ -181,23 +221,46 @@ extract_behavioral_descriptions() {
       else gsub("[[:space:]]+"; " ") | sub("^ "; "") | sub(" $"; "")
       end;
 
-    def strip_examples:
-      delpaths([
-        path(..)
-        | select(length > 0)
-        | select(.[-1] == "example" or .[-1] == "examples")
+    def is_named_map_name:
+      . == "paths"
+      or . == "webhooks"
+      or . == "schemas"
+      or . == "responses"
+      or . == "parameters"
+      or . == "requestBodies"
+      or . == "headers"
+      or . == "securitySchemes"
+      or . == "links"
+      or . == "callbacks"
+      or . == "properties"
+      or . == "patternProperties"
+      or . == "$defs"
+      or . == "definitions"
+      or . == "content"
+      or . == "encoding"
+      or . == "variables"
+      or . == "scopes"
+      or . == "mapping";
+
+    def is_identifier_key($path; $index):
+      ($index > 0 and ($path[$index - 1] | is_named_map_name))
+      or ($index > 1
+          and $path[$index - 2] == "security"
+          and ($path[$index - 1] | type) == "number");
+
+    def contains_literal_payload($path):
+      [
+        range(0; $path | length) as $index
         | select(
-            (.[-2] // "") != "properties"
-            and (.[-2] // "") != "headers"
-            and (.[-2] // "") != "schemas"
-            and (.[-2] // "") != "responses"
-            and (.[-2] // "") != "parameters"
-            and (.[-2] // "") != "requestBodies"
-            and (.[-2] // "") != "securitySchemes"
-            and (.[-2] // "") != "links"
-            and (.[-2] // "") != "callbacks"
+            ($path[$index] == "default"
+             or $path[$index] == "enum"
+             or $path[$index] == "const"
+             or $path[$index] == "example"
+             or $path[$index] == "examples")
+            and (is_identifier_key($path; $index) | not)
           )
-      ]);
+      ]
+      | length > 0;
 
     def path_label($path):
       reduce $path[] as $segment
@@ -225,23 +288,12 @@ extract_behavioral_descriptions() {
           end
       ];
 
-    def normalize_description_order:
-      walk(
-        if type == "object" then
-          (if (.parameters? | type) == "array" then
-             .parameters |= sort_by(.in // "", .name // "", ."$ref" // "")
-           else .
-           end)
-        else .
-        end
-      );
-
-    strip_examples
-    | normalize_description_order
-    | . as $document
+    . as $document
     | [
       paths(scalars) as $path
       | select($path[-1] == "description" or $path[-1] == "summary")
+      | select(contains_literal_payload($path) | not)
+      | select(is_identifier_key($path; ($path | length) - 1) | not)
       | (getpath($path) | normalized_description) as $value
       | select($value != "")
       | semantic_path($document; $path) as $semantic_path
@@ -444,13 +496,21 @@ jq -r -n \
 jq -r -n \
   --slurpfile reference "${normalized_reference}" \
   --slurpfile candidate "${normalized_candidate}" '
-    ($reference[0].components.schemas // {}) as $reference_schemas
-    | ($candidate[0].components.schemas // {}) as $candidate_schemas
-    | (($reference_schemas | keys) + ($candidate_schemas | keys) | unique[])
-      as $schema_name
-    | select($reference_schemas[$schema_name] != $candidate_schemas[$schema_name])
-    | $schema_name
-  ' | sort > "${tmp_dir}/changed.schemas"
+    ($reference[0].components // {}) as $reference_components
+    | ($candidate[0].components // {}) as $candidate_components
+    | (($reference_components | keys) + ($candidate_components | keys) | unique[])
+      as $section
+    | (
+        (($reference_components[$section] // {}) | keys)
+        + (($candidate_components[$section] // {}) | keys)
+        | unique[]
+      ) as $component_name
+    | select(
+        $reference_components[$section][$component_name]
+        != $candidate_components[$section][$component_name]
+      )
+    | "\($section).\($component_name)"
+  ' | sort > "${tmp_dir}/changed.components"
 
 report="${tmp_dir}/drift-report.md"
 {
@@ -498,9 +558,9 @@ report="${tmp_dir}/drift-report.md"
       echo "- None"
     fi
     echo ""
-    echo "Changed component schemas:"
-    if [[ -s "${tmp_dir}/changed.schemas" ]]; then
-      sed 's/^/- `/' "${tmp_dir}/changed.schemas" | sed 's/$/`/'
+    echo "Changed reusable components:"
+    if [[ -s "${tmp_dir}/changed.components" ]]; then
+      sed 's/^/- `/' "${tmp_dir}/changed.components" | sed 's/$/`/'
     else
       echo "- None"
     fi
