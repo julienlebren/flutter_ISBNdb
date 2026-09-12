@@ -11,10 +11,10 @@ void main() {
       spec = _readJsonFile('api/upstream/isbndb-openapi.json');
     });
 
-    test('tracks ISBNdb OpenAPI 2.7.2', () {
+    test('tracks ISBNdb OpenAPI 2.7.5', () {
       final info = Map<String, dynamic>.from(spec['info'] as Map);
 
-      expect(info['version'], '2.7.2');
+      expect(info['version'], '2.7.5');
     });
 
     test('contains all public endpoints currently exposed by the package', () {
@@ -79,6 +79,49 @@ void main() {
           reason: 'Missing expected filters on $path',
         );
       }
+    });
+
+    test('documents the transitional page size policy', () {
+      final info = Map<String, dynamic>.from(spec['info'] as Map);
+      final description = info['description'] as String;
+
+      expect(description, contains('capped at **100**'));
+      expect(description, contains('until **October 10, 2026**'));
+
+      for (final path in <String>[
+        '/books/{query}',
+        '/author/{name}',
+        '/authors/{query}',
+        '/publisher/{name}',
+        '/publishers/{query}',
+        '/subject/{name}',
+        '/subjects/{query}',
+      ]) {
+        final pageSize = _parameter(spec, path, 'get', 'pageSize');
+        final pageSizeDescription = pageSize['description'] as String;
+
+        expect(
+          pageSizeDescription,
+          contains('maximum of 100'),
+          reason: 'Unexpected pageSize limit for $path',
+        );
+        expect(
+          pageSizeDescription,
+          contains('400 Bad Request'),
+          reason: 'Missing pageSize rejection behavior for $path',
+        );
+      }
+
+      final updateFeedPageSize = _parameter(
+        spec,
+        '/feeds/books/updates',
+        'get',
+        'pageSize',
+      );
+      final updateFeedSchema = Map<String, dynamic>.from(
+        updateFeedPageSize['schema'] as Map,
+      );
+      expect(updateFeedSchema['maximum'], 1000);
     });
 
     test('/books keeps POST body contract for ISBN batch lookup', () {
@@ -262,6 +305,21 @@ Set<String> _parameterNames(
     ),
   );
   return parameters.map((parameter) => parameter['name'] as String).toSet();
+}
+
+Map<String, dynamic> _parameter(
+  Map<String, dynamic> spec,
+  String path,
+  String method,
+  String name,
+) {
+  final operation = _operation(spec, path, method);
+  final parameters = List<Map<String, dynamic>>.from(
+    (operation['parameters'] as List).map(
+      (item) => Map<String, dynamic>.from(item as Map),
+    ),
+  );
+  return parameters.singleWhere((parameter) => parameter['name'] == name);
 }
 
 Map<String, dynamic> _schema(Map<String, dynamic> spec, String name) {

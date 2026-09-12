@@ -1,11 +1,11 @@
-# ISBNdb API Documentation v2 (OpenAPI 2.7.2)
+# ISBNdb API Documentation v2 (OpenAPI 2.7.5)
 
 Source: `https://api2.isbndb.com/doc.json` (OpenAPI 3.0.0)
 
 ## API metadata
 
 - Title: `ISBNdb API Documentation v2`
-- Version: `2.7.2`
+- Version: `2.7.5`
 - Server: `https://api2.isbndb.com`
 - Security: `ApiKeyAuth` (`Authorization` header)
 
@@ -23,6 +23,11 @@ Accept: application/json
 ### Important note from API docs
 
 A `404 Not Found` for ISBN lookup can mean the book is not yet indexed and may appear later.
+
+Search and detail endpoints limit `pageSize` to 100 and reject larger values
+with `400 Bad Request`. Subscriptions created before this limit was introduced
+retain the previous limit of 1,000 until October 10, 2026. The
+`GET /feeds/books/updates` endpoint keeps its separate limit of 1,000.
 
 ## Endpoints summary
 
@@ -56,7 +61,7 @@ Returns the author name and a list of books.
 | `name` | path | string | yes | - | no | Author name |
 | `language` | query | string | no | `null` | yes | Language code (`en`, `fr`, ...) |
 | `page` | query | integer | no | `1` | yes | Page number |
-| `pageSize` | query | integer | no | `20` | yes | Items per page (max 1000) |
+| `pageSize` | query | integer | no | `20` | yes | Items per page (max 100); larger values return `400 Bad Request` |
 | `publishedFrom` | query | string | no | `null` | yes | Only return books published on or after this date (`YYYY-MM-DD`) |
 | `publishedTo` | query | string | no | `null` | yes | Only return books published on or before this date (`YYYY-MM-DD`) |
 
@@ -72,7 +77,7 @@ Search authors by query.
 | --- | --- | --- | --- | --- | --- | --- |
 | `query` | path | string | yes | - | no | Search string |
 | `page` | query | integer | no | `1` | yes | Page number |
-| `pageSize` | query | integer | no | `20` | yes | Items per page (max 1000) |
+| `pageSize` | query | integer | no | `20` | yes | Items per page (max 100); larger values return `400 Bad Request` |
 
 Responses:
 - `200`: `SearchAuthorsResponse`
@@ -119,7 +124,7 @@ Search books by query.
 | `language` | query | string | no | `null` | yes | Language code |
 | `column` | query | enum(`Column`) | no | - | yes | One of: `title`, `author`, `date_published`, `subjects` |
 | `page` | query | integer | no | `1` | yes | Page number |
-| `pageSize` | query | integer | no | `20` | yes | Items per page (max 1000) |
+| `pageSize` | query | integer | no | `20` | yes | Items per page (max 100); larger values return `400 Bad Request` |
 | `publishedFrom` | query | string | no | `null` | yes | Only return books published on or after this date (`YYYY-MM-DD`) |
 | `publishedTo` | query | string | no | `null` | yes | Only return books published on or before this date (`YYYY-MM-DD`) |
 
@@ -164,7 +169,7 @@ Returns publisher details and books.
 | `name` | path | string | yes | - | no | Publisher name |
 | `language` | query | string | no | `null` | yes | Language code |
 | `page` | query | integer | no | `1` | yes | Page number |
-| `pageSize` | query | integer | no | `20` | yes | Items per page (max 1000) |
+| `pageSize` | query | integer | no | `20` | yes | Items per page (max 100); larger values return `400 Bad Request` |
 | `publishedFrom` | query | string | no | `null` | yes | Only return books published on or after this date (`YYYY-MM-DD`) |
 | `publishedTo` | query | string | no | `null` | yes | Only return books published on or before this date (`YYYY-MM-DD`) |
 
@@ -180,7 +185,7 @@ Search publishers by query.
 | --- | --- | --- | --- | --- | --- | --- |
 | `query` | path | string | yes | - | no | Search string |
 | `page` | query | integer | no | `1` | yes | Page number |
-| `pageSize` | query | integer | no | `20` | yes | Items per page (max 1000) |
+| `pageSize` | query | integer | no | `20` | yes | Items per page (max 100); larger values return `400 Bad Request` |
 
 Responses:
 - `200`: `SearchPublishersResponse`
@@ -194,7 +199,7 @@ Deprecated in favor of `/authors/{query}`.
 | --- | --- | --- | --- | --- | --- | --- |
 | `text` | query | string | yes | - | no | Search text |
 | `page` | query | integer | no | `1` | yes | Page number |
-| `pageSize` | query | integer | no | `20` | yes | Items per page |
+| `pageSize` | query | integer | no | `20` | yes | Items per page (max 100); larger values return `400 Bad Request` |
 
 Responses:
 - `200`: `SearchBaseResponse`
@@ -207,7 +212,7 @@ Search the books index with optional filters.
 | Name | In | Type | Required | Default | Nullable | Description |
 | --- | --- | --- | --- | --- | --- | --- |
 | `page` | query | integer | no | `1` | yes | Page number |
-| `pageSize` | query | integer | no | `20` | yes | Items per page |
+| `pageSize` | query | integer | no | `20` | yes | Items per page (max 100); larger values return `400 Bad Request` |
 | `isbn` | query | string | no | - | yes | ISBN-10 |
 | `isbn13` | query | string | no | - | yes | ISBN-13 |
 | `author` | query | string | no | - | yes | Author name |
@@ -229,7 +234,7 @@ Deprecated in favor of `/publishers/{query}`.
 | --- | --- | --- | --- | --- | --- | --- |
 | `text` | query | string | yes | - | no | Search text |
 | `page` | query | integer | no | `1` | yes | Page number |
-| `pageSize` | query | integer | no | `20` | yes | Items per page |
+| `pageSize` | query | integer | no | `20` | yes | Items per page (max 100); larger values return `400 Bad Request` |
 
 Responses:
 - `200`: `SearchBaseResponse`
@@ -243,7 +248,7 @@ Deprecated endpoint.
 | --- | --- | --- | --- | --- | --- | --- |
 | `text` | query | string | yes | - | no | Search text |
 | `page` | query | integer | no | `1` | yes | Page number |
-| `pageSize` | query | integer | no | `20` | yes | Items per page |
+| `pageSize` | query | integer | no | `20` | yes | Items per page (max 100); larger values return `400 Bad Request` |
 
 Responses:
 - `200`: `SearchBaseResponse`
@@ -265,7 +270,7 @@ Search subjects by query.
 | --- | --- | --- | --- | --- | --- | --- |
 | `query` | path | string | yes | - | no | Search string |
 | `page` | query | integer | no | `1` | yes | Page number |
-| `pageSize` | query | integer | no | `20` | yes | Items per page (max 1000) |
+| `pageSize` | query | integer | no | `20` | yes | Items per page (max 100); larger values return `400 Bad Request` |
 
 Responses:
 - `200`: `SearchSubjectResponse`
@@ -280,7 +285,7 @@ Returns subject details and related books.
 | `name` | path | string | yes | - | no | Subject name |
 | `language` | query | string | no | `null` | yes | Language code |
 | `page` | query | integer | no | `1` | yes | Page number |
-| `pageSize` | query | integer | no | `20` | yes | Items per page (max 1000) |
+| `pageSize` | query | integer | no | `20` | yes | Items per page (max 100); larger values return `400 Bad Request` |
 | `publishedFrom` | query | string | no | `null` | yes | Only return books published on or after this date (`YYYY-MM-DD`) |
 | `publishedTo` | query | string | no | `null` | yes | Only return books published on or before this date (`YYYY-MM-DD`) |
 
@@ -302,7 +307,7 @@ Responses:
 | Schema | Required fields | Key properties |
 | --- | --- | --- |
 | `LanguageFilters` | - | `language` |
-| `PaginationFilters` | `offset` | `page`, `page_size`, `offset` |
+| `PaginationFilters` | `offset` | `page`, `pageSize`, `offset` |
 | `GetBooksMultipleRequest` | `isbns` | `isbns` (`array<string>`, max 1000) |
 | `Column` | - | enum: `title`, `author`, `date_published`, `subjects` |
 | `SearchBookFilters` | - | `year`, `edition`, `shouldMatchAll`, `language`, `column`, `publishedFrom`, `publishedTo` |
@@ -351,7 +356,7 @@ Responses:
 | Field | Type | Required | Nullable | Deprecated | Default | Description |
 | --- | --- | --- | --- | --- | --- | --- |
 | `page` | integer | no | yes | no | `1` | Page number |
-| `page_size` | integer | no | yes | no | `20` | Items per page (max 1000) |
+| `pageSize` | integer | no | yes | no | `20` | Items per page (max 100); larger values return `400 Bad Request` |
 | `offset` | integer | yes | no | no | - | Offset |
 
 ### `GetBooksMultipleRequest`
