@@ -241,6 +241,31 @@ assert_contains \
   "No OpenAPI drift detected."
 
 jq '
+  .components.schemas.Composed = {
+    "oneOf": [{"type": "string"}, {"type": "integer"}],
+    "anyOf": [{"type": "boolean"}, {"type": "null"}],
+    "allOf": [
+      {"properties": {"first": {"type": "string"}}},
+      {"properties": {"second": {"type": "integer"}}}
+    ]
+  }
+' "${REFERENCE}" > "${tmp_dir}/composition-order-reference.json"
+jq '
+  .components.schemas.Composed.oneOf |= reverse
+  | .components.schemas.Composed.anyOf |= reverse
+  | .components.schemas.Composed.allOf |= reverse
+' "${tmp_dir}/composition-order-reference.json" \
+  > "${tmp_dir}/composition-order-candidate.json"
+run_check \
+  "composition-order" \
+  0 \
+  "${tmp_dir}/composition-order-candidate.json" \
+  "${tmp_dir}/composition-order-reference.json"
+assert_contains \
+  "${tmp_dir}/composition-order.log" \
+  "No OpenAPI drift detected."
+
+jq '
   .components.links.Next = {
     "operationId": "getBooks",
     "requestBody": {
@@ -292,8 +317,29 @@ jq '
       "description": "Additional schema documentation"
     }
 ' "${REFERENCE}" > "${tmp_dir}/external-docs.json"
-run_check "external-docs" 0 "${tmp_dir}/external-docs.json"
-assert_contains "${tmp_dir}/external-docs.log" "No OpenAPI drift detected."
+run_check "external-docs" 2 "${tmp_dir}/external-docs.json"
+assert_contains \
+  "${tmp_dir}/external-docs.md" \
+  "- Structural contract: unchanged"
+assert_contains \
+  "${tmp_dir}/external-docs.md" \
+  "- Behavioral descriptions: changed (2)"
+
+jq '
+  .paths["/book/{isbn}"].get.externalDocs.url
+    = "https://docs.example.com/updated-books"
+  | .components.schemas.Book.externalDocs.url
+    = "https://docs.example.com/updated-schemas/book"
+' "${tmp_dir}/external-docs.json" \
+  > "${tmp_dir}/external-docs-url.json"
+run_check \
+  "external-docs-url" \
+  0 \
+  "${tmp_dir}/external-docs-url.json" \
+  "${tmp_dir}/external-docs.json"
+assert_contains \
+  "${tmp_dir}/external-docs-url.log" \
+  "No OpenAPI drift detected."
 
 jq '.jsonSchemaDialect = "https://json-schema.org/draft/2020-12/schema"' \
   "${REFERENCE}" > "${tmp_dir}/json-schema-dialect.json"
@@ -364,6 +410,13 @@ for root_field in security components paths webhooks; do
     "${tmp_dir}/${root_field}-false.md" \
     "- Structural contract: changed"
 done
+
+jq '.paths = "malformed"' \
+  "${REFERENCE}" > "${tmp_dir}/paths-string.json"
+run_check "paths-string" 2 "${tmp_dir}/paths-string.json"
+assert_contains \
+  "${tmp_dir}/paths-string.md" \
+  "- Structural contract: changed"
 
 jq '
   .openapi = "3.1.0"

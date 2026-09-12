@@ -240,6 +240,18 @@ normalize_spec() {
            .enum |= (map(canonical_json) | sort_by(tojson))
          else .
          end)
+      | (if (.oneOf? | type) == "array" then
+           .oneOf |= (map(canonical_json) | sort_by(tojson))
+         else .
+         end)
+      | (if (.anyOf? | type) == "array" then
+           .anyOf |= (map(canonical_json) | sort_by(tojson))
+         else .
+         end)
+      | (if (.allOf? | type) == "array" then
+           .allOf |= (map(canonical_json) | sort_by(tojson))
+         else .
+         end)
       | (if (.tags? | type) == "array" then
            .tags |= sort
          else .
@@ -464,6 +476,12 @@ extract_behavioral_descriptions() {
       and ($path[-1] == "description" or $path[-1] == "summary")
       and is_example_object($path[0:-1]);
 
+    def is_external_docs_description($path):
+      ($path | length) > 1
+      and $path[-1] == "description"
+      and $path[-2] == "externalDocs"
+      and (is_identifier_key($path; ($path | length) - 2) | not);
+
     def is_header_map_key($path; $index):
       $index > 1
       and $path[$index - 1] == "headers"
@@ -581,6 +599,7 @@ extract_behavioral_descriptions() {
         )
       | select(
           is_example_metadata($path)
+          or is_external_docs_description($path)
           or (contains_literal_payload($path) | not)
         )
       | select(contains_specification_extension($path) | not)
@@ -766,8 +785,10 @@ fi
 jq -r -n \
   --slurpfile reference "${normalized_reference}" \
   --slurpfile candidate "${normalized_candidate}" '
-    ($reference[0].paths // {}) as $reference_paths
-    | ($candidate[0].paths // {}) as $candidate_paths
+    def object_or_empty: if type == "object" then . else {} end;
+
+    ($reference[0].paths | object_or_empty) as $reference_paths
+    | ($candidate[0].paths | object_or_empty) as $candidate_paths
     | (($reference_paths | keys) + ($candidate_paths | keys) | unique[])
       as $path
     | select(
@@ -780,8 +801,10 @@ jq -r -n \
 jq -r -n \
   --slurpfile reference "${normalized_reference}" \
   --slurpfile candidate "${normalized_candidate}" '
-    ($reference[0].paths // {}) as $reference_paths
-    | ($candidate[0].paths // {}) as $candidate_paths
+    def object_or_empty: if type == "object" then . else {} end;
+
+    ($reference[0].paths | object_or_empty) as $reference_paths
+    | ($candidate[0].paths | object_or_empty) as $candidate_paths
     | (($reference_paths | keys) + ($candidate_paths | keys) | unique[])
       as $path
     | select(
@@ -804,8 +827,10 @@ jq -r -n \
       or . == "head"
       or . == "trace";
 
-    ($reference[0].paths // {}) as $reference_paths
-    | ($candidate[0].paths // {}) as $candidate_paths
+    def object_or_empty: if type == "object" then . else {} end;
+
+    ($reference[0].paths | object_or_empty) as $reference_paths
+    | ($candidate[0].paths | object_or_empty) as $candidate_paths
     | (($reference_paths | keys) + ($candidate_paths | keys) | unique[])
       as $path
     | (
@@ -823,8 +848,10 @@ jq -r -n \
 jq -r -n \
   --slurpfile reference "${normalized_reference}" \
   --slurpfile candidate "${normalized_candidate}" '
-    ($reference[0].paths // {}) as $reference_paths
-    | ($candidate[0].paths // {}) as $candidate_paths
+    def object_or_empty: if type == "object" then . else {} end;
+
+    ($reference[0].paths | object_or_empty) as $reference_paths
+    | ($candidate[0].paths | object_or_empty) as $candidate_paths
     | (($reference_paths | keys) + ($candidate_paths | keys) | unique[])
       as $path
     | select(
@@ -837,8 +864,10 @@ jq -r -n \
 jq -r -n \
   --slurpfile reference "${normalized_reference}" \
   --slurpfile candidate "${normalized_candidate}" '
-    ($reference[0].webhooks // {}) as $reference_webhooks
-    | ($candidate[0].webhooks // {}) as $candidate_webhooks
+    def object_or_empty: if type == "object" then . else {} end;
+
+    ($reference[0].webhooks | object_or_empty) as $reference_webhooks
+    | ($candidate[0].webhooks | object_or_empty) as $candidate_webhooks
     | (($reference_webhooks | keys) + ($candidate_webhooks | keys) | unique[])
       as $webhook
     | select($reference_webhooks[$webhook] != $candidate_webhooks[$webhook])
@@ -848,13 +877,15 @@ jq -r -n \
 jq -r -n \
   --slurpfile reference "${normalized_reference}" \
   --slurpfile candidate "${normalized_candidate}" '
-    ($reference[0].components // {}) as $reference_components
-    | ($candidate[0].components // {}) as $candidate_components
+    def object_or_empty: if type == "object" then . else {} end;
+
+    ($reference[0].components | object_or_empty) as $reference_components
+    | ($candidate[0].components | object_or_empty) as $candidate_components
     | (($reference_components | keys) + ($candidate_components | keys) | unique[])
       as $section
     | (
-        (($reference_components[$section] // {}) | keys)
-        + (($candidate_components[$section] // {}) | keys)
+        (($reference_components[$section] | object_or_empty) | keys)
+        + (($candidate_components[$section] | object_or_empty) | keys)
         | unique[]
       ) as $component_name
     | select(
