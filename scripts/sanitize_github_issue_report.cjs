@@ -18,3 +18,9 @@ function sanitizeGitHubIssueReport(report, maxLength = 30000) {
 }
 
 module.exports = {sanitizeGitHubIssueReport};
+
+if (require.main === module) {
+  const fs = require('node:fs');
+  const report = fs.readFileSync(0, 'utf8');
+  process.stdout.write(`${sanitizeGitHubIssueReport(report)}\n`);
+}

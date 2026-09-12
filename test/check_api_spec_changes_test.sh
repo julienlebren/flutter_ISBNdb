@@ -349,7 +349,7 @@ assert_contains \
   "${tmp_dir}/invalid-dialect.md" \
   '- Candidate JSON Schema dialect: `false`'
 
-for root_field in security components webhooks; do
+for root_field in security components paths webhooks; do
   jq --arg field "${root_field}" 'del(.[$field])' \
     "${REFERENCE}" > "${tmp_dir}/${root_field}-false-reference.json"
   jq --arg field "${root_field}" '.[$field] = false' \
@@ -494,6 +494,7 @@ jq '
 jq '
   .components.headers.RequestId.style = "simple"
   | .components.headers.RequestId.explode = false
+  | .components.headers.RequestId.required = false
 ' "${tmp_dir}/header-defaults-reference.json" \
   > "${tmp_dir}/header-defaults-candidate.json"
 run_check \
@@ -903,6 +904,23 @@ assert_contains \
 assert_contains \
   "${tmp_dir}/version-type.md" \
   '- Candidate version: `1`'
+
+jq '
+  .info.version = "` ![pixel](https://example.invalid/pixel) ` @org/team"
+' "${REFERENCE}" > "${tmp_dir}/summary-sanitization.json"
+export GITHUB_STEP_SUMMARY="${tmp_dir}/github-step-summary.md"
+run_check "summary-sanitization" 2 "${tmp_dir}/summary-sanitization.json"
+unset GITHUB_STEP_SUMMARY
+assert_contains \
+  "${tmp_dir}/github-step-summary.md" \
+  "    ## ISBNdb OpenAPI drift report"
+if grep -F -- '@org/team' "${tmp_dir}/github-step-summary.md" >/dev/null; then
+  fail "Expected the GitHub step summary to neutralize mentions"
+fi
+if grep -F -- '![pixel]' "${tmp_dir}/github-step-summary.md" \
+    | grep -v '^    ' >/dev/null; then
+  fail "Expected injected Markdown images to remain in preformatted text"
+fi
 
 jq '
   .paths["x-generated-by"] = "test-generator"

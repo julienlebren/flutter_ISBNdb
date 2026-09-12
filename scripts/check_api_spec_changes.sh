@@ -211,7 +211,8 @@ normalize_spec() {
       | (if .deprecated? == false then del(.deprecated) else . end)
       | (if .required? == false
            and ((.in? == "query" or .in? == "header" or .in? == "cookie")
-                or is_request_body_object($path)) then
+                or is_request_body_object($path)
+                or is_header_object($path)) then
            del(.required)
          else .
          end)
@@ -737,9 +738,11 @@ if [[ "${metadata_changed}" == false \
   exit 0
 fi
 
-jq -r '.paths | keys[]' "${normalized_reference}" | sort \
+jq -r 'if (.paths | type) == "object" then .paths | keys[] else empty end' \
+  "${normalized_reference}" | sort \
   > "${tmp_dir}/reference.paths"
-jq -r '.paths | keys[]' "${normalized_candidate}" | sort \
+jq -r 'if (.paths | type) == "object" then .paths | keys[] else empty end' \
+  "${normalized_candidate}" | sort \
   > "${tmp_dir}/candidate.paths"
 comm -23 "${tmp_dir}/reference.paths" "${tmp_dir}/candidate.paths" \
   > "${tmp_dir}/removed.paths"
@@ -982,7 +985,8 @@ echo "OpenAPI drift detected."
 write_report "${report}"
 
 if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
-  cat "${report}" >> "${GITHUB_STEP_SUMMARY}"
+  node "${REPO_ROOT}/scripts/sanitize_github_issue_report.cjs" \
+    < "${report}" >> "${GITHUB_STEP_SUMMARY}"
 fi
 
 exit 2
