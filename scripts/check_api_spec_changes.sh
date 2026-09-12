@@ -190,6 +190,11 @@ normalize_spec() {
       and $path[-2] == "content"
       and is_named_map($path[0:-1]);
 
+    def is_discriminator_object($path):
+      ($path | length) > 0
+      and $path[-1] == "discriminator"
+      and is_schema_object($path[0:-1]);
+
     def is_response_object($path):
       ($path | length) > 1
       and $path[-2] == "responses"
@@ -352,7 +357,56 @@ normalize_spec() {
              end)
         end;
 
-    def normalize_openapi_object($path; $openapi_version; $schema_dialect):
+    def schema_default_content_type($schema):
+      if ($schema | type) != "object" then null
+      elif $schema.type? == "string"
+          and ($schema.format? == "binary" or $schema.format? == "base64") then
+        "application/octet-stream"
+      elif $schema.type? == "object"
+          or ($schema.properties? | type) == "object"
+          or ($schema.allOf? | type) == "array"
+          or ($schema.oneOf? | type) == "array"
+          or ($schema.anyOf? | type) == "array" then
+        "application/json"
+      elif $schema.type? == "array" then
+        (schema_default_content_type($schema.items)) as $item_content_type
+        | if $item_content_type == "application/json" then
+            "application/json"
+          elif $item_content_type == "application/octet-stream" then
+            "application/octet-stream"
+          else
+            "text/plain"
+          end
+      elif $schema.type? == "string"
+          or $schema.type? == "number"
+          or $schema.type? == "integer"
+          or $schema.type? == "boolean" then
+        "text/plain"
+      else null
+      end;
+
+    def default_encoding_content_type($path; $document):
+      if is_encoding_object($path)
+          and ($path[-1] | type) == "string" then
+        ($path[0:-2]) as $media_type_path
+        | ($path[-1]) as $property_name
+        | (try ($document | getpath($media_type_path + ["schema"])) catch null)
+          as $media_schema
+        | if ($media_schema | type) == "object"
+            and ($media_schema.properties? | type) == "object"
+            and ($media_schema.properties | has($property_name)) then
+            schema_default_content_type($media_schema.properties[$property_name])
+          else null
+          end
+      else null
+      end;
+
+    def normalize_openapi_object(
+      $path;
+      $openapi_version;
+      $schema_dialect;
+      $document
+    ):
       normalize_serialization_defaults($path)
       | (if is_deprecated_context($path) and .deprecated? == false then
            del(.deprecated)
@@ -413,6 +467,14 @@ normalize_spec() {
            and (.minProperties? | type) == "number"
            and .minProperties == 0 then
            del(.minProperties)
+         else .
+         end)
+      | (if is_schema_object($path)
+           and supports_json_schema_2020_12($openapi_version)
+           and has("contains")
+           and (.minContains? | type) == "number"
+           and .minContains == 1 then
+           del(.minContains)
          else .
          end)
       | (if is_schema_object($path)
@@ -521,7 +583,11 @@ normalize_spec() {
                  (to_entries
                   | sort_by(.key)
                   | map(
-                      if (.value | type) == "array" then .value |= sort else . end
+                      if (.value | type) == "array"
+                          and all(.value[]; type == "string") then
+                        .value |= (sort | unique)
+                      else .
+                      end
                     )
                   | from_entries)
                else .
@@ -536,6 +602,14 @@ normalize_spec() {
            del(.callbacks)
          else .
          end)
+      | (if is_link_object($path) and .parameters? == {} then
+           del(.parameters)
+         else .
+         end)
+      | (if is_discriminator_object($path) and .mapping? == {} then
+           del(.mapping)
+         else .
+         end)
       | (if is_response_object($path) then
            (if .headers? == {} then del(.headers) else . end)
            | (if .links? == {} then del(.links) else . end)
@@ -544,6 +618,14 @@ normalize_spec() {
          end)
       | (if is_encoding_object($path) and .headers? == {} then
            del(.headers)
+         else .
+         end)
+      | (default_encoding_content_type($path; $document))
+        as $default_content_type
+      | (if $default_content_type != null
+           and (.contentType? | type) == "string"
+           and .contentType == $default_content_type then
+           del(.contentType)
          else .
          end)
       | (if is_media_type_object($path) and .encoding? == {} then
@@ -582,7 +664,7 @@ normalize_spec() {
          else .
          end);
 
-    def normalize_value($path; $openapi_version; $schema_dialect):
+    def normalize_value($path; $openapi_version; $schema_dialect; $document):
       if type == "object" then
         (is_named_map($path)) as $is_named_map
         | (if $is_named_map
@@ -593,7 +675,7 @@ normalize_spec() {
              end
            elif $is_named_map and $path[-1] == "scopes" then
              with_entries(
-               if (.value | type) == "string" then .value = null else . end
+               if (.value | type) == "string" then .value = "" else . end
              )
            elif $is_named_map
                and $path[-1] == "dependentRequired"
@@ -606,7 +688,7 @@ normalize_spec() {
             (if is_response_object($path)
                 and has("description")
                 and (.description | type) == "string" then
-               .description = true
+               .description = ""
              elif has("description")
                 and (.description | type) == "string" then
                del(.description)
@@ -628,7 +710,27 @@ normalize_spec() {
                  then del(.title)
                  else .
                  end)
-             | del(.example, .examples)
+             | (if has("example")
+                   and (is_schema_object($path)
+                        or is_parameter_object($path)
+                        or is_header_object($path)
+                        or is_media_type_object($path)) then
+                  del(.example)
+                else .
+                end)
+             | (if has("examples")
+                   and (((is_parameter_object($path)
+                          or is_header_object($path)
+                          or is_media_type_object($path))
+                         and (.examples | type) == "object")
+                        or (is_schema_object($path)
+                            and supports_json_schema_2020_12($openapi_version)
+                            and (.examples | type) == "array")
+                        or ($path == ["components"]
+                            and (.examples | type) == "object")) then
+                  del(.examples)
+                else .
+                end)
            end)
         | to_entries
         | map(
@@ -646,7 +748,8 @@ normalize_spec() {
               else .value |= normalize_value(
                 $path + [$key];
                 $openapi_version;
-                $schema_dialect
+                $schema_dialect;
+                $document
               )
               end
           )
@@ -655,7 +758,8 @@ normalize_spec() {
           else normalize_openapi_object(
             $path;
             $openapi_version;
-            $schema_dialect
+            $schema_dialect;
+            $document
           )
           end
       elif type == "array" then
@@ -665,7 +769,8 @@ normalize_spec() {
             | .value |= normalize_value(
               $path + [$index];
               $openapi_version;
-              $schema_dialect
+              $schema_dialect;
+              $document
             )
           )
         | map(.value)
@@ -694,7 +799,19 @@ normalize_spec() {
               | if ($info | type) == "object" then
                   ($info
                    | with_entries(select(.key | startswith("x-") | not))
-                   | del(.version, .termsOfService, .contact, .license))
+                   | del(.version)
+                   | (if (.termsOfService? | type) == "string" then
+                        del(.termsOfService)
+                      else .
+                      end)
+                   | (if (.contact? | type) == "object" then
+                        del(.contact)
+                      else .
+                      end)
+                   | (if (.license? | type) == "object" then
+                        del(.license)
+                      else .
+                      end))
                 else $info
                 end
             else null
@@ -791,7 +908,7 @@ normalize_spec() {
         )
         + ($root | unknown_root_fields)
       )
-      | normalize_value([]; $openapi_version; $schema_dialect)
+      | normalize_value([]; $openapi_version; $schema_dialect; $root)
       | if .servers == [{"url": "/"}] then .servers = [] else . end
     end
   ' "${input}" > "${output}"
@@ -1095,6 +1212,13 @@ extract_behavioral_descriptions() {
              del(.minProperties)
            else .
            end)
+        | (if supports_json_schema_2020_12($openapi_version)
+              and has("contains")
+              and (.minContains? | type) == "number"
+              and .minContains == 1 then
+             del(.minContains)
+           else .
+           end)
         | (if .attribute? == false then del(.attribute) else . end)
         | (if .wrapped? == false then del(.wrapped) else . end)
         | (if .additionalProperties? == true then
@@ -1181,7 +1305,9 @@ extract_behavioral_descriptions() {
             and $path[$index - 1] == "parameters"
             and ($path[$index] | type) == "number" then
             ($document | getpath($path[0:($index + 1)])) as $parameter
-            | if ($parameter["$ref"] // "") != "" then
+            | if ($parameter | type) != "object" then
+                $path[$index]
+              elif ($parameter["$ref"] // "") != "" then
                 "parameter:$ref:\($parameter["$ref"])"
               else
                 "parameter:\($parameter.in // "unknown"):\(parameter_semantic_name($parameter))"

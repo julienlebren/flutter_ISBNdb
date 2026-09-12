@@ -1875,4 +1875,173 @@ assert_contains \
   "${tmp_dir}/empty-media-encoding.log" \
   "No OpenAPI drift detected."
 
+jq '
+  .paths["/book/{isbn}"].get.parameters += [
+    [{"description": "Nested malformed parameter description"}]
+  ]
+' "${REFERENCE}" > "${tmp_dir}/nested-malformed-parameter.json"
+run_check \
+  "nested-malformed-parameter" \
+  2 \
+  "${tmp_dir}/nested-malformed-parameter.json"
+assert_contains \
+  "${tmp_dir}/nested-malformed-parameter.md" \
+  "- Structural contract: changed"
+
+jq '
+  (.paths["/book/{isbn}"].get.parameters[]
+   | select(.name == "with_prices")
+   | .examples) = null
+' "${REFERENCE}" > "${tmp_dir}/malformed-parameter-examples.json"
+run_check \
+  "malformed-parameter-examples" \
+  2 \
+  "${tmp_dir}/malformed-parameter-examples.json"
+assert_contains \
+  "${tmp_dir}/malformed-parameter-examples.md" \
+  "- Structural contract: changed"
+
+for info_field in contact license termsOfService; do
+  jq --arg field "${info_field}" '.info[$field] = null' \
+    "${REFERENCE}" > "${tmp_dir}/malformed-info-${info_field}.json"
+  run_check \
+    "malformed-info-${info_field}" \
+    2 \
+    "${tmp_dir}/malformed-info-${info_field}.json"
+  assert_contains \
+    "${tmp_dir}/malformed-info-${info_field}.md" \
+    "- Structural contract: changed"
+done
+
+jq '
+  .openapi = "3.1.0"
+  | .components.schemas.ContainsValue = {
+      "type": "array",
+      "contains": {"type": "string"}
+    }
+' "${REFERENCE}" > "${tmp_dir}/min-contains-reference.json"
+jq '.components.schemas.ContainsValue.minContains = 1' \
+  "${tmp_dir}/min-contains-reference.json" \
+  > "${tmp_dir}/min-contains-candidate.json"
+run_check \
+  "default-min-contains" \
+  0 \
+  "${tmp_dir}/min-contains-candidate.json" \
+  "${tmp_dir}/min-contains-reference.json"
+assert_contains \
+  "${tmp_dir}/default-min-contains.log" \
+  "No OpenAPI drift detected."
+
+jq '.components.schemas.Book.minContains = 1' \
+  "${REFERENCE}" > "${tmp_dir}/invalid-30-min-contains.json"
+run_check \
+  "invalid-30-min-contains" \
+  2 \
+  "${tmp_dir}/invalid-30-min-contains.json"
+assert_contains \
+  "${tmp_dir}/invalid-30-min-contains.md" \
+  "- Structural contract: changed"
+
+jq '
+  .paths["/book/{isbn}"].get.security[0].OAuth += ["books:read"]
+' "${tmp_dir}/security-scope-reference.json" \
+  > "${tmp_dir}/duplicate-security-scope.json"
+run_check \
+  "duplicate-security-scope" \
+  0 \
+  "${tmp_dir}/duplicate-security-scope.json" \
+  "${tmp_dir}/security-scope-reference.json"
+assert_contains \
+  "${tmp_dir}/duplicate-security-scope.log" \
+  "No OpenAPI drift detected."
+
+jq '
+  .components.links.EmptyParameters = {
+    "operationId": "getBooks"
+  }
+' "${REFERENCE}" > "${tmp_dir}/empty-link-parameters-reference.json"
+jq '.components.links.EmptyParameters.parameters = {}' \
+  "${tmp_dir}/empty-link-parameters-reference.json" \
+  > "${tmp_dir}/empty-link-parameters-candidate.json"
+run_check \
+  "empty-link-parameters" \
+  0 \
+  "${tmp_dir}/empty-link-parameters-candidate.json" \
+  "${tmp_dir}/empty-link-parameters-reference.json"
+assert_contains \
+  "${tmp_dir}/empty-link-parameters.log" \
+  "No OpenAPI drift detected."
+
+jq '
+  .components.schemas.Discriminated = {
+    "type": "object",
+    "discriminator": {"propertyName": "kind"}
+  }
+' "${REFERENCE}" > "${tmp_dir}/empty-discriminator-mapping-reference.json"
+jq '.components.schemas.Discriminated.discriminator.mapping = {}' \
+  "${tmp_dir}/empty-discriminator-mapping-reference.json" \
+  > "${tmp_dir}/empty-discriminator-mapping-candidate.json"
+run_check \
+  "empty-discriminator-mapping" \
+  0 \
+  "${tmp_dir}/empty-discriminator-mapping-candidate.json" \
+  "${tmp_dir}/empty-discriminator-mapping-reference.json"
+assert_contains \
+  "${tmp_dir}/empty-discriminator-mapping.log" \
+  "No OpenAPI drift detected."
+
+jq '
+  .components.securitySchemes.EmptyScope = {
+    "type": "oauth2",
+    "flows": {
+      "clientCredentials": {
+        "tokenUrl": "https://auth.example.com/token",
+        "scopes": {"books:read": ""}
+      }
+    }
+  }
+' "${REFERENCE}" > "${tmp_dir}/malformed-scope-description-reference.json"
+jq '
+  .components.securitySchemes.EmptyScope.flows.clientCredentials
+    .scopes["books:read"] = null
+' "${tmp_dir}/malformed-scope-description-reference.json" \
+  > "${tmp_dir}/malformed-scope-description-candidate.json"
+run_check \
+  "malformed-scope-description" \
+  2 \
+  "${tmp_dir}/malformed-scope-description-candidate.json" \
+  "${tmp_dir}/malformed-scope-description-reference.json"
+assert_contains \
+  "${tmp_dir}/malformed-scope-description.md" \
+  "- Structural contract: changed"
+
+jq '
+  .components.requestBodies.DefaultContentType = {
+    "content": {
+      "multipart/form-data": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "payload": {"type": "object"}
+          }
+        },
+        "encoding": {"payload": {}}
+      }
+    }
+  }
+' "${REFERENCE}" > "${tmp_dir}/encoding-content-type-reference.json"
+jq '
+  .components.requestBodies.DefaultContentType.content["multipart/form-data"]
+    .encoding.payload.contentType = "application/json"
+' "${tmp_dir}/encoding-content-type-reference.json" \
+  > "${tmp_dir}/encoding-content-type-candidate.json"
+run_check \
+  "default-encoding-content-type" \
+  0 \
+  "${tmp_dir}/encoding-content-type-candidate.json" \
+  "${tmp_dir}/encoding-content-type-reference.json"
+assert_contains \
+  "${tmp_dir}/default-encoding-content-type.log" \
+  "No OpenAPI drift detected."
+
 echo "API spec drift diagnostics tests passed."
