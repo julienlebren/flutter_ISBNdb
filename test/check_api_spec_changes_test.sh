@@ -2385,4 +2385,161 @@ assert_contains \
   "${tmp_dir}/response-reference-sibling.md" \
   "- Structural contract: changed"
 
+jq '
+  .openapi = "3.1.0"
+  | .components.schemas.CrossBranchAnnotations = {
+      "unevaluatedProperties": false,
+      "allOf": [{"type": "object"}]
+    }
+' "${REFERENCE}" > "${tmp_dir}/cross-branch-annotations-reference.json"
+jq '
+  .components.schemas.CrossBranchAnnotations
+    .allOf[0].additionalProperties = true
+' "${tmp_dir}/cross-branch-annotations-reference.json" \
+  > "${tmp_dir}/cross-branch-annotations-candidate.json"
+run_check \
+  "cross-branch-additional-properties" \
+  2 \
+  "${tmp_dir}/cross-branch-annotations-candidate.json" \
+  "${tmp_dir}/cross-branch-annotations-reference.json"
+assert_contains \
+  "${tmp_dir}/cross-branch-additional-properties.md" \
+  "- Structural contract: changed"
+
+jq '
+  .openapi = "3.1.0"
+  | .components.schemas.DifferentInstanceAnnotations = {
+      "type": "object",
+      "unevaluatedProperties": false,
+      "properties": {
+        "nested": {"type": "object"}
+      }
+    }
+' "${REFERENCE}" > "${tmp_dir}/different-instance-reference.json"
+jq '
+  .components.schemas.DifferentInstanceAnnotations
+    .properties.nested.additionalProperties = true
+' "${tmp_dir}/different-instance-reference.json" \
+  > "${tmp_dir}/different-instance-candidate.json"
+run_check \
+  "different-instance-additional-properties" \
+  0 \
+  "${tmp_dir}/different-instance-candidate.json" \
+  "${tmp_dir}/different-instance-reference.json"
+assert_contains \
+  "${tmp_dir}/different-instance-additional-properties.log" \
+  "No OpenAPI drift detected."
+
+jq '
+  .components.requestBodies.ReferencedEncoding.content["multipart/form-data"]
+    .encoding.payload.contentType = "Application/JSON"
+' "${tmp_dir}/referenced-encoding-reference.json" \
+  > "${tmp_dir}/encoding-content-type-case.json"
+run_check \
+  "encoding-content-type-case" \
+  0 \
+  "${tmp_dir}/encoding-content-type-case.json" \
+  "${tmp_dir}/referenced-encoding-reference.json"
+assert_contains \
+  "${tmp_dir}/encoding-content-type-case.log" \
+  "No OpenAPI drift detected."
+
+jq '
+  .components.schemas.DuplicateBranches = {
+    "oneOf": [
+      {"type": "string", "description": "Alpha branch"},
+      {"type": "string", "description": "Beta branch"}
+    ]
+  }
+' "${REFERENCE}" > "${tmp_dir}/duplicate-branches-reference.json"
+jq '.components.schemas.DuplicateBranches.oneOf |= reverse' \
+  "${tmp_dir}/duplicate-branches-reference.json" \
+  > "${tmp_dir}/duplicate-branches-candidate.json"
+run_check \
+  "duplicate-branch-order" \
+  0 \
+  "${tmp_dir}/duplicate-branches-candidate.json" \
+  "${tmp_dir}/duplicate-branches-reference.json"
+assert_contains \
+  "${tmp_dir}/duplicate-branch-order.log" \
+  "No OpenAPI drift detected."
+
+jq '
+  .openapi = "3.1.0"
+  | .components.schemas.TrueSchema = {}
+  | .components.schemas.TrueSchemaContainer = {
+      "type": "object",
+      "properties": {"anything": {}}
+    }
+' "${REFERENCE}" > "${tmp_dir}/true-schema-reference.json"
+jq '
+  .components.schemas.TrueSchema = true
+  | .components.schemas.TrueSchemaContainer.properties.anything = true
+' "${tmp_dir}/true-schema-reference.json" \
+  > "${tmp_dir}/true-schema-candidate.json"
+run_check \
+  "true-schema" \
+  0 \
+  "${tmp_dir}/true-schema-candidate.json" \
+  "${tmp_dir}/true-schema-reference.json"
+assert_contains \
+  "${tmp_dir}/true-schema.log" \
+  "No OpenAPI drift detected."
+
+jq '.components.schemas.InvalidBooleanSchema = {}' \
+  "${REFERENCE}" > "${tmp_dir}/invalid-boolean-schema-reference.json"
+jq '.components.schemas.InvalidBooleanSchema = true' \
+  "${tmp_dir}/invalid-boolean-schema-reference.json" \
+  > "${tmp_dir}/invalid-boolean-schema-candidate.json"
+run_check \
+  "invalid-30-boolean-schema" \
+  2 \
+  "${tmp_dir}/invalid-boolean-schema-candidate.json" \
+  "${tmp_dir}/invalid-boolean-schema-reference.json"
+assert_contains \
+  "${tmp_dir}/invalid-30-boolean-schema.md" \
+  "- Structural contract: changed"
+
+jq '
+  .openapi = "3.1.0"
+  | .components.schemas.SingletonType = {"type": "string"}
+' "${REFERENCE}" > "${tmp_dir}/singleton-type-reference.json"
+jq '.components.schemas.SingletonType.type = ["string"]' \
+  "${tmp_dir}/singleton-type-reference.json" \
+  > "${tmp_dir}/singleton-type-candidate.json"
+run_check \
+  "singleton-type-array" \
+  0 \
+  "${tmp_dir}/singleton-type-candidate.json" \
+  "${tmp_dir}/singleton-type-reference.json"
+assert_contains \
+  "${tmp_dir}/singleton-type-array.log" \
+  "No OpenAPI drift detected."
+
+jq '.components.schemas.SingletonType.type = [7]' \
+  "${tmp_dir}/singleton-type-reference.json" \
+  > "${tmp_dir}/malformed-singleton-type.json"
+run_check \
+  "malformed-singleton-type" \
+  2 \
+  "${tmp_dir}/malformed-singleton-type.json" \
+  "${tmp_dir}/singleton-type-reference.json"
+assert_contains \
+  "${tmp_dir}/malformed-singleton-type.md" \
+  "- Structural contract: changed"
+
+jq '.components.schemas.SingletonType = {"type": "string"}' \
+  "${REFERENCE}" > "${tmp_dir}/singleton-type-30-reference.json"
+jq '.components.schemas.SingletonType.type = ["string"]' \
+  "${tmp_dir}/singleton-type-30-reference.json" \
+  > "${tmp_dir}/singleton-type-30-candidate.json"
+run_check \
+  "singleton-type-array-30" \
+  2 \
+  "${tmp_dir}/singleton-type-30-candidate.json" \
+  "${tmp_dir}/singleton-type-30-reference.json"
+assert_contains \
+  "${tmp_dir}/singleton-type-array-30.md" \
+  "- Structural contract: changed"
+
 echo "API spec drift diagnostics tests passed."

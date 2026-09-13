@@ -368,6 +368,42 @@ normalize_spec() {
       ]
       | length > 0;
 
+    def is_same_instance_schema_path($segments):
+      if ($segments | length) == 0 then true
+      elif ($segments | length) >= 2
+          and ($segments[0] == "oneOf"
+               or $segments[0] == "anyOf"
+               or $segments[0] == "allOf")
+          and ($segments[1] | type) == "number" then
+        is_same_instance_schema_path($segments[2:])
+      elif ($segments | length) >= 1
+          and ($segments[0] == "if"
+               or $segments[0] == "then"
+               or $segments[0] == "else") then
+        is_same_instance_schema_path($segments[1:])
+      elif ($segments | length) >= 2
+          and $segments[0] == "dependentSchemas"
+          and ($segments[1] | type) == "string" then
+        is_same_instance_schema_path($segments[2:])
+      else false
+      end;
+
+    def has_constraining_unevaluated_properties_ancestor($path; $document):
+      [
+        range(1; $path | length) as $length
+        | ($path[0:$length]) as $ancestor_path
+        | select(is_schema_object($ancestor_path))
+        | select(is_same_instance_schema_path($path[$length:]))
+        | (try ($document | getpath($ancestor_path)) catch null)
+        | select(
+            type == "object"
+            and has("unevaluatedProperties")
+            and .unevaluatedProperties != true
+            and .unevaluatedProperties != {}
+          )
+      ]
+      | length > 0;
+
     def is_known_component_section($key; $version):
       ([
          "schemas",
@@ -651,10 +687,21 @@ normalize_spec() {
       | (if is_schema_object($path)
            and (.additionalProperties? == true
                 or .additionalProperties? == {})
-           and ((supports_json_schema_2020_12($openapi_version) | not)
-                or (has("unevaluatedProperties") | not)
+           and (
+             (supports_json_schema_2020_12($openapi_version) | not)
+             or (
+               ((has("unevaluatedProperties") | not)
                 or .unevaluatedProperties == true
-                or .unevaluatedProperties == {}) then
+                or .unevaluatedProperties == {})
+               and (
+                 has_constraining_unevaluated_properties_ancestor(
+                   $path;
+                   $document
+                 )
+                 | not
+               )
+             )
+           ) then
            del(.additionalProperties)
          else .
          end)
@@ -683,6 +730,24 @@ normalize_spec() {
          end)
       | (if is_schema_object($path) and (.type? | type) == "array" then
            .type |= sort_by(tostring)
+           | if supports_json_schema_2020_12($openapi_version)
+               and (.type | length) == 1 then
+               .type[0] as $single_type
+               | if ($single_type | type) == "string"
+                   and ([
+                     "null",
+                     "boolean",
+                     "object",
+                     "array",
+                     "number",
+                     "string",
+                     "integer"
+                   ] | index($single_type)) != null then
+                   .type = $single_type
+                 else .
+                 end
+             else .
+             end
          else .
          end)
       | (if is_schema_object($path) and (.enum? | type) == "array" then
@@ -788,7 +853,8 @@ normalize_spec() {
         as $default_content_type
       | (if $default_content_type != null
            and (.contentType? | type) == "string"
-           and .contentType == $default_content_type then
+           and (.contentType | normalized_media_type_key)
+             == ($default_content_type | normalized_media_type_key) then
            del(.contentType)
          else .
          end)
@@ -950,6 +1016,11 @@ normalize_spec() {
             )
           )
         | map(.value)
+      elif type == "boolean"
+          and . == true
+          and is_schema_object($path)
+          and supports_json_schema_2020_12($openapi_version) then
+        {}
       else .
       end;
 
@@ -1570,6 +1641,24 @@ extract_behavioral_descriptions() {
            end)
         | (if (.type? | type) == "array" then
              .type |= sort_by(tojson)
+             | if supports_json_schema_2020_12($openapi_version)
+                 and (.type | length) == 1 then
+                 .type[0] as $single_type
+                 | if ($single_type | type) == "string"
+                     and ([
+                       "null",
+                       "boolean",
+                       "object",
+                       "array",
+                       "number",
+                       "string",
+                       "integer"
+                     ] | index($single_type)) != null then
+                     .type = $single_type
+                   else .
+                   end
+               else .
+               end
            else .
            end)
         | (if (.oneOf? | type) == "array" then
@@ -1736,6 +1825,16 @@ extract_behavioral_descriptions() {
       | semantic_path($document; $path) as $semantic_path
       | {
           id: ($semantic_path | tojson),
+          stable_id: (
+            $semantic_path
+            | map(
+                if type == "string" and startswith("schema-branch:") then
+                  sub("#[0-9]+$"; "")
+                else .
+                end
+              )
+            | tojson
+          ),
           match_id: (
             $semantic_path
             | map(
@@ -1879,6 +1978,12 @@ jq -S -n \
       | map({key: .[0].match_id, value: .})
       | from_entries;
 
+    def group_by_stable_id:
+      sort_by(.stable_id)
+      | group_by(.stable_id)
+      | map({key: .[0].stable_id, value: .})
+      | from_entries;
+
     def add_value_occurrences:
       sort_by(.value, .id)
       | group_by(.value)
@@ -1887,22 +1992,6 @@ jq -S -n \
           | map(.value + {value_occurrence: .key})
         )
       | add // [];
-
-    def changes_by_id($reference_entries; $candidate_entries):
-      [
-        $reference_entries[] as $reference_entry
-        | ($candidate_entries
-           | map(select(.id == $reference_entry.id))
-           | .[0]) as $candidate_entry
-        | select($reference_entry.value != $candidate_entry.value)
-        | {
-            id: $reference_entry.id,
-            kind: $candidate_entry.kind,
-            label: $candidate_entry.label,
-            before: $reference_entry.value,
-            after: $candidate_entry.value
-          }
-      ];
 
     def changes_by_value($match_id; $raw_reference_entries; $raw_candidate_entries):
       ($raw_reference_entries | add_value_occurrences) as $reference_entries
@@ -1957,38 +2046,38 @@ jq -S -n \
           as $raw_reference_entries
         | (($candidate_groups[$match_id] // []) | sort_by(.id))
           as $raw_candidate_entries
-        | ($raw_reference_entries | map(.id) | sort) as $reference_ids
-        | ($raw_candidate_entries | map(.id) | sort) as $candidate_ids
-        | if $reference_ids == $candidate_ids then
-            changes_by_id($raw_reference_entries; $raw_candidate_entries)
-          else
-            ([
-               $reference_ids[] as $id
-               | select(($candidate_ids | index($id)) != null)
-               | $id
-             ] | unique) as $surviving_ids
-            | ($raw_reference_entries
-               | map(.id as $id | select(($surviving_ids | index($id)) != null)))
-              as $surviving_reference_entries
-            | ($raw_candidate_entries
-               | map(.id as $id | select(($surviving_ids | index($id)) != null)))
-              as $surviving_candidate_entries
-            | ($raw_reference_entries
-               | map(.id as $id | select(($surviving_ids | index($id)) == null)))
-              as $unmatched_reference_entries
-            | ($raw_candidate_entries
-               | map(.id as $id | select(($surviving_ids | index($id)) == null)))
-              as $unmatched_candidate_entries
-            | changes_by_id(
-                $surviving_reference_entries;
-                $surviving_candidate_entries
-              )
-              + changes_by_value(
-                  $match_id;
-                  $unmatched_reference_entries;
-                  $unmatched_candidate_entries
-                )
-          end
+        | ($raw_reference_entries | group_by_stable_id)
+          as $reference_stable_groups
+        | ($raw_candidate_entries | group_by_stable_id)
+          as $candidate_stable_groups
+        | ([
+             ($reference_stable_groups | keys[]) as $stable_id
+             | select($candidate_stable_groups | has($stable_id))
+             | $stable_id
+           ] | unique) as $surviving_stable_ids
+        | ($raw_reference_entries
+           | map(
+               .stable_id as $stable_id
+               | select(($surviving_stable_ids | index($stable_id)) == null)
+             )) as $unmatched_reference_entries
+        | ($raw_candidate_entries
+           | map(
+               .stable_id as $stable_id
+               | select(($surviving_stable_ids | index($stable_id)) == null)
+             )) as $unmatched_candidate_entries
+        | ([
+             $surviving_stable_ids[] as $stable_id
+             | changes_by_value(
+                 $stable_id;
+                 $reference_stable_groups[$stable_id];
+                 $candidate_stable_groups[$stable_id]
+               )[]
+           ]
+           + changes_by_value(
+               $match_id;
+               $unmatched_reference_entries;
+               $unmatched_candidate_entries
+             ))
         | .[]
       ]
   ' > "${description_diff}"
