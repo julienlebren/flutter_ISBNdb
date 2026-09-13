@@ -2290,4 +2290,99 @@ assert_contains \
   "${tmp_dir}/missing-info-version.md" \
   "- Structural contract: changed"
 
+jq '
+  .openapi = "3.1.0"
+  | .components.schemas.Book.unevaluatedProperties = false
+' "${REFERENCE}" > "${tmp_dir}/closed-unevaluated-reference.json"
+jq '.components.schemas.Book.additionalProperties = true' \
+  "${tmp_dir}/closed-unevaluated-reference.json" \
+  > "${tmp_dir}/closed-unevaluated-candidate.json"
+run_check \
+  "observable-additional-properties" \
+  2 \
+  "${tmp_dir}/closed-unevaluated-candidate.json" \
+  "${tmp_dir}/closed-unevaluated-reference.json"
+assert_contains \
+  "${tmp_dir}/observable-additional-properties.md" \
+  "- Structural contract: changed"
+
+jq '
+  .components.requestBodies.InvalidMediaDescription = {
+    "content": {
+      "application/json": {
+        "description": "",
+        "schema": {"type": "object"}
+      }
+    }
+  }
+' "${REFERENCE}" > "${tmp_dir}/invalid-media-description.json"
+run_check \
+  "invalid-media-description" \
+  2 \
+  "${tmp_dir}/invalid-media-description.json"
+assert_contains \
+  "${tmp_dir}/invalid-media-description.md" \
+  "- Structural contract: changed"
+
+jq '
+  .components.schemas.ExternalArrayPayload = {
+    "type": "object",
+    "properties": {
+      "payload": {
+        "type": "array",
+        "items": {"$ref": "https://example.com/schema.json"}
+      }
+    }
+  }
+  | .components.requestBodies.ExternalArrayEncoding = {
+      "content": {
+        "multipart/form-data": {
+          "schema": {"$ref": "#/components/schemas/ExternalArrayPayload"},
+          "encoding": {"payload": {}}
+        }
+      }
+    }
+' "${REFERENCE}" > "${tmp_dir}/external-array-encoding-reference.json"
+jq '
+  .components.requestBodies.ExternalArrayEncoding
+    .content["multipart/form-data"].encoding.payload.contentType = "text/plain"
+' "${tmp_dir}/external-array-encoding-reference.json" \
+  > "${tmp_dir}/external-array-encoding-candidate.json"
+run_check \
+  "external-array-encoding-content-type" \
+  2 \
+  "${tmp_dir}/external-array-encoding-candidate.json" \
+  "${tmp_dir}/external-array-encoding-reference.json"
+assert_contains \
+  "${tmp_dir}/external-array-encoding-content-type.md" \
+  "- Structural contract: changed"
+
+jq '.tags += [.tags[0]]' \
+  "${REFERENCE}" > "${tmp_dir}/duplicate-root-tag.json"
+run_check \
+  "duplicate-root-tag" \
+  2 \
+  "${tmp_dir}/duplicate-root-tag.json"
+assert_contains \
+  "${tmp_dir}/duplicate-root-tag.md" \
+  "- Structural contract: changed"
+
+jq '
+  .components.responses = {
+    "BadRequest": {"description": "Bad request"},
+    "ReferencedBadRequest": {"$ref": "#/components/responses/BadRequest"}
+  }
+' "${REFERENCE}" > "${tmp_dir}/response-reference.json"
+jq '.components.responses.ReferencedBadRequest.content = {}' \
+  "${tmp_dir}/response-reference.json" \
+  > "${tmp_dir}/response-reference-with-content.json"
+run_check \
+  "response-reference-sibling" \
+  2 \
+  "${tmp_dir}/response-reference-with-content.json" \
+  "${tmp_dir}/response-reference.json"
+assert_contains \
+  "${tmp_dir}/response-reference-sibling.md" \
+  "- Structural contract: changed"
+
 echo "API spec drift diagnostics tests passed."

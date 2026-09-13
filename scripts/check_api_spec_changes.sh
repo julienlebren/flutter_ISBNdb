@@ -186,6 +186,11 @@ normalize_spec() {
       and is_named_map($path[0:-1])
       and (is_schema_object($path[0:-2]) | not);
 
+    def is_security_scheme_object($path):
+      ($path | length) > 1
+      and $path[-2] == "securitySchemes"
+      and is_named_map($path[0:-1]);
+
     def is_header_object($path):
       ($path | length) > 1
       and $path[-2] == "headers"
@@ -265,6 +270,14 @@ normalize_spec() {
           and $path[-3] == "callbacks"
           and is_named_map($path[0:-2]));
 
+    def is_external_docs_object($path):
+      ($path | length) > 0
+      and $path[-1] == "externalDocs"
+      and (($path | length) == 1
+           or is_schema_object($path[0:-1])
+           or is_operation_object($path[0:-1])
+           or is_root_tag_object($path[0:-1]));
+
     def is_xml_object($path):
       ($path | length) > 0
       and $path[-1] == "xml"
@@ -321,6 +334,39 @@ normalize_spec() {
       or (supports_json_schema_2020_12($openapi_version)
           and ($object["$ref"]? | type) == "string"
           and (is_schema_object($path) | not));
+
+    def supports_description($path; $openapi_version; $object):
+      is_schema_object($path)
+      or $path == ["info"]
+      or is_operation_object($path)
+      or is_path_item_object($path)
+      or is_root_tag_object($path)
+      or is_parameter_object($path)
+      or is_header_object($path)
+      or is_request_body_object($path)
+      or is_link_object($path)
+      or is_example_object($path)
+      or is_server_object($path)
+      or is_server_variable_object($path)
+      or is_external_docs_object($path)
+      or is_security_scheme_object($path)
+      or (is_response_object($path)
+          and (($object["$ref"]? | type) != "string"
+               or supports_json_schema_2020_12($openapi_version)))
+      or (supports_json_schema_2020_12($openapi_version)
+          and ($object["$ref"]? | type) == "string"
+          and (is_schema_object($path) | not));
+
+    def contains_specification_extension($path):
+      [
+        range(0; $path | length) as $index
+        | select(
+            ($path[$index] | type) == "string"
+            and ($path[$index] | startswith("x-"))
+            and (is_identifier_key($path; $index) | not)
+          )
+      ]
+      | length > 0;
 
     def is_known_component_section($key; $version):
       ([
@@ -444,8 +490,9 @@ normalize_spec() {
             "application/json"
           elif $item_content_type == "application/octet-stream" then
             "application/octet-stream"
-          else
+          elif $item_content_type == "text/plain" then
             "text/plain"
+          else null
           end
       elif $schema.type? == "string"
           or $schema.type? == "number"
@@ -603,13 +650,18 @@ normalize_spec() {
          end)
       | (if is_schema_object($path)
            and (.additionalProperties? == true
-                or .additionalProperties? == {}) then
+                or .additionalProperties? == {})
+           and ((supports_json_schema_2020_12($openapi_version) | not)
+                or (has("unevaluatedProperties") | not)
+                or .unevaluatedProperties == true
+                or .unevaluatedProperties == {}) then
            del(.additionalProperties)
          else .
          end)
       | (if is_schema_object($path)
            and supports_json_schema_2020_12($openapi_version)
-           and .unevaluatedProperties? == true then
+           and (.unevaluatedProperties? == true
+                or .unevaluatedProperties? == {}) then
            del(.unevaluatedProperties)
          else .
          end)
@@ -721,7 +773,8 @@ normalize_spec() {
            del(.mapping)
          else .
          end)
-      | (if is_response_object($path) then
+      | (if is_response_object($path)
+           and (."$ref"? | type) != "string" then
            (if .headers? == {} then del(.headers) else . end)
            | (if .links? == {} then del(.links) else . end)
            | (if .content? == {} then del(.content) else . end)
@@ -801,11 +854,14 @@ normalize_spec() {
            elif $is_named_map then .
            else
             (if is_response_object($path)
+                and (."$ref"? | type) != "string"
                 and has("description")
                 and (.description | type) == "string" then
                .description = ""
              elif has("description")
-                and (.description | type) == "string" then
+                and (.description | type) == "string"
+                and (supports_description($path; $openapi_version; .)
+                     or contains_specification_extension($path)) then
                del(.description)
               else .
               end)
@@ -1001,10 +1057,15 @@ normalize_spec() {
         + (
           if has("tags") then
             if (.tags | type) == "array" then
-              ([.tags[]
-                | select(valid_root_tag | not)
-               ]) as $invalid_tags
-              | if ($invalid_tags | length) > 0 then
+              .tags as $root_tags
+              | ([$root_tags[] | select(valid_root_tag | not)])
+                as $invalid_tags
+              | ([$root_tags[] | select(valid_root_tag) | .name])
+                as $valid_tag_names
+              | if ($valid_tag_names | length)
+                  != ($valid_tag_names | unique | length) then
+                  {tags: $root_tags}
+                elif ($invalid_tags | length) > 0 then
                   {tags: $invalid_tags}
                 else {}
                 end
@@ -1180,6 +1241,62 @@ extract_behavioral_descriptions() {
           and $path[-3] == "callbacks"
           and is_named_map($path[0:-2]));
 
+    def is_root_tag_object($path):
+      ($path | length) == 2
+      and $path[0] == "tags"
+      and ($path[1] | type) == "number";
+
+    def is_header_object($path):
+      ($path | length) > 1
+      and $path[-2] == "headers"
+      and is_named_map($path[0:-1]);
+
+    def is_response_object($path):
+      ($path | length) > 1
+      and $path[-2] == "responses"
+      and is_named_map($path[0:-1]);
+
+    def is_server_object($path):
+      (($path | length) > 1
+       and $path[-2] == "servers"
+       and ($path[-1] | type) == "number"
+       and (is_identifier_key($path; ($path | length) - 2) | not))
+      or (($path | length) > 0
+          and $path[-1] == "server"
+          and is_link_object($path[0:-1]));
+
+    def is_server_variable_object($path):
+      ($path | length) > 1
+      and $path[-2] == "variables"
+      and is_named_map($path[0:-1]);
+
+    def is_request_body_object($path):
+      (($path | length) > 1
+       and $path[-2] == "requestBodies"
+       and is_named_map($path[0:-1]))
+      or (($path | length) > 1
+          and $path[-1] == "requestBody"
+          and ($path[-2] | type) == "string"
+          and ($path[-2] | is_http_method));
+
+    def is_parameter_object($path):
+      ($path | length) > 1
+      and $path[-2] == "parameters"
+      and is_named_map($path[0:-1]);
+
+    def is_external_docs_object($path):
+      ($path | length) > 0
+      and $path[-1] == "externalDocs"
+      and (($path | length) == 1
+           or is_schema_object($path[0:-1])
+           or is_operation_object($path[0:-1])
+           or is_root_tag_object($path[0:-1]));
+
+    def is_security_scheme_object($path):
+      ($path | length) > 1
+      and $path[-2] == "securitySchemes"
+      and is_named_map($path[0:-1]);
+
     def is_external_docs_description($path):
       ($path | length) > 1
       and $path[-1] == "description"
@@ -1286,6 +1403,30 @@ extract_behavioral_descriptions() {
             and ($object["$ref"]? | type) == "string"
             and (is_schema_object($object_path) | not));
 
+    def is_supported_description($document; $path):
+      ($path[0:-1]) as $object_path
+      | (try ($document | getpath($object_path)) catch null) as $object
+      | is_schema_object($object_path)
+        or $object_path == ["info"]
+        or is_operation_object($object_path)
+        or is_path_item_object($object_path)
+        or is_root_tag_object($object_path)
+        or is_parameter_object($object_path)
+        or is_header_object($object_path)
+        or is_request_body_object($object_path)
+        or is_link_object($object_path)
+        or is_example_object($object_path)
+        or is_server_object($object_path)
+        or is_server_variable_object($object_path)
+        or is_external_docs_object($object_path)
+        or is_security_scheme_object($object_path)
+        or (is_response_object($object_path)
+            and (($object["$ref"]? | type) != "string"
+                 or supports_json_schema_2020_12($document.openapi)))
+        or (supports_json_schema_2020_12($document.openapi)
+            and ($object["$ref"]? | type) == "string"
+            and (is_schema_object($object_path) | not));
+
     def default_json_schema_dialect($version):
       if supports_json_schema_2020_12($version) then
         ($version
@@ -1382,11 +1523,18 @@ extract_behavioral_descriptions() {
         | (if .wrapped? == false then del(.wrapped) else . end)
         | (if .additionalProperties? == true
               or .additionalProperties? == {} then
-             del(.additionalProperties)
+             if (supports_json_schema_2020_12($openapi_version) | not)
+                 or (has("unevaluatedProperties") | not)
+                 or .unevaluatedProperties == true
+                 or .unevaluatedProperties == {} then
+               del(.additionalProperties)
+             else .
+             end
            else .
            end)
         | (if supports_json_schema_2020_12($openapi_version)
-              and .unevaluatedProperties? == true then
+              and (.unevaluatedProperties? == true
+                   or .unevaluatedProperties? == {}) then
              del(.unevaluatedProperties)
            else .
            end)
@@ -1570,7 +1718,8 @@ extract_behavioral_descriptions() {
       | (is_oauth_scope_value($path)) as $is_oauth_scope
       | select(
           $is_oauth_scope
-          or (($path[-1] == "description"
+          or ((($path[-1] == "description"
+                and is_supported_description($document; $path))
                or ($path[-1] == "summary"
                    and is_supported_summary($document; $path)))
               and (is_identifier_key($path; ($path | length) - 1) | not))
