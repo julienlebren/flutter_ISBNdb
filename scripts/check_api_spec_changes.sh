@@ -278,6 +278,15 @@ normalize_spec() {
            or is_operation_object($path[0:-1])
            or is_root_tag_object($path[0:-1]));
 
+    def valid_external_docs:
+      type == "object"
+      and (.url | type) == "string"
+      and ((has("description") | not) or (.description | type) == "string")
+      and all(
+        keys[];
+        . == "url" or . == "description" or startswith("x-")
+      );
+
     def is_xml_object($path):
       ($path | length) > 0
       and $path[-1] == "xml"
@@ -337,25 +346,27 @@ normalize_spec() {
 
     def supports_description($path; $openapi_version; $object):
       is_schema_object($path)
-      or $path == ["info"]
-      or is_operation_object($path)
-      or is_path_item_object($path)
-      or is_root_tag_object($path)
-      or is_parameter_object($path)
-      or is_header_object($path)
-      or is_request_body_object($path)
-      or is_link_object($path)
-      or is_example_object($path)
-      or is_server_object($path)
-      or is_server_variable_object($path)
-      or is_external_docs_object($path)
-      or is_security_scheme_object($path)
-      or (is_response_object($path)
-          and (($object["$ref"]? | type) != "string"
-               or supports_json_schema_2020_12($openapi_version)))
-      or (supports_json_schema_2020_12($openapi_version)
-          and ($object["$ref"]? | type) == "string"
-          and (is_schema_object($path) | not));
+      or (
+        if ($object["$ref"]? | type) == "string" then
+          supports_json_schema_2020_12($openapi_version)
+        else
+          $path == ["info"]
+          or is_operation_object($path)
+          or is_path_item_object($path)
+          or is_root_tag_object($path)
+          or is_parameter_object($path)
+          or is_header_object($path)
+          or is_request_body_object($path)
+          or is_link_object($path)
+          or is_example_object($path)
+          or is_server_object($path)
+          or is_server_variable_object($path)
+          or (is_external_docs_object($path)
+              and ($object | valid_external_docs))
+          or is_security_scheme_object($path)
+          or is_response_object($path)
+        end
+      );
 
     def contains_specification_extension($path):
       [
@@ -404,6 +415,40 @@ normalize_spec() {
       ]
       | length > 0;
 
+    def encode_json_pointer_token:
+      gsub("~"; "~0") | gsub("/"; "~1");
+
+    def local_reference_for_path($path):
+      "#/\($path | map(tostring | encode_json_pointer_token) | join("/"))";
+
+    def is_referenced_under_constraining_unevaluated_properties(
+      $path;
+      $document
+    ):
+      (local_reference_for_path($path)) as $target_reference
+      | [
+          $document
+          | paths(objects) as $reference_path
+          | (try getpath($reference_path) catch null) as $reference
+          | select(
+              ($reference["$ref"]? | type) == "string"
+              and $reference["$ref"] == $target_reference
+            )
+          | select(
+              ($reference | type) == "object"
+              and (
+                ($reference | has("unevaluatedProperties")
+                 and $reference.unevaluatedProperties != true
+                 and $reference.unevaluatedProperties != {})
+                or has_constraining_unevaluated_properties_ancestor(
+                  $reference_path;
+                  $document
+                )
+              )
+            )
+        ]
+      | length > 0;
+
     def is_known_component_section($key; $version):
       ([
          "schemas",
@@ -440,7 +485,7 @@ normalize_spec() {
       type == "object"
       and (.name | type) == "string"
       and ((has("description") | not) or (.description | type) == "string")
-      and ((has("externalDocs") | not) or (.externalDocs | type) == "object")
+      and ((has("externalDocs") | not) or (.externalDocs | valid_external_docs))
       and all(
         keys[];
         . == "name"
@@ -700,6 +745,13 @@ normalize_spec() {
                  )
                  | not
                )
+               and (
+                 is_referenced_under_constraining_unevaluated_properties(
+                   $path;
+                   $document
+                 )
+                 | not
+               )
              )
            ) then
            del(.additionalProperties)
@@ -708,7 +760,21 @@ normalize_spec() {
       | (if is_schema_object($path)
            and supports_json_schema_2020_12($openapi_version)
            and (.unevaluatedProperties? == true
-                or .unevaluatedProperties? == {}) then
+                or .unevaluatedProperties? == {})
+           and (
+             has_constraining_unevaluated_properties_ancestor(
+               $path;
+               $document
+             )
+             | not
+           )
+           and (
+             is_referenced_under_constraining_unevaluated_properties(
+               $path;
+               $document
+             )
+             | not
+           ) then
            del(.unevaluatedProperties)
          else .
          end)
@@ -939,6 +1005,7 @@ normalize_spec() {
                 end)
              | (if has("externalDocs")
                    and (.externalDocs | type) == "object"
+                   and (.externalDocs | valid_external_docs)
                    and (($path | length) == 0
                         or is_schema_object($path)
                         or is_operation_object($path)
@@ -1120,7 +1187,7 @@ normalize_spec() {
         )
         + (
           if has("externalDocs")
-              and (.externalDocs | type) != "object" then
+              and (.externalDocs | valid_external_docs | not) then
             {externalDocs: .externalDocs}
           else {}
           end
@@ -1363,6 +1430,15 @@ extract_behavioral_descriptions() {
            or is_operation_object($path[0:-1])
            or is_root_tag_object($path[0:-1]));
 
+    def valid_external_docs:
+      type == "object"
+      and (.url | type) == "string"
+      and ((has("description") | not) or (.description | type) == "string")
+      and all(
+        keys[];
+        . == "url" or . == "description" or startswith("x-")
+      );
+
     def is_security_scheme_object($path):
       ($path | length) > 1
       and $path[-2] == "securitySchemes"
@@ -1478,25 +1554,27 @@ extract_behavioral_descriptions() {
       ($path[0:-1]) as $object_path
       | (try ($document | getpath($object_path)) catch null) as $object
       | is_schema_object($object_path)
-        or $object_path == ["info"]
-        or is_operation_object($object_path)
-        or is_path_item_object($object_path)
-        or is_root_tag_object($object_path)
-        or is_parameter_object($object_path)
-        or is_header_object($object_path)
-        or is_request_body_object($object_path)
-        or is_link_object($object_path)
-        or is_example_object($object_path)
-        or is_server_object($object_path)
-        or is_server_variable_object($object_path)
-        or is_external_docs_object($object_path)
-        or is_security_scheme_object($object_path)
-        or (is_response_object($object_path)
-            and (($object["$ref"]? | type) != "string"
-                 or supports_json_schema_2020_12($document.openapi)))
-        or (supports_json_schema_2020_12($document.openapi)
-            and ($object["$ref"]? | type) == "string"
-            and (is_schema_object($object_path) | not));
+        or (
+          if ($object["$ref"]? | type) == "string" then
+            supports_json_schema_2020_12($document.openapi)
+          else
+            $object_path == ["info"]
+            or is_operation_object($object_path)
+            or is_path_item_object($object_path)
+            or is_root_tag_object($object_path)
+            or is_parameter_object($object_path)
+            or is_header_object($object_path)
+            or is_request_body_object($object_path)
+            or is_link_object($object_path)
+            or is_example_object($object_path)
+            or is_server_object($object_path)
+            or is_server_variable_object($object_path)
+            or (is_external_docs_object($object_path)
+                and ($object | valid_external_docs))
+            or is_security_scheme_object($object_path)
+            or is_response_object($object_path)
+          end
+        );
 
     def default_json_schema_dialect($version):
       if supports_json_schema_2020_12($version) then

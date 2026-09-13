@@ -2542,4 +2542,93 @@ assert_contains \
   "${tmp_dir}/singleton-type-array-30.md" \
   "- Structural contract: changed"
 
+jq '
+  .openapi = "3.1.0"
+  | .components.schemas.ReferencedAnnotations = {"type": "object"}
+  | .components.schemas.ReferenceConsumer = {
+      "unevaluatedProperties": false,
+      "allOf": [
+        {"$ref": "#/components/schemas/ReferencedAnnotations"}
+      ]
+    }
+' "${REFERENCE}" > "${tmp_dir}/referenced-annotations-reference.json"
+jq '
+  .components.schemas.ReferencedAnnotations.additionalProperties = true
+' "${tmp_dir}/referenced-annotations-reference.json" \
+  > "${tmp_dir}/referenced-annotations-candidate.json"
+run_check \
+  "referenced-additional-properties" \
+  2 \
+  "${tmp_dir}/referenced-annotations-candidate.json" \
+  "${tmp_dir}/referenced-annotations-reference.json"
+assert_contains \
+  "${tmp_dir}/referenced-additional-properties.md" \
+  "- Structural contract: changed"
+
+jq '
+  .openapi = "3.1.0"
+  | .components.schemas.NestedUnevaluated = {
+      "unevaluatedProperties": false,
+      "allOf": [{"type": "object"}]
+    }
+' "${REFERENCE}" > "${tmp_dir}/nested-unevaluated-reference.json"
+jq '
+  .components.schemas.NestedUnevaluated
+    .allOf[0].unevaluatedProperties = true
+' "${tmp_dir}/nested-unevaluated-reference.json" \
+  > "${tmp_dir}/nested-unevaluated-candidate.json"
+run_check \
+  "nested-unevaluated-properties" \
+  2 \
+  "${tmp_dir}/nested-unevaluated-candidate.json" \
+  "${tmp_dir}/nested-unevaluated-reference.json"
+assert_contains \
+  "${tmp_dir}/nested-unevaluated-properties.md" \
+  "- Structural contract: changed"
+
+jq '
+  .components.parameters.BaseQuery = {
+    "name": "q",
+    "in": "query",
+    "schema": {"type": "string"}
+  }
+  | .components.parameters.QueryAlias = {
+      "$ref": "#/components/parameters/BaseQuery"
+    }
+' "${REFERENCE}" > "${tmp_dir}/parameter-reference.json"
+jq '.components.parameters.QueryAlias.description = ""' \
+  "${tmp_dir}/parameter-reference.json" \
+  > "${tmp_dir}/parameter-reference-description.json"
+run_check \
+  "parameter-reference-description-30" \
+  2 \
+  "${tmp_dir}/parameter-reference-description.json" \
+  "${tmp_dir}/parameter-reference.json"
+assert_contains \
+  "${tmp_dir}/parameter-reference-description-30.md" \
+  "- Structural contract: changed"
+assert_contains \
+  "${tmp_dir}/parameter-reference-description-30.md" \
+  "- Behavioral descriptions: unchanged"
+
+jq '.externalDocs = {}' \
+  "${REFERENCE}" > "${tmp_dir}/empty-root-external-docs.json"
+run_check \
+  "empty-root-external-docs" \
+  2 \
+  "${tmp_dir}/empty-root-external-docs.json"
+assert_contains \
+  "${tmp_dir}/empty-root-external-docs.md" \
+  "- Structural contract: changed"
+
+jq '.tags[0].externalDocs = {}' \
+  "${REFERENCE}" > "${tmp_dir}/empty-tag-external-docs.json"
+run_check \
+  "empty-tag-external-docs" \
+  2 \
+  "${tmp_dir}/empty-tag-external-docs.json"
+assert_contains \
+  "${tmp_dir}/empty-tag-external-docs.md" \
+  "- Structural contract: changed"
+
 echo "API spec drift diagnostics tests passed."
