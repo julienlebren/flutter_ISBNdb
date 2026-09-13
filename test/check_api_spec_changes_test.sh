@@ -1166,7 +1166,7 @@ assert_contains \
   "- Metadata version: changed"
 assert_contains \
   "${tmp_dir}/version-type.md" \
-  "- Structural contract: unchanged"
+  "- Structural contract: changed"
 assert_contains \
   "${tmp_dir}/version-type.md" \
   '- Reference version: `"1"`'
@@ -2142,5 +2142,152 @@ run_check \
 assert_contains \
   "${tmp_dir}/empty-additional-properties.log" \
   "No OpenAPI drift detected."
+
+jq '
+  .components.requestBodies.ComposedPrimitive = {
+    "content": {
+      "multipart/form-data": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "payload": {
+              "oneOf": [
+                {"type": "string"},
+                {"type": "string", "format": "uuid"}
+              ]
+            }
+          }
+        },
+        "encoding": {"payload": {}}
+      }
+    }
+  }
+' "${REFERENCE}" > "${tmp_dir}/composed-encoding-reference.json"
+jq '
+  .components.requestBodies.ComposedPrimitive.content["multipart/form-data"]
+    .encoding.payload.contentType = "application/json"
+' "${tmp_dir}/composed-encoding-reference.json" \
+  > "${tmp_dir}/composed-encoding-json.json"
+run_check \
+  "composed-encoding-json" \
+  2 \
+  "${tmp_dir}/composed-encoding-json.json" \
+  "${tmp_dir}/composed-encoding-reference.json"
+assert_contains \
+  "${tmp_dir}/composed-encoding-json.md" \
+  "- Structural contract: changed"
+
+jq '
+  .components.requestBodies.ComposedPrimitive.content["multipart/form-data"]
+    .encoding.payload.contentType = "text/plain"
+' "${tmp_dir}/composed-encoding-reference.json" \
+  > "${tmp_dir}/composed-encoding-text.json"
+run_check \
+  "composed-encoding-text" \
+  0 \
+  "${tmp_dir}/composed-encoding-text.json" \
+  "${tmp_dir}/composed-encoding-reference.json"
+assert_contains \
+  "${tmp_dir}/composed-encoding-text.log" \
+  "No OpenAPI drift detected."
+
+jq '
+  .components.schemas.MultipartPayload = {
+    "type": "object",
+    "properties": {"value": {"type": "string"}}
+  }
+  | .components.requestBodies.ReferencedEncoding = {
+      "content": {
+        "multipart/form-data": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "payload": {
+                "$ref": "#/components/schemas/MultipartPayload"
+              }
+            }
+          },
+          "encoding": {"payload": {}}
+        }
+      }
+    }
+' "${REFERENCE}" > "${tmp_dir}/referenced-encoding-reference.json"
+jq '
+  .components.requestBodies.ReferencedEncoding.content["multipart/form-data"]
+    .encoding.payload.contentType = "application/json"
+' "${tmp_dir}/referenced-encoding-reference.json" \
+  > "${tmp_dir}/referenced-encoding-candidate.json"
+run_check \
+  "referenced-encoding-content-type" \
+  0 \
+  "${tmp_dir}/referenced-encoding-candidate.json" \
+  "${tmp_dir}/referenced-encoding-reference.json"
+assert_contains \
+  "${tmp_dir}/referenced-encoding-content-type.log" \
+  "No OpenAPI drift detected."
+
+jq '.paths["/book/{isbn}"].get.responses["404"].summary = ""' \
+  "${REFERENCE}" > "${tmp_dir}/invalid-response-summary.json"
+run_check \
+  "invalid-response-summary" \
+  2 \
+  "${tmp_dir}/invalid-response-summary.json"
+assert_contains \
+  "${tmp_dir}/invalid-response-summary.md" \
+  "- Structural contract: changed"
+
+jq '
+  .components.requestBodies.InvalidMediaSummary = {
+    "content": {
+      "application/json": {
+        "summary": "",
+        "schema": {"type": "object"}
+      }
+    }
+  }
+' "${REFERENCE}" > "${tmp_dir}/invalid-media-summary.json"
+run_check \
+  "invalid-media-summary" \
+  2 \
+  "${tmp_dir}/invalid-media-summary.json"
+assert_contains \
+  "${tmp_dir}/invalid-media-summary.md" \
+  "- Structural contract: changed"
+
+jq '
+  .openapi = "3.1.0"
+  | del(.components.schemas.Book.unevaluatedProperties)
+' "${REFERENCE}" > "${tmp_dir}/unevaluated-properties-reference.json"
+jq '.components.schemas.Book.unevaluatedProperties = true' \
+  "${tmp_dir}/unevaluated-properties-reference.json" \
+  > "${tmp_dir}/unevaluated-properties-candidate.json"
+run_check \
+  "default-unevaluated-properties" \
+  0 \
+  "${tmp_dir}/unevaluated-properties-candidate.json" \
+  "${tmp_dir}/unevaluated-properties-reference.json"
+assert_contains \
+  "${tmp_dir}/default-unevaluated-properties.log" \
+  "No OpenAPI drift detected."
+
+jq '.components.schemas.Book.unevaluatedProperties = true' \
+  "${REFERENCE}" > "${tmp_dir}/invalid-30-unevaluated-properties.json"
+run_check \
+  "invalid-30-unevaluated-properties" \
+  2 \
+  "${tmp_dir}/invalid-30-unevaluated-properties.json"
+assert_contains \
+  "${tmp_dir}/invalid-30-unevaluated-properties.md" \
+  "- Structural contract: changed"
+
+jq 'del(.info.version)' \
+  "${REFERENCE}" > "${tmp_dir}/missing-info-version.json"
+run_check \
+  "missing-info-version" \
+  2 \
+  "${tmp_dir}/missing-info-version.json"
+assert_contains \
+  "${tmp_dir}/missing-info-version.md" \
+  "- Structural contract: changed"
 
 echo "API spec drift diagnostics tests passed."

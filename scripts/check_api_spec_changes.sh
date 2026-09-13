@@ -180,6 +180,12 @@ normalize_spec() {
       and $path[0] == "tags"
       and ($path[1] | type) == "number";
 
+    def is_example_object($path):
+      ($path | length) > 1
+      and $path[-2] == "examples"
+      and is_named_map($path[0:-1])
+      and (is_schema_object($path[0:-2]) | not);
+
     def is_header_object($path):
       ($path | length) > 1
       and $path[-2] == "headers"
@@ -306,6 +312,16 @@ normalize_spec() {
           and ($parts.minor | tonumber) >= 1
       end;
 
+    def supports_summary($path; $openapi_version; $object):
+      is_operation_object($path)
+      or is_path_item_object($path)
+      or is_example_object($path)
+      or ($path == ["info"]
+          and supports_json_schema_2020_12($openapi_version))
+      or (supports_json_schema_2020_12($openapi_version)
+          and ($object["$ref"]? | type) == "string"
+          and (is_schema_object($path) | not));
+
     def is_known_component_section($key; $version):
       ([
          "schemas",
@@ -392,19 +408,38 @@ normalize_spec() {
              end)
         end;
 
-    def schema_default_content_type($schema):
+    def decode_json_pointer_token:
+      gsub("~1"; "/") | gsub("~0"; "~");
+
+    def local_schema_reference($reference; $document):
+      if ($reference | type) == "string"
+          and ($reference | startswith("#/")) then
+        (try (
+          $document
+          | getpath(
+              $reference[2:]
+              | split("/")
+              | map(decode_json_pointer_token)
+            )
+        ) catch null)
+      else null
+      end;
+
+    def schema_default_content_type($schema; $document; $seen_references):
       if ($schema | type) != "object" then null
       elif $schema.type? == "string"
-          and ($schema.format? == "binary" or $schema.format? == "base64") then
+          and (($schema.format? == "binary" or $schema.format? == "byte")
+               or ($schema.contentEncoding? | type) == "string") then
         "application/octet-stream"
       elif $schema.type? == "object"
-          or ($schema.properties? | type) == "object"
-          or ($schema.allOf? | type) == "array"
-          or ($schema.oneOf? | type) == "array"
-          or ($schema.anyOf? | type) == "array" then
+          or ($schema.properties? | type) == "object" then
         "application/json"
       elif $schema.type? == "array" then
-        (schema_default_content_type($schema.items)) as $item_content_type
+        (schema_default_content_type(
+          $schema.items;
+          $document;
+          $seen_references
+        )) as $item_content_type
         | if $item_content_type == "application/json" then
             "application/json"
           elif $item_content_type == "application/octet-stream" then
@@ -417,6 +452,34 @@ normalize_spec() {
           or $schema.type? == "integer"
           or $schema.type? == "boolean" then
         "text/plain"
+      elif ($schema["$ref"]? | type) == "string"
+          and ($schema["$ref"] | startswith("#/"))
+          and ($seen_references | index($schema["$ref"])) == null then
+        schema_default_content_type(
+          local_schema_reference($schema["$ref"]; $document);
+          $document;
+          $seen_references + [$schema["$ref"]]
+        )
+      elif ($schema.oneOf? | type) == "array"
+          or ($schema.anyOf? | type) == "array"
+          or ($schema.allOf? | type) == "array" then
+        ([
+           ($schema.oneOf? // [])[],
+           ($schema.anyOf? // [])[],
+           ($schema.allOf? // [])[]
+         ]
+         | map(schema_default_content_type(.; $document; $seen_references)))
+          as $branch_content_types
+        | ($branch_content_types | map(select(. != null)) | unique)
+          as $known_content_types
+        | if ($branch_content_types | length) > 0
+            and ($known_content_types | length) == 1
+            and ($branch_content_types | length) == (
+              $branch_content_types | map(select(. != null)) | length
+            ) then
+            $known_content_types[0]
+          else null
+          end
       else null
       end;
 
@@ -430,7 +493,11 @@ normalize_spec() {
         | if ($media_schema | type) == "object"
             and ($media_schema.properties? | type) == "object"
             and ($media_schema.properties | has($property_name)) then
-            schema_default_content_type($media_schema.properties[$property_name])
+            schema_default_content_type(
+              $media_schema.properties[$property_name];
+              $document;
+              []
+            )
           else null
           end
       else null
@@ -538,6 +605,12 @@ normalize_spec() {
            and (.additionalProperties? == true
                 or .additionalProperties? == {}) then
            del(.additionalProperties)
+         else .
+         end)
+      | (if is_schema_object($path)
+           and supports_json_schema_2020_12($openapi_version)
+           and .unevaluatedProperties? == true then
+           del(.unevaluatedProperties)
          else .
          end)
       | (if is_schema_object($path) and (.required? | type) == "array" then
@@ -738,6 +811,7 @@ normalize_spec() {
               end)
             | (if has("summary")
                   and (.summary | type) == "string"
+                  and supports_summary($path; $openapi_version; .)
                 then del(.summary)
                 else .
                 end)
@@ -845,7 +919,11 @@ normalize_spec() {
               | if ($info | type) == "object" then
                   ($info
                    | with_entries(select(.key | startswith("x-") | not))
-                   | del(.version)
+                   | (if has("version")
+                         and (.version | type) == "string" then
+                        .version = ""
+                      else .
+                      end)
                    | (if (.termsOfService? | type) == "string" then
                         del(.termsOfService)
                       else .
@@ -1076,6 +1154,32 @@ extract_behavioral_descriptions() {
       and ($path[-1] == "description" or $path[-1] == "summary")
       and is_example_object($path[0:-1]);
 
+    def is_http_method:
+      . == "get"
+      or . == "post"
+      or . == "put"
+      or . == "patch"
+      or . == "delete"
+      or . == "options"
+      or . == "head"
+      or . == "trace";
+
+    def is_operation_object($path):
+      ($path | length) > 0
+      and ($path[-1] | type) == "string"
+      and ($path[-1] | is_http_method)
+      and (is_identifier_key($path; ($path | length) - 1) | not);
+
+    def is_path_item_object($path):
+      (($path | length) > 1
+       and ($path[-2] == "paths"
+            or $path[-2] == "webhooks"
+            or $path[-2] == "pathItems")
+       and is_named_map($path[0:-1]))
+      or (($path | length) > 2
+          and $path[-3] == "callbacks"
+          and is_named_map($path[0:-2]));
+
     def is_external_docs_description($path):
       ($path | length) > 1
       and $path[-1] == "description"
@@ -1169,6 +1273,18 @@ extract_behavioral_descriptions() {
           and ($parts.major | tonumber) == 3
           and ($parts.minor | tonumber) >= 1
       end;
+
+    def is_supported_summary($document; $path):
+      ($path[0:-1]) as $object_path
+      | (try ($document | getpath($object_path)) catch null) as $object
+      | is_operation_object($object_path)
+        or is_path_item_object($object_path)
+        or is_example_object($object_path)
+        or ($object_path == ["info"]
+            and supports_json_schema_2020_12($document.openapi))
+        or (supports_json_schema_2020_12($document.openapi)
+            and ($object["$ref"]? | type) == "string"
+            and (is_schema_object($object_path) | not));
 
     def default_json_schema_dialect($version):
       if supports_json_schema_2020_12($version) then
@@ -1267,6 +1383,11 @@ extract_behavioral_descriptions() {
         | (if .additionalProperties? == true
               or .additionalProperties? == {} then
              del(.additionalProperties)
+           else .
+           end)
+        | (if supports_json_schema_2020_12($openapi_version)
+              and .unevaluatedProperties? == true then
+             del(.unevaluatedProperties)
            else .
            end)
         | (if ($openapi_version | type) == "string"
@@ -1449,7 +1570,9 @@ extract_behavioral_descriptions() {
       | (is_oauth_scope_value($path)) as $is_oauth_scope
       | select(
           $is_oauth_scope
-          or (($path[-1] == "description" or $path[-1] == "summary")
+          or (($path[-1] == "description"
+               or ($path[-1] == "summary"
+                   and is_supported_summary($document; $path)))
               and (is_identifier_key($path; ($path | length) - 1) | not))
         )
       | select(
