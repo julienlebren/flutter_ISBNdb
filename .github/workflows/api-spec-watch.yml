@@ -40,6 +40,7 @@ jobs:
           ./scripts/check_api_spec_changes.sh \
             --source-url "${source_url}" \
             --write-fetched /tmp/isbndb-openapi-candidate.json \
+            --write-report /tmp/isbndb-openapi-report.md \
             > /tmp/isbndb-openapi-check.log 2>&1
           status=$?
           set -e
@@ -63,20 +64,41 @@ jobs:
         uses: actions/github-script@v7
         env:
           SOURCE_URL: ${{ steps.openapi_check.outputs.source_url }}
+          DRIFT_REPORT_PATH: /tmp/isbndb-openapi-report.md
         with:
           script: |
+            const fs = require('fs');
+            const path = require('path');
+            const {
+              sanitizeGitHubIssueReport,
+            } = require(path.join(
+              process.env.GITHUB_WORKSPACE,
+              'scripts/sanitize_github_issue_report.cjs',
+            ));
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const title = 'API drift detected in ISBNdb OpenAPI';
             const label = 'api-drift';
             const runUrl = `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`;
+            let driftReport = 'Detailed drift report was not generated.';
+            try {
+              driftReport = fs
+                .readFileSync(process.env.DRIFT_REPORT_PATH, 'utf8')
+                .trim();
+            } catch (error) {
+              core.warning(`Unable to read drift report: ${error.message}`);
+            }
+            driftReport = sanitizeGitHubIssueReport(driftReport);
             const body = [
               'The scheduled OpenAPI drift check detected changes against the repository snapshot.',
               '',
               `- Source URL: ${process.env.SOURCE_URL}`,
               `- Workflow run: ${runUrl}`,
               '',
-              'Next steps:',
+              driftReport,
+              '',
+              '## Next steps',
+              '',
               '1. Download the `isbndb-openapi-candidate` artifact from this run.',
               '2. Compare with `api/upstream/isbndb-openapi.json`.',
               '3. Update package code/tests/docs if needed, then refresh the snapshot.',
@@ -133,6 +155,7 @@ jobs:
           path: |
             /tmp/isbndb-openapi-candidate.json
             /tmp/isbndb-openapi-check.log
+            /tmp/isbndb-openapi-report.md
           if-no-files-found: ignore
 
       - name: Fail when drift is detected
