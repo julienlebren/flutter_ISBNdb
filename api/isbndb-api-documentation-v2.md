@@ -324,7 +324,7 @@ Responses:
 | `SearchBooksPaginatedResponse` | `books`, `total`, `page`, `page_size` | books + pagination |
 | `UpdatedBook` | `isbn13`, `updated_at` | `isbn13`, `updated_at` |
 | `UpdatedBooksResponse` | `data`, `page`, `page_size` | `data`, `page`, `page_size` |
-| `PlanLimit` | `total`, `spent`, `left` | quota counters |
+| `PlanLimit` | `total`, `spent`, `left` | subscription and per-key quota counters |
 | `KeyResponse` | `api_host`, `plan_limit`, `plan_name` | host + plan name + limits |
 | `DetailsResponse` | `name`, `books`, `total`, `page`, `page_size` | publisher details |
 | `SearchPublishersResponse` | `name`, `publishers`, `total`, `page`, `page_size` | publishers list + pagination |
@@ -520,9 +520,13 @@ price access.
 
 | Field | Type | Required | Nullable | Deprecated | Default | Description |
 | --- | --- | --- | --- | --- | --- | --- |
-| `total` | integer | yes | no | no | - | Plan total quota |
-| `spent` | integer | yes | no | no | - | Used quota |
-| `left` | integer | yes | no | no | - | Remaining quota |
+| `total` | integer | yes | no | no | - | Daily subscription quota shared by every key |
+| `spent` | integer | yes | no | no | - | Calls charged today across the subscription |
+| `left` | integer | yes | no | no | - | Calls remaining under whichever subscription or key allowance is lower |
+| `key_total` | integer | no | yes | no | `null` | Daily allowance attached to this key, when capped |
+| `key_spent` | integer | no | no | no | `0` | Calls charged today to this key |
+| `key_left` | integer | no | yes | no | `null` | Calls remaining under this key's own cap |
+| `limited_by` | string (`subject`, `key`) | no | no | no | `subject` | Allowance that runs out first |
 
 ### `KeyResponse`
 

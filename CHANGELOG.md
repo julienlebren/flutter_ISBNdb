@@ -1,5 +1,8 @@
 ## Unreleased
 
+- Added per-key quota details to `PlanLimit`: `keyTotal`, `keySpent`, `keyLeft`, and `limitedBy`.
+- Kept decoding compatible with older `/key` responses and unknown future `limited_by` values.
+- Migration: Freezed-generated `when` and `maybeWhen` callbacks for `PlanLimit` now receive the four newly added fields.
 - Aligned the bundled API contract and documentation with ISBNdb OpenAPI 2.7.5.
 - Documented the new `pageSize` limit of 100 for search and detail endpoints. Existing subscriptions retain the previous limit of 1,000 until October 10, 2026; the updated-books feed remains limited to 1,000.
 - Improved API drift diagnostics to distinguish version metadata, structural contract changes, and behavioral descriptions, and to include the resulting report in automated issues.
