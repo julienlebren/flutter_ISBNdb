@@ -124,6 +124,37 @@ void main() {
       expect(updateFeedSchema['maximum'], 1000);
     });
 
+    test('documents subscription and per-key quota counters', () {
+      final planLimit = _schema(spec, 'PlanLimit');
+      final requiredFields = Set<String>.from(planLimit['required'] as List);
+      final properties = Map<String, dynamic>.from(
+        planLimit['properties'] as Map,
+      );
+
+      expect(requiredFields, {'total', 'spent', 'left'});
+      expect(
+        properties.keys,
+        containsAll(<String>{
+          'total',
+          'spent',
+          'left',
+          'key_total',
+          'key_spent',
+          'key_left',
+          'limited_by',
+        }),
+      );
+      expect((properties['key_total'] as Map)['nullable'], isTrue);
+      expect((properties['key_spent'] as Map)['default'], 0);
+      expect((properties['key_left'] as Map)['nullable'], isTrue);
+
+      final limitedBy = Map<String, dynamic>.from(
+        properties['limited_by'] as Map,
+      );
+      expect(limitedBy['default'], 'subject');
+      expect(limitedBy['enum'], containsAll(<String>['subject', 'key']));
+    });
+
     test('/books keeps POST body contract for ISBN batch lookup', () {
       final postOperation = _operation(spec, '/books', 'post');
       final requestBody = Map<String, dynamic>.from(

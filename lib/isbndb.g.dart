@@ -182,6 +182,16 @@ _PlanLimit _$PlanLimitFromJson(Map<String, dynamic> json) => _PlanLimit(
   total: (json['total'] as num).toInt(),
   spent: (json['spent'] as num).toInt(),
   left: (json['left'] as num).toInt(),
+  keyTotal: (json['key_total'] as num?)?.toInt(),
+  keySpent: (json['key_spent'] as num?)?.toInt() ?? 0,
+  keyLeft: (json['key_left'] as num?)?.toInt(),
+  limitedBy:
+      $enumDecodeNullable(
+        _$PlanLimitAllowanceEnumMap,
+        json['limited_by'],
+        unknownValue: PlanLimitAllowance.unknown,
+      ) ??
+      PlanLimitAllowance.subject,
 );
 
 Map<String, dynamic> _$PlanLimitToJson(_PlanLimit instance) =>
@@ -189,7 +199,17 @@ Map<String, dynamic> _$PlanLimitToJson(_PlanLimit instance) =>
       'total': instance.total,
       'spent': instance.spent,
       'left': instance.left,
+      'key_total': instance.keyTotal,
+      'key_spent': instance.keySpent,
+      'key_left': instance.keyLeft,
+      'limited_by': _$PlanLimitAllowanceEnumMap[instance.limitedBy]!,
     };
+
+const _$PlanLimitAllowanceEnumMap = {
+  PlanLimitAllowance.subject: 'subject',
+  PlanLimitAllowance.key: 'key',
+  PlanLimitAllowance.unknown: 'unknown',
+};
 
 _Stats _$StatsFromJson(Map<String, dynamic> json) => _Stats(
   books: (json['books'] as num).toInt(),

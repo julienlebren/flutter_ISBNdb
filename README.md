@@ -419,9 +419,13 @@ planLimit | PlanLimit | Usage details of the current API plan
 
 Name | Type | Description
 ------------ | ------------- | -------------
-total | int | Total requests available on the current period
-spent | int | Requests already used
-left | int | Requests remaining
+total | int | Daily request allowance shared by every key in the subscription
+spent | int | Requests charged today across the subscription
+left | int | Requests remaining under whichever subscription or key allowance is lower
+keyTotal | int? | Daily allowance attached to this key, or `null` when it has no cap
+keySpent | int | Requests charged today to this key; defaults to `0` when omitted
+keyLeft | int? | Requests remaining for this key, or `null` when it has no cap
+limitedBy | PlanLimitAllowance | Allowance that determines `left`: `subject`, `key`, or `unknown`
 
 **Stats**
 

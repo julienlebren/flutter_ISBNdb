@@ -273,6 +273,10 @@ void main() {
       expect(keyDetails.planName, "Pro");
       expect(keyDetails.planLimit.total, 10000);
       expect(keyDetails.planLimit.left, 9877);
+      expect(keyDetails.planLimit.keyTotal, 1000);
+      expect(keyDetails.planLimit.keySpent, 123);
+      expect(keyDetails.planLimit.keyLeft, 877);
+      expect(keyDetails.planLimit.limitedBy, PlanLimitAllowance.key);
     });
 
     test('Should keep parsing key details captured before API 2.7.1', () {
@@ -282,6 +286,21 @@ void main() {
       });
 
       expect(keyDetails.planName, isEmpty);
+      expect(keyDetails.planLimit.keyTotal, isNull);
+      expect(keyDetails.planLimit.keySpent, 0);
+      expect(keyDetails.planLimit.keyLeft, isNull);
+      expect(keyDetails.planLimit.limitedBy, PlanLimitAllowance.subject);
+    });
+
+    test('Should tolerate an unknown plan limit allowance', () {
+      final planLimit = PlanLimit.fromJson({
+        "total": 10000,
+        "spent": 123,
+        "left": 9877,
+        "limited_by": "organization",
+      });
+
+      expect(planLimit.limitedBy, PlanLimitAllowance.unknown);
     });
 
     test('Should get API global stats', () async {
@@ -1080,7 +1099,15 @@ Map<String, Map<String, dynamic>> _defaultResponses() => {
   "GET key": {
     "api_host": "https://api2.isbndb.com",
     "plan_name": "Pro",
-    "plan_limit": {"total": 10000, "spent": 123, "left": 9877},
+    "plan_limit": {
+      "total": 10000,
+      "spent": 123,
+      "left": 9877,
+      "key_total": 1000,
+      "key_spent": 123,
+      "key_left": 877,
+      "limited_by": "key",
+    },
   },
   "GET stats": {
     "books": 1000000,

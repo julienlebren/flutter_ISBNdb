@@ -2483,10 +2483,14 @@ $PlanLimitCopyWith<$Res> get planLimit {
 /// @nodoc
 mixin _$PlanLimit implements DiagnosticableTreeMixin {
 
-/// Total number of requests available for the period.
- int get total;/// Number of requests already used.
- int get spent;/// Number of requests remaining.
- int get left;
+/// Daily request allowance shared by every key in the subscription.
+ int get total;/// Requests charged today across the subscription.
+ int get spent;/// Requests remaining under the more restrictive active allowance.
+ int get left;/// Daily allowance attached to this key, or `null` when it has no cap.
+@JsonKey(name: 'key_total') int? get keyTotal;/// Requests charged today to this key.
+@JsonKey(name: 'key_spent') int get keySpent;/// Requests remaining for this key, or `null` when it has no cap.
+@JsonKey(name: 'key_left') int? get keyLeft;/// Allowance that currently determines [left].
+@JsonKey(name: 'limited_by', unknownEnumValue: PlanLimitAllowance.unknown) PlanLimitAllowance get limitedBy;
 /// Create a copy of PlanLimit
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -2500,21 +2504,21 @@ $PlanLimitCopyWith<PlanLimit> get copyWith => _$PlanLimitCopyWithImpl<PlanLimit>
 void debugFillProperties(DiagnosticPropertiesBuilder properties) {
   properties
     ..add(DiagnosticsProperty('type', 'PlanLimit'))
-    ..add(DiagnosticsProperty('total', total))..add(DiagnosticsProperty('spent', spent))..add(DiagnosticsProperty('left', left));
+    ..add(DiagnosticsProperty('total', total))..add(DiagnosticsProperty('spent', spent))..add(DiagnosticsProperty('left', left))..add(DiagnosticsProperty('keyTotal', keyTotal))..add(DiagnosticsProperty('keySpent', keySpent))..add(DiagnosticsProperty('keyLeft', keyLeft))..add(DiagnosticsProperty('limitedBy', limitedBy));
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is PlanLimit&&(identical(other.total, total) || other.total == total)&&(identical(other.spent, spent) || other.spent == spent)&&(identical(other.left, left) || other.left == left));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PlanLimit&&(identical(other.total, total) || other.total == total)&&(identical(other.spent, spent) || other.spent == spent)&&(identical(other.left, left) || other.left == left)&&(identical(other.keyTotal, keyTotal) || other.keyTotal == keyTotal)&&(identical(other.keySpent, keySpent) || other.keySpent == keySpent)&&(identical(other.keyLeft, keyLeft) || other.keyLeft == keyLeft)&&(identical(other.limitedBy, limitedBy) || other.limitedBy == limitedBy));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,total,spent,left);
+int get hashCode => Object.hash(runtimeType,total,spent,left,keyTotal,keySpent,keyLeft,limitedBy);
 
 @override
 String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
-  return 'PlanLimit(total: $total, spent: $spent, left: $left)';
+  return 'PlanLimit(total: $total, spent: $spent, left: $left, keyTotal: $keyTotal, keySpent: $keySpent, keyLeft: $keyLeft, limitedBy: $limitedBy)';
 }
 
 
@@ -2525,7 +2529,7 @@ abstract mixin class $PlanLimitCopyWith<$Res>  {
   factory $PlanLimitCopyWith(PlanLimit value, $Res Function(PlanLimit) _then) = _$PlanLimitCopyWithImpl;
 @useResult
 $Res call({
- int total, int spent, int left
+ int total, int spent, int left,@JsonKey(name: 'key_total') int? keyTotal,@JsonKey(name: 'key_spent') int keySpent,@JsonKey(name: 'key_left') int? keyLeft,@JsonKey(name: 'limited_by', unknownEnumValue: PlanLimitAllowance.unknown) PlanLimitAllowance limitedBy
 });
 
 
@@ -2542,12 +2546,16 @@ class _$PlanLimitCopyWithImpl<$Res>
 
 /// Create a copy of PlanLimit
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? total = null,Object? spent = null,Object? left = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? total = null,Object? spent = null,Object? left = null,Object? keyTotal = freezed,Object? keySpent = null,Object? keyLeft = freezed,Object? limitedBy = null,}) {
   return _then(_self.copyWith(
 total: null == total ? _self.total : total // ignore: cast_nullable_to_non_nullable
 as int,spent: null == spent ? _self.spent : spent // ignore: cast_nullable_to_non_nullable
 as int,left: null == left ? _self.left : left // ignore: cast_nullable_to_non_nullable
-as int,
+as int,keyTotal: freezed == keyTotal ? _self.keyTotal : keyTotal // ignore: cast_nullable_to_non_nullable
+as int?,keySpent: null == keySpent ? _self.keySpent : keySpent // ignore: cast_nullable_to_non_nullable
+as int,keyLeft: freezed == keyLeft ? _self.keyLeft : keyLeft // ignore: cast_nullable_to_non_nullable
+as int?,limitedBy: null == limitedBy ? _self.limitedBy : limitedBy // ignore: cast_nullable_to_non_nullable
+as PlanLimitAllowance,
   ));
 }
 
@@ -2629,10 +2637,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int total,  int spent,  int left)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int total,  int spent,  int left, @JsonKey(name: 'key_total')  int? keyTotal, @JsonKey(name: 'key_spent')  int keySpent, @JsonKey(name: 'key_left')  int? keyLeft, @JsonKey(name: 'limited_by', unknownEnumValue: PlanLimitAllowance.unknown)  PlanLimitAllowance limitedBy)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PlanLimit() when $default != null:
-return $default(_that.total,_that.spent,_that.left);case _:
+return $default(_that.total,_that.spent,_that.left,_that.keyTotal,_that.keySpent,_that.keyLeft,_that.limitedBy);case _:
   return orElse();
 
 }
@@ -2650,10 +2658,10 @@ return $default(_that.total,_that.spent,_that.left);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int total,  int spent,  int left)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int total,  int spent,  int left, @JsonKey(name: 'key_total')  int? keyTotal, @JsonKey(name: 'key_spent')  int keySpent, @JsonKey(name: 'key_left')  int? keyLeft, @JsonKey(name: 'limited_by', unknownEnumValue: PlanLimitAllowance.unknown)  PlanLimitAllowance limitedBy)  $default,) {final _that = this;
 switch (_that) {
 case _PlanLimit():
-return $default(_that.total,_that.spent,_that.left);}
+return $default(_that.total,_that.spent,_that.left,_that.keyTotal,_that.keySpent,_that.keyLeft,_that.limitedBy);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -2667,10 +2675,10 @@ return $default(_that.total,_that.spent,_that.left);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int total,  int spent,  int left)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int total,  int spent,  int left, @JsonKey(name: 'key_total')  int? keyTotal, @JsonKey(name: 'key_spent')  int keySpent, @JsonKey(name: 'key_left')  int? keyLeft, @JsonKey(name: 'limited_by', unknownEnumValue: PlanLimitAllowance.unknown)  PlanLimitAllowance limitedBy)?  $default,) {final _that = this;
 switch (_that) {
 case _PlanLimit() when $default != null:
-return $default(_that.total,_that.spent,_that.left);case _:
+return $default(_that.total,_that.spent,_that.left,_that.keyTotal,_that.keySpent,_that.keyLeft,_that.limitedBy);case _:
   return null;
 
 }
@@ -2682,15 +2690,23 @@ return $default(_that.total,_that.spent,_that.left);case _:
 @JsonSerializable()
 
 class _PlanLimit with DiagnosticableTreeMixin implements PlanLimit {
-   _PlanLimit({required this.total, required this.spent, required this.left});
+   _PlanLimit({required this.total, required this.spent, required this.left, @JsonKey(name: 'key_total') this.keyTotal, @JsonKey(name: 'key_spent') this.keySpent = 0, @JsonKey(name: 'key_left') this.keyLeft, @JsonKey(name: 'limited_by', unknownEnumValue: PlanLimitAllowance.unknown) this.limitedBy = PlanLimitAllowance.subject});
   factory _PlanLimit.fromJson(Map<String, dynamic> json) => _$PlanLimitFromJson(json);
 
-/// Total number of requests available for the period.
+/// Daily request allowance shared by every key in the subscription.
 @override final  int total;
-/// Number of requests already used.
+/// Requests charged today across the subscription.
 @override final  int spent;
-/// Number of requests remaining.
+/// Requests remaining under the more restrictive active allowance.
 @override final  int left;
+/// Daily allowance attached to this key, or `null` when it has no cap.
+@override@JsonKey(name: 'key_total') final  int? keyTotal;
+/// Requests charged today to this key.
+@override@JsonKey(name: 'key_spent') final  int keySpent;
+/// Requests remaining for this key, or `null` when it has no cap.
+@override@JsonKey(name: 'key_left') final  int? keyLeft;
+/// Allowance that currently determines [left].
+@override@JsonKey(name: 'limited_by', unknownEnumValue: PlanLimitAllowance.unknown) final  PlanLimitAllowance limitedBy;
 
 /// Create a copy of PlanLimit
 /// with the given fields replaced by the non-null parameter values.
@@ -2706,21 +2722,21 @@ Map<String, dynamic> toJson() {
 void debugFillProperties(DiagnosticPropertiesBuilder properties) {
   properties
     ..add(DiagnosticsProperty('type', 'PlanLimit'))
-    ..add(DiagnosticsProperty('total', total))..add(DiagnosticsProperty('spent', spent))..add(DiagnosticsProperty('left', left));
+    ..add(DiagnosticsProperty('total', total))..add(DiagnosticsProperty('spent', spent))..add(DiagnosticsProperty('left', left))..add(DiagnosticsProperty('keyTotal', keyTotal))..add(DiagnosticsProperty('keySpent', keySpent))..add(DiagnosticsProperty('keyLeft', keyLeft))..add(DiagnosticsProperty('limitedBy', limitedBy));
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PlanLimit&&(identical(other.total, total) || other.total == total)&&(identical(other.spent, spent) || other.spent == spent)&&(identical(other.left, left) || other.left == left));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PlanLimit&&(identical(other.total, total) || other.total == total)&&(identical(other.spent, spent) || other.spent == spent)&&(identical(other.left, left) || other.left == left)&&(identical(other.keyTotal, keyTotal) || other.keyTotal == keyTotal)&&(identical(other.keySpent, keySpent) || other.keySpent == keySpent)&&(identical(other.keyLeft, keyLeft) || other.keyLeft == keyLeft)&&(identical(other.limitedBy, limitedBy) || other.limitedBy == limitedBy));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,total,spent,left);
+int get hashCode => Object.hash(runtimeType,total,spent,left,keyTotal,keySpent,keyLeft,limitedBy);
 
 @override
 String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
-  return 'PlanLimit(total: $total, spent: $spent, left: $left)';
+  return 'PlanLimit(total: $total, spent: $spent, left: $left, keyTotal: $keyTotal, keySpent: $keySpent, keyLeft: $keyLeft, limitedBy: $limitedBy)';
 }
 
 
@@ -2731,7 +2747,7 @@ abstract mixin class _$PlanLimitCopyWith<$Res> implements $PlanLimitCopyWith<$Re
   factory _$PlanLimitCopyWith(_PlanLimit value, $Res Function(_PlanLimit) _then) = __$PlanLimitCopyWithImpl;
 @override @useResult
 $Res call({
- int total, int spent, int left
+ int total, int spent, int left,@JsonKey(name: 'key_total') int? keyTotal,@JsonKey(name: 'key_spent') int keySpent,@JsonKey(name: 'key_left') int? keyLeft,@JsonKey(name: 'limited_by', unknownEnumValue: PlanLimitAllowance.unknown) PlanLimitAllowance limitedBy
 });
 
 
@@ -2748,12 +2764,16 @@ class __$PlanLimitCopyWithImpl<$Res>
 
 /// Create a copy of PlanLimit
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? total = null,Object? spent = null,Object? left = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? total = null,Object? spent = null,Object? left = null,Object? keyTotal = freezed,Object? keySpent = null,Object? keyLeft = freezed,Object? limitedBy = null,}) {
   return _then(_PlanLimit(
 total: null == total ? _self.total : total // ignore: cast_nullable_to_non_nullable
 as int,spent: null == spent ? _self.spent : spent // ignore: cast_nullable_to_non_nullable
 as int,left: null == left ? _self.left : left // ignore: cast_nullable_to_non_nullable
-as int,
+as int,keyTotal: freezed == keyTotal ? _self.keyTotal : keyTotal // ignore: cast_nullable_to_non_nullable
+as int?,keySpent: null == keySpent ? _self.keySpent : keySpent // ignore: cast_nullable_to_non_nullable
+as int,keyLeft: freezed == keyLeft ? _self.keyLeft : keyLeft // ignore: cast_nullable_to_non_nullable
+as int?,limitedBy: null == limitedBy ? _self.limitedBy : limitedBy // ignore: cast_nullable_to_non_nullable
+as PlanLimitAllowance,
   ));
 }
 

@@ -2364,19 +2364,49 @@
                 ],
                 "properties": {
                     "total": {
-                        "description": "Daily call allowance of the plan",
+                        "description": "Daily call allowance of the plan, shared by every key of the subscription",
                         "type": "integer",
                         "example": 50000
                     },
                     "spent": {
-                        "description": "Calls charged so far today. Resets at 00:00 UTC.",
+                        "description": "Calls charged so far today across the subscription. Resets at 00:00 UTC.",
                         "type": "integer",
                         "example": 1001
                     },
                     "left": {
-                        "description": "Calls still available today",
+                        "description": "Calls still available today, whichever of the subscription and key allowances is lower",
                         "type": "integer",
                         "example": 48999
+                    },
+                    "key_total": {
+                        "description": "Daily allowance of this key inside the subscription quota, null when the key has no own cap",
+                        "type": "integer",
+                        "example": 1000,
+                        "nullable": true,
+                        "default": null
+                    },
+                    "key_spent": {
+                        "description": "Calls charged so far today by this key. Resets at 00:00 UTC.",
+                        "type": "integer",
+                        "example": 900,
+                        "default": 0
+                    },
+                    "key_left": {
+                        "description": "Calls still available today under this key own cap, null when the key has no own cap",
+                        "type": "integer",
+                        "example": 100,
+                        "nullable": true,
+                        "default": null
+                    },
+                    "limited_by": {
+                        "description": "Which allowance runs out first",
+                        "type": "string",
+                        "example": "key",
+                        "default": "subject",
+                        "enum": [
+                            "subject",
+                            "key"
+                        ]
                     }
                 },
                 "type": "object"
