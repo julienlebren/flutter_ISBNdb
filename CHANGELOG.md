@@ -1,5 +1,9 @@
 ## Unreleased
 
+- Aligned the bundled API contract and documentation with ISBNdb OpenAPI 2.8.0.
+- Added `Book.editionNumber` and the currency-aware `Book.listPrice` model.
+- Deprecated `Book.edition`, `Book.msrp`, and `Book.excerpt` in line with ISBNdb while keeping them for backwards compatibility.
+- Migration: Freezed-generated `when` and `maybeWhen` callbacks for `Book` now receive `editionNumber` and `listPrice`.
 - Added per-key quota details to `PlanLimit`: `keyTotal`, `keySpent`, `keyLeft`, and `limitedBy`.
 - Kept decoding compatible with older `/key` responses and unknown future `limited_by` values.
 - Migration: Freezed-generated `when` and `maybeWhen` callbacks for `PlanLimit` now receive the four newly added fields.

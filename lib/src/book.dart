@@ -36,8 +36,12 @@ sealed class Book with _$Book {
     /// becomes January 1st and a year-month becomes the first day of the month.
     @_DateConverter() @JsonKey(name: 'date_published') DateTime? datePublished,
 
-    /// Details about the edition
+    /// Edition of the book as a string.
+    @Deprecated('Use editionNumber instead.')
     String? edition,
+
+    /// Numeric edition of the book.
+    @JsonKey(name: 'edition_number') int? editionNumber,
 
     /// Number of pages of the book
     int? pages,
@@ -51,10 +55,15 @@ sealed class Book with _$Book {
     /// URL of the cover
     String? image,
 
-    /// Not documented in the official API
+    /// Manufacturer's suggested retail price in USD.
+    @Deprecated('Use listPrice instead.')
     @_MsrpConverter() double? msrp,
 
-    /// Excerpt of the book
+    /// List price of the book with its currency.
+    @JsonKey(name: 'list_price') ListPrice? listPrice,
+
+    /// Excerpt of the book. Deprecated by ISBNdb without a replacement.
+    @Deprecated('Deprecated by ISBNdb without a replacement.')
     String? excerpt,
 
     /// Synopsys of the book

@@ -3,7 +3,7 @@
     "info": {
         "title": "ISBNdb API Documentation v2",
         "description": "Welcome to the ISBNdb API documentation. Our REST API allows you to retrieve\ninformation about millions of books.\n\n## Authentication\n\nInclude your API key in the HTTP headers of every request:\n\n```http\nGET /book/9780134093413 HTTP/1.1\nHost: api2.isbndb.com\nAuthorization: YOUR_REST_KEY\nAccept: */*\n```\n\nThe header is the only way to authenticate. Passing your API key as a query\nparameter is **not** supported \u2014 query strings are recorded in server logs,\nproxies and browser history, so a key sent that way is far easier to leak. Such a\nrequest is rejected as unauthenticated:\n\n```text\nhttps://api2.isbndb.com/book/9780134093413?Authorization=YOUR_REST_KEY\n```\n\n## Error responses\n\nEvery error carries the same body, with the reason repeated under two keys.\n`errorMessage` is the current one; `message` is kept for older clients. Error\nbodies are the one place the API does not use snake_case:\n\n```json\n{\"message\": \"Book not found\", \"errorMessage\": \"Book not found\"}\n```\n\n**400 Bad Request** \u2014 the request is invalid or fails validation, for example\nan incorrect ISBN format, a query over 150 characters, or a filter combination\nthe endpoint does not allow.\n\n**401 Unauthorized** \u2014 your API key is missing, unknown, or the subscription\nbehind it is inactive. The reason differs by case: `Full authentication is\nrequired to access this resource.` when no key was sent, `Bad credentials.`\nwhen the key is unknown, `Api key is not active` when the subscription lapsed.\n\n**404 Not Found** \u2014 the requested ISBN is not in our database:\n\n```json\n{\"message\": \"Book not found\", \"errorMessage\": \"Book not found\"}\n```\n\n**429 Too Many Requests** \u2014 the per minute or the daily limit of your plan is\nreached:\n\n```json\n{\"message\": \"Per minute quota exceeded, please try again later\"}\n```\n\n```json\n{\"message\": \"Daily quota exceeded, please try again later\"}\n```\n\n**503 Service Unavailable** \u2014 the search backend is briefly unreachable. Retry\nafter the number of seconds in the `Retry-After` header.\n\n***Note on 404 errors: a 404 response indicates that the book information is not\nyet available in our database. However, due to frequent updates, there is a high\nprobability that the data will be added shortly, often within a minute or up to\n24 hours. We recommend trying your request again after a while, as the\ninformation may soon become accessible.***\n\n## Rate limits\n\nYou can programmatically monitor your usage and limits by inspecting the\nstandard `ratelimit-policy` and `ratelimit` headers we send with every response:\n\n**`ratelimit-policy`** defines the limit rules of your subscription plan, where\n`q` is the quota (maximum allowed requests) and `w` is the window (timeframe in\nseconds):\n\n```text\nratelimit-policy: \"rate\";q=300;w=60\nratelimit-policy: \"daily\";q=50000;w=86400\n```\n\n**`ratelimit`** displays your current real-time usage status, where `r` is the\nnumber of requests left in the window and `t` is how many seconds you have to\nwait before the next request is allowed. While you still have quota, `t` is `0`\n\u2014 there is nothing to wait for:\n\n```text\nratelimit: \"rate\";r=297;t=0\nratelimit: \"daily\";r=48999;t=56312\n```\n\nAll daily limits reset at **00:00 UTC** every day.\n\n## Pagination\n\nPaginated endpoints take `page` and `pageSize` as query parameters and echo them\nback as `page` and `page_size` in the response body. Query parameters are\ncamelCase, response fields are snake_case \u2014 that difference is intentional and\napplies across the whole API (error bodies excepted, see above).\n\nOn the search and detail endpoints `pageSize` is capped at **100**: a larger value\nis rejected with a **400 Bad Request**. Subscriptions that existed before the cap\nwas introduced keep the previous limit of 1,000 \u2014 where a larger value is quietly\nreduced instead of rejected \u2014 until **October 10, 2026**, after which the cap of\n100 applies to every key. Paging stops at 10,000 results \u2014 a request whose offset\nwould reach past that is answered with a **400 Bad Request**, and the last page\nbefore the ceiling is trimmed to fit. `total` is likewise counted only up to\n10,000, so a broad query reports exactly `10000` instead of the real figure.\nNarrow the query rather than paging deeper.\n\n`GET /feeds/books/updates` paginates differently: there is no 10,000 ceiling and\nno `total`, and a `pageSize` above 1,000 is rejected with a **400 Bad Request**\ninstead of being reduced. Keep requesting pages until `data` comes back empty.\n\n## Null values\n\nFields with no value are left out of the response rather than sent as `null`.\nThe schemas below mark them nullable, but in practice you should treat a missing\nkey and a null value the same way.\n",
-        "version": "2.7.5"
+        "version": "2.8.0"
     },
     "servers": [
         {
@@ -1937,6 +1937,26 @@
                 },
                 "type": "object"
             },
+            "ListPrice": {
+                "required": [
+                    "amount",
+                    "currency"
+                ],
+                "properties": {
+                    "amount": {
+                        "description": "Price amount, rounded to 2 decimal places",
+                        "type": "number",
+                        "format": "float",
+                        "example": 19.99
+                    },
+                    "currency": {
+                        "description": "ISO 4217 currency code",
+                        "type": "string",
+                        "example": "USD"
+                    }
+                },
+                "type": "object"
+            },
             "RelatedIsbn": {
                 "required": [
                     "isbn",
@@ -2015,9 +2035,16 @@
                         "example": "2017"
                     },
                     "edition": {
-                        "description": "Edition of the book (e.g. 3rd, Revised)",
+                        "description": "Edition of the book as a string. Use `edition_number`.",
                         "type": "string",
                         "example": "11",
+                        "nullable": true,
+                        "deprecated": true
+                    },
+                    "edition_number": {
+                        "description": "Edition number of the book",
+                        "type": "integer",
+                        "example": 11,
                         "nullable": true
                     },
                     "pages": {
@@ -2069,16 +2096,27 @@
                         "nullable": true
                     },
                     "msrp": {
-                        "description": "Manufacturer's suggested retail price",
+                        "description": "Manufacturer's suggested retail price in USD. Use `list_price`.",
                         "type": "number",
                         "format": "float",
                         "example": 249.99,
-                        "nullable": true
+                        "nullable": true,
+                        "deprecated": true
+                    },
+                    "list_price": {
+                        "description": "List price of the book with its currency",
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/ListPrice"
+                            }
+                        ]
                     },
                     "excerpt": {
                         "description": "Short excerpt from the book. Rarely available.",
                         "type": "string",
-                        "nullable": true
+                        "nullable": true,
+                        "deprecated": true
                     },
                     "synopsis": {
                         "description": "Full synopsis or summary of the book",

@@ -560,6 +560,29 @@ void main() {
       expect(book!.msrp, isNull);
     });
 
+    test('Should parse edition number and currency-aware list price', () {
+      final book = Book.fromJson({
+        ..._book(
+          title: "Priced edition",
+          isbn: "0134093410",
+          isbn13: "9780134093413",
+        ),
+        "edition_number": 11,
+        "list_price": {"amount": 249.99, "currency": "USD"},
+      });
+
+      expect(book.editionNumber, 11);
+      expect(book.listPrice, isNotNull);
+      expect(book.listPrice!.amount, 249.99);
+      expect(book.listPrice!.currency, "USD");
+      final serialized = jsonDecode(jsonEncode(book)) as Map<String, dynamic>;
+      expect(serialized["edition_number"], 11);
+      expect(
+        serialized["list_price"],
+        equals(<String, dynamic>{"amount": 249.99, "currency": "USD"}),
+      );
+    });
+
     test(
       'Should parse book oneOf fields when returned as object maps',
       () async {
