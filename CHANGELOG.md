@@ -1,4 +1,4 @@
-## Unreleased
+## 2.1.0 - 2026-09-25
 
 - Aligned the bundled API contract and documentation with ISBNdb OpenAPI 2.8.0.
 - Added `Book.editionNumber` and the currency-aware `Book.listPrice` model.
