@@ -1,11 +1,11 @@
-# ISBNdb API Documentation v2 (OpenAPI 2.7.5)
+# ISBNdb API Documentation v2 (OpenAPI 2.8.0)
 
 Source: `https://api2.isbndb.com/doc.json` (OpenAPI 3.0.0)
 
 ## API metadata
 
 - Title: `ISBNdb API Documentation v2`
-- Version: `2.7.5`
+- Version: `2.8.0`
 - Server: `https://api2.isbndb.com`
 - Security: `ApiKeyAuth` (`Authorization` header)
 
@@ -426,6 +426,13 @@ Enum values: `title`, `author`, `date_published`, `subjects`
 | `total` | string | yes | no | no | - | Total amount |
 | `link` | string | yes | no | no | - | Merchant link |
 
+### `ListPrice`
+
+| Field | Type | Required | Nullable | Deprecated | Default | Description |
+| --- | --- | --- | --- | --- | --- | --- |
+| `amount` | number(float) | yes | no | no | - | Price amount, rounded to two decimal places |
+| `currency` | string | yes | no | no | - | ISO 4217 currency code |
+
 ### `Book`
 
 | Field | Type | Required | Nullable | Deprecated | Default | Description |
@@ -439,15 +446,17 @@ Enum values: `title`, `author`, `date_published`, `subjects`
 | `publisher` | string | no | yes | no | - | Publisher |
 | `language` | string | no | yes | no | - | Language |
 | `date_published` | string | yes | no | no | - | Publication date (`YYYY-MM-DD`, `YYYY-MM`, or `YYYY`); partial dates are common |
-| `edition` | string | no | yes | no | - | Edition |
+| `edition` | string | no | yes | yes | - | Legacy string edition; use `edition_number` |
+| `edition_number` | integer | no | yes | no | - | Edition number |
 | `pages` | integer | no | yes | no | - | Number of pages |
 | `dimensions` | string | no | yes | yes | - | Legacy dimensions |
 | `dimensions_structured` | `oneOf(array<nullable>, object<string,nullable>)` | no | yes | no | - | Structured dimensions |
 | `overview` | string | no | yes | yes | - | Legacy overview |
 | `image` | string | no | yes | no | - | Cover image URL |
 | `image_original` | string | no | yes | no | - | Original image URL |
-| `msrp` | number(float) | no | yes | no | - | MSRP |
-| `excerpt` | string | no | yes | no | - | Excerpt |
+| `msrp` | number(float) | no | yes | yes | - | Legacy MSRP in USD; use `list_price` |
+| `list_price` | `oneOf(ListPrice)` | no | yes | no | - | List price with its currency |
+| `excerpt` | string | no | yes | yes | - | Legacy excerpt |
 | `synopsis` | string | no | yes | no | - | Synopsis |
 | `authors` | `oneOf(array<nullable>, object<string,nullable>)` | no | yes | no | - | Authors |
 | `subjects` | `oneOf(array<nullable>, object<string,nullable>)` | no | yes | no | - | Subjects |

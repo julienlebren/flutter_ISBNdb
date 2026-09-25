@@ -20,6 +20,7 @@ part 'src/publisher.dart';
 part 'src/service.dart';
 part 'src/isbndb_exception.dart';
 part 'src/key_details.dart';
+part 'src/list_price.dart';
 part 'src/plan_limit.dart';
 part 'src/stats.dart';
 part 'src/subject_query_results.dart';

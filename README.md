@@ -352,19 +352,28 @@ deweyDecimal | String | Not documented in the official API
 binding | String | Not documented in the official API
 publisher | String | The name of the publisher
 datePublished | DateTime | Date when the book was published. Partial dates are normalized to the first day of their period.
-edition | String | Details about the edition
+edition | String | Deprecated string edition; use `editionNumber`
+editionNumber | int | Numeric edition of the book
 pages | int | Number of pages of the book
 dimensions | String | Dimensions of the book
 overview | String | Not documented in the official API
 image | String | URL of the cover
-msrp | double | Not documented in the official API
-excerpt | String | Excerpt of the book
+msrp | double | Deprecated USD list price; use `listPrice`
+listPrice | ListPrice | List price with its currency
+excerpt | String | Deprecated excerpt of the book
 synopsys | String | Synopsys of the book
 authors | List<String> | List of the authors
 subjects | List<String> | List of the subjects of the book
 reviews | List<String> | Not documented in the official API
 prices | List<Merchant> | Real-time prices returned by `getBook` when `withPrices` is enabled and supported by the plan
 related | List<String> | Not documented in the official API
+
+**ListPrice**
+
+Name | Type | Description
+------------ | ------------- | -------------
+amount | double | Price amount, rounded to two decimal places by ISBNdb
+currency | String | ISO 4217 currency code
 
 **Merchant**
 

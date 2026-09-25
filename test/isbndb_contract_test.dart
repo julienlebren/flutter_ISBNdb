@@ -11,10 +11,10 @@ void main() {
       spec = _readJsonFile('api/upstream/isbndb-openapi.json');
     });
 
-    test('tracks ISBNdb OpenAPI 2.7.5', () {
+    test('tracks ISBNdb OpenAPI 2.8.0', () {
       final info = Map<String, dynamic>.from(spec['info'] as Map);
 
-      expect(info['version'], '2.7.5');
+      expect(info['version'], '2.8.0');
     });
 
     test('contains all public endpoints currently exposed by the package', () {
@@ -216,6 +216,40 @@ void main() {
       expect(publishedDate['type'], 'string');
       expect(publishedDate, isNot(contains('format')));
       expect(bookProperties, isNot(contains('prices')));
+
+      final edition = Map<String, dynamic>.from(
+        bookProperties['edition'] as Map,
+      );
+      final editionNumber = Map<String, dynamic>.from(
+        bookProperties['edition_number'] as Map,
+      );
+      final msrp = Map<String, dynamic>.from(bookProperties['msrp'] as Map);
+      final listPrice = Map<String, dynamic>.from(
+        bookProperties['list_price'] as Map,
+      );
+      final excerpt = Map<String, dynamic>.from(
+        bookProperties['excerpt'] as Map,
+      );
+
+      expect(edition['deprecated'], isTrue);
+      expect(editionNumber['type'], 'integer');
+      expect(msrp['deprecated'], isTrue);
+      expect(excerpt['deprecated'], isTrue);
+      expect(
+        (listPrice['oneOf'] as List).single,
+        containsPair(r'$ref', '#/components/schemas/ListPrice'),
+      );
+
+      final listPriceSchema = _schema(spec, 'ListPrice');
+      expect(
+        Set<String>.from(listPriceSchema['required'] as List),
+        {'amount', 'currency'},
+      );
+      final listPriceProperties = Map<String, dynamic>.from(
+        listPriceSchema['properties'] as Map,
+      );
+      expect(listPriceProperties['amount'], containsPair('type', 'number'));
+      expect(listPriceProperties['currency'], containsPair('type', 'string'));
 
       final getBookResponse = _schema(spec, 'GetBookResponse');
       final getBookProperties = Map<String, dynamic>.from(

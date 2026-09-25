@@ -64,11 +64,15 @@ _Book _$BookFromJson(Map<String, dynamic> json) => _Book(
   language: json['language'] as String?,
   datePublished: const _DateConverter().fromJson(json['date_published']),
   edition: json['edition'] as String?,
+  editionNumber: (json['edition_number'] as num?)?.toInt(),
   pages: (json['pages'] as num?)?.toInt(),
   dimensions: json['dimensions'] as String?,
   overview: json['overview'] as String?,
   image: json['image'] as String?,
   msrp: const _MsrpConverter().fromJson(json['msrp']),
+  listPrice: json['list_price'] == null
+      ? null
+      : ListPrice.fromJson(json['list_price'] as Map<String, dynamic>),
   excerpt: json['excerpt'] as String?,
   synopsys: json['synopsys'] as String?,
   authors: (_readBookAuthors(json, 'authors') as List<dynamic>?)
@@ -99,11 +103,13 @@ Map<String, dynamic> _$BookToJson(_Book instance) => <String, dynamic>{
   'language': instance.language,
   'date_published': const _DateConverter().toJson(instance.datePublished),
   'edition': instance.edition,
+  'edition_number': instance.editionNumber,
   'pages': instance.pages,
   'dimensions': instance.dimensions,
   'overview': instance.overview,
   'image': instance.image,
   'msrp': const _MsrpConverter().toJson(instance.msrp),
+  'list_price': instance.listPrice,
   'excerpt': instance.excerpt,
   'synopsys': instance.synopsys,
   'authors': instance.authors,
@@ -177,6 +183,14 @@ Map<String, dynamic> _$KeyDetailsToJson(_KeyDetails instance) =>
       'plan_name': instance.planName,
       'plan_limit': instance.planLimit,
     };
+
+_ListPrice _$ListPriceFromJson(Map<String, dynamic> json) => _ListPrice(
+  amount: (json['amount'] as num).toDouble(),
+  currency: json['currency'] as String,
+);
+
+Map<String, dynamic> _$ListPriceToJson(_ListPrice instance) =>
+    <String, dynamic>{'amount': instance.amount, 'currency': instance.currency};
 
 _PlanLimit _$PlanLimitFromJson(Map<String, dynamic> json) => _PlanLimit(
   total: (json['total'] as num).toInt(),

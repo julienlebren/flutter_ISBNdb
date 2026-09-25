@@ -886,14 +886,16 @@ mixin _$Book implements DiagnosticableTreeMixin {
 ///
 /// Partial API values are normalized to the start of their period: a year
 /// becomes January 1st and a year-month becomes the first day of the month.
-@_DateConverter()@JsonKey(name: 'date_published') DateTime? get datePublished;/// Details about the edition
- String? get edition;/// Number of pages of the book
+@_DateConverter()@JsonKey(name: 'date_published') DateTime? get datePublished;/// Edition of the book as a string.
+@Deprecated('Use editionNumber instead.') String? get edition;/// Numeric edition of the book.
+@JsonKey(name: 'edition_number') int? get editionNumber;/// Number of pages of the book
  int? get pages;/// Dimensions of the book
  String? get dimensions;/// Not documented in the official API
  String? get overview;/// URL of the cover
- String? get image;/// Not documented in the official API
-@_MsrpConverter() double? get msrp;/// Excerpt of the book
- String? get excerpt;/// Synopsys of the book
+ String? get image;/// Manufacturer's suggested retail price in USD.
+@Deprecated('Use listPrice instead.')@_MsrpConverter() double? get msrp;/// List price of the book with its currency.
+@JsonKey(name: 'list_price') ListPrice? get listPrice;/// Excerpt of the book. Deprecated by ISBNdb without a replacement.
+@Deprecated('Deprecated by ISBNdb without a replacement.') String? get excerpt;/// Synopsys of the book
  String? get synopsys;/// List of the authors of the book
 @JsonKey(readValue: _readBookAuthors) List<String?>? get authors;/// List of the subjects of the book
 @JsonKey(readValue: _readBookSubjects) List<String>? get subjects;/// Not documented in the official API
@@ -913,21 +915,21 @@ $BookCopyWith<Book> get copyWith => _$BookCopyWithImpl<Book>(this as Book, _$ide
 void debugFillProperties(DiagnosticPropertiesBuilder properties) {
   properties
     ..add(DiagnosticsProperty('type', 'Book'))
-    ..add(DiagnosticsProperty('title', title))..add(DiagnosticsProperty('titleLong', titleLong))..add(DiagnosticsProperty('isbn', isbn))..add(DiagnosticsProperty('isbn13', isbn13))..add(DiagnosticsProperty('deweyDecimal', deweyDecimal))..add(DiagnosticsProperty('binding', binding))..add(DiagnosticsProperty('publisher', publisher))..add(DiagnosticsProperty('language', language))..add(DiagnosticsProperty('datePublished', datePublished))..add(DiagnosticsProperty('edition', edition))..add(DiagnosticsProperty('pages', pages))..add(DiagnosticsProperty('dimensions', dimensions))..add(DiagnosticsProperty('overview', overview))..add(DiagnosticsProperty('image', image))..add(DiagnosticsProperty('msrp', msrp))..add(DiagnosticsProperty('excerpt', excerpt))..add(DiagnosticsProperty('synopsys', synopsys))..add(DiagnosticsProperty('authors', authors))..add(DiagnosticsProperty('subjects', subjects))..add(DiagnosticsProperty('reviews', reviews))..add(DiagnosticsProperty('prices', prices))..add(DiagnosticsProperty('related', related));
+    ..add(DiagnosticsProperty('title', title))..add(DiagnosticsProperty('titleLong', titleLong))..add(DiagnosticsProperty('isbn', isbn))..add(DiagnosticsProperty('isbn13', isbn13))..add(DiagnosticsProperty('deweyDecimal', deweyDecimal))..add(DiagnosticsProperty('binding', binding))..add(DiagnosticsProperty('publisher', publisher))..add(DiagnosticsProperty('language', language))..add(DiagnosticsProperty('datePublished', datePublished))..add(DiagnosticsProperty('edition', edition))..add(DiagnosticsProperty('editionNumber', editionNumber))..add(DiagnosticsProperty('pages', pages))..add(DiagnosticsProperty('dimensions', dimensions))..add(DiagnosticsProperty('overview', overview))..add(DiagnosticsProperty('image', image))..add(DiagnosticsProperty('msrp', msrp))..add(DiagnosticsProperty('listPrice', listPrice))..add(DiagnosticsProperty('excerpt', excerpt))..add(DiagnosticsProperty('synopsys', synopsys))..add(DiagnosticsProperty('authors', authors))..add(DiagnosticsProperty('subjects', subjects))..add(DiagnosticsProperty('reviews', reviews))..add(DiagnosticsProperty('prices', prices))..add(DiagnosticsProperty('related', related));
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Book&&(identical(other.title, title) || other.title == title)&&(identical(other.titleLong, titleLong) || other.titleLong == titleLong)&&(identical(other.isbn, isbn) || other.isbn == isbn)&&(identical(other.isbn13, isbn13) || other.isbn13 == isbn13)&&(identical(other.deweyDecimal, deweyDecimal) || other.deweyDecimal == deweyDecimal)&&(identical(other.binding, binding) || other.binding == binding)&&(identical(other.publisher, publisher) || other.publisher == publisher)&&(identical(other.language, language) || other.language == language)&&(identical(other.datePublished, datePublished) || other.datePublished == datePublished)&&(identical(other.edition, edition) || other.edition == edition)&&(identical(other.pages, pages) || other.pages == pages)&&(identical(other.dimensions, dimensions) || other.dimensions == dimensions)&&(identical(other.overview, overview) || other.overview == overview)&&(identical(other.image, image) || other.image == image)&&(identical(other.msrp, msrp) || other.msrp == msrp)&&(identical(other.excerpt, excerpt) || other.excerpt == excerpt)&&(identical(other.synopsys, synopsys) || other.synopsys == synopsys)&&const DeepCollectionEquality().equals(other.authors, authors)&&const DeepCollectionEquality().equals(other.subjects, subjects)&&const DeepCollectionEquality().equals(other.reviews, reviews)&&const DeepCollectionEquality().equals(other.prices, prices)&&const DeepCollectionEquality().equals(other.related, related));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Book&&(identical(other.title, title) || other.title == title)&&(identical(other.titleLong, titleLong) || other.titleLong == titleLong)&&(identical(other.isbn, isbn) || other.isbn == isbn)&&(identical(other.isbn13, isbn13) || other.isbn13 == isbn13)&&(identical(other.deweyDecimal, deweyDecimal) || other.deweyDecimal == deweyDecimal)&&(identical(other.binding, binding) || other.binding == binding)&&(identical(other.publisher, publisher) || other.publisher == publisher)&&(identical(other.language, language) || other.language == language)&&(identical(other.datePublished, datePublished) || other.datePublished == datePublished)&&(identical(other.edition, edition) || other.edition == edition)&&(identical(other.editionNumber, editionNumber) || other.editionNumber == editionNumber)&&(identical(other.pages, pages) || other.pages == pages)&&(identical(other.dimensions, dimensions) || other.dimensions == dimensions)&&(identical(other.overview, overview) || other.overview == overview)&&(identical(other.image, image) || other.image == image)&&(identical(other.msrp, msrp) || other.msrp == msrp)&&(identical(other.listPrice, listPrice) || other.listPrice == listPrice)&&(identical(other.excerpt, excerpt) || other.excerpt == excerpt)&&(identical(other.synopsys, synopsys) || other.synopsys == synopsys)&&const DeepCollectionEquality().equals(other.authors, authors)&&const DeepCollectionEquality().equals(other.subjects, subjects)&&const DeepCollectionEquality().equals(other.reviews, reviews)&&const DeepCollectionEquality().equals(other.prices, prices)&&const DeepCollectionEquality().equals(other.related, related));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,title,titleLong,isbn,isbn13,deweyDecimal,binding,publisher,language,datePublished,edition,pages,dimensions,overview,image,msrp,excerpt,synopsys,const DeepCollectionEquality().hash(authors),const DeepCollectionEquality().hash(subjects),const DeepCollectionEquality().hash(reviews),const DeepCollectionEquality().hash(prices),const DeepCollectionEquality().hash(related)]);
+int get hashCode => Object.hashAll([runtimeType,title,titleLong,isbn,isbn13,deweyDecimal,binding,publisher,language,datePublished,edition,editionNumber,pages,dimensions,overview,image,msrp,listPrice,excerpt,synopsys,const DeepCollectionEquality().hash(authors),const DeepCollectionEquality().hash(subjects),const DeepCollectionEquality().hash(reviews),const DeepCollectionEquality().hash(prices),const DeepCollectionEquality().hash(related)]);
 
 @override
 String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
-  return 'Book(title: $title, titleLong: $titleLong, isbn: $isbn, isbn13: $isbn13, deweyDecimal: $deweyDecimal, binding: $binding, publisher: $publisher, language: $language, datePublished: $datePublished, edition: $edition, pages: $pages, dimensions: $dimensions, overview: $overview, image: $image, msrp: $msrp, excerpt: $excerpt, synopsys: $synopsys, authors: $authors, subjects: $subjects, reviews: $reviews, prices: $prices, related: $related)';
+  return 'Book(title: $title, titleLong: $titleLong, isbn: $isbn, isbn13: $isbn13, deweyDecimal: $deweyDecimal, binding: $binding, publisher: $publisher, language: $language, datePublished: $datePublished, edition: $edition, editionNumber: $editionNumber, pages: $pages, dimensions: $dimensions, overview: $overview, image: $image, msrp: $msrp, listPrice: $listPrice, excerpt: $excerpt, synopsys: $synopsys, authors: $authors, subjects: $subjects, reviews: $reviews, prices: $prices, related: $related)';
 }
 
 
@@ -938,11 +940,11 @@ abstract mixin class $BookCopyWith<$Res>  {
   factory $BookCopyWith(Book value, $Res Function(Book) _then) = _$BookCopyWithImpl;
 @useResult
 $Res call({
- String title,@JsonKey(name: 'title_long') String? titleLong, String isbn, String isbn13,@_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal') String? deweyDecimal, String? binding, String? publisher, String? language,@_DateConverter()@JsonKey(name: 'date_published') DateTime? datePublished, String? edition, int? pages, String? dimensions, String? overview, String? image,@_MsrpConverter() double? msrp, String? excerpt, String? synopsys,@JsonKey(readValue: _readBookAuthors) List<String?>? authors,@JsonKey(readValue: _readBookSubjects) List<String>? subjects,@JsonKey(readValue: _readBookReviews) List<String>? reviews, List<Merchant>? prices,@JsonKey(readValue: _readBookRelated) List<String>? related
+ String title,@JsonKey(name: 'title_long') String? titleLong, String isbn, String isbn13,@_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal') String? deweyDecimal, String? binding, String? publisher, String? language,@_DateConverter()@JsonKey(name: 'date_published') DateTime? datePublished,@Deprecated('Use editionNumber instead.') String? edition,@JsonKey(name: 'edition_number') int? editionNumber, int? pages, String? dimensions, String? overview, String? image,@Deprecated('Use listPrice instead.')@_MsrpConverter() double? msrp,@JsonKey(name: 'list_price') ListPrice? listPrice,@Deprecated('Deprecated by ISBNdb without a replacement.') String? excerpt, String? synopsys,@JsonKey(readValue: _readBookAuthors) List<String?>? authors,@JsonKey(readValue: _readBookSubjects) List<String>? subjects,@JsonKey(readValue: _readBookReviews) List<String>? reviews, List<Merchant>? prices,@JsonKey(readValue: _readBookRelated) List<String>? related
 });
 
 
-
+$ListPriceCopyWith<$Res>? get listPrice;
 
 }
 /// @nodoc
@@ -955,7 +957,7 @@ class _$BookCopyWithImpl<$Res>
 
 /// Create a copy of Book
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? title = null,Object? titleLong = freezed,Object? isbn = null,Object? isbn13 = null,Object? deweyDecimal = freezed,Object? binding = freezed,Object? publisher = freezed,Object? language = freezed,Object? datePublished = freezed,Object? edition = freezed,Object? pages = freezed,Object? dimensions = freezed,Object? overview = freezed,Object? image = freezed,Object? msrp = freezed,Object? excerpt = freezed,Object? synopsys = freezed,Object? authors = freezed,Object? subjects = freezed,Object? reviews = freezed,Object? prices = freezed,Object? related = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? title = null,Object? titleLong = freezed,Object? isbn = null,Object? isbn13 = null,Object? deweyDecimal = freezed,Object? binding = freezed,Object? publisher = freezed,Object? language = freezed,Object? datePublished = freezed,Object? edition = freezed,Object? editionNumber = freezed,Object? pages = freezed,Object? dimensions = freezed,Object? overview = freezed,Object? image = freezed,Object? msrp = freezed,Object? listPrice = freezed,Object? excerpt = freezed,Object? synopsys = freezed,Object? authors = freezed,Object? subjects = freezed,Object? reviews = freezed,Object? prices = freezed,Object? related = freezed,}) {
   return _then(_self.copyWith(
 title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,titleLong: freezed == titleLong ? _self.titleLong : titleLong // ignore: cast_nullable_to_non_nullable
@@ -967,12 +969,14 @@ as String?,publisher: freezed == publisher ? _self.publisher : publisher // igno
 as String?,language: freezed == language ? _self.language : language // ignore: cast_nullable_to_non_nullable
 as String?,datePublished: freezed == datePublished ? _self.datePublished : datePublished // ignore: cast_nullable_to_non_nullable
 as DateTime?,edition: freezed == edition ? _self.edition : edition // ignore: cast_nullable_to_non_nullable
-as String?,pages: freezed == pages ? _self.pages : pages // ignore: cast_nullable_to_non_nullable
+as String?,editionNumber: freezed == editionNumber ? _self.editionNumber : editionNumber // ignore: cast_nullable_to_non_nullable
+as int?,pages: freezed == pages ? _self.pages : pages // ignore: cast_nullable_to_non_nullable
 as int?,dimensions: freezed == dimensions ? _self.dimensions : dimensions // ignore: cast_nullable_to_non_nullable
 as String?,overview: freezed == overview ? _self.overview : overview // ignore: cast_nullable_to_non_nullable
 as String?,image: freezed == image ? _self.image : image // ignore: cast_nullable_to_non_nullable
 as String?,msrp: freezed == msrp ? _self.msrp : msrp // ignore: cast_nullable_to_non_nullable
-as double?,excerpt: freezed == excerpt ? _self.excerpt : excerpt // ignore: cast_nullable_to_non_nullable
+as double?,listPrice: freezed == listPrice ? _self.listPrice : listPrice // ignore: cast_nullable_to_non_nullable
+as ListPrice?,excerpt: freezed == excerpt ? _self.excerpt : excerpt // ignore: cast_nullable_to_non_nullable
 as String?,synopsys: freezed == synopsys ? _self.synopsys : synopsys // ignore: cast_nullable_to_non_nullable
 as String?,authors: freezed == authors ? _self.authors : authors // ignore: cast_nullable_to_non_nullable
 as List<String?>?,subjects: freezed == subjects ? _self.subjects : subjects // ignore: cast_nullable_to_non_nullable
@@ -982,7 +986,19 @@ as List<Merchant>?,related: freezed == related ? _self.related : related // igno
 as List<String>?,
   ));
 }
+/// Create a copy of Book
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ListPriceCopyWith<$Res>? get listPrice {
+    if (_self.listPrice == null) {
+    return null;
+  }
 
+  return $ListPriceCopyWith<$Res>(_self.listPrice!, (value) {
+    return _then(_self.copyWith(listPrice: value));
+  });
+}
 }
 
 
@@ -1061,10 +1077,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String title, @JsonKey(name: 'title_long')  String? titleLong,  String isbn,  String isbn13, @_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal')  String? deweyDecimal,  String? binding,  String? publisher,  String? language, @_DateConverter()@JsonKey(name: 'date_published')  DateTime? datePublished,  String? edition,  int? pages,  String? dimensions,  String? overview,  String? image, @_MsrpConverter()  double? msrp,  String? excerpt,  String? synopsys, @JsonKey(readValue: _readBookAuthors)  List<String?>? authors, @JsonKey(readValue: _readBookSubjects)  List<String>? subjects, @JsonKey(readValue: _readBookReviews)  List<String>? reviews,  List<Merchant>? prices, @JsonKey(readValue: _readBookRelated)  List<String>? related)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String title, @JsonKey(name: 'title_long')  String? titleLong,  String isbn,  String isbn13, @_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal')  String? deweyDecimal,  String? binding,  String? publisher,  String? language, @_DateConverter()@JsonKey(name: 'date_published')  DateTime? datePublished, @Deprecated('Use editionNumber instead.')  String? edition, @JsonKey(name: 'edition_number')  int? editionNumber,  int? pages,  String? dimensions,  String? overview,  String? image, @Deprecated('Use listPrice instead.')@_MsrpConverter()  double? msrp, @JsonKey(name: 'list_price')  ListPrice? listPrice, @Deprecated('Deprecated by ISBNdb without a replacement.')  String? excerpt,  String? synopsys, @JsonKey(readValue: _readBookAuthors)  List<String?>? authors, @JsonKey(readValue: _readBookSubjects)  List<String>? subjects, @JsonKey(readValue: _readBookReviews)  List<String>? reviews,  List<Merchant>? prices, @JsonKey(readValue: _readBookRelated)  List<String>? related)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Book() when $default != null:
-return $default(_that.title,_that.titleLong,_that.isbn,_that.isbn13,_that.deweyDecimal,_that.binding,_that.publisher,_that.language,_that.datePublished,_that.edition,_that.pages,_that.dimensions,_that.overview,_that.image,_that.msrp,_that.excerpt,_that.synopsys,_that.authors,_that.subjects,_that.reviews,_that.prices,_that.related);case _:
+return $default(_that.title,_that.titleLong,_that.isbn,_that.isbn13,_that.deweyDecimal,_that.binding,_that.publisher,_that.language,_that.datePublished,_that.edition,_that.editionNumber,_that.pages,_that.dimensions,_that.overview,_that.image,_that.msrp,_that.listPrice,_that.excerpt,_that.synopsys,_that.authors,_that.subjects,_that.reviews,_that.prices,_that.related);case _:
   return orElse();
 
 }
@@ -1082,10 +1098,10 @@ return $default(_that.title,_that.titleLong,_that.isbn,_that.isbn13,_that.deweyD
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String title, @JsonKey(name: 'title_long')  String? titleLong,  String isbn,  String isbn13, @_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal')  String? deweyDecimal,  String? binding,  String? publisher,  String? language, @_DateConverter()@JsonKey(name: 'date_published')  DateTime? datePublished,  String? edition,  int? pages,  String? dimensions,  String? overview,  String? image, @_MsrpConverter()  double? msrp,  String? excerpt,  String? synopsys, @JsonKey(readValue: _readBookAuthors)  List<String?>? authors, @JsonKey(readValue: _readBookSubjects)  List<String>? subjects, @JsonKey(readValue: _readBookReviews)  List<String>? reviews,  List<Merchant>? prices, @JsonKey(readValue: _readBookRelated)  List<String>? related)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String title, @JsonKey(name: 'title_long')  String? titleLong,  String isbn,  String isbn13, @_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal')  String? deweyDecimal,  String? binding,  String? publisher,  String? language, @_DateConverter()@JsonKey(name: 'date_published')  DateTime? datePublished, @Deprecated('Use editionNumber instead.')  String? edition, @JsonKey(name: 'edition_number')  int? editionNumber,  int? pages,  String? dimensions,  String? overview,  String? image, @Deprecated('Use listPrice instead.')@_MsrpConverter()  double? msrp, @JsonKey(name: 'list_price')  ListPrice? listPrice, @Deprecated('Deprecated by ISBNdb without a replacement.')  String? excerpt,  String? synopsys, @JsonKey(readValue: _readBookAuthors)  List<String?>? authors, @JsonKey(readValue: _readBookSubjects)  List<String>? subjects, @JsonKey(readValue: _readBookReviews)  List<String>? reviews,  List<Merchant>? prices, @JsonKey(readValue: _readBookRelated)  List<String>? related)  $default,) {final _that = this;
 switch (_that) {
 case _Book():
-return $default(_that.title,_that.titleLong,_that.isbn,_that.isbn13,_that.deweyDecimal,_that.binding,_that.publisher,_that.language,_that.datePublished,_that.edition,_that.pages,_that.dimensions,_that.overview,_that.image,_that.msrp,_that.excerpt,_that.synopsys,_that.authors,_that.subjects,_that.reviews,_that.prices,_that.related);}
+return $default(_that.title,_that.titleLong,_that.isbn,_that.isbn13,_that.deweyDecimal,_that.binding,_that.publisher,_that.language,_that.datePublished,_that.edition,_that.editionNumber,_that.pages,_that.dimensions,_that.overview,_that.image,_that.msrp,_that.listPrice,_that.excerpt,_that.synopsys,_that.authors,_that.subjects,_that.reviews,_that.prices,_that.related);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -1099,10 +1115,10 @@ return $default(_that.title,_that.titleLong,_that.isbn,_that.isbn13,_that.deweyD
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String title, @JsonKey(name: 'title_long')  String? titleLong,  String isbn,  String isbn13, @_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal')  String? deweyDecimal,  String? binding,  String? publisher,  String? language, @_DateConverter()@JsonKey(name: 'date_published')  DateTime? datePublished,  String? edition,  int? pages,  String? dimensions,  String? overview,  String? image, @_MsrpConverter()  double? msrp,  String? excerpt,  String? synopsys, @JsonKey(readValue: _readBookAuthors)  List<String?>? authors, @JsonKey(readValue: _readBookSubjects)  List<String>? subjects, @JsonKey(readValue: _readBookReviews)  List<String>? reviews,  List<Merchant>? prices, @JsonKey(readValue: _readBookRelated)  List<String>? related)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String title, @JsonKey(name: 'title_long')  String? titleLong,  String isbn,  String isbn13, @_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal')  String? deweyDecimal,  String? binding,  String? publisher,  String? language, @_DateConverter()@JsonKey(name: 'date_published')  DateTime? datePublished, @Deprecated('Use editionNumber instead.')  String? edition, @JsonKey(name: 'edition_number')  int? editionNumber,  int? pages,  String? dimensions,  String? overview,  String? image, @Deprecated('Use listPrice instead.')@_MsrpConverter()  double? msrp, @JsonKey(name: 'list_price')  ListPrice? listPrice, @Deprecated('Deprecated by ISBNdb without a replacement.')  String? excerpt,  String? synopsys, @JsonKey(readValue: _readBookAuthors)  List<String?>? authors, @JsonKey(readValue: _readBookSubjects)  List<String>? subjects, @JsonKey(readValue: _readBookReviews)  List<String>? reviews,  List<Merchant>? prices, @JsonKey(readValue: _readBookRelated)  List<String>? related)?  $default,) {final _that = this;
 switch (_that) {
 case _Book() when $default != null:
-return $default(_that.title,_that.titleLong,_that.isbn,_that.isbn13,_that.deweyDecimal,_that.binding,_that.publisher,_that.language,_that.datePublished,_that.edition,_that.pages,_that.dimensions,_that.overview,_that.image,_that.msrp,_that.excerpt,_that.synopsys,_that.authors,_that.subjects,_that.reviews,_that.prices,_that.related);case _:
+return $default(_that.title,_that.titleLong,_that.isbn,_that.isbn13,_that.deweyDecimal,_that.binding,_that.publisher,_that.language,_that.datePublished,_that.edition,_that.editionNumber,_that.pages,_that.dimensions,_that.overview,_that.image,_that.msrp,_that.listPrice,_that.excerpt,_that.synopsys,_that.authors,_that.subjects,_that.reviews,_that.prices,_that.related);case _:
   return null;
 
 }
@@ -1114,7 +1130,7 @@ return $default(_that.title,_that.titleLong,_that.isbn,_that.isbn13,_that.deweyD
 @JsonSerializable()
 
 class _Book with DiagnosticableTreeMixin implements Book {
-   _Book({required this.title, @JsonKey(name: 'title_long') this.titleLong, required this.isbn, required this.isbn13, @_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal') this.deweyDecimal, this.binding, this.publisher, this.language, @_DateConverter()@JsonKey(name: 'date_published') this.datePublished, this.edition, this.pages, this.dimensions, this.overview, this.image, @_MsrpConverter() this.msrp, this.excerpt, this.synopsys, @JsonKey(readValue: _readBookAuthors) final  List<String?>? authors, @JsonKey(readValue: _readBookSubjects) final  List<String>? subjects, @JsonKey(readValue: _readBookReviews) final  List<String>? reviews, final  List<Merchant>? prices, @JsonKey(readValue: _readBookRelated) final  List<String>? related}): _authors = authors,_subjects = subjects,_reviews = reviews,_prices = prices,_related = related;
+   _Book({required this.title, @JsonKey(name: 'title_long') this.titleLong, required this.isbn, required this.isbn13, @_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal') this.deweyDecimal, this.binding, this.publisher, this.language, @_DateConverter()@JsonKey(name: 'date_published') this.datePublished, @Deprecated('Use editionNumber instead.') this.edition, @JsonKey(name: 'edition_number') this.editionNumber, this.pages, this.dimensions, this.overview, this.image, @Deprecated('Use listPrice instead.')@_MsrpConverter() this.msrp, @JsonKey(name: 'list_price') this.listPrice, @Deprecated('Deprecated by ISBNdb without a replacement.') this.excerpt, this.synopsys, @JsonKey(readValue: _readBookAuthors) final  List<String?>? authors, @JsonKey(readValue: _readBookSubjects) final  List<String>? subjects, @JsonKey(readValue: _readBookReviews) final  List<String>? reviews, final  List<Merchant>? prices, @JsonKey(readValue: _readBookRelated) final  List<String>? related}): _authors = authors,_subjects = subjects,_reviews = reviews,_prices = prices,_related = related;
   factory _Book.fromJson(Map<String, dynamic> json) => _$BookFromJson(json);
 
 /// Title of the book
@@ -1138,8 +1154,10 @@ class _Book with DiagnosticableTreeMixin implements Book {
 /// Partial API values are normalized to the start of their period: a year
 /// becomes January 1st and a year-month becomes the first day of the month.
 @override@_DateConverter()@JsonKey(name: 'date_published') final  DateTime? datePublished;
-/// Details about the edition
-@override final  String? edition;
+/// Edition of the book as a string.
+@override@Deprecated('Use editionNumber instead.') final  String? edition;
+/// Numeric edition of the book.
+@override@JsonKey(name: 'edition_number') final  int? editionNumber;
 /// Number of pages of the book
 @override final  int? pages;
 /// Dimensions of the book
@@ -1148,10 +1166,12 @@ class _Book with DiagnosticableTreeMixin implements Book {
 @override final  String? overview;
 /// URL of the cover
 @override final  String? image;
-/// Not documented in the official API
-@override@_MsrpConverter() final  double? msrp;
-/// Excerpt of the book
-@override final  String? excerpt;
+/// Manufacturer's suggested retail price in USD.
+@override@Deprecated('Use listPrice instead.')@_MsrpConverter() final  double? msrp;
+/// List price of the book with its currency.
+@override@JsonKey(name: 'list_price') final  ListPrice? listPrice;
+/// Excerpt of the book. Deprecated by ISBNdb without a replacement.
+@override@Deprecated('Deprecated by ISBNdb without a replacement.') final  String? excerpt;
 /// Synopsys of the book
 @override final  String? synopsys;
 /// List of the authors of the book
@@ -1224,21 +1244,21 @@ Map<String, dynamic> toJson() {
 void debugFillProperties(DiagnosticPropertiesBuilder properties) {
   properties
     ..add(DiagnosticsProperty('type', 'Book'))
-    ..add(DiagnosticsProperty('title', title))..add(DiagnosticsProperty('titleLong', titleLong))..add(DiagnosticsProperty('isbn', isbn))..add(DiagnosticsProperty('isbn13', isbn13))..add(DiagnosticsProperty('deweyDecimal', deweyDecimal))..add(DiagnosticsProperty('binding', binding))..add(DiagnosticsProperty('publisher', publisher))..add(DiagnosticsProperty('language', language))..add(DiagnosticsProperty('datePublished', datePublished))..add(DiagnosticsProperty('edition', edition))..add(DiagnosticsProperty('pages', pages))..add(DiagnosticsProperty('dimensions', dimensions))..add(DiagnosticsProperty('overview', overview))..add(DiagnosticsProperty('image', image))..add(DiagnosticsProperty('msrp', msrp))..add(DiagnosticsProperty('excerpt', excerpt))..add(DiagnosticsProperty('synopsys', synopsys))..add(DiagnosticsProperty('authors', authors))..add(DiagnosticsProperty('subjects', subjects))..add(DiagnosticsProperty('reviews', reviews))..add(DiagnosticsProperty('prices', prices))..add(DiagnosticsProperty('related', related));
+    ..add(DiagnosticsProperty('title', title))..add(DiagnosticsProperty('titleLong', titleLong))..add(DiagnosticsProperty('isbn', isbn))..add(DiagnosticsProperty('isbn13', isbn13))..add(DiagnosticsProperty('deweyDecimal', deweyDecimal))..add(DiagnosticsProperty('binding', binding))..add(DiagnosticsProperty('publisher', publisher))..add(DiagnosticsProperty('language', language))..add(DiagnosticsProperty('datePublished', datePublished))..add(DiagnosticsProperty('edition', edition))..add(DiagnosticsProperty('editionNumber', editionNumber))..add(DiagnosticsProperty('pages', pages))..add(DiagnosticsProperty('dimensions', dimensions))..add(DiagnosticsProperty('overview', overview))..add(DiagnosticsProperty('image', image))..add(DiagnosticsProperty('msrp', msrp))..add(DiagnosticsProperty('listPrice', listPrice))..add(DiagnosticsProperty('excerpt', excerpt))..add(DiagnosticsProperty('synopsys', synopsys))..add(DiagnosticsProperty('authors', authors))..add(DiagnosticsProperty('subjects', subjects))..add(DiagnosticsProperty('reviews', reviews))..add(DiagnosticsProperty('prices', prices))..add(DiagnosticsProperty('related', related));
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Book&&(identical(other.title, title) || other.title == title)&&(identical(other.titleLong, titleLong) || other.titleLong == titleLong)&&(identical(other.isbn, isbn) || other.isbn == isbn)&&(identical(other.isbn13, isbn13) || other.isbn13 == isbn13)&&(identical(other.deweyDecimal, deweyDecimal) || other.deweyDecimal == deweyDecimal)&&(identical(other.binding, binding) || other.binding == binding)&&(identical(other.publisher, publisher) || other.publisher == publisher)&&(identical(other.language, language) || other.language == language)&&(identical(other.datePublished, datePublished) || other.datePublished == datePublished)&&(identical(other.edition, edition) || other.edition == edition)&&(identical(other.pages, pages) || other.pages == pages)&&(identical(other.dimensions, dimensions) || other.dimensions == dimensions)&&(identical(other.overview, overview) || other.overview == overview)&&(identical(other.image, image) || other.image == image)&&(identical(other.msrp, msrp) || other.msrp == msrp)&&(identical(other.excerpt, excerpt) || other.excerpt == excerpt)&&(identical(other.synopsys, synopsys) || other.synopsys == synopsys)&&const DeepCollectionEquality().equals(other._authors, _authors)&&const DeepCollectionEquality().equals(other._subjects, _subjects)&&const DeepCollectionEquality().equals(other._reviews, _reviews)&&const DeepCollectionEquality().equals(other._prices, _prices)&&const DeepCollectionEquality().equals(other._related, _related));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Book&&(identical(other.title, title) || other.title == title)&&(identical(other.titleLong, titleLong) || other.titleLong == titleLong)&&(identical(other.isbn, isbn) || other.isbn == isbn)&&(identical(other.isbn13, isbn13) || other.isbn13 == isbn13)&&(identical(other.deweyDecimal, deweyDecimal) || other.deweyDecimal == deweyDecimal)&&(identical(other.binding, binding) || other.binding == binding)&&(identical(other.publisher, publisher) || other.publisher == publisher)&&(identical(other.language, language) || other.language == language)&&(identical(other.datePublished, datePublished) || other.datePublished == datePublished)&&(identical(other.edition, edition) || other.edition == edition)&&(identical(other.editionNumber, editionNumber) || other.editionNumber == editionNumber)&&(identical(other.pages, pages) || other.pages == pages)&&(identical(other.dimensions, dimensions) || other.dimensions == dimensions)&&(identical(other.overview, overview) || other.overview == overview)&&(identical(other.image, image) || other.image == image)&&(identical(other.msrp, msrp) || other.msrp == msrp)&&(identical(other.listPrice, listPrice) || other.listPrice == listPrice)&&(identical(other.excerpt, excerpt) || other.excerpt == excerpt)&&(identical(other.synopsys, synopsys) || other.synopsys == synopsys)&&const DeepCollectionEquality().equals(other._authors, _authors)&&const DeepCollectionEquality().equals(other._subjects, _subjects)&&const DeepCollectionEquality().equals(other._reviews, _reviews)&&const DeepCollectionEquality().equals(other._prices, _prices)&&const DeepCollectionEquality().equals(other._related, _related));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,title,titleLong,isbn,isbn13,deweyDecimal,binding,publisher,language,datePublished,edition,pages,dimensions,overview,image,msrp,excerpt,synopsys,const DeepCollectionEquality().hash(_authors),const DeepCollectionEquality().hash(_subjects),const DeepCollectionEquality().hash(_reviews),const DeepCollectionEquality().hash(_prices),const DeepCollectionEquality().hash(_related)]);
+int get hashCode => Object.hashAll([runtimeType,title,titleLong,isbn,isbn13,deweyDecimal,binding,publisher,language,datePublished,edition,editionNumber,pages,dimensions,overview,image,msrp,listPrice,excerpt,synopsys,const DeepCollectionEquality().hash(_authors),const DeepCollectionEquality().hash(_subjects),const DeepCollectionEquality().hash(_reviews),const DeepCollectionEquality().hash(_prices),const DeepCollectionEquality().hash(_related)]);
 
 @override
 String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
-  return 'Book(title: $title, titleLong: $titleLong, isbn: $isbn, isbn13: $isbn13, deweyDecimal: $deweyDecimal, binding: $binding, publisher: $publisher, language: $language, datePublished: $datePublished, edition: $edition, pages: $pages, dimensions: $dimensions, overview: $overview, image: $image, msrp: $msrp, excerpt: $excerpt, synopsys: $synopsys, authors: $authors, subjects: $subjects, reviews: $reviews, prices: $prices, related: $related)';
+  return 'Book(title: $title, titleLong: $titleLong, isbn: $isbn, isbn13: $isbn13, deweyDecimal: $deweyDecimal, binding: $binding, publisher: $publisher, language: $language, datePublished: $datePublished, edition: $edition, editionNumber: $editionNumber, pages: $pages, dimensions: $dimensions, overview: $overview, image: $image, msrp: $msrp, listPrice: $listPrice, excerpt: $excerpt, synopsys: $synopsys, authors: $authors, subjects: $subjects, reviews: $reviews, prices: $prices, related: $related)';
 }
 
 
@@ -1249,11 +1269,11 @@ abstract mixin class _$BookCopyWith<$Res> implements $BookCopyWith<$Res> {
   factory _$BookCopyWith(_Book value, $Res Function(_Book) _then) = __$BookCopyWithImpl;
 @override @useResult
 $Res call({
- String title,@JsonKey(name: 'title_long') String? titleLong, String isbn, String isbn13,@_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal') String? deweyDecimal, String? binding, String? publisher, String? language,@_DateConverter()@JsonKey(name: 'date_published') DateTime? datePublished, String? edition, int? pages, String? dimensions, String? overview, String? image,@_MsrpConverter() double? msrp, String? excerpt, String? synopsys,@JsonKey(readValue: _readBookAuthors) List<String?>? authors,@JsonKey(readValue: _readBookSubjects) List<String>? subjects,@JsonKey(readValue: _readBookReviews) List<String>? reviews, List<Merchant>? prices,@JsonKey(readValue: _readBookRelated) List<String>? related
+ String title,@JsonKey(name: 'title_long') String? titleLong, String isbn, String isbn13,@_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal') String? deweyDecimal, String? binding, String? publisher, String? language,@_DateConverter()@JsonKey(name: 'date_published') DateTime? datePublished,@Deprecated('Use editionNumber instead.') String? edition,@JsonKey(name: 'edition_number') int? editionNumber, int? pages, String? dimensions, String? overview, String? image,@Deprecated('Use listPrice instead.')@_MsrpConverter() double? msrp,@JsonKey(name: 'list_price') ListPrice? listPrice,@Deprecated('Deprecated by ISBNdb without a replacement.') String? excerpt, String? synopsys,@JsonKey(readValue: _readBookAuthors) List<String?>? authors,@JsonKey(readValue: _readBookSubjects) List<String>? subjects,@JsonKey(readValue: _readBookReviews) List<String>? reviews, List<Merchant>? prices,@JsonKey(readValue: _readBookRelated) List<String>? related
 });
 
 
-
+@override $ListPriceCopyWith<$Res>? get listPrice;
 
 }
 /// @nodoc
@@ -1266,7 +1286,7 @@ class __$BookCopyWithImpl<$Res>
 
 /// Create a copy of Book
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? title = null,Object? titleLong = freezed,Object? isbn = null,Object? isbn13 = null,Object? deweyDecimal = freezed,Object? binding = freezed,Object? publisher = freezed,Object? language = freezed,Object? datePublished = freezed,Object? edition = freezed,Object? pages = freezed,Object? dimensions = freezed,Object? overview = freezed,Object? image = freezed,Object? msrp = freezed,Object? excerpt = freezed,Object? synopsys = freezed,Object? authors = freezed,Object? subjects = freezed,Object? reviews = freezed,Object? prices = freezed,Object? related = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? title = null,Object? titleLong = freezed,Object? isbn = null,Object? isbn13 = null,Object? deweyDecimal = freezed,Object? binding = freezed,Object? publisher = freezed,Object? language = freezed,Object? datePublished = freezed,Object? edition = freezed,Object? editionNumber = freezed,Object? pages = freezed,Object? dimensions = freezed,Object? overview = freezed,Object? image = freezed,Object? msrp = freezed,Object? listPrice = freezed,Object? excerpt = freezed,Object? synopsys = freezed,Object? authors = freezed,Object? subjects = freezed,Object? reviews = freezed,Object? prices = freezed,Object? related = freezed,}) {
   return _then(_Book(
 title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,titleLong: freezed == titleLong ? _self.titleLong : titleLong // ignore: cast_nullable_to_non_nullable
@@ -1278,12 +1298,14 @@ as String?,publisher: freezed == publisher ? _self.publisher : publisher // igno
 as String?,language: freezed == language ? _self.language : language // ignore: cast_nullable_to_non_nullable
 as String?,datePublished: freezed == datePublished ? _self.datePublished : datePublished // ignore: cast_nullable_to_non_nullable
 as DateTime?,edition: freezed == edition ? _self.edition : edition // ignore: cast_nullable_to_non_nullable
-as String?,pages: freezed == pages ? _self.pages : pages // ignore: cast_nullable_to_non_nullable
+as String?,editionNumber: freezed == editionNumber ? _self.editionNumber : editionNumber // ignore: cast_nullable_to_non_nullable
+as int?,pages: freezed == pages ? _self.pages : pages // ignore: cast_nullable_to_non_nullable
 as int?,dimensions: freezed == dimensions ? _self.dimensions : dimensions // ignore: cast_nullable_to_non_nullable
 as String?,overview: freezed == overview ? _self.overview : overview // ignore: cast_nullable_to_non_nullable
 as String?,image: freezed == image ? _self.image : image // ignore: cast_nullable_to_non_nullable
 as String?,msrp: freezed == msrp ? _self.msrp : msrp // ignore: cast_nullable_to_non_nullable
-as double?,excerpt: freezed == excerpt ? _self.excerpt : excerpt // ignore: cast_nullable_to_non_nullable
+as double?,listPrice: freezed == listPrice ? _self.listPrice : listPrice // ignore: cast_nullable_to_non_nullable
+as ListPrice?,excerpt: freezed == excerpt ? _self.excerpt : excerpt // ignore: cast_nullable_to_non_nullable
 as String?,synopsys: freezed == synopsys ? _self.synopsys : synopsys // ignore: cast_nullable_to_non_nullable
 as String?,authors: freezed == authors ? _self._authors : authors // ignore: cast_nullable_to_non_nullable
 as List<String?>?,subjects: freezed == subjects ? _self._subjects : subjects // ignore: cast_nullable_to_non_nullable
@@ -1294,7 +1316,19 @@ as List<String>?,
   ));
 }
 
+/// Create a copy of Book
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ListPriceCopyWith<$Res>? get listPrice {
+    if (_self.listPrice == null) {
+    return null;
+  }
 
+  return $ListPriceCopyWith<$Res>(_self.listPrice!, (value) {
+    return _then(_self.copyWith(listPrice: value));
+  });
+}
 }
 
 
@@ -2477,6 +2511,282 @@ $PlanLimitCopyWith<$Res> get planLimit {
     return _then(_self.copyWith(planLimit: value));
   });
 }
+}
+
+
+/// @nodoc
+mixin _$ListPrice implements DiagnosticableTreeMixin {
+
+/// Price amount, rounded to two decimal places by ISBNdb.
+ double get amount;/// ISO 4217 currency code.
+ String get currency;
+/// Create a copy of ListPrice
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ListPriceCopyWith<ListPrice> get copyWith => _$ListPriceCopyWithImpl<ListPrice>(this as ListPrice, _$identity);
+
+  /// Serializes this ListPrice to a JSON map.
+  Map<String, dynamic> toJson();
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'ListPrice'))
+    ..add(DiagnosticsProperty('amount', amount))..add(DiagnosticsProperty('currency', currency));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ListPrice&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.currency, currency) || other.currency == currency));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,amount,currency);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'ListPrice(amount: $amount, currency: $currency)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ListPriceCopyWith<$Res>  {
+  factory $ListPriceCopyWith(ListPrice value, $Res Function(ListPrice) _then) = _$ListPriceCopyWithImpl;
+@useResult
+$Res call({
+ double amount, String currency
+});
+
+
+
+
+}
+/// @nodoc
+class _$ListPriceCopyWithImpl<$Res>
+    implements $ListPriceCopyWith<$Res> {
+  _$ListPriceCopyWithImpl(this._self, this._then);
+
+  final ListPrice _self;
+  final $Res Function(ListPrice) _then;
+
+/// Create a copy of ListPrice
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? amount = null,Object? currency = null,}) {
+  return _then(_self.copyWith(
+amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
+as double,currency: null == currency ? _self.currency : currency // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [ListPrice].
+extension ListPricePatterns on ListPrice {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ListPrice value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ListPrice() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ListPrice value)  $default,){
+final _that = this;
+switch (_that) {
+case _ListPrice():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ListPrice value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ListPrice() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( double amount,  String currency)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ListPrice() when $default != null:
+return $default(_that.amount,_that.currency);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( double amount,  String currency)  $default,) {final _that = this;
+switch (_that) {
+case _ListPrice():
+return $default(_that.amount,_that.currency);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( double amount,  String currency)?  $default,) {final _that = this;
+switch (_that) {
+case _ListPrice() when $default != null:
+return $default(_that.amount,_that.currency);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _ListPrice with DiagnosticableTreeMixin implements ListPrice {
+   _ListPrice({required this.amount, required this.currency});
+  factory _ListPrice.fromJson(Map<String, dynamic> json) => _$ListPriceFromJson(json);
+
+/// Price amount, rounded to two decimal places by ISBNdb.
+@override final  double amount;
+/// ISO 4217 currency code.
+@override final  String currency;
+
+/// Create a copy of ListPrice
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ListPriceCopyWith<_ListPrice> get copyWith => __$ListPriceCopyWithImpl<_ListPrice>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$ListPriceToJson(this, );
+}
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'ListPrice'))
+    ..add(DiagnosticsProperty('amount', amount))..add(DiagnosticsProperty('currency', currency));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ListPrice&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.currency, currency) || other.currency == currency));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,amount,currency);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'ListPrice(amount: $amount, currency: $currency)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ListPriceCopyWith<$Res> implements $ListPriceCopyWith<$Res> {
+  factory _$ListPriceCopyWith(_ListPrice value, $Res Function(_ListPrice) _then) = __$ListPriceCopyWithImpl;
+@override @useResult
+$Res call({
+ double amount, String currency
+});
+
+
+
+
+}
+/// @nodoc
+class __$ListPriceCopyWithImpl<$Res>
+    implements _$ListPriceCopyWith<$Res> {
+  __$ListPriceCopyWithImpl(this._self, this._then);
+
+  final _ListPrice _self;
+  final $Res Function(_ListPrice) _then;
+
+/// Create a copy of ListPrice
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? amount = null,Object? currency = null,}) {
+  return _then(_ListPrice(
+amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
+as double,currency: null == currency ? _self.currency : currency // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
 }
 
 
