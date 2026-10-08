@@ -28,6 +28,8 @@ sealed class Book with _$Book {
     String? publisher,
 
     /// Language of the book
+    /// ISO 639-3 language code or regional tag (pt-br, fr-ca, zh-tw, es-419).
+    /// Absent when the language is unknown or cannot be mapped.
     String? language,
 
     /// Date when the book was published.

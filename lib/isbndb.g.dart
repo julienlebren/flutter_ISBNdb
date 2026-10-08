@@ -285,6 +285,7 @@ _UpdatedBookFeed _$UpdatedBookFeedFromJson(Map<String, dynamic> json) =>
               .toList() ??
           const [],
       total: (json['total'] as num?)?.toInt(),
+      next: json['next'] as String?,
       page: (json['page'] as num).toInt(),
       pageSize: (json['page_size'] as num).toInt(),
     );
@@ -293,6 +294,7 @@ Map<String, dynamic> _$UpdatedBookFeedToJson(_UpdatedBookFeed instance) =>
     <String, dynamic>{
       'data': instance.updates,
       'total': instance.total,
+      'next': instance.next,
       'page': instance.page,
       'page_size': instance.pageSize,
     };

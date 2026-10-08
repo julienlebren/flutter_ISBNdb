@@ -428,20 +428,24 @@ class ISBNdb {
 
   /// Get the paginated feed of recently updated ISBNs.
   ///
-  /// This ISBNdb endpoint is available on Premium plans and keeps up to 7 days
-  /// of update history.
+  /// This ISBNdb endpoint is available on Pro plans and higher and keeps up to 7 days
+  /// of update history. Pass the previous response's `next` as [cursor] until
+  /// it is null. With a cursor, [page] and [lastUpdated] are ignored.
+  /// Offset pagination with [page] is deprecated by ISBNdb.
   Future<UpdatedBookFeed> getUpdatedBookFeed({
     int page = 1,
     int pageSize = 100,
     DateTime? lastUpdated,
+    String? cursor,
   }) async {
     const path = "feeds/books/updates";
     final response = await _get(
       path,
       queryParameters: <String, Object?>{
-        "page": page,
+        if (cursor == null) "page": page,
         "pageSize": pageSize,
-        "lastUpdated": _formatQueryDate(lastUpdated),
+        if (cursor == null) "lastUpdated": _formatQueryDate(lastUpdated),
+        "cursor": cursor,
       }..removeWhere((_, value) => value == null),
     );
     return _parseModel(
