@@ -1,9 +1,9 @@
-## Unreleased
+## 2.2.0 - 2026-10-08
 
 - Aligned the API contract with ISBNdb OpenAPI 2.8.1.
 - Added optional `cursor` to `getUpdatedBookFeed` and nullable `UpdatedBookFeed.next` for cursor pagination. Offset pagination remains supported.
 - Updated feed plan requirements and language documentation.
-- Migration: Freezed-generated callbacks for `UpdatedBookFeed` now include `next`.
+- Preserved the four-field `UpdatedBookFeed.when`, `maybeWhen`, and `whenOrNull` callbacks; access the new cursor through `feed.next`.
 
 ## 2.1.0 - 2026-09-25
 

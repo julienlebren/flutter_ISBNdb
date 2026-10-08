@@ -17,8 +17,45 @@ sealed class UpdatedBook with _$UpdatedBook {
 }
 
 /// Paginated feed of recently updated ISBNs returned by ISBNdb.
-@freezed
+@Freezed(when: FreezedWhenOptions.none)
 sealed class UpdatedBookFeed with _$UpdatedBookFeed {
+  const UpdatedBookFeed._();
+
+  /// Destructure the feed using the original four-field callback.
+  /// Access [next] directly for cursor pagination.
+  TResult when<TResult extends Object?>(
+    TResult Function(
+      List<UpdatedBook> updates,
+      int? total,
+      int page,
+      int pageSize,
+    )
+    callback,
+  ) => callback(updates, total, page, pageSize);
+
+  /// Invoke the original callback when supplied, otherwise use [orElse].
+  TResult maybeWhen<TResult extends Object?>(
+    TResult Function(
+      List<UpdatedBook> updates,
+      int? total,
+      int page,
+      int pageSize,
+    )?
+    callback, {
+    required TResult Function() orElse,
+  }) => callback == null ? orElse() : callback(updates, total, page, pageSize);
+
+  /// Invoke the original callback when supplied, otherwise return null.
+  TResult? whenOrNull<TResult extends Object?>(
+    TResult? Function(
+      List<UpdatedBook> updates,
+      int? total,
+      int page,
+      int pageSize,
+    )?
+    callback,
+  ) => callback?.call(updates, total, page, pageSize);
+
   factory UpdatedBookFeed({
     /// Updated ISBN entries.
     @JsonKey(name: 'data') @Default([]) List<UpdatedBook> updates,
