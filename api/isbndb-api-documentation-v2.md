@@ -1,11 +1,11 @@
-# ISBNdb API Documentation v2 (OpenAPI 2.8.0)
+# ISBNdb API Documentation v2 (OpenAPI 2.8.1)
 
 Source: `https://api2.isbndb.com/doc.json` (OpenAPI 3.0.0)
 
 ## API metadata
 
 - Title: `ISBNdb API Documentation v2`
-- Version: `2.8.0`
+- Version: `2.8.1`
 - Server: `https://api2.isbndb.com`
 - Security: `ApiKeyAuth` (`Authorization` header)
 
@@ -137,16 +137,20 @@ Responses:
 Returns a paginated feed of recently updated ISBNs.
 
 Important notes from the OpenAPI description:
-- Premium plans only
+- Pro plans and higher
 - History limited to the last 7 days
 - Does not count against daily API quota
-- Response may omit `total`; keep paging until `data` is empty
+- Repeat requests with the response `next` as `cursor` until `next` is null
+- Cursors are opaque and remain valid while their history exists; with a cursor, only `pageSize` is honored among the other filters
+- Offset pagination with `page` is deprecated, remains accepted for existing integrations, and will be removed
 
 | Name | In | Type | Required | Default | Nullable | Description |
 | --- | --- | --- | --- | --- | --- | --- |
-| `page` | query | integer | no | `1` | yes | The number of page to retrieve |
+| `page` | query | integer | no | `1` | yes | Deprecated offset page number; ignored with a cursor |
 | `pageSize` | query | integer | no | `100` | yes | How many items should be returned per page, maximum of 1,000 |
 | `lastUpdated` | query | string | no | `null` | yes | Filter by last updated date (`YYYY-MM-DD`) |
+
+| `cursor` | query | string (max 255) | no | `null` | yes | Opaque `next` cursor from the previous response |
 
 Responses:
 - `200`: `UpdatedBooksResponse`
@@ -307,6 +311,8 @@ Responses:
 | Schema | Required fields | Key properties |
 | --- | --- | --- |
 | `LanguageFilters` | - | `language` |
+| `CursorFilter` | - | `cursor` |
+| `UnlimitedPaginationFilter` | - | `page` (deprecated), `pageSize` |
 | `PaginationFilters` | `offset` | `page`, `pageSize`, `offset` |
 | `GetBooksMultipleRequest` | `isbns` | `isbns` (`array<string>`, max 1000) |
 | `Column` | - | enum: `title`, `author`, `date_published`, `subjects` |
@@ -323,7 +329,7 @@ Responses:
 | `GetBooksMultipleResponse` | `total`, `data` | `data`, `requested` |
 | `SearchBooksPaginatedResponse` | `books`, `total`, `page`, `page_size` | books + pagination |
 | `UpdatedBook` | `isbn13`, `updated_at` | `isbn13`, `updated_at` |
-| `UpdatedBooksResponse` | `data`, `page`, `page_size` | `data`, `page`, `page_size` |
+| `UpdatedBooksResponse` | `data`, `page`, `page_size` | `data`, `page`, `page_size`, `next` |
 | `PlanLimit` | `total`, `spent`, `left` | subscription and per-key quota counters |
 | `KeyResponse` | `api_host`, `plan_limit`, `plan_name` | host + plan name + limits |
 | `DetailsResponse` | `name`, `books`, `total`, `page`, `page_size` | publisher details |
@@ -365,6 +371,19 @@ Responses:
 | --- | --- | --- | --- | --- | --- | --- |
 | `isbns` | `array<string>` (max 1000) | yes | no | no | - | ISBN-10 or ISBN-13 values; plan-specific limits also apply |
 
+### `CursorFilter`
+
+| Field | Type | Required | Nullable | Deprecated | Default | Description |
+| --- | --- | --- | --- | --- | --- | --- |
+| `cursor` | string (max 255) | no | yes | no | `null` | Opaque `next` cursor; other filters except `pageSize` are ignored |
+
+### `UnlimitedPaginationFilter`
+
+| Field | Type | Required | Nullable | Deprecated | Default | Description |
+| --- | --- | --- | --- | --- | --- | --- |
+| `page` | integer (min 1) | no | yes | yes | `1` | Legacy offset page number; use cursor pagination |
+| `pageSize` | integer (1–1000) | no | yes | no | `100` | Number of items per page |
+
 ### `UpdatedBook`
 
 | Field | Type | Required | Nullable | Deprecated | Default | Description |
@@ -377,7 +396,8 @@ Responses:
 | Field | Type | Required | Nullable | Deprecated | Default | Description |
 | --- | --- | --- | --- | --- | --- | --- |
 | `data` | `array<UpdatedBook>` | yes | no | no | - | Updated ISBN entries |
-| `page` | integer | yes | no | no | - | Current page |
+| `page` | integer | yes | no | yes | - | Offset page; always 1 with a cursor |
+| `next` | string | no | yes | no | - | Opaque cursor for the next page; null when finished |
 | `page_size` | integer | yes | no | no | - | Page size |
 
 ### `Column`
@@ -444,7 +464,7 @@ Enum values: `title`, `author`, `date_published`, `subjects`
 | `isbn10` | string | no | yes | no | - | ISBN-10 if available |
 | `binding` | string | no | yes | no | - | Binding |
 | `publisher` | string | no | yes | no | - | Publisher |
-| `language` | string | no | yes | no | - | Language |
+| `language` | string | no | yes | no | - | ISO 639-3 code; regional tags include `pt-br`, `fr-ca`, `zh-tw`, `es-419`; omitted when unknown or unmappable |
 | `date_published` | string | yes | no | no | - | Publication date (`YYYY-MM-DD`, `YYYY-MM`, or `YYYY`); partial dates are common |
 | `edition` | string | no | yes | yes | - | Legacy string edition; use `edition_number` |
 | `edition_number` | integer | no | yes | no | - | Edition number |
