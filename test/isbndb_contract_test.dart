@@ -11,10 +11,10 @@ void main() {
       spec = _readJsonFile('api/upstream/isbndb-openapi.json');
     });
 
-    test('tracks ISBNdb OpenAPI 2.8.0', () {
+    test('tracks ISBNdb OpenAPI 2.8.1', () {
       final info = Map<String, dynamic>.from(spec['info'] as Map);
 
-      expect(info['version'], '2.8.0');
+      expect(info['version'], '2.8.1');
     });
 
     test('contains all public endpoints currently exposed by the package', () {
@@ -241,10 +241,10 @@ void main() {
       );
 
       final listPriceSchema = _schema(spec, 'ListPrice');
-      expect(
-        Set<String>.from(listPriceSchema['required'] as List),
-        {'amount', 'currency'},
-      );
+      expect(Set<String>.from(listPriceSchema['required'] as List), {
+        'amount',
+        'currency',
+      });
       final listPriceProperties = Map<String, dynamic>.from(
         listPriceSchema['properties'] as Map,
       );
@@ -277,7 +277,7 @@ void main() {
 
       expect(
         parameterNames,
-        containsAll(<String>{'page', 'pageSize', 'lastUpdated'}),
+        containsAll(<String>{'page', 'pageSize', 'lastUpdated', 'cursor'}),
       );
     });
 
@@ -290,6 +290,10 @@ void main() {
         containsAll(<String>['data', 'page', 'page_size']),
       );
       expect(requiredFields, isNot(contains('total')));
+      final properties = Map<String, dynamic>.from(schema['properties'] as Map);
+      expect(properties['next'], containsPair('type', 'string'));
+      expect(properties['next'], containsPair('nullable', true));
+      expect(properties['page'], containsPair('deprecated', true));
     });
 
     test('KeyResponse requires the current plan name', () {

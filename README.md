@@ -263,23 +263,29 @@ Returns global dataset counters (`books`, `authors`, `publishers`, `subjects`).
 * **Get recently updated ISBNs**
 
 ```dart
-final feed = isbnDb.getUpdatedBookFeed(
-  page: 1,
+var feed = await isbnDb.getUpdatedBookFeed(
   pageSize: 100,
   lastUpdated: DateTime(2026, 3, 27),
 );
+// Process feed.updates here.
+while (feed.next != null) {
+  feed = await isbnDb.getUpdatedBookFeed(cursor: feed.next, pageSize: 100);
+  // Process feed.updates here.
+}
 ```
 
-This endpoint is available on Premium plans, keeps at most 7 days of history,
+This endpoint is available on Pro plans and higher, keeps at most 7 days of history,
 and does not count against the daily quota according to ISBNdb's OpenAPI docs.
-The API may omit a `total` field in this response, so pagination should continue
-until `updates` is empty.
+Continue with `feed.next` as the cursor until it is null. When a cursor is supplied,
+other filters except `pageSize` are ignored. Offset pagination with `page` remains
+available for compatibility but is deprecated by ISBNdb and will be removed.
 
 Param | Description
 ------------ | -------------
-int page | The number of page to retrieve
+String? cursor | Opaque `next` cursor returned by the previous response
+int page | Deprecated offset page number; ignored with a cursor
 int pageSize | How many items should be returned per page, maximum of 1,000
-DateTime? lastUpdated | Only return ISBNs updated on or after the given day; sent as `YYYY-MM-DD`
+DateTime? lastUpdated | Only return ISBNs updated on or after the given day; sent as `YYYY-MM-DD`, ignored with a cursor
 
 ## Testing
 

@@ -882,6 +882,8 @@ mixin _$Book implements DiagnosticableTreeMixin {
 @_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal') String? get deweyDecimal;/// Not documented in the official API
  String? get binding;/// The name of the publisher
  String? get publisher;/// Language of the book
+/// ISO 639-3 language code or regional tag (pt-br, fr-ca, zh-tw, es-419).
+/// Absent when the language is unknown or cannot be mapped.
  String? get language;/// Date when the book was published.
 ///
 /// Partial API values are normalized to the start of their period: a year
@@ -1148,6 +1150,8 @@ class _Book with DiagnosticableTreeMixin implements Book {
 /// The name of the publisher
 @override final  String? publisher;
 /// Language of the book
+/// ISO 639-3 language code or regional tag (pt-br, fr-ca, zh-tw, es-419).
+/// Absent when the language is unknown or cannot be mapped.
 @override final  String? language;
 /// Date when the book was published.
 ///
@@ -4216,7 +4220,8 @@ mixin _$UpdatedBookFeed implements DiagnosticableTreeMixin {
 
 /// Updated ISBN entries.
 @JsonKey(name: 'data') List<UpdatedBook> get updates;/// Total number of updates available for the query, when provided.
- int? get total;/// Current page number.
+ int? get total;/// Opaque cursor for the next page; null when no more updates remain.
+ String? get next;/// Current offset page number (deprecated by ISBNdb); 1 with a cursor.
  int get page;/// Requested page size.
 @JsonKey(name: 'page_size') int get pageSize;
 /// Create a copy of UpdatedBookFeed
@@ -4232,21 +4237,21 @@ $UpdatedBookFeedCopyWith<UpdatedBookFeed> get copyWith => _$UpdatedBookFeedCopyW
 void debugFillProperties(DiagnosticPropertiesBuilder properties) {
   properties
     ..add(DiagnosticsProperty('type', 'UpdatedBookFeed'))
-    ..add(DiagnosticsProperty('updates', updates))..add(DiagnosticsProperty('total', total))..add(DiagnosticsProperty('page', page))..add(DiagnosticsProperty('pageSize', pageSize));
+    ..add(DiagnosticsProperty('updates', updates))..add(DiagnosticsProperty('total', total))..add(DiagnosticsProperty('next', next))..add(DiagnosticsProperty('page', page))..add(DiagnosticsProperty('pageSize', pageSize));
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UpdatedBookFeed&&const DeepCollectionEquality().equals(other.updates, updates)&&(identical(other.total, total) || other.total == total)&&(identical(other.page, page) || other.page == page)&&(identical(other.pageSize, pageSize) || other.pageSize == pageSize));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UpdatedBookFeed&&const DeepCollectionEquality().equals(other.updates, updates)&&(identical(other.total, total) || other.total == total)&&(identical(other.next, next) || other.next == next)&&(identical(other.page, page) || other.page == page)&&(identical(other.pageSize, pageSize) || other.pageSize == pageSize));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(updates),total,page,pageSize);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(updates),total,next,page,pageSize);
 
 @override
 String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
-  return 'UpdatedBookFeed(updates: $updates, total: $total, page: $page, pageSize: $pageSize)';
+  return 'UpdatedBookFeed(updates: $updates, total: $total, next: $next, page: $page, pageSize: $pageSize)';
 }
 
 
@@ -4257,7 +4262,7 @@ abstract mixin class $UpdatedBookFeedCopyWith<$Res>  {
   factory $UpdatedBookFeedCopyWith(UpdatedBookFeed value, $Res Function(UpdatedBookFeed) _then) = _$UpdatedBookFeedCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(name: 'data') List<UpdatedBook> updates, int? total, int page,@JsonKey(name: 'page_size') int pageSize
+@JsonKey(name: 'data') List<UpdatedBook> updates, int? total, String? next, int page,@JsonKey(name: 'page_size') int pageSize
 });
 
 
@@ -4274,11 +4279,12 @@ class _$UpdatedBookFeedCopyWithImpl<$Res>
 
 /// Create a copy of UpdatedBookFeed
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? updates = null,Object? total = freezed,Object? page = null,Object? pageSize = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? updates = null,Object? total = freezed,Object? next = freezed,Object? page = null,Object? pageSize = null,}) {
   return _then(_self.copyWith(
 updates: null == updates ? _self.updates : updates // ignore: cast_nullable_to_non_nullable
 as List<UpdatedBook>,total: freezed == total ? _self.total : total // ignore: cast_nullable_to_non_nullable
-as int?,page: null == page ? _self.page : page // ignore: cast_nullable_to_non_nullable
+as int?,next: freezed == next ? _self.next : next // ignore: cast_nullable_to_non_nullable
+as String?,page: null == page ? _self.page : page // ignore: cast_nullable_to_non_nullable
 as int,pageSize: null == pageSize ? _self.pageSize : pageSize // ignore: cast_nullable_to_non_nullable
 as int,
   ));
@@ -4362,10 +4368,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'data')  List<UpdatedBook> updates,  int? total,  int page, @JsonKey(name: 'page_size')  int pageSize)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'data')  List<UpdatedBook> updates,  int? total,  String? next,  int page, @JsonKey(name: 'page_size')  int pageSize)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UpdatedBookFeed() when $default != null:
-return $default(_that.updates,_that.total,_that.page,_that.pageSize);case _:
+return $default(_that.updates,_that.total,_that.next,_that.page,_that.pageSize);case _:
   return orElse();
 
 }
@@ -4383,10 +4389,10 @@ return $default(_that.updates,_that.total,_that.page,_that.pageSize);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'data')  List<UpdatedBook> updates,  int? total,  int page, @JsonKey(name: 'page_size')  int pageSize)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'data')  List<UpdatedBook> updates,  int? total,  String? next,  int page, @JsonKey(name: 'page_size')  int pageSize)  $default,) {final _that = this;
 switch (_that) {
 case _UpdatedBookFeed():
-return $default(_that.updates,_that.total,_that.page,_that.pageSize);}
+return $default(_that.updates,_that.total,_that.next,_that.page,_that.pageSize);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -4400,10 +4406,10 @@ return $default(_that.updates,_that.total,_that.page,_that.pageSize);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'data')  List<UpdatedBook> updates,  int? total,  int page, @JsonKey(name: 'page_size')  int pageSize)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'data')  List<UpdatedBook> updates,  int? total,  String? next,  int page, @JsonKey(name: 'page_size')  int pageSize)?  $default,) {final _that = this;
 switch (_that) {
 case _UpdatedBookFeed() when $default != null:
-return $default(_that.updates,_that.total,_that.page,_that.pageSize);case _:
+return $default(_that.updates,_that.total,_that.next,_that.page,_that.pageSize);case _:
   return null;
 
 }
@@ -4415,7 +4421,7 @@ return $default(_that.updates,_that.total,_that.page,_that.pageSize);case _:
 @JsonSerializable()
 
 class _UpdatedBookFeed with DiagnosticableTreeMixin implements UpdatedBookFeed {
-   _UpdatedBookFeed({@JsonKey(name: 'data') final  List<UpdatedBook> updates = const [], this.total, required this.page, @JsonKey(name: 'page_size') required this.pageSize}): _updates = updates;
+   _UpdatedBookFeed({@JsonKey(name: 'data') final  List<UpdatedBook> updates = const [], this.total, this.next, required this.page, @JsonKey(name: 'page_size') required this.pageSize}): _updates = updates;
   factory _UpdatedBookFeed.fromJson(Map<String, dynamic> json) => _$UpdatedBookFeedFromJson(json);
 
 /// Updated ISBN entries.
@@ -4429,7 +4435,9 @@ class _UpdatedBookFeed with DiagnosticableTreeMixin implements UpdatedBookFeed {
 
 /// Total number of updates available for the query, when provided.
 @override final  int? total;
-/// Current page number.
+/// Opaque cursor for the next page; null when no more updates remain.
+@override final  String? next;
+/// Current offset page number (deprecated by ISBNdb); 1 with a cursor.
 @override final  int page;
 /// Requested page size.
 @override@JsonKey(name: 'page_size') final  int pageSize;
@@ -4448,21 +4456,21 @@ Map<String, dynamic> toJson() {
 void debugFillProperties(DiagnosticPropertiesBuilder properties) {
   properties
     ..add(DiagnosticsProperty('type', 'UpdatedBookFeed'))
-    ..add(DiagnosticsProperty('updates', updates))..add(DiagnosticsProperty('total', total))..add(DiagnosticsProperty('page', page))..add(DiagnosticsProperty('pageSize', pageSize));
+    ..add(DiagnosticsProperty('updates', updates))..add(DiagnosticsProperty('total', total))..add(DiagnosticsProperty('next', next))..add(DiagnosticsProperty('page', page))..add(DiagnosticsProperty('pageSize', pageSize));
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdatedBookFeed&&const DeepCollectionEquality().equals(other._updates, _updates)&&(identical(other.total, total) || other.total == total)&&(identical(other.page, page) || other.page == page)&&(identical(other.pageSize, pageSize) || other.pageSize == pageSize));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdatedBookFeed&&const DeepCollectionEquality().equals(other._updates, _updates)&&(identical(other.total, total) || other.total == total)&&(identical(other.next, next) || other.next == next)&&(identical(other.page, page) || other.page == page)&&(identical(other.pageSize, pageSize) || other.pageSize == pageSize));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_updates),total,page,pageSize);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_updates),total,next,page,pageSize);
 
 @override
 String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
-  return 'UpdatedBookFeed(updates: $updates, total: $total, page: $page, pageSize: $pageSize)';
+  return 'UpdatedBookFeed(updates: $updates, total: $total, next: $next, page: $page, pageSize: $pageSize)';
 }
 
 
@@ -4473,7 +4481,7 @@ abstract mixin class _$UpdatedBookFeedCopyWith<$Res> implements $UpdatedBookFeed
   factory _$UpdatedBookFeedCopyWith(_UpdatedBookFeed value, $Res Function(_UpdatedBookFeed) _then) = __$UpdatedBookFeedCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(name: 'data') List<UpdatedBook> updates, int? total, int page,@JsonKey(name: 'page_size') int pageSize
+@JsonKey(name: 'data') List<UpdatedBook> updates, int? total, String? next, int page,@JsonKey(name: 'page_size') int pageSize
 });
 
 
@@ -4490,11 +4498,12 @@ class __$UpdatedBookFeedCopyWithImpl<$Res>
 
 /// Create a copy of UpdatedBookFeed
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? updates = null,Object? total = freezed,Object? page = null,Object? pageSize = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? updates = null,Object? total = freezed,Object? next = freezed,Object? page = null,Object? pageSize = null,}) {
   return _then(_UpdatedBookFeed(
 updates: null == updates ? _self._updates : updates // ignore: cast_nullable_to_non_nullable
 as List<UpdatedBook>,total: freezed == total ? _self.total : total // ignore: cast_nullable_to_non_nullable
-as int?,page: null == page ? _self.page : page // ignore: cast_nullable_to_non_nullable
+as int?,next: freezed == next ? _self.next : next // ignore: cast_nullable_to_non_nullable
+as String?,page: null == page ? _self.page : page // ignore: cast_nullable_to_non_nullable
 as int,pageSize: null == pageSize ? _self.pageSize : pageSize // ignore: cast_nullable_to_non_nullable
 as int,
   ));

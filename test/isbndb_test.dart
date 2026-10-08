@@ -319,6 +319,7 @@ void main() {
 
       expect(feed, isA<UpdatedBookFeed>());
       expect(feed.total, isNull);
+      expect(feed.next, isNull);
       expect(feed.page, 1);
       expect(feed.pageSize, 100);
       expect(feed.updates, hasLength(2));
@@ -351,6 +352,34 @@ void main() {
         expect(options!.queryParameters.containsKey("page_size"), isFalse);
       },
     );
+
+    test('Should paginate the update feed with an opaque cursor', () async {
+      RequestOptions? options;
+      final responses = _defaultResponses();
+      final payload = Map<String, dynamic>.from(
+        responses['GET feeds/books/updates'] as Map,
+      );
+      payload['next'] = 'opaque+/=cursor';
+      responses['GET feeds/books/updates'] = payload;
+      final isbndb = _createClient(
+        responses: responses,
+        onRequestCallback: (requestOptions) => options = requestOptions,
+      );
+      final first = await isbndb.getUpdatedBookFeed();
+      expect(first.next, 'opaque+/=cursor');
+      payload['next'] = null;
+      final last = await isbndb.getUpdatedBookFeed(
+        cursor: first.next,
+        page: 2,
+        lastUpdated: DateTime(2026, 3, 27),
+        pageSize: 250,
+      );
+      expect(options!.queryParameters, {
+        'cursor': 'opaque+/=cursor',
+        'pageSize': 250,
+      });
+      expect(last.next, isNull);
+    });
 
     test('Should parse getSubjects results from object map', () async {
       final isbndb = _createClient(

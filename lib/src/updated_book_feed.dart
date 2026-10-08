@@ -26,7 +26,10 @@ sealed class UpdatedBookFeed with _$UpdatedBookFeed {
     /// Total number of updates available for the query, when provided.
     int? total,
 
-    /// Current page number.
+    /// Opaque cursor for the next page; null when no more updates remain.
+    String? next,
+
+    /// Current offset page number (deprecated by ISBNdb); 1 with a cursor.
     required int page,
 
     /// Requested page size.
