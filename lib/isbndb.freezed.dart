@@ -4356,72 +4356,14 @@ return $default(_that);case _:
 
 }
 }
-/// A variant of `when` that fallback to an `orElse` callback.
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case _:
-///     return orElse();
-/// }
-/// ```
-
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'data')  List<UpdatedBook> updates,  int? total,  String? next,  int page, @JsonKey(name: 'page_size')  int pageSize)?  $default,{required TResult orElse(),}) {final _that = this;
-switch (_that) {
-case _UpdatedBookFeed() when $default != null:
-return $default(_that.updates,_that.total,_that.next,_that.page,_that.pageSize);case _:
-  return orElse();
-
-}
-}
-/// A `switch`-like method, using callbacks.
-///
-/// As opposed to `map`, this offers destructuring.
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case Subclass2(:final field2):
-///     return ...;
-/// }
-/// ```
-
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'data')  List<UpdatedBook> updates,  int? total,  String? next,  int page, @JsonKey(name: 'page_size')  int pageSize)  $default,) {final _that = this;
-switch (_that) {
-case _UpdatedBookFeed():
-return $default(_that.updates,_that.total,_that.next,_that.page,_that.pageSize);}
-}
-/// A variant of `when` that fallback to returning `null`
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case _:
-///     return null;
-/// }
-/// ```
-
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'data')  List<UpdatedBook> updates,  int? total,  String? next,  int page, @JsonKey(name: 'page_size')  int pageSize)?  $default,) {final _that = this;
-switch (_that) {
-case _UpdatedBookFeed() when $default != null:
-return $default(_that.updates,_that.total,_that.next,_that.page,_that.pageSize);case _:
-  return null;
-
-}
-}
 
 }
 
 /// @nodoc
 @JsonSerializable()
 
-class _UpdatedBookFeed with DiagnosticableTreeMixin implements UpdatedBookFeed {
-   _UpdatedBookFeed({@JsonKey(name: 'data') final  List<UpdatedBook> updates = const [], this.total, this.next, required this.page, @JsonKey(name: 'page_size') required this.pageSize}): _updates = updates;
+class _UpdatedBookFeed extends UpdatedBookFeed with DiagnosticableTreeMixin {
+   _UpdatedBookFeed({@JsonKey(name: 'data') final  List<UpdatedBook> updates = const [], this.total, this.next, required this.page, @JsonKey(name: 'page_size') required this.pageSize}): _updates = updates,super._();
   factory _UpdatedBookFeed.fromJson(Map<String, dynamic> json) => _$UpdatedBookFeedFromJson(json);
 
 /// Updated ISBN entries.

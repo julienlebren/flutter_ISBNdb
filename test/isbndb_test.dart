@@ -353,6 +353,23 @@ void main() {
       },
     );
 
+    test('Should preserve four-field feed callbacks with cursor metadata', () {
+      final feed = UpdatedBookFeed(page: 2, pageSize: 100, next: 'cursor');
+      int legacyCallback(
+        List<UpdatedBook> updates,
+        int? total,
+        int page,
+        int pageSize,
+      ) => page + pageSize;
+      expect(feed.when(legacyCallback), 102);
+      expect(feed.maybeWhen(legacyCallback, orElse: () => -1), 102);
+      expect(feed.maybeWhen<int>(null, orElse: () => -1), -1);
+      expect(feed.whenOrNull(legacyCallback), 102);
+      expect(feed.whenOrNull<int>(null), isNull);
+      expect(feed.copyWith(next: 'next-cursor').next, 'next-cursor');
+      expect(feed.toJson()['next'], 'cursor');
+    });
+
     test('Should paginate the update feed with an opaque cursor', () async {
       RequestOptions? options;
       final responses = _defaultResponses();
