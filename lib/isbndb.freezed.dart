@@ -883,7 +883,6 @@ mixin _$Book implements DiagnosticableTreeMixin {
  String? get binding;/// The name of the publisher
  String? get publisher;/// Language of the book
 /// ISO 639-3 language code or regional tag (pt-br, fr-ca, zh-tw, es-419).
-/// Absent when the language is unknown or cannot be mapped.
  String? get language;/// Date when the book was published.
 ///
 /// Partial API values are normalized to the start of their period: a year
@@ -893,14 +892,14 @@ mixin _$Book implements DiagnosticableTreeMixin {
 @JsonKey(name: 'edition_number') int? get editionNumber;/// Number of pages of the book
  int? get pages;/// Dimensions of the book
  String? get dimensions;/// Not documented in the official API
- String? get overview;/// URL of the cover
+ String? get overview;/// URL of the cover, up to 450 pixels high. May be a placeholder.
  String? get image;/// Manufacturer's suggested retail price in USD.
 @Deprecated('Use listPrice instead.')@_MsrpConverter() double? get msrp;/// List price of the book with its currency.
 @JsonKey(name: 'list_price') ListPrice? get listPrice;/// Excerpt of the book. Deprecated by ISBNdb without a replacement.
 @Deprecated('Deprecated by ISBNdb without a replacement.') String? get excerpt;/// Synopsys of the book
  String? get synopsys;/// List of the authors of the book
-@JsonKey(readValue: _readBookAuthors) List<String?>? get authors;/// List of the subjects of the book
-@JsonKey(readValue: _readBookSubjects) List<String>? get subjects;/// Not documented in the official API
+@JsonKey(readValue: _readBookAuthors) List<String?>? get authors;/// List of the subjects of the book. Scheduled for removal by ISBNdb.
+@Deprecated('Deprecated by ISBNdb without a replacement.')@JsonKey(readValue: _readBookSubjects) List<String>? get subjects;/// Not documented in the official API
 @JsonKey(readValue: _readBookReviews) List<String>? get reviews;/// List of the merchants selling this book with real-time prices
  List<Merchant>? get prices;/// Not documented in the official API
 @JsonKey(readValue: _readBookRelated) List<String>? get related;
@@ -942,7 +941,7 @@ abstract mixin class $BookCopyWith<$Res>  {
   factory $BookCopyWith(Book value, $Res Function(Book) _then) = _$BookCopyWithImpl;
 @useResult
 $Res call({
- String title,@JsonKey(name: 'title_long') String? titleLong, String isbn, String isbn13,@_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal') String? deweyDecimal, String? binding, String? publisher, String? language,@_DateConverter()@JsonKey(name: 'date_published') DateTime? datePublished,@Deprecated('Use editionNumber instead.') String? edition,@JsonKey(name: 'edition_number') int? editionNumber, int? pages, String? dimensions, String? overview, String? image,@Deprecated('Use listPrice instead.')@_MsrpConverter() double? msrp,@JsonKey(name: 'list_price') ListPrice? listPrice,@Deprecated('Deprecated by ISBNdb without a replacement.') String? excerpt, String? synopsys,@JsonKey(readValue: _readBookAuthors) List<String?>? authors,@JsonKey(readValue: _readBookSubjects) List<String>? subjects,@JsonKey(readValue: _readBookReviews) List<String>? reviews, List<Merchant>? prices,@JsonKey(readValue: _readBookRelated) List<String>? related
+ String title,@JsonKey(name: 'title_long') String? titleLong, String isbn, String isbn13,@_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal') String? deweyDecimal, String? binding, String? publisher, String? language,@_DateConverter()@JsonKey(name: 'date_published') DateTime? datePublished,@Deprecated('Use editionNumber instead.') String? edition,@JsonKey(name: 'edition_number') int? editionNumber, int? pages, String? dimensions, String? overview, String? image,@Deprecated('Use listPrice instead.')@_MsrpConverter() double? msrp,@JsonKey(name: 'list_price') ListPrice? listPrice,@Deprecated('Deprecated by ISBNdb without a replacement.') String? excerpt, String? synopsys,@JsonKey(readValue: _readBookAuthors) List<String?>? authors,@Deprecated('Deprecated by ISBNdb without a replacement.')@JsonKey(readValue: _readBookSubjects) List<String>? subjects,@JsonKey(readValue: _readBookReviews) List<String>? reviews, List<Merchant>? prices,@JsonKey(readValue: _readBookRelated) List<String>? related
 });
 
 
@@ -1079,7 +1078,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String title, @JsonKey(name: 'title_long')  String? titleLong,  String isbn,  String isbn13, @_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal')  String? deweyDecimal,  String? binding,  String? publisher,  String? language, @_DateConverter()@JsonKey(name: 'date_published')  DateTime? datePublished, @Deprecated('Use editionNumber instead.')  String? edition, @JsonKey(name: 'edition_number')  int? editionNumber,  int? pages,  String? dimensions,  String? overview,  String? image, @Deprecated('Use listPrice instead.')@_MsrpConverter()  double? msrp, @JsonKey(name: 'list_price')  ListPrice? listPrice, @Deprecated('Deprecated by ISBNdb without a replacement.')  String? excerpt,  String? synopsys, @JsonKey(readValue: _readBookAuthors)  List<String?>? authors, @JsonKey(readValue: _readBookSubjects)  List<String>? subjects, @JsonKey(readValue: _readBookReviews)  List<String>? reviews,  List<Merchant>? prices, @JsonKey(readValue: _readBookRelated)  List<String>? related)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String title, @JsonKey(name: 'title_long')  String? titleLong,  String isbn,  String isbn13, @_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal')  String? deweyDecimal,  String? binding,  String? publisher,  String? language, @_DateConverter()@JsonKey(name: 'date_published')  DateTime? datePublished, @Deprecated('Use editionNumber instead.')  String? edition, @JsonKey(name: 'edition_number')  int? editionNumber,  int? pages,  String? dimensions,  String? overview,  String? image, @Deprecated('Use listPrice instead.')@_MsrpConverter()  double? msrp, @JsonKey(name: 'list_price')  ListPrice? listPrice, @Deprecated('Deprecated by ISBNdb without a replacement.')  String? excerpt,  String? synopsys, @JsonKey(readValue: _readBookAuthors)  List<String?>? authors, @Deprecated('Deprecated by ISBNdb without a replacement.')@JsonKey(readValue: _readBookSubjects)  List<String>? subjects, @JsonKey(readValue: _readBookReviews)  List<String>? reviews,  List<Merchant>? prices, @JsonKey(readValue: _readBookRelated)  List<String>? related)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Book() when $default != null:
 return $default(_that.title,_that.titleLong,_that.isbn,_that.isbn13,_that.deweyDecimal,_that.binding,_that.publisher,_that.language,_that.datePublished,_that.edition,_that.editionNumber,_that.pages,_that.dimensions,_that.overview,_that.image,_that.msrp,_that.listPrice,_that.excerpt,_that.synopsys,_that.authors,_that.subjects,_that.reviews,_that.prices,_that.related);case _:
@@ -1100,7 +1099,7 @@ return $default(_that.title,_that.titleLong,_that.isbn,_that.isbn13,_that.deweyD
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String title, @JsonKey(name: 'title_long')  String? titleLong,  String isbn,  String isbn13, @_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal')  String? deweyDecimal,  String? binding,  String? publisher,  String? language, @_DateConverter()@JsonKey(name: 'date_published')  DateTime? datePublished, @Deprecated('Use editionNumber instead.')  String? edition, @JsonKey(name: 'edition_number')  int? editionNumber,  int? pages,  String? dimensions,  String? overview,  String? image, @Deprecated('Use listPrice instead.')@_MsrpConverter()  double? msrp, @JsonKey(name: 'list_price')  ListPrice? listPrice, @Deprecated('Deprecated by ISBNdb without a replacement.')  String? excerpt,  String? synopsys, @JsonKey(readValue: _readBookAuthors)  List<String?>? authors, @JsonKey(readValue: _readBookSubjects)  List<String>? subjects, @JsonKey(readValue: _readBookReviews)  List<String>? reviews,  List<Merchant>? prices, @JsonKey(readValue: _readBookRelated)  List<String>? related)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String title, @JsonKey(name: 'title_long')  String? titleLong,  String isbn,  String isbn13, @_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal')  String? deweyDecimal,  String? binding,  String? publisher,  String? language, @_DateConverter()@JsonKey(name: 'date_published')  DateTime? datePublished, @Deprecated('Use editionNumber instead.')  String? edition, @JsonKey(name: 'edition_number')  int? editionNumber,  int? pages,  String? dimensions,  String? overview,  String? image, @Deprecated('Use listPrice instead.')@_MsrpConverter()  double? msrp, @JsonKey(name: 'list_price')  ListPrice? listPrice, @Deprecated('Deprecated by ISBNdb without a replacement.')  String? excerpt,  String? synopsys, @JsonKey(readValue: _readBookAuthors)  List<String?>? authors, @Deprecated('Deprecated by ISBNdb without a replacement.')@JsonKey(readValue: _readBookSubjects)  List<String>? subjects, @JsonKey(readValue: _readBookReviews)  List<String>? reviews,  List<Merchant>? prices, @JsonKey(readValue: _readBookRelated)  List<String>? related)  $default,) {final _that = this;
 switch (_that) {
 case _Book():
 return $default(_that.title,_that.titleLong,_that.isbn,_that.isbn13,_that.deweyDecimal,_that.binding,_that.publisher,_that.language,_that.datePublished,_that.edition,_that.editionNumber,_that.pages,_that.dimensions,_that.overview,_that.image,_that.msrp,_that.listPrice,_that.excerpt,_that.synopsys,_that.authors,_that.subjects,_that.reviews,_that.prices,_that.related);}
@@ -1117,7 +1116,7 @@ return $default(_that.title,_that.titleLong,_that.isbn,_that.isbn13,_that.deweyD
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String title, @JsonKey(name: 'title_long')  String? titleLong,  String isbn,  String isbn13, @_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal')  String? deweyDecimal,  String? binding,  String? publisher,  String? language, @_DateConverter()@JsonKey(name: 'date_published')  DateTime? datePublished, @Deprecated('Use editionNumber instead.')  String? edition, @JsonKey(name: 'edition_number')  int? editionNumber,  int? pages,  String? dimensions,  String? overview,  String? image, @Deprecated('Use listPrice instead.')@_MsrpConverter()  double? msrp, @JsonKey(name: 'list_price')  ListPrice? listPrice, @Deprecated('Deprecated by ISBNdb without a replacement.')  String? excerpt,  String? synopsys, @JsonKey(readValue: _readBookAuthors)  List<String?>? authors, @JsonKey(readValue: _readBookSubjects)  List<String>? subjects, @JsonKey(readValue: _readBookReviews)  List<String>? reviews,  List<Merchant>? prices, @JsonKey(readValue: _readBookRelated)  List<String>? related)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String title, @JsonKey(name: 'title_long')  String? titleLong,  String isbn,  String isbn13, @_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal')  String? deweyDecimal,  String? binding,  String? publisher,  String? language, @_DateConverter()@JsonKey(name: 'date_published')  DateTime? datePublished, @Deprecated('Use editionNumber instead.')  String? edition, @JsonKey(name: 'edition_number')  int? editionNumber,  int? pages,  String? dimensions,  String? overview,  String? image, @Deprecated('Use listPrice instead.')@_MsrpConverter()  double? msrp, @JsonKey(name: 'list_price')  ListPrice? listPrice, @Deprecated('Deprecated by ISBNdb without a replacement.')  String? excerpt,  String? synopsys, @JsonKey(readValue: _readBookAuthors)  List<String?>? authors, @Deprecated('Deprecated by ISBNdb without a replacement.')@JsonKey(readValue: _readBookSubjects)  List<String>? subjects, @JsonKey(readValue: _readBookReviews)  List<String>? reviews,  List<Merchant>? prices, @JsonKey(readValue: _readBookRelated)  List<String>? related)?  $default,) {final _that = this;
 switch (_that) {
 case _Book() when $default != null:
 return $default(_that.title,_that.titleLong,_that.isbn,_that.isbn13,_that.deweyDecimal,_that.binding,_that.publisher,_that.language,_that.datePublished,_that.edition,_that.editionNumber,_that.pages,_that.dimensions,_that.overview,_that.image,_that.msrp,_that.listPrice,_that.excerpt,_that.synopsys,_that.authors,_that.subjects,_that.reviews,_that.prices,_that.related);case _:
@@ -1132,7 +1131,7 @@ return $default(_that.title,_that.titleLong,_that.isbn,_that.isbn13,_that.deweyD
 @JsonSerializable()
 
 class _Book with DiagnosticableTreeMixin implements Book {
-   _Book({required this.title, @JsonKey(name: 'title_long') this.titleLong, required this.isbn, required this.isbn13, @_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal') this.deweyDecimal, this.binding, this.publisher, this.language, @_DateConverter()@JsonKey(name: 'date_published') this.datePublished, @Deprecated('Use editionNumber instead.') this.edition, @JsonKey(name: 'edition_number') this.editionNumber, this.pages, this.dimensions, this.overview, this.image, @Deprecated('Use listPrice instead.')@_MsrpConverter() this.msrp, @JsonKey(name: 'list_price') this.listPrice, @Deprecated('Deprecated by ISBNdb without a replacement.') this.excerpt, this.synopsys, @JsonKey(readValue: _readBookAuthors) final  List<String?>? authors, @JsonKey(readValue: _readBookSubjects) final  List<String>? subjects, @JsonKey(readValue: _readBookReviews) final  List<String>? reviews, final  List<Merchant>? prices, @JsonKey(readValue: _readBookRelated) final  List<String>? related}): _authors = authors,_subjects = subjects,_reviews = reviews,_prices = prices,_related = related;
+   _Book({required this.title, @JsonKey(name: 'title_long') this.titleLong, required this.isbn, required this.isbn13, @_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal') this.deweyDecimal, this.binding, this.publisher, this.language, @_DateConverter()@JsonKey(name: 'date_published') this.datePublished, @Deprecated('Use editionNumber instead.') this.edition, @JsonKey(name: 'edition_number') this.editionNumber, this.pages, this.dimensions, this.overview, this.image, @Deprecated('Use listPrice instead.')@_MsrpConverter() this.msrp, @JsonKey(name: 'list_price') this.listPrice, @Deprecated('Deprecated by ISBNdb without a replacement.') this.excerpt, this.synopsys, @JsonKey(readValue: _readBookAuthors) final  List<String?>? authors, @Deprecated('Deprecated by ISBNdb without a replacement.')@JsonKey(readValue: _readBookSubjects) final  List<String>? subjects, @JsonKey(readValue: _readBookReviews) final  List<String>? reviews, final  List<Merchant>? prices, @JsonKey(readValue: _readBookRelated) final  List<String>? related}): _authors = authors,_subjects = subjects,_reviews = reviews,_prices = prices,_related = related;
   factory _Book.fromJson(Map<String, dynamic> json) => _$BookFromJson(json);
 
 /// Title of the book
@@ -1151,7 +1150,6 @@ class _Book with DiagnosticableTreeMixin implements Book {
 @override final  String? publisher;
 /// Language of the book
 /// ISO 639-3 language code or regional tag (pt-br, fr-ca, zh-tw, es-419).
-/// Absent when the language is unknown or cannot be mapped.
 @override final  String? language;
 /// Date when the book was published.
 ///
@@ -1168,7 +1166,7 @@ class _Book with DiagnosticableTreeMixin implements Book {
 @override final  String? dimensions;
 /// Not documented in the official API
 @override final  String? overview;
-/// URL of the cover
+/// URL of the cover, up to 450 pixels high. May be a placeholder.
 @override final  String? image;
 /// Manufacturer's suggested retail price in USD.
 @override@Deprecated('Use listPrice instead.')@_MsrpConverter() final  double? msrp;
@@ -1189,10 +1187,10 @@ class _Book with DiagnosticableTreeMixin implements Book {
   return EqualUnmodifiableListView(value);
 }
 
-/// List of the subjects of the book
+/// List of the subjects of the book. Scheduled for removal by ISBNdb.
  final  List<String>? _subjects;
-/// List of the subjects of the book
-@override@JsonKey(readValue: _readBookSubjects) List<String>? get subjects {
+/// List of the subjects of the book. Scheduled for removal by ISBNdb.
+@override@Deprecated('Deprecated by ISBNdb without a replacement.')@JsonKey(readValue: _readBookSubjects) List<String>? get subjects {
   final value = _subjects;
   if (value == null) return null;
   if (_subjects is EqualUnmodifiableListView) return _subjects;
@@ -1273,7 +1271,7 @@ abstract mixin class _$BookCopyWith<$Res> implements $BookCopyWith<$Res> {
   factory _$BookCopyWith(_Book value, $Res Function(_Book) _then) = __$BookCopyWithImpl;
 @override @useResult
 $Res call({
- String title,@JsonKey(name: 'title_long') String? titleLong, String isbn, String isbn13,@_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal') String? deweyDecimal, String? binding, String? publisher, String? language,@_DateConverter()@JsonKey(name: 'date_published') DateTime? datePublished,@Deprecated('Use editionNumber instead.') String? edition,@JsonKey(name: 'edition_number') int? editionNumber, int? pages, String? dimensions, String? overview, String? image,@Deprecated('Use listPrice instead.')@_MsrpConverter() double? msrp,@JsonKey(name: 'list_price') ListPrice? listPrice,@Deprecated('Deprecated by ISBNdb without a replacement.') String? excerpt, String? synopsys,@JsonKey(readValue: _readBookAuthors) List<String?>? authors,@JsonKey(readValue: _readBookSubjects) List<String>? subjects,@JsonKey(readValue: _readBookReviews) List<String>? reviews, List<Merchant>? prices,@JsonKey(readValue: _readBookRelated) List<String>? related
+ String title,@JsonKey(name: 'title_long') String? titleLong, String isbn, String isbn13,@_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal') String? deweyDecimal, String? binding, String? publisher, String? language,@_DateConverter()@JsonKey(name: 'date_published') DateTime? datePublished,@Deprecated('Use editionNumber instead.') String? edition,@JsonKey(name: 'edition_number') int? editionNumber, int? pages, String? dimensions, String? overview, String? image,@Deprecated('Use listPrice instead.')@_MsrpConverter() double? msrp,@JsonKey(name: 'list_price') ListPrice? listPrice,@Deprecated('Deprecated by ISBNdb without a replacement.') String? excerpt, String? synopsys,@JsonKey(readValue: _readBookAuthors) List<String?>? authors,@Deprecated('Deprecated by ISBNdb without a replacement.')@JsonKey(readValue: _readBookSubjects) List<String>? subjects,@JsonKey(readValue: _readBookReviews) List<String>? reviews, List<Merchant>? prices,@JsonKey(readValue: _readBookRelated) List<String>? related
 });
 
 

@@ -11,10 +11,10 @@ void main() {
       spec = _readJsonFile('api/upstream/isbndb-openapi.json');
     });
 
-    test('tracks ISBNdb OpenAPI 2.8.1', () {
+    test('tracks ISBNdb OpenAPI 2.8.3', () {
       final info = Map<String, dynamic>.from(spec['info'] as Map);
 
-      expect(info['version'], '2.8.1');
+      expect(info['version'], '2.8.3');
     });
 
     test('contains all public endpoints currently exposed by the package', () {
@@ -81,15 +81,15 @@ void main() {
       }
     });
 
-    test('documents the transitional page size policy', () {
+    test('documents search/detail and update feed page size limits', () {
       final info = Map<String, dynamic>.from(spec['info'] as Map);
       final description = info['description'] as String;
 
       expect(description, contains('capped at **100**'));
-      expect(description, contains('until **October 10, 2026**'));
 
       for (final path in <String>[
         '/books/{query}',
+        '/search/books',
         '/author/{name}',
         '/authors/{query}',
         '/publisher/{name}',
@@ -123,6 +123,57 @@ void main() {
       );
       expect(updateFeedSchema['maximum'], 1000);
     });
+
+    test('keeps deprecated subject fields and endpoints available', () {
+      final bookProperties = Map<String, dynamic>.from(
+        _schema(spec, 'Book')['properties'] as Map,
+      );
+      final subjects = Map<String, dynamic>.from(
+        bookProperties['subjects'] as Map,
+      );
+      expect(subjects['type'], 'array');
+      expect(subjects['items'], containsPair('type', 'string'));
+      expect(subjects['deprecated'], isTrue);
+
+      final searchFilters = Map<String, dynamic>.from(
+        _schema(spec, 'SearchQueryFilters')['properties'] as Map,
+      );
+      final subjectFilter = Map<String, dynamic>.from(
+        searchFilters['subject'] as Map,
+      );
+      expect(subjectFilter['type'], 'string');
+      expect(subjectFilter['deprecated'], isTrue);
+
+      final subjectParameter = _parameter(
+        spec,
+        '/search/books',
+        'get',
+        'subject',
+      );
+      expect(subjectParameter['deprecated'], isTrue);
+      expect(subjectParameter['schema'], containsPair('type', 'string'));
+      expect(subjectParameter['schema'], containsPair('deprecated', true));
+
+      for (final path in <String>['/subject/{name}', '/subjects/{query}']) {
+        final operation = _operation(spec, path, 'get');
+        expect(operation['deprecated'], isTrue, reason: path);
+        expect(operation['responses'], contains('200'), reason: path);
+      }
+    });
+
+    test(
+      'keeps the deprecated subjects search column in the accepted enum',
+      () {
+        final column = _parameter(spec, '/books/{query}', 'get', 'column');
+        final columnSchema = Map<String, dynamic>.from(column['schema'] as Map);
+        final subjectsDescription = (column['description'] as String)
+            .split('\n')
+            .singleWhere((line) => line.startsWith('* `subjects`'));
+
+        expect(columnSchema['enum'], contains('subjects'));
+        expect(subjectsDescription, contains('Deprecated'));
+      },
+    );
 
     test('documents subscription and per-key quota counters', () {
       final planLimit = _schema(spec, 'PlanLimit');
