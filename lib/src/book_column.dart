@@ -1,4 +1,10 @@
 part of isbndb_flutter;
 
 /// The different types of search available for the books
-enum BookColumn { title, author, date_published, subjects }
+enum BookColumn {
+  title,
+  author,
+  date_published,
+  @Deprecated('Deprecated by ISBNdb without a replacement.')
+  subjects,
+}

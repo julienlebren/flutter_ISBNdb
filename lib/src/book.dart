@@ -29,7 +29,6 @@ sealed class Book with _$Book {
 
     /// Language of the book
     /// ISO 639-3 language code or regional tag (pt-br, fr-ca, zh-tw, es-419).
-    /// Absent when the language is unknown or cannot be mapped.
     String? language,
 
     /// Date when the book was published.
@@ -39,8 +38,7 @@ sealed class Book with _$Book {
     @_DateConverter() @JsonKey(name: 'date_published') DateTime? datePublished,
 
     /// Edition of the book as a string.
-    @Deprecated('Use editionNumber instead.')
-    String? edition,
+    @Deprecated('Use editionNumber instead.') String? edition,
 
     /// Numeric edition of the book.
     @JsonKey(name: 'edition_number') int? editionNumber,
@@ -54,19 +52,17 @@ sealed class Book with _$Book {
     /// Not documented in the official API
     String? overview,
 
-    /// URL of the cover
+    /// URL of the cover, up to 450 pixels high. May be a placeholder.
     String? image,
 
     /// Manufacturer's suggested retail price in USD.
-    @Deprecated('Use listPrice instead.')
-    @_MsrpConverter() double? msrp,
+    @Deprecated('Use listPrice instead.') @_MsrpConverter() double? msrp,
 
     /// List price of the book with its currency.
     @JsonKey(name: 'list_price') ListPrice? listPrice,
 
     /// Excerpt of the book. Deprecated by ISBNdb without a replacement.
-    @Deprecated('Deprecated by ISBNdb without a replacement.')
-    String? excerpt,
+    @Deprecated('Deprecated by ISBNdb without a replacement.') String? excerpt,
 
     /// Synopsys of the book
     String? synopsys,
@@ -74,8 +70,10 @@ sealed class Book with _$Book {
     /// List of the authors of the book
     @JsonKey(readValue: _readBookAuthors) List<String?>? authors,
 
-    /// List of the subjects of the book
-    @JsonKey(readValue: _readBookSubjects) List<String>? subjects,
+    /// List of the subjects of the book. Scheduled for removal by ISBNdb.
+    @Deprecated('Deprecated by ISBNdb without a replacement.')
+    @JsonKey(readValue: _readBookSubjects)
+    List<String>? subjects,
 
     /// Not documented in the official API
     @JsonKey(readValue: _readBookReviews) List<String>? reviews,

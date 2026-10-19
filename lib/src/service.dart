@@ -221,7 +221,9 @@ class ISBNdb {
     );
   }
 
-  /// Search books in ISBNdb
+  /// Search books in ISBNdb.
+  ///
+  /// ISBNdb rejects [pageSize] values greater than 100 with HTTP 400.
   Future<BookQueryResult> getBooks(
     String query, {
     int page = 1,
@@ -267,7 +269,9 @@ class ISBNdb {
     );
   }
 
-  /// Get author details
+  /// Get author details.
+  ///
+  /// ISBNdb rejects [pageSize] values greater than 100 with HTTP 400.
   Future<Author?> getAuthor(
     String name, {
     int page = 1,
@@ -296,7 +300,9 @@ class ISBNdb {
     );
   }
 
-  /// Search authors in the ISBNdb
+  /// Search authors in the ISBNdb.
+  ///
+  /// ISBNdb rejects [pageSize] values greater than 100 with HTTP 400.
   Future<AuthorQueryResult> getAuthors(
     String query, {
     int page = 1,
@@ -314,7 +320,9 @@ class ISBNdb {
     );
   }
 
-  /// Get the list of books from a publisher
+  /// Get the list of books from a publisher.
+  ///
+  /// ISBNdb rejects [pageSize] values greater than 100 with HTTP 400.
   Future<Publisher?> getPublisher(
     String name, {
     int page = 1,
@@ -341,7 +349,9 @@ class ISBNdb {
     );
   }
 
-  /// Search publishers in the ISBNdb
+  /// Search publishers in the ISBNdb.
+  ///
+  /// ISBNdb rejects [pageSize] values greater than 100 with HTTP 400.
   Future<PublisherQueryResult> getPublishers(
     String query, {
     int page = 1,
@@ -360,6 +370,10 @@ class ISBNdb {
   }
 
   /// Get a list of books about a given subject.
+  ///
+  /// Scheduled for removal by ISBNdb without a replacement.
+  /// ISBNdb rejects [pageSize] values greater than 100 with HTTP 400.
+  @Deprecated('Deprecated by ISBNdb without a replacement.')
   Future<Subject?> getSubject(
     String name, {
     int page = 1,
@@ -386,7 +400,11 @@ class ISBNdb {
     );
   }
 
-  /// Search subjects in the ISBNdb
+  /// Search subjects in the ISBNdb.
+  ///
+  /// Scheduled for removal by ISBNdb without a replacement.
+  /// ISBNdb rejects [pageSize] values greater than 100 with HTTP 400.
+  @Deprecated('Deprecated by ISBNdb without a replacement.')
   Future<SubjectQueryResult> getSubjects(
     String query, {
     int page = 1,
@@ -432,6 +450,7 @@ class ISBNdb {
   /// of update history. Pass the previous response's `next` as [cursor] until
   /// it is null. With a cursor, [page] and [lastUpdated] are ignored.
   /// Offset pagination with [page] is deprecated by ISBNdb.
+  /// ISBNdb rejects [pageSize] values greater than 1,000 with HTTP 400.
   Future<UpdatedBookFeed> getUpdatedBookFeed({
     int page = 1,
     int pageSize = 100,

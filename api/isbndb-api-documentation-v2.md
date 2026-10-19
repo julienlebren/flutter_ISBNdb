@@ -1,11 +1,11 @@
-# ISBNdb API Documentation v2 (OpenAPI 2.8.1)
+# ISBNdb API Documentation v2 (OpenAPI 2.8.3)
 
 Source: `https://api2.isbndb.com/doc.json` (OpenAPI 3.0.0)
 
 ## API metadata
 
 - Title: `ISBNdb API Documentation v2`
-- Version: `2.8.1`
+- Version: `2.8.3`
 - Server: `https://api2.isbndb.com`
 - Security: `ApiKeyAuth` (`Authorization` header)
 
@@ -25,9 +25,13 @@ Accept: application/json
 A `404 Not Found` for ISBN lookup can mean the book is not yet indexed and may appear later.
 
 Search and detail endpoints limit `pageSize` to 100 and reject larger values
-with `400 Bad Request`. Subscriptions created before this limit was introduced
-retain the previous limit of 1,000 until October 10, 2026. The
+with `400 Bad Request` for all API keys. The legacy allowance ended on
+October 10, 2026. The
 `GET /feeds/books/updates` endpoint keeps its separate limit of 1,000.
+
+Subject search and lookups, the `Book.subjects` field, the `subject` filter on
+`GET /search/books`, and the `subjects` column filter are deprecated and will be
+removed in a future API version. No replacement or removal date is announced.
 
 ## Endpoints summary
 
@@ -47,8 +51,8 @@ retain the previous limit of 1,000 until October 10, 2026. The
 | `/search/publishers` | GET | Search | yes | `get_app_api_search_searchpublishers__invoke` | `SearchBaseResponse` |
 | `/search/subjects` | GET | Search | yes | `get_app_api_search_searchsubjects__invoke` | `SearchBaseResponse` |
 | `/stats` | GET | default | no | `get_app_api_stats_getstats__invoke` | `BaseStatsResponse` |
-| `/subjects/{query}` | GET | Subject | no | `get_app_api_subject_searchsubjects__invoke` | `SearchSubjectResponse` |
-| `/subject/{name}` | GET | Subject | no | `get_app_api_subject_subjectsdetails__invoke` | `SubjectDetailsResponse` |
+| `/subjects/{query}` | GET | Subject | yes | `get_app_api_subject_searchsubjects__invoke` | `SearchSubjectResponse` |
+| `/subject/{name}` | GET | Subject | yes | `get_app_api_subject_subjectsdetails__invoke` | `SubjectDetailsResponse` |
 
 ## Endpoint details
 
@@ -122,7 +126,7 @@ Search books by query.
 | `edition` | query | integer | no | `null` | yes | Edition |
 | `shouldMatchAll` | query | boolean | no | `false` | yes | Match all words in title/author |
 | `language` | query | string | no | `null` | yes | Language code |
-| `column` | query | enum(`Column`) | no | - | yes | One of: `title`, `author`, `date_published`, `subjects` |
+| `column` | query | enum(`Column`) | no | - | yes | One of: `title`, `author`, `date_published`, `subjects` (deprecated; planned for removal) |
 | `page` | query | integer | no | `1` | yes | Page number |
 | `pageSize` | query | integer | no | `20` | yes | Items per page (max 100); larger values return `400 Bad Request` |
 | `publishedFrom` | query | string | no | `null` | yes | Only return books published on or after this date (`YYYY-MM-DD`) |
@@ -221,7 +225,7 @@ Search the books index with optional filters.
 | `isbn13` | query | string | no | - | yes | ISBN-13 |
 | `author` | query | string | no | - | yes | Author name |
 | `text` | query | string | no | - | yes | Free text |
-| `subject` | query | string | no | - | yes | Subject |
+| `subject` | query | string | no | - | yes | Subject; deprecated and planned for removal in a future API version |
 | `publisher` | query | string | no | - | yes | Publisher name |
 | `publishedFrom` | query | string | no | `null` | yes | Only return books published on or after this date (`YYYY-MM-DD`) |
 | `publishedTo` | query | string | no | `null` | yes | Only return books published on or before this date (`YYYY-MM-DD`) |
@@ -246,7 +250,7 @@ Responses:
 
 ### `GET /search/subjects` (deprecated)
 
-Deprecated endpoint.
+Deprecated subject search; planned for removal in a future API version.
 
 | Name | In | Type | Required | Default | Nullable | Description |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -266,9 +270,9 @@ Responses:
 - `200`: `BaseStatsResponse`
 - `401`, `429`, `503`: error response
 
-### `GET /subjects/{query}`
+### `GET /subjects/{query}` (deprecated)
 
-Search subjects by query.
+Search subjects by query. Deprecated and planned for removal in a future API version.
 
 | Name | In | Type | Required | Default | Nullable | Description |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -280,9 +284,9 @@ Responses:
 - `200`: `SearchSubjectResponse`
 - `400`, `401`, `429`, `503`: error response
 
-### `GET /subject/{name}`
+### `GET /subject/{name}` (deprecated)
 
-Returns subject details and related books.
+Returns subject details and related books. Deprecated and planned for removal in a future API version.
 
 | Name | In | Type | Required | Default | Nullable | Description |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -315,9 +319,9 @@ Responses:
 | `UnlimitedPaginationFilter` | - | `page` (deprecated), `pageSize` |
 | `PaginationFilters` | `offset` | `page`, `pageSize`, `offset` |
 | `GetBooksMultipleRequest` | `isbns` | `isbns` (`array<string>`, max 1000) |
-| `Column` | - | enum: `title`, `author`, `date_published`, `subjects` |
+| `Column` | - | enum: `title`, `author`, `date_published`, `subjects` (deprecated) |
 | `SearchBookFilters` | - | `year`, `edition`, `shouldMatchAll`, `language`, `column`, `publishedFrom`, `publishedTo` |
-| `SearchQueryFilters` | - | `isbn`, `isbn13`, `author`, `text`, `subject`, `publisher` |
+| `SearchQueryFilters` | - | `isbn`, `isbn13`, `author`, `text`, `subject` (deprecated), `publisher` |
 | `Point` | `x`, `y` | `x`, `y` |
 | `Price` | `condition`, `merchant`, `merchant_logo`, `merchant_logo_offset`, `shipping`, `price`, `total`, `link` | price row fields |
 | `Book` | `title`, `title_long`, `isbn`, `isbn13`, `date_published` | book metadata; prices are excluded |
@@ -405,6 +409,8 @@ Responses:
 Type: `string`  
 Enum values: `title`, `author`, `date_published`, `subjects`
 
+The `subjects` value is deprecated and will be removed in a future API version.
+
 ### `SearchBookFilters`
 
 | Field | Type | Required | Nullable | Deprecated | Default | Description |
@@ -423,7 +429,7 @@ Enum values: `title`, `author`, `date_published`, `subjects`
 | `isbn13` | string | no | yes | no | - | ISBN-10 or ISBN-13; cannot be combined with other search fields |
 | `author` | string | no | yes | no | - | Author name |
 | `text` | string | no | yes | no | - | Generic text query |
-| `subject` | string | no | yes | no | - | Subject |
+| `subject` | string | no | yes | yes | - | Subject; planned for removal in a future API version |
 | `publisher` | string | no | yes | no | - | Publisher name |
 
 ### `Point`
@@ -464,7 +470,7 @@ Enum values: `title`, `author`, `date_published`, `subjects`
 | `isbn10` | string | no | yes | no | - | ISBN-10 if available |
 | `binding` | string | no | yes | no | - | Binding |
 | `publisher` | string | no | yes | no | - | Publisher |
-| `language` | string | no | yes | no | - | ISO 639-3 code; regional tags include `pt-br`, `fr-ca`, `zh-tw`, `es-419`; omitted when unknown or unmappable |
+| `language` | string | no | yes | no | - | ISO 639-3 code; regional tags include `pt-br`, `fr-ca`, `zh-tw`, `es-419`; may be absent when no value is available |
 | `date_published` | string | yes | no | no | - | Publication date (`YYYY-MM-DD`, `YYYY-MM`, or `YYYY`); partial dates are common |
 | `edition` | string | no | yes | yes | - | Legacy string edition; use `edition_number` |
 | `edition_number` | integer | no | yes | no | - | Edition number |
@@ -472,14 +478,14 @@ Enum values: `title`, `author`, `date_published`, `subjects`
 | `dimensions` | string | no | yes | yes | - | Legacy dimensions |
 | `dimensions_structured` | `oneOf(array<nullable>, object<string,nullable>)` | no | yes | no | - | Structured dimensions |
 | `overview` | string | no | yes | yes | - | Legacy overview |
-| `image` | string | no | yes | no | - | Cover image URL |
-| `image_original` | string | no | yes | no | - | Original image URL |
+| `image` | string | no | yes | no | - | Cover image URL; maximum height 450px; may be a placeholder when no cover is available |
+| `image_original` | string | no | yes | no | - | Cover image URL at the highest available resolution; may be a placeholder; expires 2 hours after the API response is generated |
 | `msrp` | number(float) | no | yes | yes | - | Legacy MSRP in USD; use `list_price` |
 | `list_price` | `oneOf(ListPrice)` | no | yes | no | - | List price with its currency |
 | `excerpt` | string | no | yes | yes | - | Legacy excerpt |
 | `synopsis` | string | no | yes | no | - | Synopsis |
 | `authors` | `oneOf(array<nullable>, object<string,nullable>)` | no | yes | no | - | Authors |
-| `subjects` | `oneOf(array<nullable>, object<string,nullable>)` | no | yes | no | - | Subjects |
+| `subjects` | `oneOf(array<nullable>, object<string,nullable>)` | no | yes | yes | - | Subjects; planned for removal in a future API version |
 | `reviews` | `oneOf(array<nullable>, object<string,nullable>)` | no | yes | yes | - | Legacy reviews |
 | `related` | `oneOf(array<nullable>, object<string,nullable>)` | no | yes | yes | - | Legacy related books |
 | `other_isbns` | `oneOf(array<nullable>, object<string,nullable>)` | no | yes | no | - | Other ISBNs |

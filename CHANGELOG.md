@@ -1,3 +1,10 @@
+## Unreleased
+
+- Aligned the bundled API contract and documentation with ISBNdb OpenAPI 2.8.3.
+- Deprecated `getSubject`, `getSubjects`, `Book.subjects`, and `BookColumn.subjects` ahead of their removal by ISBNdb; existing calls and response parsing remain supported.
+- Updated pagination documentation for the end of the legacy allowance: search and detail endpoints reject `pageSize` above 100; the updated-books feed retains its separate limit of 1,000.
+- Updated cover image and language documentation.
+
 ## 2.2.0 - 2026-10-08
 
 - Aligned the API contract with ISBNdb OpenAPI 2.8.1.

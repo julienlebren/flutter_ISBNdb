@@ -49,11 +49,8 @@ try {
 ### Pagination
 
 ISBNdb limits `pageSize` to 100 on search and detail endpoints. A larger value
-returns `400 Bad Request`. Subscriptions created before this limit was introduced
-retain the previous limit of 1,000 until October 10, 2026. The updated-books feed
-uses a separate limit of 1,000. During the transition, this package forwards the
-requested value unchanged so eligible subscriptions can keep using their legacy
-limit.
+returns `400 Bad Request` for all API keys. The legacy allowance ended on
+October 10, 2026. The updated-books feed uses a separate limit of 1,000.
 
 ### Books
 
@@ -91,11 +88,10 @@ final books = isbnDb.getBooks(
   "Google Flutter",
   page: 1,
   pageSize: 20,
-  year: 2024,
   edition: 2,
   shouldMatchAll: true,
   language: "en",
-  column: BookColumn.subjects,
+  column: BookColumn.title,
   publishedFrom: DateTime(2020, 1, 1),
   publishedTo: DateTime(2024, 12, 31),
 );
@@ -106,7 +102,7 @@ Param | Description
 String query | A string to search for in the Book’s database
 int page | The number of page to retrieve. The API returns up to 10,000 results in total
 int pageSize | How many items should be returned per page, maximum of 100
-int? year | Filter books by year of publication
+int? year | Filter books by year of publication; cannot be combined with `publishedFrom` or `publishedTo`
 int? edition | Filter books by edition
 bool? shouldMatchAll | If true, title/author must contain all searched words
 String? language | Language code filter (for example `en`, `fr`)
@@ -118,7 +114,7 @@ DateTime? publishedTo | Only return books published on or before this day; sent 
 * title - Only searches in Books Title
 * author - Only searches books by the given Author
 * date_published - Only searches books in a given year, e.g. 1998
-* subjects - Only searches in subjects
+* subjects - Only searches in subjects; deprecated by ISBNdb and scheduled for removal in a future API version
 
 ### Authors
 
@@ -201,6 +197,10 @@ int page | The number of page to retrieve, please note the API will not return m
 int pageSize | How many items should be returned per page, maximum of 100
 
 ### Subjects
+
+ISBNdb has deprecated `getSubject`, `getSubjects`, `Book.subjects`, and
+`BookColumn.subjects`. No replacement or removal date has been announced.
+They remain available in this package for compatibility with the current API.
 
 * **Get subject details**
 
@@ -363,13 +363,13 @@ editionNumber | int | Numeric edition of the book
 pages | int | Number of pages of the book
 dimensions | String | Dimensions of the book
 overview | String | Not documented in the official API
-image | String | URL of the cover
+image | String | Cover image URL (maximum height 450px); may be a placeholder when no cover is available
 msrp | double | Deprecated USD list price; use `listPrice`
 listPrice | ListPrice | List price with its currency
 excerpt | String | Deprecated excerpt of the book
 synopsys | String | Synopsys of the book
 authors | List<String> | List of the authors
-subjects | List<String> | List of the subjects of the book
+subjects | List<String> | Deprecated list of subjects; ISBNdb plans to remove it in a future API version, with no replacement or removal date announced
 reviews | List<String> | Not documented in the official API
 prices | List<Merchant> | Real-time prices returned by `getBook` when `withPrices` is enabled and supported by the plan
 related | List<String> | Not documented in the official API

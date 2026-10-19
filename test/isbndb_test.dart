@@ -518,17 +518,44 @@ void main() {
       expect(options!.queryParameters.containsKey("page_size"), isFalse);
     });
 
-    test('Should preserve legacy page size during transition', () async {
-      RequestOptions? options;
-      final isbndb = _createClient(
-        onRequestCallback: (requestOptions) => options = requestOptions,
-      );
+    test(
+      'Should propagate page size rejection after the legacy allowance',
+      () async {
+        RequestOptions? options;
+        final isbndb = _createClient(
+          onRequestCallback: (requestOptions) => options = requestOptions,
+          responses: {
+            ..._defaultResponses(),
+            'GET books/Google Flutter': {
+              'errorMessage': 'pageSize must not exceed 100',
+            },
+          },
+          statusCodes: {'GET books/Google Flutter': 400},
+        );
 
-      await isbndb.getBooks("Google Flutter", pageSize: 250);
+        await expectLater(
+          () => isbndb.getBooks('Google Flutter', pageSize: 250),
+          throwsA(
+            isA<ISBNdbException>()
+                .having((exception) => exception.statusCode, 'statusCode', 400)
+                .having(
+                  (exception) => exception.message,
+                  'message',
+                  'pageSize must not exceed 100',
+                )
+                .having((exception) => exception.method, 'method', 'GET')
+                .having(
+                  (exception) => exception.path,
+                  'path',
+                  'books/Google Flutter',
+                ),
+          ),
+        );
 
-      expect(options, isNotNull);
-      expect(options!.queryParameters["pageSize"], 250);
-    });
+        expect(options, isNotNull);
+        expect(options!.queryParameters["pageSize"], 250);
+      },
+    );
 
     test('Should send shouldMatchAll=false when explicitly provided', () async {
       RequestOptions? options;
