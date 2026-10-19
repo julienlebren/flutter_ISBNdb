@@ -1,4 +1,4 @@
-## Unreleased
+## 2.3.0 - 2026-10-19
 
 - Aligned the bundled API contract and documentation with ISBNdb OpenAPI 2.8.3.
 - Deprecated `getSubject`, `getSubjects`, `Book.subjects`, and `BookColumn.subjects` ahead of their removal by ISBNdb; existing calls and response parsing remain supported.
