@@ -1,4 +1,4 @@
-## Unreleased
+## 2.4.0 - 2026-10-24
 
 - Refreshed the ISBNdb OpenAPI 2.8.3 snapshot and documentation for updated-book statuses and the feed pagination deadline.
 - Added `UpdatedBook.status` and `UpdatedBookStatus`: `newBook` maps to the API value `new`, and `updated` maps to `updated`. Older responses without a status and unrecognized future values use `unknown`, which is also the constructor default.
