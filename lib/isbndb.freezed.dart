@@ -3942,7 +3942,8 @@ mixin _$UpdatedBook implements DiagnosticableTreeMixin {
 
 /// Updated book ISBN-13.
  String get isbn13;/// Timestamp when the book was last updated by ISBNdb.
-@JsonKey(name: 'updated_at') DateTime get updatedAt;
+@JsonKey(name: 'updated_at') DateTime get updatedAt;/// Kind of update; unknown for older responses or unrecognized values.
+@JsonKey(unknownEnumValue: UpdatedBookStatus.unknown) UpdatedBookStatus get status;
 /// Create a copy of UpdatedBook
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -3956,21 +3957,21 @@ $UpdatedBookCopyWith<UpdatedBook> get copyWith => _$UpdatedBookCopyWithImpl<Upda
 void debugFillProperties(DiagnosticPropertiesBuilder properties) {
   properties
     ..add(DiagnosticsProperty('type', 'UpdatedBook'))
-    ..add(DiagnosticsProperty('isbn13', isbn13))..add(DiagnosticsProperty('updatedAt', updatedAt));
+    ..add(DiagnosticsProperty('isbn13', isbn13))..add(DiagnosticsProperty('updatedAt', updatedAt))..add(DiagnosticsProperty('status', status));
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UpdatedBook&&(identical(other.isbn13, isbn13) || other.isbn13 == isbn13)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UpdatedBook&&(identical(other.isbn13, isbn13) || other.isbn13 == isbn13)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.status, status) || other.status == status));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,isbn13,updatedAt);
+int get hashCode => Object.hash(runtimeType,isbn13,updatedAt,status);
 
 @override
 String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
-  return 'UpdatedBook(isbn13: $isbn13, updatedAt: $updatedAt)';
+  return 'UpdatedBook(isbn13: $isbn13, updatedAt: $updatedAt, status: $status)';
 }
 
 
@@ -3981,7 +3982,7 @@ abstract mixin class $UpdatedBookCopyWith<$Res>  {
   factory $UpdatedBookCopyWith(UpdatedBook value, $Res Function(UpdatedBook) _then) = _$UpdatedBookCopyWithImpl;
 @useResult
 $Res call({
- String isbn13,@JsonKey(name: 'updated_at') DateTime updatedAt
+ String isbn13,@JsonKey(name: 'updated_at') DateTime updatedAt,@JsonKey(unknownEnumValue: UpdatedBookStatus.unknown) UpdatedBookStatus status
 });
 
 
@@ -3998,11 +3999,12 @@ class _$UpdatedBookCopyWithImpl<$Res>
 
 /// Create a copy of UpdatedBook
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? isbn13 = null,Object? updatedAt = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? isbn13 = null,Object? updatedAt = null,Object? status = null,}) {
   return _then(_self.copyWith(
 isbn13: null == isbn13 ? _self.isbn13 : isbn13 // ignore: cast_nullable_to_non_nullable
 as String,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as DateTime,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as UpdatedBookStatus,
   ));
 }
 
@@ -4072,78 +4074,22 @@ return $default(_that);case _:
 
 }
 }
-/// A variant of `when` that fallback to an `orElse` callback.
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case _:
-///     return orElse();
-/// }
-/// ```
-
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String isbn13, @JsonKey(name: 'updated_at')  DateTime updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
-switch (_that) {
-case _UpdatedBook() when $default != null:
-return $default(_that.isbn13,_that.updatedAt);case _:
-  return orElse();
-
-}
-}
-/// A `switch`-like method, using callbacks.
-///
-/// As opposed to `map`, this offers destructuring.
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case Subclass2(:final field2):
-///     return ...;
-/// }
-/// ```
-
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String isbn13, @JsonKey(name: 'updated_at')  DateTime updatedAt)  $default,) {final _that = this;
-switch (_that) {
-case _UpdatedBook():
-return $default(_that.isbn13,_that.updatedAt);}
-}
-/// A variant of `when` that fallback to returning `null`
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case _:
-///     return null;
-/// }
-/// ```
-
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String isbn13, @JsonKey(name: 'updated_at')  DateTime updatedAt)?  $default,) {final _that = this;
-switch (_that) {
-case _UpdatedBook() when $default != null:
-return $default(_that.isbn13,_that.updatedAt);case _:
-  return null;
-
-}
-}
 
 }
 
 /// @nodoc
 @JsonSerializable()
 
-class _UpdatedBook with DiagnosticableTreeMixin implements UpdatedBook {
-   _UpdatedBook({required this.isbn13, @JsonKey(name: 'updated_at') required this.updatedAt});
+class _UpdatedBook extends UpdatedBook with DiagnosticableTreeMixin {
+   _UpdatedBook({required this.isbn13, @JsonKey(name: 'updated_at') required this.updatedAt, @JsonKey(unknownEnumValue: UpdatedBookStatus.unknown) this.status = UpdatedBookStatus.unknown}): super._();
   factory _UpdatedBook.fromJson(Map<String, dynamic> json) => _$UpdatedBookFromJson(json);
 
 /// Updated book ISBN-13.
 @override final  String isbn13;
 /// Timestamp when the book was last updated by ISBNdb.
 @override@JsonKey(name: 'updated_at') final  DateTime updatedAt;
+/// Kind of update; unknown for older responses or unrecognized values.
+@override@JsonKey(unknownEnumValue: UpdatedBookStatus.unknown) final  UpdatedBookStatus status;
 
 /// Create a copy of UpdatedBook
 /// with the given fields replaced by the non-null parameter values.
@@ -4159,21 +4105,21 @@ Map<String, dynamic> toJson() {
 void debugFillProperties(DiagnosticPropertiesBuilder properties) {
   properties
     ..add(DiagnosticsProperty('type', 'UpdatedBook'))
-    ..add(DiagnosticsProperty('isbn13', isbn13))..add(DiagnosticsProperty('updatedAt', updatedAt));
+    ..add(DiagnosticsProperty('isbn13', isbn13))..add(DiagnosticsProperty('updatedAt', updatedAt))..add(DiagnosticsProperty('status', status));
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdatedBook&&(identical(other.isbn13, isbn13) || other.isbn13 == isbn13)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdatedBook&&(identical(other.isbn13, isbn13) || other.isbn13 == isbn13)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.status, status) || other.status == status));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,isbn13,updatedAt);
+int get hashCode => Object.hash(runtimeType,isbn13,updatedAt,status);
 
 @override
 String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
-  return 'UpdatedBook(isbn13: $isbn13, updatedAt: $updatedAt)';
+  return 'UpdatedBook(isbn13: $isbn13, updatedAt: $updatedAt, status: $status)';
 }
 
 
@@ -4184,7 +4130,7 @@ abstract mixin class _$UpdatedBookCopyWith<$Res> implements $UpdatedBookCopyWith
   factory _$UpdatedBookCopyWith(_UpdatedBook value, $Res Function(_UpdatedBook) _then) = __$UpdatedBookCopyWithImpl;
 @override @useResult
 $Res call({
- String isbn13,@JsonKey(name: 'updated_at') DateTime updatedAt
+ String isbn13,@JsonKey(name: 'updated_at') DateTime updatedAt,@JsonKey(unknownEnumValue: UpdatedBookStatus.unknown) UpdatedBookStatus status
 });
 
 
@@ -4201,11 +4147,12 @@ class __$UpdatedBookCopyWithImpl<$Res>
 
 /// Create a copy of UpdatedBook
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? isbn13 = null,Object? updatedAt = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? isbn13 = null,Object? updatedAt = null,Object? status = null,}) {
   return _then(_UpdatedBook(
 isbn13: null == isbn13 ? _self.isbn13 : isbn13 // ignore: cast_nullable_to_non_nullable
 as String,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as DateTime,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as UpdatedBookStatus,
   ));
 }
 
@@ -4219,7 +4166,8 @@ mixin _$UpdatedBookFeed implements DiagnosticableTreeMixin {
 /// Updated ISBN entries.
 @JsonKey(name: 'data') List<UpdatedBook> get updates;/// Total number of updates available for the query, when provided.
  int? get total;/// Opaque cursor for the next page; null when no more updates remain.
- String? get next;/// Current offset page number (deprecated by ISBNdb); 1 with a cursor.
+ String? get next;/// Legacy offset page number; always 1 with a cursor.
+/// ISBNdb rejects values other than 1 from November 6, 2026, 00:00 UTC.
  int get page;/// Requested page size.
 @JsonKey(name: 'page_size') int get pageSize;
 /// Create a copy of UpdatedBookFeed
@@ -4377,7 +4325,8 @@ class _UpdatedBookFeed extends UpdatedBookFeed with DiagnosticableTreeMixin {
 @override final  int? total;
 /// Opaque cursor for the next page; null when no more updates remain.
 @override final  String? next;
-/// Current offset page number (deprecated by ISBNdb); 1 with a cursor.
+/// Legacy offset page number; always 1 with a cursor.
+/// ISBNdb rejects values other than 1 from November 6, 2026, 00:00 UTC.
 @override final  int page;
 /// Requested page size.
 @override@JsonKey(name: 'page_size') final  int pageSize;

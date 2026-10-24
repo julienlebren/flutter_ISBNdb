@@ -138,7 +138,8 @@ Responses:
 
 ### `GET /feeds/books/updates`
 
-Returns a paginated feed of recently updated ISBNs.
+Returns a paginated feed of recently updated ISBNs. Each entry includes a `status`
+of `new` or `updated`.
 
 Important notes from the OpenAPI description:
 - Pro plans and higher
@@ -146,19 +147,18 @@ Important notes from the OpenAPI description:
 - Does not count against daily API quota
 - Repeat requests with the response `next` as `cursor` until `next` is null
 - Cursors are opaque and remain valid while their history exists; with a cursor, only `pageSize` is honored among the other filters
-- Offset pagination with `page` is deprecated, remains accepted for existing integrations, and will be removed
+- Offset pagination with `page` is deprecated. From **November 6, 2026 at 00:00 UTC (01:00 in Paris)**, values other than `1` return `400 Bad Request`. Use `cursor` for following pages
 
 | Name | In | Type | Required | Default | Nullable | Description |
 | --- | --- | --- | --- | --- | --- | --- |
-| `page` | query | integer | no | `1` | yes | Deprecated offset page number; ignored with a cursor |
+| `page` | query | integer | no | `1` | yes | Deprecated offset page number; values other than 1 return HTTP 400 from November 6, 2026 at 00:00 UTC |
 | `pageSize` | query | integer | no | `100` | yes | How many items should be returned per page, maximum of 1,000 |
 | `lastUpdated` | query | string | no | `null` | yes | Filter by last updated date (`YYYY-MM-DD`) |
-
 | `cursor` | query | string (max 255) | no | `null` | yes | Opaque `next` cursor from the previous response |
 
 Responses:
 - `200`: `UpdatedBooksResponse`
-- `401`, `403`, `429`, `503`: error response
+- `400`, `401`, `403`, `429`, `503`: error response
 
 ### `GET /key`
 
@@ -332,7 +332,7 @@ Responses:
 | `ErrorResponse` | `message`, `errorMessage` | `message` (deprecated), `errorMessage` |
 | `GetBooksMultipleResponse` | `total`, `data` | `data`, `requested` |
 | `SearchBooksPaginatedResponse` | `books`, `total`, `page`, `page_size` | books + pagination |
-| `UpdatedBook` | `isbn13`, `updated_at` | `isbn13`, `updated_at` |
+| `UpdatedBook` | `isbn13`, `updated_at`, `status` | `isbn13`, `updated_at`, `status` |
 | `UpdatedBooksResponse` | `data`, `page`, `page_size` | `data`, `page`, `page_size`, `next` |
 | `PlanLimit` | `total`, `spent`, `left` | subscription and per-key quota counters |
 | `KeyResponse` | `api_host`, `plan_limit`, `plan_name` | host + plan name + limits |
@@ -385,7 +385,7 @@ Responses:
 
 | Field | Type | Required | Nullable | Deprecated | Default | Description |
 | --- | --- | --- | --- | --- | --- | --- |
-| `page` | integer (min 1) | no | yes | yes | `1` | Legacy offset page number; use cursor pagination |
+| `page` | integer (min 1) | no | yes | yes | `1` | Legacy offset page number; values other than 1 return HTTP 400 from November 6, 2026 at 00:00 UTC. Use cursor pagination |
 | `pageSize` | integer (1–1000) | no | yes | no | `100` | Number of items per page |
 
 ### `UpdatedBook`
@@ -394,6 +394,14 @@ Responses:
 | --- | --- | --- | --- | --- | --- | --- |
 | `isbn13` | string | yes | no | no | - | ISBN-13 |
 | `updated_at` | string(date-time) | yes | no | no | - | Timestamp when the book was last updated |
+| `status` | enum(`new`, `updated`) | yes | no | no | - | Whether the entry represents a new book or an update |
+
+The Dart client exposes `status` as `UpdatedBookStatus.newBook` for `new` and
+`UpdatedBookStatus.updated` for `updated`. Although the current API requires the
+field, the client accepts older responses without it and unrecognized future
+values as `UpdatedBookStatus.unknown`. The constructor also defaults to `unknown`.
+The existing two-field `UpdatedBook.when`, `maybeWhen`, and `whenOrNull` callbacks
+remain supported; access `status` directly on the entry.
 
 ### `UpdatedBooksResponse`
 

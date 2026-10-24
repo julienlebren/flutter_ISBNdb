@@ -277,13 +277,22 @@ while (feed.next != null) {
 This endpoint is available on Pro plans and higher, keeps at most 7 days of history,
 and does not count against the daily quota according to ISBNdb's OpenAPI docs.
 Continue with `feed.next` as the cursor until it is null. When a cursor is supplied,
-other filters except `pageSize` are ignored. Offset pagination with `page` remains
-available for compatibility but is deprecated by ISBNdb and will be removed.
+other filters except `pageSize` are ignored, and the client omits `page` from the
+request. Offset pagination with `page` is deprecated. From **November 6, 2026 at
+00:00 UTC (01:00 in Paris)**, ISBNdb rejects `page` values other than `1` with
+HTTP 400. Use `cursor` to retrieve following pages.
+
+Each entry exposes `UpdatedBook.status`: `UpdatedBookStatus.newBook` corresponds
+to the API value `new`, and `UpdatedBookStatus.updated` to `updated`. Older
+responses without `status` and unrecognized future values decode as
+`UpdatedBookStatus.unknown`. The constructor defaults to `unknown`, and the
+existing two-field `UpdatedBook.when`, `maybeWhen`, and `whenOrNull` callbacks
+remain supported; read `status` directly from the entry.
 
 Param | Description
 ------------ | -------------
 String? cursor | Opaque `next` cursor returned by the previous response
-int page | Deprecated offset page number; ignored with a cursor
+int page | Deprecated offset page number; omitted with a cursor. Values other than 1 return HTTP 400 from November 6, 2026 at 00:00 UTC
 int pageSize | How many items should be returned per page, maximum of 1,000
 DateTime? lastUpdated | Only return ISBNs updated on or after the given day; sent as `YYYY-MM-DD`, ignored with a cursor
 

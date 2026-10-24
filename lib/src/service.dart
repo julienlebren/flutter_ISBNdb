@@ -449,7 +449,8 @@ class ISBNdb {
   /// This ISBNdb endpoint is available on Pro plans and higher and keeps up to 7 days
   /// of update history. Pass the previous response's `next` as [cursor] until
   /// it is null. With a cursor, [page] and [lastUpdated] are ignored.
-  /// Offset pagination with [page] is deprecated by ISBNdb.
+  /// Offset pagination with [page] is deprecated by ISBNdb. From November 6,
+  /// 2026, 00:00 UTC, values other than 1 return HTTP 400; use [cursor] instead.
   /// ISBNdb rejects [pageSize] values greater than 1,000 with HTTP 400.
   Future<UpdatedBookFeed> getUpdatedBookFeed({
     int page = 1,
