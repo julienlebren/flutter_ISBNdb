@@ -269,13 +269,27 @@ Map<String, dynamic> _$SubjectToJson(_Subject instance) => <String, dynamic>{
 _UpdatedBook _$UpdatedBookFromJson(Map<String, dynamic> json) => _UpdatedBook(
   isbn13: json['isbn13'] as String,
   updatedAt: DateTime.parse(json['updated_at'] as String),
+  status:
+      $enumDecodeNullable(
+        _$UpdatedBookStatusEnumMap,
+        json['status'],
+        unknownValue: UpdatedBookStatus.unknown,
+      ) ??
+      UpdatedBookStatus.unknown,
 );
 
 Map<String, dynamic> _$UpdatedBookToJson(_UpdatedBook instance) =>
     <String, dynamic>{
       'isbn13': instance.isbn13,
       'updated_at': instance.updatedAt.toIso8601String(),
+      'status': _$UpdatedBookStatusEnumMap[instance.status]!,
     };
+
+const _$UpdatedBookStatusEnumMap = {
+  UpdatedBookStatus.newBook: 'new',
+  UpdatedBookStatus.updated: 'updated',
+  UpdatedBookStatus.unknown: 'unknown',
+};
 
 _UpdatedBookFeed _$UpdatedBookFeedFromJson(Map<String, dynamic> json) =>
     _UpdatedBookFeed(

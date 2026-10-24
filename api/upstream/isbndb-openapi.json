@@ -574,17 +574,17 @@
                     "Feed"
                 ],
                 "summary": "Get recently updated ISBNs",
-                "description": "Retrieves a list of book ISBNs that have been added or modified. This endpoint is designed for frequent incremental synchronization.\n\n**Important Notes:**\n* **Plan limits:** Available exclusively for **Pro** plans and higher. Other plans get a **403 Forbidden**.\n* **History limit:** The update history is strictly limited to the last **7 days**.\n* **Quota:** Calling this endpoint does not count towards your daily API limits.\n* **Pagination:** Every response carries a `next` cursor. To fetch all updates, repeat the request with `cursor=<next>` until `next` is `null`. The cursor is opaque and stays valid as long as the history behind it exists; the `page` parameter is **deprecated**: it is still accepted for existing integrations but gets slower the deeper the page and will be removed.",
+                "description": "Retrieves a list of book ISBNs that have been added or modified. Each entry says whether the book is `new` (added to the database within the 7-day history window) or `updated` (an existing book changed); a new book that changes again within the window stays `new`. This endpoint is designed for frequent incremental synchronization.\n\n**Important Notes:**\n* **Plan limits:** Available exclusively for **Pro** plans and higher. Other plans get a **403 Forbidden**.\n* **History limit:** The update history is strictly limited to the last **7 days**.\n* **Quota:** Calling this endpoint does not count towards your daily API limits.\n* **Pagination:** Every response carries a `next` cursor. To fetch all updates, repeat the request with `cursor=<next>` until `next` is `null`. The cursor is opaque and stays valid as long as the history behind it exists; the `page` parameter is **deprecated** and stops working on **2026-11-06 00:00 UTC**: from then on a `page` other than 1 returns **400 Bad Request**.",
                 "operationId": "getBookUpdates",
                 "parameters": [
                     {
                         "name": "page",
                         "in": "query",
-                        "description": "Deprecated: offset-based page number, kept for existing integrations and slow on deep pages. Use the `cursor` from the previous response instead.",
+                        "description": "Deprecated: offset-based page number, kept for existing integrations until 2026-11-06 00:00 UTC; after that any value other than 1 returns 400. Use the `cursor` from the previous response instead.",
                         "required": false,
                         "deprecated": true,
                         "schema": {
-                            "description": "Deprecated: offset-based page number, kept for existing integrations and slow on deep pages. Use the `cursor` from the previous response instead.",
+                            "description": "Deprecated: offset-based page number, kept for existing integrations until 2026-11-06 00:00 UTC; after that any value other than 1 returns 400. Use the `cursor` from the previous response instead.",
                             "type": "integer",
                             "nullable": true,
                             "deprecated": true,
@@ -1909,7 +1909,7 @@
             "UnlimitedPaginationFilter": {
                 "properties": {
                     "page": {
-                        "description": "Deprecated: offset-based page number, kept for existing integrations and slow on deep pages. Use the `cursor` from the previous response instead.",
+                        "description": "Deprecated: offset-based page number, kept for existing integrations until 2026-11-06 00:00 UTC; after that any value other than 1 returns 400. Use the `cursor` from the previous response instead.",
                         "type": "integer",
                         "nullable": true,
                         "deprecated": true,
@@ -2383,15 +2383,26 @@
                 },
                 "type": "object"
             },
+            "UpdatedBookStatus": {
+                "type": "string",
+                "enum": [
+                    "new",
+                    "updated"
+                ]
+            },
             "UpdatedBook": {
                 "required": [
                     "isbn13",
+                    "status",
                     "updated_at"
                 ],
                 "properties": {
                     "isbn13": {
                         "description": "ISBN-13",
                         "type": "string"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/UpdatedBookStatus"
                     },
                     "updated_at": {
                         "description": "Timestamp when the book was last updated",
@@ -2863,7 +2874,7 @@
         },
         {
             "name": "Feed",
-            "description": "Incremental synchronisation of recently changed ISBNs. Premium plans and above; history is limited to the last 7 days."
+            "description": "Incremental synchronisation of recently changed ISBNs. Pro plans and above; history is limited to the last 7 days."
         },
         {
             "name": "Account",

@@ -324,10 +324,84 @@ void main() {
       expect(feed.pageSize, 100);
       expect(feed.updates, hasLength(2));
       expect(feed.updates.first.isbn13, "9781092297370");
+      expect(feed.updates.first.status, UpdatedBookStatus.newBook);
+      expect(feed.updates.last.status, UpdatedBookStatus.updated);
       expect(
         feed.updates.first.updatedAt,
         DateTime.parse("2026-03-27T12:30:00Z"),
       );
+    });
+
+    for (final entry in <String, Map<String, dynamic>>{
+      'missing': {},
+      'null': {'status': null},
+      'unrecognized': {'status': 'restored'},
+    }.entries) {
+      test('Should accept ${entry.key} update statuses', () {
+        final update = UpdatedBook.fromJson({
+          'isbn13': '9781092297370',
+          'updated_at': '2026-03-27T12:30:00Z',
+          ...entry.value,
+        });
+
+        expect(update.isbn13, '9781092297370');
+        expect(update.updatedAt, DateTime.utc(2026, 3, 27, 12, 30));
+        expect(update.status, UpdatedBookStatus.unknown);
+      });
+    }
+
+    test('Should preserve update status through JSON and copyWith', () {
+      final json = <String, dynamic>{
+        'isbn13': '9781092297370',
+        'updated_at': '2026-03-27T12:30:00.000Z',
+        'status': 'new',
+      };
+      final update = UpdatedBook.fromJson(json);
+
+      expect(update.toJson(), json);
+      expect(UpdatedBook.fromJson(update.toJson()), update);
+
+      final changed = update.copyWith(status: UpdatedBookStatus.updated);
+      expect(changed.isbn13, update.isbn13);
+      expect(changed.updatedAt, update.updatedAt);
+      expect(changed.status, UpdatedBookStatus.updated);
+      expect(changed.toJson()['status'], 'updated');
+      expect(UpdatedBook.fromJson(changed.toJson()), changed);
+      expect(update.status, UpdatedBookStatus.newBook);
+    });
+
+    test('Should preserve the original updated book constructor', () {
+      final update = UpdatedBook(
+        isbn13: '9781092297370',
+        updatedAt: DateTime.utc(2026, 3, 27, 12, 30),
+      );
+
+      expect(update.status, UpdatedBookStatus.unknown);
+    });
+
+    test('Should preserve two-field update callbacks with status metadata', () {
+      final updatedAt = DateTime.utc(2026, 3, 27, 12, 30);
+      final update = UpdatedBook(
+        isbn13: '9781092297370',
+        updatedAt: updatedAt,
+        status: UpdatedBookStatus.newBook,
+      );
+      String legacyCallback(String isbn13, DateTime timestamp) =>
+          '$isbn13@${timestamp.toIso8601String()}';
+      final expected = '9781092297370@${updatedAt.toIso8601String()}';
+
+      expect(update.when(legacyCallback), expected);
+      expect(
+        update.maybeWhen(legacyCallback, orElse: () => 'fallback'),
+        expected,
+      );
+      expect(
+        update.maybeWhen<String>(null, orElse: () => 'fallback'),
+        'fallback',
+      );
+      expect(update.whenOrNull(legacyCallback), expected);
+      expect(update.whenOrNull<String>(null), isNull);
+      expect(update.status, UpdatedBookStatus.newBook);
     });
 
     test(
@@ -1186,8 +1260,16 @@ Map<String, Map<String, dynamic>> _defaultResponses() => {
   "GET subject/flutter": {"subject": "flutter", "books": []},
   "GET feeds/books/updates": {
     "data": [
-      {"isbn13": "9781092297370", "updated_at": "2026-03-27T12:30:00Z"},
-      {"isbn13": "9781680506952", "updated_at": "2026-03-27T12:45:00Z"},
+      {
+        "isbn13": "9781092297370",
+        "updated_at": "2026-03-27T12:30:00Z",
+        "status": "new",
+      },
+      {
+        "isbn13": "9781680506952",
+        "updated_at": "2026-03-27T12:45:00Z",
+        "status": "updated",
+      },
     ],
     "page": 1,
     "page_size": 100,

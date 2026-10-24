@@ -347,6 +347,22 @@ void main() {
       expect(properties['page'], containsPair('deprecated', true));
     });
 
+    test('UpdatedBook requires the documented new or updated status', () {
+      final schema = _schema(spec, 'UpdatedBook');
+      final requiredFields = List<String>.from(schema['required'] as List);
+      final properties = Map<String, dynamic>.from(schema['properties'] as Map);
+      final status = Map<String, dynamic>.from(properties['status'] as Map);
+      final statusSchema = _schema(spec, 'UpdatedBookStatus');
+
+      expect(
+        requiredFields,
+        containsAll(<String>['isbn13', 'updated_at', 'status']),
+      );
+      expect(status[r'$ref'], '#/components/schemas/UpdatedBookStatus');
+      expect(statusSchema['type'], 'string');
+      expect(statusSchema['enum'], unorderedEquals(<String>['new', 'updated']));
+    });
+
     test('KeyResponse requires the current plan name', () {
       final schema = _schema(spec, 'KeyResponse');
       final requiredFields = List<String>.from(schema['required'] as List);

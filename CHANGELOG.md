@@ -1,3 +1,10 @@
+## Unreleased
+
+- Refreshed the ISBNdb OpenAPI 2.8.3 snapshot and documentation for updated-book statuses and the feed pagination deadline.
+- Added `UpdatedBook.status` and `UpdatedBookStatus`: `newBook` maps to the API value `new`, and `updated` maps to `updated`. Older responses without a status and unrecognized future values use `unknown`, which is also the constructor default.
+- Preserved the two-field `UpdatedBook.when`, `maybeWhen`, and `whenOrNull` callbacks; access the new status directly on the entry.
+- Documented the end of offset pagination for the updated-books feed: from November 6, 2026 at 00:00 UTC (01:00 in Paris), `page` values other than `1` return HTTP 400. Use `next` cursors to fetch following pages.
+
 ## 2.3.0 - 2026-10-19
 
 - Aligned the bundled API contract and documentation with ISBNdb OpenAPI 2.8.3.
