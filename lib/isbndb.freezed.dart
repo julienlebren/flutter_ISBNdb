@@ -4167,7 +4167,7 @@ mixin _$UpdatedBookFeed implements DiagnosticableTreeMixin {
 @JsonKey(name: 'data') List<UpdatedBook> get updates;/// Total number of updates available for the query, when provided.
  int? get total;/// Opaque cursor for the next page; null when no more updates remain.
  String? get next;/// Legacy offset page number; always 1 with a cursor.
-/// ISBNdb rejects values other than 1 from November 6, 2026, 00:00 UTC.
+/// ISBNdb rejects values other than 1 from November 7, 2026, 00:00 UTC.
  int get page;/// Requested page size.
 @JsonKey(name: 'page_size') int get pageSize;
 /// Create a copy of UpdatedBookFeed
@@ -4326,7 +4326,7 @@ class _UpdatedBookFeed extends UpdatedBookFeed with DiagnosticableTreeMixin {
 /// Opaque cursor for the next page; null when no more updates remain.
 @override final  String? next;
 /// Legacy offset page number; always 1 with a cursor.
-/// ISBNdb rejects values other than 1 from November 6, 2026, 00:00 UTC.
+/// ISBNdb rejects values other than 1 from November 7, 2026, 00:00 UTC.
 @override final  int page;
 /// Requested page size.
 @override@JsonKey(name: 'page_size') final  int pageSize;

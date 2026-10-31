@@ -147,11 +147,11 @@ Important notes from the OpenAPI description:
 - Does not count against daily API quota
 - Repeat requests with the response `next` as `cursor` until `next` is null
 - Cursors are opaque and remain valid while their history exists; with a cursor, only `pageSize` is honored among the other filters
-- Offset pagination with `page` is deprecated. From **November 6, 2026 at 00:00 UTC (01:00 in Paris)**, values other than `1` return `400 Bad Request`. Use `cursor` for following pages
+- Offset pagination with `page` is deprecated. From **November 7, 2026 at 00:00 UTC (01:00 in Paris)**, values other than `1` return `400 Bad Request`. Use `cursor` for following pages
 
 | Name | In | Type | Required | Default | Nullable | Description |
 | --- | --- | --- | --- | --- | --- | --- |
-| `page` | query | integer | no | `1` | yes | Deprecated offset page number; values other than 1 return HTTP 400 from November 6, 2026 at 00:00 UTC |
+| `page` | query | integer | no | `1` | yes | Deprecated offset page number; values other than 1 return HTTP 400 from November 7, 2026 at 00:00 UTC |
 | `pageSize` | query | integer | no | `100` | yes | How many items should be returned per page, maximum of 1,000 |
 | `lastUpdated` | query | string | no | `null` | yes | Filter by last updated date (`YYYY-MM-DD`) |
 | `cursor` | query | string (max 255) | no | `null` | yes | Opaque `next` cursor from the previous response |
@@ -385,7 +385,7 @@ Responses:
 
 | Field | Type | Required | Nullable | Deprecated | Default | Description |
 | --- | --- | --- | --- | --- | --- | --- |
-| `page` | integer (min 1) | no | yes | yes | `1` | Legacy offset page number; values other than 1 return HTTP 400 from November 6, 2026 at 00:00 UTC. Use cursor pagination |
+| `page` | integer (min 1) | no | yes | yes | `1` | Legacy offset page number; values other than 1 return HTTP 400 from November 7, 2026 at 00:00 UTC. Use cursor pagination |
 | `pageSize` | integer (1–1000) | no | yes | no | `100` | Number of items per page |
 
 ### `UpdatedBook`
