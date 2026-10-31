@@ -104,7 +104,7 @@ sealed class UpdatedBookFeed with _$UpdatedBookFeed {
     String? next,
 
     /// Legacy offset page number; always 1 with a cursor.
-    /// ISBNdb rejects values other than 1 from November 6, 2026, 00:00 UTC.
+    /// ISBNdb rejects values other than 1 from November 7, 2026, 00:00 UTC.
     required int page,
 
     /// Requested page size.

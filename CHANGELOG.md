@@ -1,3 +1,7 @@
+## Unreleased
+
+- Updated the OpenAPI snapshot and feed pagination documentation after ISBNdb postponed the rejection of `page` values other than `1` to November 7, 2026 at 00:00 UTC (01:00 in Paris).
+
 ## 2.4.0 - 2026-10-24
 
 - Refreshed the ISBNdb OpenAPI 2.8.3 snapshot and documentation for updated-book statuses and the feed pagination deadline.

@@ -574,17 +574,17 @@
                     "Feed"
                 ],
                 "summary": "Get recently updated ISBNs",
-                "description": "Retrieves a list of book ISBNs that have been added or modified. Each entry says whether the book is `new` (added to the database within the 7-day history window) or `updated` (an existing book changed); a new book that changes again within the window stays `new`. This endpoint is designed for frequent incremental synchronization.\n\n**Important Notes:**\n* **Plan limits:** Available exclusively for **Pro** plans and higher. Other plans get a **403 Forbidden**.\n* **History limit:** The update history is strictly limited to the last **7 days**.\n* **Quota:** Calling this endpoint does not count towards your daily API limits.\n* **Pagination:** Every response carries a `next` cursor. To fetch all updates, repeat the request with `cursor=<next>` until `next` is `null`. The cursor is opaque and stays valid as long as the history behind it exists; the `page` parameter is **deprecated** and stops working on **2026-11-06 00:00 UTC**: from then on a `page` other than 1 returns **400 Bad Request**.",
+                "description": "Retrieves a list of book ISBNs that have been added or modified. Each entry says whether the book is `new` (added to the database within the 7-day history window) or `updated` (an existing book changed); a new book that changes again within the window stays `new`. This endpoint is designed for frequent incremental synchronization.\n\n**Important Notes:**\n* **Plan limits:** Available exclusively for **Pro** plans and higher. Other plans get a **403 Forbidden**.\n* **History limit:** The update history is strictly limited to the last **7 days**.\n* **Quota:** Calling this endpoint does not count towards your daily API limits.\n* **Pagination:** Every response carries a `next` cursor. To fetch all updates, repeat the request with `cursor=<next>` until `next` is `null`. The cursor is opaque and stays valid as long as the history behind it exists; the `page` parameter is **deprecated** and stops working on **2026-11-07 00:00 UTC**: from then on a `page` other than 1 returns **400 Bad Request**.",
                 "operationId": "getBookUpdates",
                 "parameters": [
                     {
                         "name": "page",
                         "in": "query",
-                        "description": "Deprecated: offset-based page number, kept for existing integrations until 2026-11-06 00:00 UTC; after that any value other than 1 returns 400. Use the `cursor` from the previous response instead.",
+                        "description": "Deprecated: offset-based page number, kept for existing integrations until 2026-11-07 00:00 UTC; after that any value other than 1 returns 400. Use the `cursor` from the previous response instead.",
                         "required": false,
                         "deprecated": true,
                         "schema": {
-                            "description": "Deprecated: offset-based page number, kept for existing integrations until 2026-11-06 00:00 UTC; after that any value other than 1 returns 400. Use the `cursor` from the previous response instead.",
+                            "description": "Deprecated: offset-based page number, kept for existing integrations until 2026-11-07 00:00 UTC; after that any value other than 1 returns 400. Use the `cursor` from the previous response instead.",
                             "type": "integer",
                             "nullable": true,
                             "deprecated": true,
@@ -1909,7 +1909,7 @@
             "UnlimitedPaginationFilter": {
                 "properties": {
                     "page": {
-                        "description": "Deprecated: offset-based page number, kept for existing integrations until 2026-11-06 00:00 UTC; after that any value other than 1 returns 400. Use the `cursor` from the previous response instead.",
+                        "description": "Deprecated: offset-based page number, kept for existing integrations until 2026-11-07 00:00 UTC; after that any value other than 1 returns 400. Use the `cursor` from the previous response instead.",
                         "type": "integer",
                         "nullable": true,
                         "deprecated": true,
