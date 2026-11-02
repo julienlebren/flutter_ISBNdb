@@ -1,4 +1,4 @@
-## Unreleased
+## 2.5.0 - 2026-11-02
 
 - Aligned the bundled OpenAPI snapshot and documentation with ISBNdb API 2.8.4.
 - Added nullable `KeyDetails.bulkLimit` for the maximum ISBN batch size reported by `/key`; older responses without it remain supported. Preserved the three-field `when`, `maybeWhen`, and `whenOrNull` callbacks.
