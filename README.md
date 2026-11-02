@@ -31,6 +31,8 @@ All request and parsing failures from `ISBNdb` methods throw `ISBNdbException`.
 - `method`: HTTP method (`GET`, `POST`, ...)
 - `path`: API path (for example `book/9781092297370`)
 - `statusCode`: optional HTTP status code (when available)
+- `code`: optional machine-readable API reason; HTTP 429 uses `rate_limited`
+  for the per-minute limit and `quota_exceeded` for the daily quota
 - `cause`: original underlying error
 
 Example:
@@ -43,6 +45,7 @@ try {
   print("ISBNdb error: ${e.message}");
   print("request: ${e.method} ${e.path}");
   print("status: ${e.statusCode}");
+  print("reason: ${e.code}");
 }
 ```
 
@@ -248,7 +251,11 @@ int pageSize | How many items should be returned per page, maximum of 100
 final keyDetails = await isbnDb.getKeyDetails();
 ```
 
-Returns your API host, plan name, and current usage (`total`, `spent`, `left`).
+Returns your API host, plan name, maximum ISBN batch size (`bulkLimit`), and
+current usage (`total`, `spent`, `left`). `bulkLimit` is the maximum number of
+ISBNs accepted by one `getBooksFromISBNs` request (`POST /books`); it is `null`
+for older responses that omit it. The client sends the supplied list as one
+request, so keep its size within this limit.
 
 * **Get global API stats**
 
@@ -438,6 +445,10 @@ Name | Type | Description
 apiHost | String | API host attached to your key
 planName | String | Name of the subscription plan attached to your key
 planLimit | PlanLimit | Usage details of the current API plan
+bulkLimit | int? | Maximum ISBNs per `POST /books` request; `null` when absent from older responses
+
+The existing three-field `KeyDetails.when`, `maybeWhen`, and `whenOrNull`
+callbacks remain compatible. Access `bulkLimit` directly on the model.
 
 **PlanLimit**
 

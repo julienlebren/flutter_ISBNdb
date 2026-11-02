@@ -1,11 +1,11 @@
-# ISBNdb API Documentation v2 (OpenAPI 2.8.3)
+# ISBNdb API Documentation v2 (OpenAPI 2.8.4)
 
 Source: `https://api2.isbndb.com/doc.json` (OpenAPI 3.0.0)
 
 ## API metadata
 
 - Title: `ISBNdb API Documentation v2`
-- Version: `2.8.3`
+- Version: `2.8.4`
 - Server: `https://api2.isbndb.com`
 - Security: `ApiKeyAuth` (`Authorization` header)
 
@@ -329,13 +329,13 @@ Responses:
 | `AuthorDetailsResponse` | `author`, `name`, `books`, `total`, `page`, `page_size` | author + books + pagination |
 | `SearchAuthorsResponse` | `name`, `authors`, `total`, `page`, `page_size` | authors list + pagination |
 | `GetBookResponse` | `book` | `book` |
-| `ErrorResponse` | `message`, `errorMessage` | `message` (deprecated), `errorMessage` |
+| `ErrorResponse` | `message`, `errorMessage` | `message` (deprecated), `errorMessage`, optional quota `code` |
 | `GetBooksMultipleResponse` | `total`, `data` | `data`, `requested` |
 | `SearchBooksPaginatedResponse` | `books`, `total`, `page`, `page_size` | books + pagination |
 | `UpdatedBook` | `isbn13`, `updated_at`, `status` | `isbn13`, `updated_at`, `status` |
 | `UpdatedBooksResponse` | `data`, `page`, `page_size` | `data`, `page`, `page_size`, `next` |
 | `PlanLimit` | `total`, `spent`, `left` | subscription and per-key quota counters |
-| `KeyResponse` | `api_host`, `plan_limit`, `plan_name` | host + plan name + limits |
+| `KeyResponse` | `api_host`, `plan_limit`, `plan_name`, `bulk_limit` | host + plan name + usage and batch limits |
 | `DetailsResponse` | `name`, `books`, `total`, `page`, `page_size` | publisher details |
 | `SearchPublishersResponse` | `name`, `publishers`, `total`, `page`, `page_size` | publishers list + pagination |
 | `SearchBaseResponse` | `name`, `data`, `total`, `page`, `page_size` | generic search payload |
@@ -541,6 +541,7 @@ price access.
 | --- | --- | --- | --- | --- | --- | --- |
 | `message` | string | yes | no | yes | - | Legacy error field |
 | `errorMessage` | string | yes | no | no | - | Current error field |
+| `code` | string (`rate_limited`, `quota_exceeded`) | no | yes | no | `null` | HTTP 429 only: per-minute limit (`rate_limited`) or daily quota (`quota_exceeded`) |
 
 ### `GetBooksMultipleResponse`
 
@@ -578,6 +579,7 @@ price access.
 | `api_host` | string | yes | no | no | - | API host |
 | `plan_limit` | `PlanLimit` | yes | no | no | - | Plan quota details |
 | `plan_name` | string | yes | no | no | - | Subscription plan name |
+| `bulk_limit` | integer | yes | no | no | - | Maximum ISBNs accepted by one `POST /books` request |
 
 ### `DetailsResponse`
 

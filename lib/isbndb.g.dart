@@ -175,6 +175,7 @@ _KeyDetails _$KeyDetailsFromJson(Map<String, dynamic> json) => _KeyDetails(
   apiHost: json['api_host'] as String,
   planName: json['plan_name'] as String? ?? '',
   planLimit: PlanLimit.fromJson(json['plan_limit'] as Map<String, dynamic>),
+  bulkLimit: (json['bulk_limit'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$KeyDetailsToJson(_KeyDetails instance) =>
@@ -182,6 +183,7 @@ Map<String, dynamic> _$KeyDetailsToJson(_KeyDetails instance) =>
       'api_host': instance.apiHost,
       'plan_name': instance.planName,
       'plan_limit': instance.planLimit,
+      'bulk_limit': instance.bulkLimit,
     };
 
 _ListPrice _$ListPriceFromJson(Map<String, dynamic> json) => _ListPrice(

@@ -7,6 +7,7 @@ class ISBNdbException implements Exception {
     required this.method,
     required this.path,
     this.statusCode,
+    this.code,
     this.cause,
   });
 
@@ -21,6 +22,11 @@ class ISBNdbException implements Exception {
 
   /// Optional HTTP status code returned by the API.
   final int? statusCode;
+
+  /// Machine-readable API reason, when provided.
+  /// HTTP 429 uses `rate_limited` for the per-minute limit and
+  /// `quota_exceeded` for the daily quota. Unknown future codes are preserved.
+  final String? code;
 
   /// Original underlying error when available.
   final Object? cause;

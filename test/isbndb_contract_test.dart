@@ -11,10 +11,10 @@ void main() {
       spec = _readJsonFile('api/upstream/isbndb-openapi.json');
     });
 
-    test('tracks ISBNdb OpenAPI 2.8.3', () {
+    test('tracks ISBNdb OpenAPI 2.8.4', () {
       final info = Map<String, dynamic>.from(spec['info'] as Map);
 
-      expect(info['version'], '2.8.3');
+      expect(info['version'], '2.8.4');
     });
 
     test('contains all public endpoints currently exposed by the package', () {
@@ -319,6 +319,19 @@ void main() {
       expect(errorProperties, isNot(contains('error_message')));
     });
 
+    test('ErrorResponse documents optional machine-readable quota reasons', () {
+      final schema = _schema(spec, 'ErrorResponse');
+      final properties = Map<String, dynamic>.from(schema['properties'] as Map);
+      final code = Map<String, dynamic>.from(properties['code'] as Map);
+
+      expect(schema['required'] as List, isNot(contains('code')));
+      expect(code['type'], 'string');
+      expect(code['nullable'], isTrue);
+      expect(code, containsPair('default', null));
+      expect(code['enum'], unorderedEquals(['rate_limited', 'quota_exceeded']));
+      expect(code['description'], contains('429 only'));
+    });
+
     test('/feeds/books/updates documents the update feed filters', () {
       final parameterNames = _parameterNames(
         spec,
@@ -363,13 +376,14 @@ void main() {
       expect(statusSchema['enum'], unorderedEquals(<String>['new', 'updated']));
     });
 
-    test('KeyResponse requires the current plan name', () {
+    test('KeyResponse requires the current plan name and bulk limit', () {
       final schema = _schema(spec, 'KeyResponse');
       final requiredFields = List<String>.from(schema['required'] as List);
       final properties = Map<String, dynamic>.from(schema['properties'] as Map);
 
-      expect(requiredFields, contains('plan_name'));
+      expect(requiredFields, containsAll(['plan_name', 'bulk_limit']));
       expect(properties['plan_name'], containsPair('type', 'string'));
+      expect(properties['bulk_limit'], containsPair('type', 'integer'));
     });
   });
 

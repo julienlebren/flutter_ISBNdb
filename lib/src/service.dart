@@ -67,6 +67,7 @@ class ISBNdb {
           method: method,
           path: path,
           statusCode: result.statusCode,
+          code: _extractApiErrorCode(bytes),
         );
       }
       if (bytes == null) {
@@ -92,6 +93,7 @@ class ISBNdb {
         method: method,
         path: path,
         statusCode: error.response?.statusCode,
+        code: _extractApiErrorCode(error.response?.data),
         cause: error,
       );
     } on FormatException catch (error) {
@@ -109,6 +111,26 @@ class ISBNdb {
         cause: error,
       );
     }
+  }
+
+  String? _extractApiErrorCode(Object? data) {
+    if (data is List<int>) {
+      data = utf8.decode(data, allowMalformed: true);
+    }
+    if (data is String) {
+      try {
+        data = jsonDecode(data);
+      } on FormatException {
+        return null;
+      }
+    }
+    if (data is Map) {
+      final code = data['code'];
+      if (code is String && code.trim().isNotEmpty) {
+        return code;
+      }
+    }
+    return null;
   }
 
   String? _extractApiErrorMessage(DioException error) {
@@ -259,6 +281,7 @@ class ISBNdb {
   }
 
   /// Get book details from a list of ISBNs
+  /// The list must fit within [KeyDetails.bulkLimit] returned by [getKeyDetails].
   Future<BookQueryResult> getBooksFromISBNs(List<String> isbns) async {
     const path = "books";
     final response = await _post(path, data: <String, Object?>{"isbns": isbns});
