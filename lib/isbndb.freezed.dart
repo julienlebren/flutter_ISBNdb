@@ -2221,7 +2221,9 @@ mixin _$KeyDetails implements DiagnosticableTreeMixin {
 ///
 /// Empty only for legacy payloads captured before API 2.7.1.
 @JsonKey(name: 'plan_name') String get planName;/// Plan usage details.
-@JsonKey(name: 'plan_limit') PlanLimit get planLimit;
+@JsonKey(name: 'plan_limit') PlanLimit get planLimit;/// Maximum ISBNs accepted by one `POST /books` request.
+/// Null for older responses that do not report the limit.
+@JsonKey(name: 'bulk_limit') int? get bulkLimit;
 /// Create a copy of KeyDetails
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -2235,21 +2237,21 @@ $KeyDetailsCopyWith<KeyDetails> get copyWith => _$KeyDetailsCopyWithImpl<KeyDeta
 void debugFillProperties(DiagnosticPropertiesBuilder properties) {
   properties
     ..add(DiagnosticsProperty('type', 'KeyDetails'))
-    ..add(DiagnosticsProperty('apiHost', apiHost))..add(DiagnosticsProperty('planName', planName))..add(DiagnosticsProperty('planLimit', planLimit));
+    ..add(DiagnosticsProperty('apiHost', apiHost))..add(DiagnosticsProperty('planName', planName))..add(DiagnosticsProperty('planLimit', planLimit))..add(DiagnosticsProperty('bulkLimit', bulkLimit));
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is KeyDetails&&(identical(other.apiHost, apiHost) || other.apiHost == apiHost)&&(identical(other.planName, planName) || other.planName == planName)&&(identical(other.planLimit, planLimit) || other.planLimit == planLimit));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is KeyDetails&&(identical(other.apiHost, apiHost) || other.apiHost == apiHost)&&(identical(other.planName, planName) || other.planName == planName)&&(identical(other.planLimit, planLimit) || other.planLimit == planLimit)&&(identical(other.bulkLimit, bulkLimit) || other.bulkLimit == bulkLimit));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,apiHost,planName,planLimit);
+int get hashCode => Object.hash(runtimeType,apiHost,planName,planLimit,bulkLimit);
 
 @override
 String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
-  return 'KeyDetails(apiHost: $apiHost, planName: $planName, planLimit: $planLimit)';
+  return 'KeyDetails(apiHost: $apiHost, planName: $planName, planLimit: $planLimit, bulkLimit: $bulkLimit)';
 }
 
 
@@ -2260,7 +2262,7 @@ abstract mixin class $KeyDetailsCopyWith<$Res>  {
   factory $KeyDetailsCopyWith(KeyDetails value, $Res Function(KeyDetails) _then) = _$KeyDetailsCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(name: 'api_host') String apiHost,@JsonKey(name: 'plan_name') String planName,@JsonKey(name: 'plan_limit') PlanLimit planLimit
+@JsonKey(name: 'api_host') String apiHost,@JsonKey(name: 'plan_name') String planName,@JsonKey(name: 'plan_limit') PlanLimit planLimit,@JsonKey(name: 'bulk_limit') int? bulkLimit
 });
 
 
@@ -2277,12 +2279,13 @@ class _$KeyDetailsCopyWithImpl<$Res>
 
 /// Create a copy of KeyDetails
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? apiHost = null,Object? planName = null,Object? planLimit = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? apiHost = null,Object? planName = null,Object? planLimit = null,Object? bulkLimit = freezed,}) {
   return _then(_self.copyWith(
 apiHost: null == apiHost ? _self.apiHost : apiHost // ignore: cast_nullable_to_non_nullable
 as String,planName: null == planName ? _self.planName : planName // ignore: cast_nullable_to_non_nullable
 as String,planLimit: null == planLimit ? _self.planLimit : planLimit // ignore: cast_nullable_to_non_nullable
-as PlanLimit,
+as PlanLimit,bulkLimit: freezed == bulkLimit ? _self.bulkLimit : bulkLimit // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 /// Create a copy of KeyDetails
@@ -2361,72 +2364,14 @@ return $default(_that);case _:
 
 }
 }
-/// A variant of `when` that fallback to an `orElse` callback.
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case _:
-///     return orElse();
-/// }
-/// ```
-
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'api_host')  String apiHost, @JsonKey(name: 'plan_name')  String planName, @JsonKey(name: 'plan_limit')  PlanLimit planLimit)?  $default,{required TResult orElse(),}) {final _that = this;
-switch (_that) {
-case _KeyDetails() when $default != null:
-return $default(_that.apiHost,_that.planName,_that.planLimit);case _:
-  return orElse();
-
-}
-}
-/// A `switch`-like method, using callbacks.
-///
-/// As opposed to `map`, this offers destructuring.
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case Subclass2(:final field2):
-///     return ...;
-/// }
-/// ```
-
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'api_host')  String apiHost, @JsonKey(name: 'plan_name')  String planName, @JsonKey(name: 'plan_limit')  PlanLimit planLimit)  $default,) {final _that = this;
-switch (_that) {
-case _KeyDetails():
-return $default(_that.apiHost,_that.planName,_that.planLimit);}
-}
-/// A variant of `when` that fallback to returning `null`
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case _:
-///     return null;
-/// }
-/// ```
-
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'api_host')  String apiHost, @JsonKey(name: 'plan_name')  String planName, @JsonKey(name: 'plan_limit')  PlanLimit planLimit)?  $default,) {final _that = this;
-switch (_that) {
-case _KeyDetails() when $default != null:
-return $default(_that.apiHost,_that.planName,_that.planLimit);case _:
-  return null;
-
-}
-}
 
 }
 
 /// @nodoc
 @JsonSerializable()
 
-class _KeyDetails with DiagnosticableTreeMixin implements KeyDetails {
-   _KeyDetails({@JsonKey(name: 'api_host') required this.apiHost, @JsonKey(name: 'plan_name') this.planName = '', @JsonKey(name: 'plan_limit') required this.planLimit});
+class _KeyDetails extends KeyDetails with DiagnosticableTreeMixin {
+   _KeyDetails({@JsonKey(name: 'api_host') required this.apiHost, @JsonKey(name: 'plan_name') this.planName = '', @JsonKey(name: 'plan_limit') required this.planLimit, @JsonKey(name: 'bulk_limit') this.bulkLimit}): super._();
   factory _KeyDetails.fromJson(Map<String, dynamic> json) => _$KeyDetailsFromJson(json);
 
 /// API host tied to this key.
@@ -2437,6 +2382,9 @@ class _KeyDetails with DiagnosticableTreeMixin implements KeyDetails {
 @override@JsonKey(name: 'plan_name') final  String planName;
 /// Plan usage details.
 @override@JsonKey(name: 'plan_limit') final  PlanLimit planLimit;
+/// Maximum ISBNs accepted by one `POST /books` request.
+/// Null for older responses that do not report the limit.
+@override@JsonKey(name: 'bulk_limit') final  int? bulkLimit;
 
 /// Create a copy of KeyDetails
 /// with the given fields replaced by the non-null parameter values.
@@ -2452,21 +2400,21 @@ Map<String, dynamic> toJson() {
 void debugFillProperties(DiagnosticPropertiesBuilder properties) {
   properties
     ..add(DiagnosticsProperty('type', 'KeyDetails'))
-    ..add(DiagnosticsProperty('apiHost', apiHost))..add(DiagnosticsProperty('planName', planName))..add(DiagnosticsProperty('planLimit', planLimit));
+    ..add(DiagnosticsProperty('apiHost', apiHost))..add(DiagnosticsProperty('planName', planName))..add(DiagnosticsProperty('planLimit', planLimit))..add(DiagnosticsProperty('bulkLimit', bulkLimit));
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _KeyDetails&&(identical(other.apiHost, apiHost) || other.apiHost == apiHost)&&(identical(other.planName, planName) || other.planName == planName)&&(identical(other.planLimit, planLimit) || other.planLimit == planLimit));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _KeyDetails&&(identical(other.apiHost, apiHost) || other.apiHost == apiHost)&&(identical(other.planName, planName) || other.planName == planName)&&(identical(other.planLimit, planLimit) || other.planLimit == planLimit)&&(identical(other.bulkLimit, bulkLimit) || other.bulkLimit == bulkLimit));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,apiHost,planName,planLimit);
+int get hashCode => Object.hash(runtimeType,apiHost,planName,planLimit,bulkLimit);
 
 @override
 String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
-  return 'KeyDetails(apiHost: $apiHost, planName: $planName, planLimit: $planLimit)';
+  return 'KeyDetails(apiHost: $apiHost, planName: $planName, planLimit: $planLimit, bulkLimit: $bulkLimit)';
 }
 
 
@@ -2477,7 +2425,7 @@ abstract mixin class _$KeyDetailsCopyWith<$Res> implements $KeyDetailsCopyWith<$
   factory _$KeyDetailsCopyWith(_KeyDetails value, $Res Function(_KeyDetails) _then) = __$KeyDetailsCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(name: 'api_host') String apiHost,@JsonKey(name: 'plan_name') String planName,@JsonKey(name: 'plan_limit') PlanLimit planLimit
+@JsonKey(name: 'api_host') String apiHost,@JsonKey(name: 'plan_name') String planName,@JsonKey(name: 'plan_limit') PlanLimit planLimit,@JsonKey(name: 'bulk_limit') int? bulkLimit
 });
 
 
@@ -2494,12 +2442,13 @@ class __$KeyDetailsCopyWithImpl<$Res>
 
 /// Create a copy of KeyDetails
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? apiHost = null,Object? planName = null,Object? planLimit = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? apiHost = null,Object? planName = null,Object? planLimit = null,Object? bulkLimit = freezed,}) {
   return _then(_KeyDetails(
 apiHost: null == apiHost ? _self.apiHost : apiHost // ignore: cast_nullable_to_non_nullable
 as String,planName: null == planName ? _self.planName : planName // ignore: cast_nullable_to_non_nullable
 as String,planLimit: null == planLimit ? _self.planLimit : planLimit // ignore: cast_nullable_to_non_nullable
-as PlanLimit,
+as PlanLimit,bulkLimit: freezed == bulkLimit ? _self.bulkLimit : bulkLimit // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 

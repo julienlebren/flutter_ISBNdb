@@ -271,6 +271,7 @@ void main() {
       expect(keyDetails, isA<KeyDetails>());
       expect(keyDetails.apiHost, "https://api2.isbndb.com");
       expect(keyDetails.planName, "Pro");
+      expect(keyDetails.bulkLimit, 100);
       expect(keyDetails.planLimit.total, 10000);
       expect(keyDetails.planLimit.left, 9877);
       expect(keyDetails.planLimit.keyTotal, 1000);
@@ -286,11 +287,70 @@ void main() {
       });
 
       expect(keyDetails.planName, isEmpty);
+      expect(keyDetails.bulkLimit, isNull);
       expect(keyDetails.planLimit.keyTotal, isNull);
       expect(keyDetails.planLimit.keySpent, 0);
       expect(keyDetails.planLimit.keyLeft, isNull);
       expect(keyDetails.planLimit.limitedBy, PlanLimitAllowance.subject);
     });
+
+    test('Should preserve bulk limits through JSON and copyWith', () {
+      final json = _defaultResponses()['GET key']!;
+      final details = KeyDetails.fromJson(json);
+      KeyDetails roundTrip(KeyDetails value) => KeyDetails.fromJson(
+        jsonDecode(jsonEncode(value)) as Map<String, dynamic>,
+      );
+
+      expect(details.toJson()['bulk_limit'], 100);
+      expect(roundTrip(details), details);
+      final changed = details.copyWith(bulkLimit: 500);
+      expect(changed.bulkLimit, 500);
+      expect(changed.apiHost, details.apiHost);
+      expect(changed.planLimit, details.planLimit);
+      expect(roundTrip(changed), changed);
+      expect(changed.copyWith(bulkLimit: null).bulkLimit, isNull);
+      expect(details.bulkLimit, 100);
+    });
+
+    test('Should tolerate a null bulk limit from older API responses', () {
+      final details = KeyDetails.fromJson({
+        ..._defaultResponses()['GET key']!,
+        'bulk_limit': null,
+      });
+
+      expect(details.bulkLimit, isNull);
+      expect(details.planName, 'Pro');
+    });
+
+    test(
+      'Should preserve the original key details constructor and callbacks',
+      () {
+        final limits = PlanLimit(total: 10000, spent: 123, left: 9877);
+        final legacy = KeyDetails(
+          apiHost: 'https://api2.isbndb.com',
+          planName: 'Pro',
+          planLimit: limits,
+        );
+        expect(legacy.bulkLimit, isNull);
+        final details = legacy.copyWith(bulkLimit: 100);
+        String legacyCallback(String host, String plan, PlanLimit planLimit) =>
+            '$host $plan ${planLimit.left}';
+        const expected = 'https://api2.isbndb.com Pro 9877';
+
+        expect(details.when(legacyCallback), expected);
+        expect(
+          details.maybeWhen(legacyCallback, orElse: () => 'fallback'),
+          expected,
+        );
+        expect(
+          details.maybeWhen<String>(null, orElse: () => 'fallback'),
+          'fallback',
+        );
+        expect(details.whenOrNull(legacyCallback), expected);
+        expect(details.whenOrNull<String>(null), isNull);
+        expect(details.bulkLimit, 100);
+      },
+    );
 
     test('Should tolerate an unknown plan limit allowance', () {
       final planLimit = PlanLimit.fromJson({
@@ -803,6 +863,80 @@ void main() {
       }
     });
 
+    for (final code in ['rate_limited', 'quota_exceeded', 'future_reason']) {
+      for (final transport in [
+        'bytes',
+        'map',
+        'json string',
+        'resolved response',
+      ]) {
+        test('Should preserve $code from a $transport error', () async {
+          final payload = {'errorMessage': 'Quota reached', 'code': code};
+          final bytes = utf8.encode(jsonEncode(payload));
+          final isbndb = switch (transport) {
+            'bytes' => _createClient(
+              responses: {'GET book/9781092297370': payload},
+              statusCodes: {'GET book/9781092297370': 429},
+            ),
+            'resolved response' => _createClient(
+              rawResponses: {'GET book/9781092297370': bytes},
+              statusCodes: {'GET book/9781092297370': 429},
+            ),
+            _ => _createClientWithErrorResponseData(
+              data: transport == 'map' ? payload : jsonEncode(payload),
+              statusCode: 429,
+            ),
+          };
+
+          await expectLater(
+            () => isbndb.getBook('9781092297370'),
+            throwsA(
+              isA<ISBNdbException>()
+                  .having((e) => e.code, 'code', code)
+                  .having(
+                    (e) => e.message,
+                    'message',
+                    transport == 'json string'
+                        ? jsonEncode(payload)
+                        : 'Quota reached',
+                  )
+                  .having((e) => e.statusCode, 'statusCode', 429)
+                  .having((e) => e.method, 'method', 'GET')
+                  .having((e) => e.path, 'path', 'book/9781092297370'),
+            ),
+          );
+        });
+      }
+    }
+
+    for (final entry in <String, Object?>{
+      'missing': {'message': 'Quota reached'},
+      'null': {'message': 'Quota reached', 'code': null},
+      'non-string': {'message': 'Quota reached', 'code': 429},
+      'blank': {'message': 'Quota reached', 'code': ' '},
+      'non-JSON': 'Gateway timeout',
+      'malformed JSON': utf8.encode('{"code":'),
+      'JSON array': utf8.encode('["quota_exceeded"]'),
+      'no response body': null,
+    }.entries) {
+      test('Should tolerate ${entry.key} API error codes', () async {
+        final isbndb = _createClientWithErrorResponseData(
+          data: entry.value,
+          statusCode: 429,
+        );
+
+        await expectLater(
+          () => isbndb.getBook('9781092297370'),
+          throwsA(
+            isA<ISBNdbException>()
+                .having((e) => e.code, 'code', isNull)
+                .having((e) => e.statusCode, 'statusCode', 429)
+                .having((e) => e.cause, 'cause', isA<DioException>()),
+          ),
+        );
+      });
+    }
+
     test('Should read error_message field from API error payload', () async {
       final isbndb = _createClient(
         responses: {
@@ -832,7 +966,7 @@ void main() {
       final isbndb = _createClient(
         responses: {
           ..._defaultResponses(),
-          "POST books": {"errorMessage": "Too many ISBNs."},
+          "POST books": {"errorMessage": "Too many ISBNs.", "code": null},
         },
         statusCodes: {"POST books": 400},
       );
@@ -842,6 +976,7 @@ void main() {
         throwsA(
           isA<ISBNdbException>()
               .having((exception) => exception.statusCode, "statusCode", 400)
+              .having((exception) => exception.code, "code", isNull)
               .having(
                 (exception) => exception.message,
                 "message",
@@ -1277,6 +1412,7 @@ Map<String, Map<String, dynamic>> _defaultResponses() => {
   "GET key": {
     "api_host": "https://api2.isbndb.com",
     "plan_name": "Pro",
+    "bulk_limit": 100,
     "plan_limit": {
       "total": 10000,
       "spent": 123,

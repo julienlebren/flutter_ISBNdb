@@ -1,5 +1,8 @@
 ## Unreleased
 
+- Aligned the bundled OpenAPI snapshot and documentation with ISBNdb API 2.8.4.
+- Added nullable `KeyDetails.bulkLimit` for the maximum ISBN batch size reported by `/key`; older responses without it remain supported. Preserved the three-field `when`, `maybeWhen`, and `whenOrNull` callbacks.
+- Added optional `ISBNdbException.code` to distinguish HTTP 429 reasons (`rate_limited` and `quota_exceeded`), while preserving unknown future codes and legacy error handling.
 - Updated the OpenAPI snapshot and feed pagination documentation after ISBNdb postponed the rejection of `page` values other than `1` to November 7, 2026 at 00:00 UTC (01:00 in Paris).
 
 ## 2.4.0 - 2026-10-24
