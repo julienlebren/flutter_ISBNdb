@@ -11,10 +11,10 @@ void main() {
       spec = _readJsonFile('api/upstream/isbndb-openapi.json');
     });
 
-    test('tracks ISBNdb OpenAPI 2.8.4', () {
+    test('tracks ISBNdb OpenAPI 2.8.4.1', () {
       final info = Map<String, dynamic>.from(spec['info'] as Map);
 
-      expect(info['version'], '2.8.4');
+      expect(info['version'], '2.8.4.1');
     });
 
     test('contains all public endpoints currently exposed by the package', () {

@@ -1,3 +1,7 @@
+## Unreleased
+
+- Refreshed the bundled OpenAPI snapshot and documentation for ISBNdb API 2.8.4.1, which adds versioning guidance and an upstream changelog without changing the API contract.
+
 ## 2.5.0 - 2026-11-02
 
 - Aligned the bundled OpenAPI snapshot and documentation with ISBNdb API 2.8.4.
