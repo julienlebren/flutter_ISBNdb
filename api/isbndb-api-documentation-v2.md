@@ -1,11 +1,11 @@
-# ISBNdb API Documentation v2 (OpenAPI 2.8.4)
+# ISBNdb API Documentation v2 (OpenAPI 2.8.4.1)
 
 Source: `https://api2.isbndb.com/doc.json` (OpenAPI 3.0.0)
 
 ## API metadata
 
 - Title: `ISBNdb API Documentation v2`
-- Version: `2.8.4`
+- Version: `2.8.4.1`
 - Server: `https://api2.isbndb.com`
 - Security: `ApiKeyAuth` (`Authorization` header)
 
@@ -32,6 +32,35 @@ October 10, 2026. The
 Subject search and lookups, the `Book.subjects` field, the `subject` filter on
 `GET /search/books`, and the `subjects` column filter are deprecated and will be
 removed in a future API version. No replacement or removal date is announced.
+
+## Versioning
+
+ISBNdb runs one live API version, numbered `GENERATION.MAJOR.MINOR.PATCH`.
+A zero patch is omitted, as in `2.9.0` rather than `2.9.0.0`.
+
+- Generation changes, such as `2` to `3`, introduce a new API edition with separate documentation.
+- Major changes, such as `2.8.4` to `2.9.0`, can break clients. They follow a deprecation announcement with a removal date in the API changelog.
+- Minor changes, such as `2.8.4` to `2.8.5`, add fields, parameters or endpoints, or announce deprecations while preserving compatibility.
+- Patch changes, such as `2.8.4` to `2.8.4.1`, fix behavior or documentation without changing the contract.
+
+Clients should accept unknown response fields because minor releases can add them.
+
+## API changelog
+
+### 2.8.4.1 (November 3, 2026)
+
+- Added API documentation explaining version numbering and recording changes in a changelog.
+
+### 2.8.4 (November 2, 2026)
+
+- Added `code` to HTTP 429 error bodies: `rate_limited` for the per-minute limit and `quota_exceeded` for exhausted quota.
+- Added `bulk_limit` to `GET /key`.
+- Changed English book `title` and `title_long` values to Title Case.
+
+### 2.8.3 (October 16, 2026)
+
+- Deprecated `subjects` on books; removal is planned for a future version, with a replacement to be announced.
+- Deprecated `GET /subject/{name}` and `GET /subjects/{query}` under the same removal and replacement policy.
 
 ## Endpoints summary
 
