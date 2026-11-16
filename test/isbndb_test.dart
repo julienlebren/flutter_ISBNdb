@@ -394,6 +394,25 @@ void main() {
 
     for (final entry in <String, Map<String, dynamic>>{
       'missing': {},
+      'null': {'page': null},
+      'legacy': {'page': 3},
+    }.entries) {
+      test('Should parse an update feed with a ${entry.key} page', () {
+        final feed = UpdatedBookFeed.fromJson({
+          'data': <Map<String, dynamic>>[],
+          'page_size': 100,
+          'next': null,
+          ...entry.value,
+        });
+
+        expect(feed.page, entry.key == 'legacy' ? 3 : 1);
+        expect(feed.pageSize, 100);
+        expect(feed.updates, isEmpty);
+      });
+    }
+
+    for (final entry in <String, Map<String, dynamic>>{
+      'missing': {},
       'null': {'status': null},
       'unrecognized': {'status': 'restored'},
     }.entries) {
@@ -473,17 +492,47 @@ void main() {
         );
 
         await isbndb.getUpdatedBookFeed(
-          page: 2,
           pageSize: 250,
           lastUpdated: DateTime(2026, 3, 27, 15, 45),
         );
 
         expect(options, isNotNull);
         expect(options!.path, contains("feeds/books/updates"));
-        expect(options!.queryParameters["page"], 2);
+        expect(options!.queryParameters, isNot(contains('page')));
         expect(options!.queryParameters["pageSize"], 250);
         expect(options!.queryParameters["lastUpdated"], "2026-03-27");
         expect(options!.queryParameters.containsKey("page_size"), isFalse);
+      },
+    );
+
+    test(
+      'Should reject unsupported feed pages without a cursor before a request',
+      () async {
+        var requestCount = 0;
+        final isbndb = _createClient(onRequestCallback: (_) => requestCount++);
+
+        for (final page in <int>[0, 2]) {
+          await expectLater(
+            () => isbndb.getUpdatedBookFeed(page: page),
+            throwsA(isA<ArgumentError>()),
+          );
+        }
+        expect(requestCount, 0);
+      },
+    );
+
+    test(
+      'Should accept the legacy first feed page without sending it',
+      () async {
+        RequestOptions? options;
+        final isbndb = _createClient(
+          onRequestCallback: (requestOptions) => options = requestOptions,
+        );
+
+        final feed = await isbndb.getUpdatedBookFeed(page: 1);
+
+        expect(feed.page, 1);
+        expect(options!.queryParameters, {'pageSize': 100});
       },
     );
 
@@ -518,6 +567,8 @@ void main() {
       );
       final first = await isbndb.getUpdatedBookFeed();
       expect(first.next, 'opaque+/=cursor');
+      expect(first.page, 1);
+      expect(options!.queryParameters, {'pageSize': 100});
       payload['next'] = null;
       final last = await isbndb.getUpdatedBookFeed(
         cursor: first.next,
@@ -530,6 +581,7 @@ void main() {
         'pageSize': 250,
       });
       expect(last.next, isNull);
+      expect(last.page, 1);
     });
 
     test('Should parse getSubjects results from object map', () async {
@@ -1406,7 +1458,6 @@ Map<String, Map<String, dynamic>> _defaultResponses() => {
         "status": "updated",
       },
     ],
-    "page": 1,
     "page_size": 100,
   },
   "GET key": {

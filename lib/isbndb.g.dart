@@ -90,6 +90,9 @@ _Book _$BookFromJson(Map<String, dynamic> json) => _Book(
   related: (_readBookRelated(json, 'related') as List<dynamic>?)
       ?.map((e) => e as String)
       .toList(),
+  thema: (json['thema'] as List<dynamic>?)
+      ?.map((e) => ThemaEntry.fromJson(e as Map<String, dynamic>))
+      .toList(),
 );
 
 Map<String, dynamic> _$BookToJson(_Book instance) => <String, dynamic>{
@@ -117,6 +120,7 @@ Map<String, dynamic> _$BookToJson(_Book instance) => <String, dynamic>{
   'reviews': instance.reviews,
   'prices': instance.prices,
   'related': instance.related,
+  'thema': instance.thema,
 };
 
 _Merchant _$MerchantFromJson(Map<String, dynamic> json) => _Merchant(
@@ -268,6 +272,135 @@ Map<String, dynamic> _$SubjectToJson(_Subject instance) => <String, dynamic>{
   'books': instance.books,
 };
 
+_ThemaEntry _$ThemaEntryFromJson(Map<String, dynamic> json) => _ThemaEntry(
+  code: json['code'] as String,
+  name: json['name'] as String,
+  type: $enumDecode(
+    _$ThemaTypeEnumMap,
+    json['type'],
+    unknownValue: ThemaType.unknown,
+  ),
+  main: json['main'] as bool,
+);
+
+Map<String, dynamic> _$ThemaEntryToJson(_ThemaEntry instance) =>
+    <String, dynamic>{
+      'code': instance.code,
+      'name': instance.name,
+      'type': _$ThemaTypeEnumMap[instance.type]!,
+      'main': instance.main,
+    };
+
+const _$ThemaTypeEnumMap = {
+  ThemaType.subject: 'subject',
+  ThemaType.place: 'place',
+  ThemaType.language: 'language',
+  ThemaType.time: 'time',
+  ThemaType.education: 'education',
+  ThemaType.interest: 'interest',
+  ThemaType.style: 'style',
+  ThemaType.unknown: 'unknown',
+};
+
+_ThemaNode _$ThemaNodeFromJson(Map<String, dynamic> json) => _ThemaNode(
+  code: json['code'] as String,
+  name: json['name'] as String,
+  type: $enumDecode(
+    _$ThemaTypeEnumMap,
+    json['type'],
+    unknownValue: ThemaType.unknown,
+  ),
+  parent: json['parent'] as String?,
+  hasChildren: json['has_children'] as bool,
+);
+
+Map<String, dynamic> _$ThemaNodeToJson(_ThemaNode instance) =>
+    <String, dynamic>{
+      'code': instance.code,
+      'name': instance.name,
+      'type': _$ThemaTypeEnumMap[instance.type]!,
+      'parent': instance.parent,
+      'has_children': instance.hasChildren,
+    };
+
+_ThemaListResponse _$ThemaListResponseFromJson(Map<String, dynamic> json) =>
+    _ThemaListResponse(
+      total: (json['total'] as num).toInt(),
+      page: (json['page'] as num).toInt(),
+      pageSize: (json['page_size'] as num).toInt(),
+      codes:
+          (json['codes'] as List<dynamic>?)
+              ?.map((e) => ThemaNode.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
+    );
+
+Map<String, dynamic> _$ThemaListResponseToJson(_ThemaListResponse instance) =>
+    <String, dynamic>{
+      'total': instance.total,
+      'page': instance.page,
+      'page_size': instance.pageSize,
+      'codes': instance.codes,
+    };
+
+_ThemaDetailsResponse _$ThemaDetailsResponseFromJson(
+  Map<String, dynamic> json,
+) => _ThemaDetailsResponse(
+  code: json['code'] as String,
+  name: json['name'] as String,
+  type: $enumDecode(
+    _$ThemaTypeEnumMap,
+    json['type'],
+    unknownValue: ThemaType.unknown,
+  ),
+  parent: json['parent'] as String?,
+  ancestors:
+      (json['ancestors'] as List<dynamic>?)
+          ?.map((e) => ThemaNode.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
+  children:
+      (json['children'] as List<dynamic>?)
+          ?.map((e) => ThemaNode.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
+  replacedFrom: json['replaced_from'] as String?,
+);
+
+Map<String, dynamic> _$ThemaDetailsResponseToJson(
+  _ThemaDetailsResponse instance,
+) => <String, dynamic>{
+  'code': instance.code,
+  'name': instance.name,
+  'type': _$ThemaTypeEnumMap[instance.type]!,
+  'parent': instance.parent,
+  'ancestors': instance.ancestors,
+  'children': instance.children,
+  'replaced_from': instance.replacedFrom,
+};
+
+_ThemaBooksResponse _$ThemaBooksResponseFromJson(Map<String, dynamic> json) =>
+    _ThemaBooksResponse(
+      thema: ThemaNode.fromJson(json['thema'] as Map<String, dynamic>),
+      books:
+          (json['books'] as List<dynamic>?)
+              ?.map((e) => Book.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
+      total: (json['total'] as num).toInt(),
+      page: (json['page'] as num).toInt(),
+      pageSize: (json['page_size'] as num).toInt(),
+    );
+
+Map<String, dynamic> _$ThemaBooksResponseToJson(_ThemaBooksResponse instance) =>
+    <String, dynamic>{
+      'thema': instance.thema,
+      'books': instance.books,
+      'total': instance.total,
+      'page': instance.page,
+      'page_size': instance.pageSize,
+    };
+
 _UpdatedBook _$UpdatedBookFromJson(Map<String, dynamic> json) => _UpdatedBook(
   isbn13: json['isbn13'] as String,
   updatedAt: DateTime.parse(json['updated_at'] as String),
@@ -302,7 +435,7 @@ _UpdatedBookFeed _$UpdatedBookFeedFromJson(Map<String, dynamic> json) =>
           const [],
       total: (json['total'] as num?)?.toInt(),
       next: json['next'] as String?,
-      page: (json['page'] as num).toInt(),
+      page: (json['page'] as num?)?.toInt() ?? 1,
       pageSize: (json['page_size'] as num).toInt(),
     );
 

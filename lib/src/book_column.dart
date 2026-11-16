@@ -5,6 +5,6 @@ enum BookColumn {
   title,
   author,
   date_published,
-  @Deprecated('Deprecated by ISBNdb without a replacement.')
+  @Deprecated('Use the thema filter instead.')
   subjects,
 }

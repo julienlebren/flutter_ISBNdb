@@ -25,4 +25,5 @@ part 'src/plan_limit.dart';
 part 'src/stats.dart';
 part 'src/subject_query_results.dart';
 part 'src/subject.dart';
+part 'src/thema.dart';
 part 'src/updated_book_feed.dart';

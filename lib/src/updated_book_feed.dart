@@ -103,9 +103,9 @@ sealed class UpdatedBookFeed with _$UpdatedBookFeed {
     /// Opaque cursor for the next page; null when no more updates remain.
     String? next,
 
-    /// Legacy offset page number; always 1 with a cursor.
-    /// ISBNdb rejects values other than 1 from November 7, 2026, 00:00 UTC.
-    required int page,
+    /// Legacy offset page number, defaulting to 1 for cursor-only responses.
+    /// ISBNdb API 2.9.0 no longer returns this field.
+    @Deprecated('Use next for cursor pagination instead.') @Default(1) int page,
 
     /// Requested page size.
     @JsonKey(name: 'page_size') required int pageSize,
