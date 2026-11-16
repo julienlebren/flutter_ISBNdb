@@ -1,4 +1,4 @@
-## Unreleased
+## 2.6.0 - 2026-11-16
 
 - Aligned the bundled OpenAPI snapshot and documentation with ISBNdb API 2.9.0.
 - Fixed update-feed decoding when the API omits `page`. The deprecated `UpdatedBookFeed.page` defaults to `1` for missing or null values; legacy responses and the four-field callbacks remain supported.
