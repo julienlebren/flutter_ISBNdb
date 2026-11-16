@@ -898,11 +898,12 @@ mixin _$Book implements DiagnosticableTreeMixin {
 @JsonKey(name: 'list_price') ListPrice? get listPrice;/// Excerpt of the book. Deprecated by ISBNdb without a replacement.
 @Deprecated('Deprecated by ISBNdb without a replacement.') String? get excerpt;/// Synopsys of the book
  String? get synopsys;/// List of the authors of the book
-@JsonKey(readValue: _readBookAuthors) List<String?>? get authors;/// List of the subjects of the book. Scheduled for removal by ISBNdb.
-@Deprecated('Deprecated by ISBNdb without a replacement.')@JsonKey(readValue: _readBookSubjects) List<String>? get subjects;/// Not documented in the official API
+@JsonKey(readValue: _readBookAuthors) List<String?>? get authors;/// Legacy subjects, scheduled for removal by ISBNdb. Use [thema] instead.
+@Deprecated('Use thema instead.')@JsonKey(readValue: _readBookSubjects) List<String>? get subjects;/// Not documented in the official API
 @JsonKey(readValue: _readBookReviews) List<String>? get reviews;/// List of the merchants selling this book with real-time prices
  List<Merchant>? get prices;/// Not documented in the official API
-@JsonKey(readValue: _readBookRelated) List<String>? get related;
+@JsonKey(readValue: _readBookRelated) List<String>? get related;/// Thema subjects and qualifiers; the main subject is first, when present.
+ List<ThemaEntry>? get thema;
 /// Create a copy of Book
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -916,21 +917,21 @@ $BookCopyWith<Book> get copyWith => _$BookCopyWithImpl<Book>(this as Book, _$ide
 void debugFillProperties(DiagnosticPropertiesBuilder properties) {
   properties
     ..add(DiagnosticsProperty('type', 'Book'))
-    ..add(DiagnosticsProperty('title', title))..add(DiagnosticsProperty('titleLong', titleLong))..add(DiagnosticsProperty('isbn', isbn))..add(DiagnosticsProperty('isbn13', isbn13))..add(DiagnosticsProperty('deweyDecimal', deweyDecimal))..add(DiagnosticsProperty('binding', binding))..add(DiagnosticsProperty('publisher', publisher))..add(DiagnosticsProperty('language', language))..add(DiagnosticsProperty('datePublished', datePublished))..add(DiagnosticsProperty('edition', edition))..add(DiagnosticsProperty('editionNumber', editionNumber))..add(DiagnosticsProperty('pages', pages))..add(DiagnosticsProperty('dimensions', dimensions))..add(DiagnosticsProperty('overview', overview))..add(DiagnosticsProperty('image', image))..add(DiagnosticsProperty('msrp', msrp))..add(DiagnosticsProperty('listPrice', listPrice))..add(DiagnosticsProperty('excerpt', excerpt))..add(DiagnosticsProperty('synopsys', synopsys))..add(DiagnosticsProperty('authors', authors))..add(DiagnosticsProperty('subjects', subjects))..add(DiagnosticsProperty('reviews', reviews))..add(DiagnosticsProperty('prices', prices))..add(DiagnosticsProperty('related', related));
+    ..add(DiagnosticsProperty('title', title))..add(DiagnosticsProperty('titleLong', titleLong))..add(DiagnosticsProperty('isbn', isbn))..add(DiagnosticsProperty('isbn13', isbn13))..add(DiagnosticsProperty('deweyDecimal', deweyDecimal))..add(DiagnosticsProperty('binding', binding))..add(DiagnosticsProperty('publisher', publisher))..add(DiagnosticsProperty('language', language))..add(DiagnosticsProperty('datePublished', datePublished))..add(DiagnosticsProperty('edition', edition))..add(DiagnosticsProperty('editionNumber', editionNumber))..add(DiagnosticsProperty('pages', pages))..add(DiagnosticsProperty('dimensions', dimensions))..add(DiagnosticsProperty('overview', overview))..add(DiagnosticsProperty('image', image))..add(DiagnosticsProperty('msrp', msrp))..add(DiagnosticsProperty('listPrice', listPrice))..add(DiagnosticsProperty('excerpt', excerpt))..add(DiagnosticsProperty('synopsys', synopsys))..add(DiagnosticsProperty('authors', authors))..add(DiagnosticsProperty('subjects', subjects))..add(DiagnosticsProperty('reviews', reviews))..add(DiagnosticsProperty('prices', prices))..add(DiagnosticsProperty('related', related))..add(DiagnosticsProperty('thema', thema));
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Book&&(identical(other.title, title) || other.title == title)&&(identical(other.titleLong, titleLong) || other.titleLong == titleLong)&&(identical(other.isbn, isbn) || other.isbn == isbn)&&(identical(other.isbn13, isbn13) || other.isbn13 == isbn13)&&(identical(other.deweyDecimal, deweyDecimal) || other.deweyDecimal == deweyDecimal)&&(identical(other.binding, binding) || other.binding == binding)&&(identical(other.publisher, publisher) || other.publisher == publisher)&&(identical(other.language, language) || other.language == language)&&(identical(other.datePublished, datePublished) || other.datePublished == datePublished)&&(identical(other.edition, edition) || other.edition == edition)&&(identical(other.editionNumber, editionNumber) || other.editionNumber == editionNumber)&&(identical(other.pages, pages) || other.pages == pages)&&(identical(other.dimensions, dimensions) || other.dimensions == dimensions)&&(identical(other.overview, overview) || other.overview == overview)&&(identical(other.image, image) || other.image == image)&&(identical(other.msrp, msrp) || other.msrp == msrp)&&(identical(other.listPrice, listPrice) || other.listPrice == listPrice)&&(identical(other.excerpt, excerpt) || other.excerpt == excerpt)&&(identical(other.synopsys, synopsys) || other.synopsys == synopsys)&&const DeepCollectionEquality().equals(other.authors, authors)&&const DeepCollectionEquality().equals(other.subjects, subjects)&&const DeepCollectionEquality().equals(other.reviews, reviews)&&const DeepCollectionEquality().equals(other.prices, prices)&&const DeepCollectionEquality().equals(other.related, related));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Book&&(identical(other.title, title) || other.title == title)&&(identical(other.titleLong, titleLong) || other.titleLong == titleLong)&&(identical(other.isbn, isbn) || other.isbn == isbn)&&(identical(other.isbn13, isbn13) || other.isbn13 == isbn13)&&(identical(other.deweyDecimal, deweyDecimal) || other.deweyDecimal == deweyDecimal)&&(identical(other.binding, binding) || other.binding == binding)&&(identical(other.publisher, publisher) || other.publisher == publisher)&&(identical(other.language, language) || other.language == language)&&(identical(other.datePublished, datePublished) || other.datePublished == datePublished)&&(identical(other.edition, edition) || other.edition == edition)&&(identical(other.editionNumber, editionNumber) || other.editionNumber == editionNumber)&&(identical(other.pages, pages) || other.pages == pages)&&(identical(other.dimensions, dimensions) || other.dimensions == dimensions)&&(identical(other.overview, overview) || other.overview == overview)&&(identical(other.image, image) || other.image == image)&&(identical(other.msrp, msrp) || other.msrp == msrp)&&(identical(other.listPrice, listPrice) || other.listPrice == listPrice)&&(identical(other.excerpt, excerpt) || other.excerpt == excerpt)&&(identical(other.synopsys, synopsys) || other.synopsys == synopsys)&&const DeepCollectionEquality().equals(other.authors, authors)&&const DeepCollectionEquality().equals(other.subjects, subjects)&&const DeepCollectionEquality().equals(other.reviews, reviews)&&const DeepCollectionEquality().equals(other.prices, prices)&&const DeepCollectionEquality().equals(other.related, related)&&const DeepCollectionEquality().equals(other.thema, thema));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,title,titleLong,isbn,isbn13,deweyDecimal,binding,publisher,language,datePublished,edition,editionNumber,pages,dimensions,overview,image,msrp,listPrice,excerpt,synopsys,const DeepCollectionEquality().hash(authors),const DeepCollectionEquality().hash(subjects),const DeepCollectionEquality().hash(reviews),const DeepCollectionEquality().hash(prices),const DeepCollectionEquality().hash(related)]);
+int get hashCode => Object.hashAll([runtimeType,title,titleLong,isbn,isbn13,deweyDecimal,binding,publisher,language,datePublished,edition,editionNumber,pages,dimensions,overview,image,msrp,listPrice,excerpt,synopsys,const DeepCollectionEquality().hash(authors),const DeepCollectionEquality().hash(subjects),const DeepCollectionEquality().hash(reviews),const DeepCollectionEquality().hash(prices),const DeepCollectionEquality().hash(related),const DeepCollectionEquality().hash(thema)]);
 
 @override
 String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
-  return 'Book(title: $title, titleLong: $titleLong, isbn: $isbn, isbn13: $isbn13, deweyDecimal: $deweyDecimal, binding: $binding, publisher: $publisher, language: $language, datePublished: $datePublished, edition: $edition, editionNumber: $editionNumber, pages: $pages, dimensions: $dimensions, overview: $overview, image: $image, msrp: $msrp, listPrice: $listPrice, excerpt: $excerpt, synopsys: $synopsys, authors: $authors, subjects: $subjects, reviews: $reviews, prices: $prices, related: $related)';
+  return 'Book(title: $title, titleLong: $titleLong, isbn: $isbn, isbn13: $isbn13, deweyDecimal: $deweyDecimal, binding: $binding, publisher: $publisher, language: $language, datePublished: $datePublished, edition: $edition, editionNumber: $editionNumber, pages: $pages, dimensions: $dimensions, overview: $overview, image: $image, msrp: $msrp, listPrice: $listPrice, excerpt: $excerpt, synopsys: $synopsys, authors: $authors, subjects: $subjects, reviews: $reviews, prices: $prices, related: $related, thema: $thema)';
 }
 
 
@@ -941,7 +942,7 @@ abstract mixin class $BookCopyWith<$Res>  {
   factory $BookCopyWith(Book value, $Res Function(Book) _then) = _$BookCopyWithImpl;
 @useResult
 $Res call({
- String title,@JsonKey(name: 'title_long') String? titleLong, String isbn, String isbn13,@_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal') String? deweyDecimal, String? binding, String? publisher, String? language,@_DateConverter()@JsonKey(name: 'date_published') DateTime? datePublished,@Deprecated('Use editionNumber instead.') String? edition,@JsonKey(name: 'edition_number') int? editionNumber, int? pages, String? dimensions, String? overview, String? image,@Deprecated('Use listPrice instead.')@_MsrpConverter() double? msrp,@JsonKey(name: 'list_price') ListPrice? listPrice,@Deprecated('Deprecated by ISBNdb without a replacement.') String? excerpt, String? synopsys,@JsonKey(readValue: _readBookAuthors) List<String?>? authors,@Deprecated('Deprecated by ISBNdb without a replacement.')@JsonKey(readValue: _readBookSubjects) List<String>? subjects,@JsonKey(readValue: _readBookReviews) List<String>? reviews, List<Merchant>? prices,@JsonKey(readValue: _readBookRelated) List<String>? related
+ String title,@JsonKey(name: 'title_long') String? titleLong, String isbn, String isbn13,@_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal') String? deweyDecimal, String? binding, String? publisher, String? language,@_DateConverter()@JsonKey(name: 'date_published') DateTime? datePublished,@Deprecated('Use editionNumber instead.') String? edition,@JsonKey(name: 'edition_number') int? editionNumber, int? pages, String? dimensions, String? overview, String? image,@Deprecated('Use listPrice instead.')@_MsrpConverter() double? msrp,@JsonKey(name: 'list_price') ListPrice? listPrice,@Deprecated('Deprecated by ISBNdb without a replacement.') String? excerpt, String? synopsys,@JsonKey(readValue: _readBookAuthors) List<String?>? authors,@Deprecated('Use thema instead.')@JsonKey(readValue: _readBookSubjects) List<String>? subjects,@JsonKey(readValue: _readBookReviews) List<String>? reviews, List<Merchant>? prices,@JsonKey(readValue: _readBookRelated) List<String>? related, List<ThemaEntry>? thema
 });
 
 
@@ -958,7 +959,7 @@ class _$BookCopyWithImpl<$Res>
 
 /// Create a copy of Book
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? title = null,Object? titleLong = freezed,Object? isbn = null,Object? isbn13 = null,Object? deweyDecimal = freezed,Object? binding = freezed,Object? publisher = freezed,Object? language = freezed,Object? datePublished = freezed,Object? edition = freezed,Object? editionNumber = freezed,Object? pages = freezed,Object? dimensions = freezed,Object? overview = freezed,Object? image = freezed,Object? msrp = freezed,Object? listPrice = freezed,Object? excerpt = freezed,Object? synopsys = freezed,Object? authors = freezed,Object? subjects = freezed,Object? reviews = freezed,Object? prices = freezed,Object? related = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? title = null,Object? titleLong = freezed,Object? isbn = null,Object? isbn13 = null,Object? deweyDecimal = freezed,Object? binding = freezed,Object? publisher = freezed,Object? language = freezed,Object? datePublished = freezed,Object? edition = freezed,Object? editionNumber = freezed,Object? pages = freezed,Object? dimensions = freezed,Object? overview = freezed,Object? image = freezed,Object? msrp = freezed,Object? listPrice = freezed,Object? excerpt = freezed,Object? synopsys = freezed,Object? authors = freezed,Object? subjects = freezed,Object? reviews = freezed,Object? prices = freezed,Object? related = freezed,Object? thema = freezed,}) {
   return _then(_self.copyWith(
 title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,titleLong: freezed == titleLong ? _self.titleLong : titleLong // ignore: cast_nullable_to_non_nullable
@@ -984,7 +985,8 @@ as List<String?>?,subjects: freezed == subjects ? _self.subjects : subjects // i
 as List<String>?,reviews: freezed == reviews ? _self.reviews : reviews // ignore: cast_nullable_to_non_nullable
 as List<String>?,prices: freezed == prices ? _self.prices : prices // ignore: cast_nullable_to_non_nullable
 as List<Merchant>?,related: freezed == related ? _self.related : related // ignore: cast_nullable_to_non_nullable
-as List<String>?,
+as List<String>?,thema: freezed == thema ? _self.thema : thema // ignore: cast_nullable_to_non_nullable
+as List<ThemaEntry>?,
   ));
 }
 /// Create a copy of Book
@@ -1066,72 +1068,14 @@ return $default(_that);case _:
 
 }
 }
-/// A variant of `when` that fallback to an `orElse` callback.
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case _:
-///     return orElse();
-/// }
-/// ```
-
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String title, @JsonKey(name: 'title_long')  String? titleLong,  String isbn,  String isbn13, @_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal')  String? deweyDecimal,  String? binding,  String? publisher,  String? language, @_DateConverter()@JsonKey(name: 'date_published')  DateTime? datePublished, @Deprecated('Use editionNumber instead.')  String? edition, @JsonKey(name: 'edition_number')  int? editionNumber,  int? pages,  String? dimensions,  String? overview,  String? image, @Deprecated('Use listPrice instead.')@_MsrpConverter()  double? msrp, @JsonKey(name: 'list_price')  ListPrice? listPrice, @Deprecated('Deprecated by ISBNdb without a replacement.')  String? excerpt,  String? synopsys, @JsonKey(readValue: _readBookAuthors)  List<String?>? authors, @Deprecated('Deprecated by ISBNdb without a replacement.')@JsonKey(readValue: _readBookSubjects)  List<String>? subjects, @JsonKey(readValue: _readBookReviews)  List<String>? reviews,  List<Merchant>? prices, @JsonKey(readValue: _readBookRelated)  List<String>? related)?  $default,{required TResult orElse(),}) {final _that = this;
-switch (_that) {
-case _Book() when $default != null:
-return $default(_that.title,_that.titleLong,_that.isbn,_that.isbn13,_that.deweyDecimal,_that.binding,_that.publisher,_that.language,_that.datePublished,_that.edition,_that.editionNumber,_that.pages,_that.dimensions,_that.overview,_that.image,_that.msrp,_that.listPrice,_that.excerpt,_that.synopsys,_that.authors,_that.subjects,_that.reviews,_that.prices,_that.related);case _:
-  return orElse();
-
-}
-}
-/// A `switch`-like method, using callbacks.
-///
-/// As opposed to `map`, this offers destructuring.
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case Subclass2(:final field2):
-///     return ...;
-/// }
-/// ```
-
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String title, @JsonKey(name: 'title_long')  String? titleLong,  String isbn,  String isbn13, @_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal')  String? deweyDecimal,  String? binding,  String? publisher,  String? language, @_DateConverter()@JsonKey(name: 'date_published')  DateTime? datePublished, @Deprecated('Use editionNumber instead.')  String? edition, @JsonKey(name: 'edition_number')  int? editionNumber,  int? pages,  String? dimensions,  String? overview,  String? image, @Deprecated('Use listPrice instead.')@_MsrpConverter()  double? msrp, @JsonKey(name: 'list_price')  ListPrice? listPrice, @Deprecated('Deprecated by ISBNdb without a replacement.')  String? excerpt,  String? synopsys, @JsonKey(readValue: _readBookAuthors)  List<String?>? authors, @Deprecated('Deprecated by ISBNdb without a replacement.')@JsonKey(readValue: _readBookSubjects)  List<String>? subjects, @JsonKey(readValue: _readBookReviews)  List<String>? reviews,  List<Merchant>? prices, @JsonKey(readValue: _readBookRelated)  List<String>? related)  $default,) {final _that = this;
-switch (_that) {
-case _Book():
-return $default(_that.title,_that.titleLong,_that.isbn,_that.isbn13,_that.deweyDecimal,_that.binding,_that.publisher,_that.language,_that.datePublished,_that.edition,_that.editionNumber,_that.pages,_that.dimensions,_that.overview,_that.image,_that.msrp,_that.listPrice,_that.excerpt,_that.synopsys,_that.authors,_that.subjects,_that.reviews,_that.prices,_that.related);}
-}
-/// A variant of `when` that fallback to returning `null`
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case _:
-///     return null;
-/// }
-/// ```
-
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String title, @JsonKey(name: 'title_long')  String? titleLong,  String isbn,  String isbn13, @_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal')  String? deweyDecimal,  String? binding,  String? publisher,  String? language, @_DateConverter()@JsonKey(name: 'date_published')  DateTime? datePublished, @Deprecated('Use editionNumber instead.')  String? edition, @JsonKey(name: 'edition_number')  int? editionNumber,  int? pages,  String? dimensions,  String? overview,  String? image, @Deprecated('Use listPrice instead.')@_MsrpConverter()  double? msrp, @JsonKey(name: 'list_price')  ListPrice? listPrice, @Deprecated('Deprecated by ISBNdb without a replacement.')  String? excerpt,  String? synopsys, @JsonKey(readValue: _readBookAuthors)  List<String?>? authors, @Deprecated('Deprecated by ISBNdb without a replacement.')@JsonKey(readValue: _readBookSubjects)  List<String>? subjects, @JsonKey(readValue: _readBookReviews)  List<String>? reviews,  List<Merchant>? prices, @JsonKey(readValue: _readBookRelated)  List<String>? related)?  $default,) {final _that = this;
-switch (_that) {
-case _Book() when $default != null:
-return $default(_that.title,_that.titleLong,_that.isbn,_that.isbn13,_that.deweyDecimal,_that.binding,_that.publisher,_that.language,_that.datePublished,_that.edition,_that.editionNumber,_that.pages,_that.dimensions,_that.overview,_that.image,_that.msrp,_that.listPrice,_that.excerpt,_that.synopsys,_that.authors,_that.subjects,_that.reviews,_that.prices,_that.related);case _:
-  return null;
-
-}
-}
 
 }
 
 /// @nodoc
 @JsonSerializable()
 
-class _Book with DiagnosticableTreeMixin implements Book {
-   _Book({required this.title, @JsonKey(name: 'title_long') this.titleLong, required this.isbn, required this.isbn13, @_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal') this.deweyDecimal, this.binding, this.publisher, this.language, @_DateConverter()@JsonKey(name: 'date_published') this.datePublished, @Deprecated('Use editionNumber instead.') this.edition, @JsonKey(name: 'edition_number') this.editionNumber, this.pages, this.dimensions, this.overview, this.image, @Deprecated('Use listPrice instead.')@_MsrpConverter() this.msrp, @JsonKey(name: 'list_price') this.listPrice, @Deprecated('Deprecated by ISBNdb without a replacement.') this.excerpt, this.synopsys, @JsonKey(readValue: _readBookAuthors) final  List<String?>? authors, @Deprecated('Deprecated by ISBNdb without a replacement.')@JsonKey(readValue: _readBookSubjects) final  List<String>? subjects, @JsonKey(readValue: _readBookReviews) final  List<String>? reviews, final  List<Merchant>? prices, @JsonKey(readValue: _readBookRelated) final  List<String>? related}): _authors = authors,_subjects = subjects,_reviews = reviews,_prices = prices,_related = related;
+class _Book extends Book with DiagnosticableTreeMixin {
+   _Book({required this.title, @JsonKey(name: 'title_long') this.titleLong, required this.isbn, required this.isbn13, @_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal') this.deweyDecimal, this.binding, this.publisher, this.language, @_DateConverter()@JsonKey(name: 'date_published') this.datePublished, @Deprecated('Use editionNumber instead.') this.edition, @JsonKey(name: 'edition_number') this.editionNumber, this.pages, this.dimensions, this.overview, this.image, @Deprecated('Use listPrice instead.')@_MsrpConverter() this.msrp, @JsonKey(name: 'list_price') this.listPrice, @Deprecated('Deprecated by ISBNdb without a replacement.') this.excerpt, this.synopsys, @JsonKey(readValue: _readBookAuthors) final  List<String?>? authors, @Deprecated('Use thema instead.')@JsonKey(readValue: _readBookSubjects) final  List<String>? subjects, @JsonKey(readValue: _readBookReviews) final  List<String>? reviews, final  List<Merchant>? prices, @JsonKey(readValue: _readBookRelated) final  List<String>? related, final  List<ThemaEntry>? thema}): _authors = authors,_subjects = subjects,_reviews = reviews,_prices = prices,_related = related,_thema = thema,super._();
   factory _Book.fromJson(Map<String, dynamic> json) => _$BookFromJson(json);
 
 /// Title of the book
@@ -1187,10 +1131,10 @@ class _Book with DiagnosticableTreeMixin implements Book {
   return EqualUnmodifiableListView(value);
 }
 
-/// List of the subjects of the book. Scheduled for removal by ISBNdb.
+/// Legacy subjects, scheduled for removal by ISBNdb. Use [thema] instead.
  final  List<String>? _subjects;
-/// List of the subjects of the book. Scheduled for removal by ISBNdb.
-@override@Deprecated('Deprecated by ISBNdb without a replacement.')@JsonKey(readValue: _readBookSubjects) List<String>? get subjects {
+/// Legacy subjects, scheduled for removal by ISBNdb. Use [thema] instead.
+@override@Deprecated('Use thema instead.')@JsonKey(readValue: _readBookSubjects) List<String>? get subjects {
   final value = _subjects;
   if (value == null) return null;
   if (_subjects is EqualUnmodifiableListView) return _subjects;
@@ -1231,6 +1175,17 @@ class _Book with DiagnosticableTreeMixin implements Book {
   return EqualUnmodifiableListView(value);
 }
 
+/// Thema subjects and qualifiers; the main subject is first, when present.
+ final  List<ThemaEntry>? _thema;
+/// Thema subjects and qualifiers; the main subject is first, when present.
+@override List<ThemaEntry>? get thema {
+  final value = _thema;
+  if (value == null) return null;
+  if (_thema is EqualUnmodifiableListView) return _thema;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(value);
+}
+
 
 /// Create a copy of Book
 /// with the given fields replaced by the non-null parameter values.
@@ -1246,21 +1201,21 @@ Map<String, dynamic> toJson() {
 void debugFillProperties(DiagnosticPropertiesBuilder properties) {
   properties
     ..add(DiagnosticsProperty('type', 'Book'))
-    ..add(DiagnosticsProperty('title', title))..add(DiagnosticsProperty('titleLong', titleLong))..add(DiagnosticsProperty('isbn', isbn))..add(DiagnosticsProperty('isbn13', isbn13))..add(DiagnosticsProperty('deweyDecimal', deweyDecimal))..add(DiagnosticsProperty('binding', binding))..add(DiagnosticsProperty('publisher', publisher))..add(DiagnosticsProperty('language', language))..add(DiagnosticsProperty('datePublished', datePublished))..add(DiagnosticsProperty('edition', edition))..add(DiagnosticsProperty('editionNumber', editionNumber))..add(DiagnosticsProperty('pages', pages))..add(DiagnosticsProperty('dimensions', dimensions))..add(DiagnosticsProperty('overview', overview))..add(DiagnosticsProperty('image', image))..add(DiagnosticsProperty('msrp', msrp))..add(DiagnosticsProperty('listPrice', listPrice))..add(DiagnosticsProperty('excerpt', excerpt))..add(DiagnosticsProperty('synopsys', synopsys))..add(DiagnosticsProperty('authors', authors))..add(DiagnosticsProperty('subjects', subjects))..add(DiagnosticsProperty('reviews', reviews))..add(DiagnosticsProperty('prices', prices))..add(DiagnosticsProperty('related', related));
+    ..add(DiagnosticsProperty('title', title))..add(DiagnosticsProperty('titleLong', titleLong))..add(DiagnosticsProperty('isbn', isbn))..add(DiagnosticsProperty('isbn13', isbn13))..add(DiagnosticsProperty('deweyDecimal', deweyDecimal))..add(DiagnosticsProperty('binding', binding))..add(DiagnosticsProperty('publisher', publisher))..add(DiagnosticsProperty('language', language))..add(DiagnosticsProperty('datePublished', datePublished))..add(DiagnosticsProperty('edition', edition))..add(DiagnosticsProperty('editionNumber', editionNumber))..add(DiagnosticsProperty('pages', pages))..add(DiagnosticsProperty('dimensions', dimensions))..add(DiagnosticsProperty('overview', overview))..add(DiagnosticsProperty('image', image))..add(DiagnosticsProperty('msrp', msrp))..add(DiagnosticsProperty('listPrice', listPrice))..add(DiagnosticsProperty('excerpt', excerpt))..add(DiagnosticsProperty('synopsys', synopsys))..add(DiagnosticsProperty('authors', authors))..add(DiagnosticsProperty('subjects', subjects))..add(DiagnosticsProperty('reviews', reviews))..add(DiagnosticsProperty('prices', prices))..add(DiagnosticsProperty('related', related))..add(DiagnosticsProperty('thema', thema));
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Book&&(identical(other.title, title) || other.title == title)&&(identical(other.titleLong, titleLong) || other.titleLong == titleLong)&&(identical(other.isbn, isbn) || other.isbn == isbn)&&(identical(other.isbn13, isbn13) || other.isbn13 == isbn13)&&(identical(other.deweyDecimal, deweyDecimal) || other.deweyDecimal == deweyDecimal)&&(identical(other.binding, binding) || other.binding == binding)&&(identical(other.publisher, publisher) || other.publisher == publisher)&&(identical(other.language, language) || other.language == language)&&(identical(other.datePublished, datePublished) || other.datePublished == datePublished)&&(identical(other.edition, edition) || other.edition == edition)&&(identical(other.editionNumber, editionNumber) || other.editionNumber == editionNumber)&&(identical(other.pages, pages) || other.pages == pages)&&(identical(other.dimensions, dimensions) || other.dimensions == dimensions)&&(identical(other.overview, overview) || other.overview == overview)&&(identical(other.image, image) || other.image == image)&&(identical(other.msrp, msrp) || other.msrp == msrp)&&(identical(other.listPrice, listPrice) || other.listPrice == listPrice)&&(identical(other.excerpt, excerpt) || other.excerpt == excerpt)&&(identical(other.synopsys, synopsys) || other.synopsys == synopsys)&&const DeepCollectionEquality().equals(other._authors, _authors)&&const DeepCollectionEquality().equals(other._subjects, _subjects)&&const DeepCollectionEquality().equals(other._reviews, _reviews)&&const DeepCollectionEquality().equals(other._prices, _prices)&&const DeepCollectionEquality().equals(other._related, _related));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Book&&(identical(other.title, title) || other.title == title)&&(identical(other.titleLong, titleLong) || other.titleLong == titleLong)&&(identical(other.isbn, isbn) || other.isbn == isbn)&&(identical(other.isbn13, isbn13) || other.isbn13 == isbn13)&&(identical(other.deweyDecimal, deweyDecimal) || other.deweyDecimal == deweyDecimal)&&(identical(other.binding, binding) || other.binding == binding)&&(identical(other.publisher, publisher) || other.publisher == publisher)&&(identical(other.language, language) || other.language == language)&&(identical(other.datePublished, datePublished) || other.datePublished == datePublished)&&(identical(other.edition, edition) || other.edition == edition)&&(identical(other.editionNumber, editionNumber) || other.editionNumber == editionNumber)&&(identical(other.pages, pages) || other.pages == pages)&&(identical(other.dimensions, dimensions) || other.dimensions == dimensions)&&(identical(other.overview, overview) || other.overview == overview)&&(identical(other.image, image) || other.image == image)&&(identical(other.msrp, msrp) || other.msrp == msrp)&&(identical(other.listPrice, listPrice) || other.listPrice == listPrice)&&(identical(other.excerpt, excerpt) || other.excerpt == excerpt)&&(identical(other.synopsys, synopsys) || other.synopsys == synopsys)&&const DeepCollectionEquality().equals(other._authors, _authors)&&const DeepCollectionEquality().equals(other._subjects, _subjects)&&const DeepCollectionEquality().equals(other._reviews, _reviews)&&const DeepCollectionEquality().equals(other._prices, _prices)&&const DeepCollectionEquality().equals(other._related, _related)&&const DeepCollectionEquality().equals(other._thema, _thema));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hashAll([runtimeType,title,titleLong,isbn,isbn13,deweyDecimal,binding,publisher,language,datePublished,edition,editionNumber,pages,dimensions,overview,image,msrp,listPrice,excerpt,synopsys,const DeepCollectionEquality().hash(_authors),const DeepCollectionEquality().hash(_subjects),const DeepCollectionEquality().hash(_reviews),const DeepCollectionEquality().hash(_prices),const DeepCollectionEquality().hash(_related)]);
+int get hashCode => Object.hashAll([runtimeType,title,titleLong,isbn,isbn13,deweyDecimal,binding,publisher,language,datePublished,edition,editionNumber,pages,dimensions,overview,image,msrp,listPrice,excerpt,synopsys,const DeepCollectionEquality().hash(_authors),const DeepCollectionEquality().hash(_subjects),const DeepCollectionEquality().hash(_reviews),const DeepCollectionEquality().hash(_prices),const DeepCollectionEquality().hash(_related),const DeepCollectionEquality().hash(_thema)]);
 
 @override
 String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
-  return 'Book(title: $title, titleLong: $titleLong, isbn: $isbn, isbn13: $isbn13, deweyDecimal: $deweyDecimal, binding: $binding, publisher: $publisher, language: $language, datePublished: $datePublished, edition: $edition, editionNumber: $editionNumber, pages: $pages, dimensions: $dimensions, overview: $overview, image: $image, msrp: $msrp, listPrice: $listPrice, excerpt: $excerpt, synopsys: $synopsys, authors: $authors, subjects: $subjects, reviews: $reviews, prices: $prices, related: $related)';
+  return 'Book(title: $title, titleLong: $titleLong, isbn: $isbn, isbn13: $isbn13, deweyDecimal: $deweyDecimal, binding: $binding, publisher: $publisher, language: $language, datePublished: $datePublished, edition: $edition, editionNumber: $editionNumber, pages: $pages, dimensions: $dimensions, overview: $overview, image: $image, msrp: $msrp, listPrice: $listPrice, excerpt: $excerpt, synopsys: $synopsys, authors: $authors, subjects: $subjects, reviews: $reviews, prices: $prices, related: $related, thema: $thema)';
 }
 
 
@@ -1271,7 +1226,7 @@ abstract mixin class _$BookCopyWith<$Res> implements $BookCopyWith<$Res> {
   factory _$BookCopyWith(_Book value, $Res Function(_Book) _then) = __$BookCopyWithImpl;
 @override @useResult
 $Res call({
- String title,@JsonKey(name: 'title_long') String? titleLong, String isbn, String isbn13,@_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal') String? deweyDecimal, String? binding, String? publisher, String? language,@_DateConverter()@JsonKey(name: 'date_published') DateTime? datePublished,@Deprecated('Use editionNumber instead.') String? edition,@JsonKey(name: 'edition_number') int? editionNumber, int? pages, String? dimensions, String? overview, String? image,@Deprecated('Use listPrice instead.')@_MsrpConverter() double? msrp,@JsonKey(name: 'list_price') ListPrice? listPrice,@Deprecated('Deprecated by ISBNdb without a replacement.') String? excerpt, String? synopsys,@JsonKey(readValue: _readBookAuthors) List<String?>? authors,@Deprecated('Deprecated by ISBNdb without a replacement.')@JsonKey(readValue: _readBookSubjects) List<String>? subjects,@JsonKey(readValue: _readBookReviews) List<String>? reviews, List<Merchant>? prices,@JsonKey(readValue: _readBookRelated) List<String>? related
+ String title,@JsonKey(name: 'title_long') String? titleLong, String isbn, String isbn13,@_DeweyDecimalConverter()@JsonKey(name: 'dewey_decimal') String? deweyDecimal, String? binding, String? publisher, String? language,@_DateConverter()@JsonKey(name: 'date_published') DateTime? datePublished,@Deprecated('Use editionNumber instead.') String? edition,@JsonKey(name: 'edition_number') int? editionNumber, int? pages, String? dimensions, String? overview, String? image,@Deprecated('Use listPrice instead.')@_MsrpConverter() double? msrp,@JsonKey(name: 'list_price') ListPrice? listPrice,@Deprecated('Deprecated by ISBNdb without a replacement.') String? excerpt, String? synopsys,@JsonKey(readValue: _readBookAuthors) List<String?>? authors,@Deprecated('Use thema instead.')@JsonKey(readValue: _readBookSubjects) List<String>? subjects,@JsonKey(readValue: _readBookReviews) List<String>? reviews, List<Merchant>? prices,@JsonKey(readValue: _readBookRelated) List<String>? related, List<ThemaEntry>? thema
 });
 
 
@@ -1288,7 +1243,7 @@ class __$BookCopyWithImpl<$Res>
 
 /// Create a copy of Book
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? title = null,Object? titleLong = freezed,Object? isbn = null,Object? isbn13 = null,Object? deweyDecimal = freezed,Object? binding = freezed,Object? publisher = freezed,Object? language = freezed,Object? datePublished = freezed,Object? edition = freezed,Object? editionNumber = freezed,Object? pages = freezed,Object? dimensions = freezed,Object? overview = freezed,Object? image = freezed,Object? msrp = freezed,Object? listPrice = freezed,Object? excerpt = freezed,Object? synopsys = freezed,Object? authors = freezed,Object? subjects = freezed,Object? reviews = freezed,Object? prices = freezed,Object? related = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? title = null,Object? titleLong = freezed,Object? isbn = null,Object? isbn13 = null,Object? deweyDecimal = freezed,Object? binding = freezed,Object? publisher = freezed,Object? language = freezed,Object? datePublished = freezed,Object? edition = freezed,Object? editionNumber = freezed,Object? pages = freezed,Object? dimensions = freezed,Object? overview = freezed,Object? image = freezed,Object? msrp = freezed,Object? listPrice = freezed,Object? excerpt = freezed,Object? synopsys = freezed,Object? authors = freezed,Object? subjects = freezed,Object? reviews = freezed,Object? prices = freezed,Object? related = freezed,Object? thema = freezed,}) {
   return _then(_Book(
 title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,titleLong: freezed == titleLong ? _self.titleLong : titleLong // ignore: cast_nullable_to_non_nullable
@@ -1314,7 +1269,8 @@ as List<String?>?,subjects: freezed == subjects ? _self._subjects : subjects // 
 as List<String>?,reviews: freezed == reviews ? _self._reviews : reviews // ignore: cast_nullable_to_non_nullable
 as List<String>?,prices: freezed == prices ? _self._prices : prices // ignore: cast_nullable_to_non_nullable
 as List<Merchant>?,related: freezed == related ? _self._related : related // ignore: cast_nullable_to_non_nullable
-as List<String>?,
+as List<String>?,thema: freezed == thema ? _self._thema : thema // ignore: cast_nullable_to_non_nullable
+as List<ThemaEntry>?,
   ));
 }
 
@@ -2293,7 +2249,7 @@ as int?,
 @override
 @pragma('vm:prefer-inline')
 $PlanLimitCopyWith<$Res> get planLimit {
-  
+
   return $PlanLimitCopyWith<$Res>(_self.planLimit, (value) {
     return _then(_self.copyWith(planLimit: value));
   });
@@ -2457,7 +2413,7 @@ as int?,
 @override
 @pragma('vm:prefer-inline')
 $PlanLimitCopyWith<$Res> get planLimit {
-  
+
   return $PlanLimitCopyWith<$Res>(_self.planLimit, (value) {
     return _then(_self.copyWith(planLimit: value));
   });
@@ -3887,6 +3843,1457 @@ as List<Book>,
 
 
 /// @nodoc
+mixin _$ThemaEntry implements DiagnosticableTreeMixin {
+
+ String get code; String get name;@JsonKey(unknownEnumValue: ThemaType.unknown) ThemaType get type;/// Whether this is the book's main subject; qualifiers are never main.
+ bool get main;
+/// Create a copy of ThemaEntry
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ThemaEntryCopyWith<ThemaEntry> get copyWith => _$ThemaEntryCopyWithImpl<ThemaEntry>(this as ThemaEntry, _$identity);
+
+  /// Serializes this ThemaEntry to a JSON map.
+  Map<String, dynamic> toJson();
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'ThemaEntry'))
+    ..add(DiagnosticsProperty('code', code))..add(DiagnosticsProperty('name', name))..add(DiagnosticsProperty('type', type))..add(DiagnosticsProperty('main', main));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ThemaEntry&&(identical(other.code, code) || other.code == code)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.main, main) || other.main == main));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,code,name,type,main);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'ThemaEntry(code: $code, name: $name, type: $type, main: $main)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ThemaEntryCopyWith<$Res>  {
+  factory $ThemaEntryCopyWith(ThemaEntry value, $Res Function(ThemaEntry) _then) = _$ThemaEntryCopyWithImpl;
+@useResult
+$Res call({
+ String code, String name,@JsonKey(unknownEnumValue: ThemaType.unknown) ThemaType type, bool main
+});
+
+
+
+
+}
+/// @nodoc
+class _$ThemaEntryCopyWithImpl<$Res>
+    implements $ThemaEntryCopyWith<$Res> {
+  _$ThemaEntryCopyWithImpl(this._self, this._then);
+
+  final ThemaEntry _self;
+  final $Res Function(ThemaEntry) _then;
+
+/// Create a copy of ThemaEntry
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? code = null,Object? name = null,Object? type = null,Object? main = null,}) {
+  return _then(_self.copyWith(
+code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
+as ThemaType,main: null == main ? _self.main : main // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [ThemaEntry].
+extension ThemaEntryPatterns on ThemaEntry {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ThemaEntry value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ThemaEntry() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ThemaEntry value)  $default,){
+final _that = this;
+switch (_that) {
+case _ThemaEntry():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ThemaEntry value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ThemaEntry() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String code,  String name, @JsonKey(unknownEnumValue: ThemaType.unknown)  ThemaType type,  bool main)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ThemaEntry() when $default != null:
+return $default(_that.code,_that.name,_that.type,_that.main);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String code,  String name, @JsonKey(unknownEnumValue: ThemaType.unknown)  ThemaType type,  bool main)  $default,) {final _that = this;
+switch (_that) {
+case _ThemaEntry():
+return $default(_that.code,_that.name,_that.type,_that.main);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String code,  String name, @JsonKey(unknownEnumValue: ThemaType.unknown)  ThemaType type,  bool main)?  $default,) {final _that = this;
+switch (_that) {
+case _ThemaEntry() when $default != null:
+return $default(_that.code,_that.name,_that.type,_that.main);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _ThemaEntry with DiagnosticableTreeMixin implements ThemaEntry {
+   _ThemaEntry({required this.code, required this.name, @JsonKey(unknownEnumValue: ThemaType.unknown) required this.type, required this.main});
+  factory _ThemaEntry.fromJson(Map<String, dynamic> json) => _$ThemaEntryFromJson(json);
+
+@override final  String code;
+@override final  String name;
+@override@JsonKey(unknownEnumValue: ThemaType.unknown) final  ThemaType type;
+/// Whether this is the book's main subject; qualifiers are never main.
+@override final  bool main;
+
+/// Create a copy of ThemaEntry
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ThemaEntryCopyWith<_ThemaEntry> get copyWith => __$ThemaEntryCopyWithImpl<_ThemaEntry>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$ThemaEntryToJson(this, );
+}
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'ThemaEntry'))
+    ..add(DiagnosticsProperty('code', code))..add(DiagnosticsProperty('name', name))..add(DiagnosticsProperty('type', type))..add(DiagnosticsProperty('main', main));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ThemaEntry&&(identical(other.code, code) || other.code == code)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.main, main) || other.main == main));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,code,name,type,main);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'ThemaEntry(code: $code, name: $name, type: $type, main: $main)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ThemaEntryCopyWith<$Res> implements $ThemaEntryCopyWith<$Res> {
+  factory _$ThemaEntryCopyWith(_ThemaEntry value, $Res Function(_ThemaEntry) _then) = __$ThemaEntryCopyWithImpl;
+@override @useResult
+$Res call({
+ String code, String name,@JsonKey(unknownEnumValue: ThemaType.unknown) ThemaType type, bool main
+});
+
+
+
+
+}
+/// @nodoc
+class __$ThemaEntryCopyWithImpl<$Res>
+    implements _$ThemaEntryCopyWith<$Res> {
+  __$ThemaEntryCopyWithImpl(this._self, this._then);
+
+  final _ThemaEntry _self;
+  final $Res Function(_ThemaEntry) _then;
+
+/// Create a copy of ThemaEntry
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? code = null,Object? name = null,Object? type = null,Object? main = null,}) {
+  return _then(_ThemaEntry(
+code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
+as ThemaType,main: null == main ? _self.main : main // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$ThemaNode implements DiagnosticableTreeMixin {
+
+ String get code; String get name;@JsonKey(unknownEnumValue: ThemaType.unknown) ThemaType get type; String? get parent;@JsonKey(name: 'has_children') bool get hasChildren;
+/// Create a copy of ThemaNode
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ThemaNodeCopyWith<ThemaNode> get copyWith => _$ThemaNodeCopyWithImpl<ThemaNode>(this as ThemaNode, _$identity);
+
+  /// Serializes this ThemaNode to a JSON map.
+  Map<String, dynamic> toJson();
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'ThemaNode'))
+    ..add(DiagnosticsProperty('code', code))..add(DiagnosticsProperty('name', name))..add(DiagnosticsProperty('type', type))..add(DiagnosticsProperty('parent', parent))..add(DiagnosticsProperty('hasChildren', hasChildren));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ThemaNode&&(identical(other.code, code) || other.code == code)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.parent, parent) || other.parent == parent)&&(identical(other.hasChildren, hasChildren) || other.hasChildren == hasChildren));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,code,name,type,parent,hasChildren);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'ThemaNode(code: $code, name: $name, type: $type, parent: $parent, hasChildren: $hasChildren)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ThemaNodeCopyWith<$Res>  {
+  factory $ThemaNodeCopyWith(ThemaNode value, $Res Function(ThemaNode) _then) = _$ThemaNodeCopyWithImpl;
+@useResult
+$Res call({
+ String code, String name,@JsonKey(unknownEnumValue: ThemaType.unknown) ThemaType type, String? parent,@JsonKey(name: 'has_children') bool hasChildren
+});
+
+
+
+
+}
+/// @nodoc
+class _$ThemaNodeCopyWithImpl<$Res>
+    implements $ThemaNodeCopyWith<$Res> {
+  _$ThemaNodeCopyWithImpl(this._self, this._then);
+
+  final ThemaNode _self;
+  final $Res Function(ThemaNode) _then;
+
+/// Create a copy of ThemaNode
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? code = null,Object? name = null,Object? type = null,Object? parent = freezed,Object? hasChildren = null,}) {
+  return _then(_self.copyWith(
+code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
+as ThemaType,parent: freezed == parent ? _self.parent : parent // ignore: cast_nullable_to_non_nullable
+as String?,hasChildren: null == hasChildren ? _self.hasChildren : hasChildren // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [ThemaNode].
+extension ThemaNodePatterns on ThemaNode {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ThemaNode value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ThemaNode() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ThemaNode value)  $default,){
+final _that = this;
+switch (_that) {
+case _ThemaNode():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ThemaNode value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ThemaNode() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String code,  String name, @JsonKey(unknownEnumValue: ThemaType.unknown)  ThemaType type,  String? parent, @JsonKey(name: 'has_children')  bool hasChildren)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ThemaNode() when $default != null:
+return $default(_that.code,_that.name,_that.type,_that.parent,_that.hasChildren);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String code,  String name, @JsonKey(unknownEnumValue: ThemaType.unknown)  ThemaType type,  String? parent, @JsonKey(name: 'has_children')  bool hasChildren)  $default,) {final _that = this;
+switch (_that) {
+case _ThemaNode():
+return $default(_that.code,_that.name,_that.type,_that.parent,_that.hasChildren);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String code,  String name, @JsonKey(unknownEnumValue: ThemaType.unknown)  ThemaType type,  String? parent, @JsonKey(name: 'has_children')  bool hasChildren)?  $default,) {final _that = this;
+switch (_that) {
+case _ThemaNode() when $default != null:
+return $default(_that.code,_that.name,_that.type,_that.parent,_that.hasChildren);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _ThemaNode with DiagnosticableTreeMixin implements ThemaNode {
+   _ThemaNode({required this.code, required this.name, @JsonKey(unknownEnumValue: ThemaType.unknown) required this.type, this.parent, @JsonKey(name: 'has_children') required this.hasChildren});
+  factory _ThemaNode.fromJson(Map<String, dynamic> json) => _$ThemaNodeFromJson(json);
+
+@override final  String code;
+@override final  String name;
+@override@JsonKey(unknownEnumValue: ThemaType.unknown) final  ThemaType type;
+@override final  String? parent;
+@override@JsonKey(name: 'has_children') final  bool hasChildren;
+
+/// Create a copy of ThemaNode
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ThemaNodeCopyWith<_ThemaNode> get copyWith => __$ThemaNodeCopyWithImpl<_ThemaNode>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$ThemaNodeToJson(this, );
+}
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'ThemaNode'))
+    ..add(DiagnosticsProperty('code', code))..add(DiagnosticsProperty('name', name))..add(DiagnosticsProperty('type', type))..add(DiagnosticsProperty('parent', parent))..add(DiagnosticsProperty('hasChildren', hasChildren));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ThemaNode&&(identical(other.code, code) || other.code == code)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.parent, parent) || other.parent == parent)&&(identical(other.hasChildren, hasChildren) || other.hasChildren == hasChildren));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,code,name,type,parent,hasChildren);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'ThemaNode(code: $code, name: $name, type: $type, parent: $parent, hasChildren: $hasChildren)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ThemaNodeCopyWith<$Res> implements $ThemaNodeCopyWith<$Res> {
+  factory _$ThemaNodeCopyWith(_ThemaNode value, $Res Function(_ThemaNode) _then) = __$ThemaNodeCopyWithImpl;
+@override @useResult
+$Res call({
+ String code, String name,@JsonKey(unknownEnumValue: ThemaType.unknown) ThemaType type, String? parent,@JsonKey(name: 'has_children') bool hasChildren
+});
+
+
+
+
+}
+/// @nodoc
+class __$ThemaNodeCopyWithImpl<$Res>
+    implements _$ThemaNodeCopyWith<$Res> {
+  __$ThemaNodeCopyWithImpl(this._self, this._then);
+
+  final _ThemaNode _self;
+  final $Res Function(_ThemaNode) _then;
+
+/// Create a copy of ThemaNode
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? code = null,Object? name = null,Object? type = null,Object? parent = freezed,Object? hasChildren = null,}) {
+  return _then(_ThemaNode(
+code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
+as ThemaType,parent: freezed == parent ? _self.parent : parent // ignore: cast_nullable_to_non_nullable
+as String?,hasChildren: null == hasChildren ? _self.hasChildren : hasChildren // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$ThemaListResponse implements DiagnosticableTreeMixin {
+
+ int get total; int get page;@JsonKey(name: 'page_size') int get pageSize; List<ThemaNode> get codes;
+/// Create a copy of ThemaListResponse
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ThemaListResponseCopyWith<ThemaListResponse> get copyWith => _$ThemaListResponseCopyWithImpl<ThemaListResponse>(this as ThemaListResponse, _$identity);
+
+  /// Serializes this ThemaListResponse to a JSON map.
+  Map<String, dynamic> toJson();
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'ThemaListResponse'))
+    ..add(DiagnosticsProperty('total', total))..add(DiagnosticsProperty('page', page))..add(DiagnosticsProperty('pageSize', pageSize))..add(DiagnosticsProperty('codes', codes));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ThemaListResponse&&(identical(other.total, total) || other.total == total)&&(identical(other.page, page) || other.page == page)&&(identical(other.pageSize, pageSize) || other.pageSize == pageSize)&&const DeepCollectionEquality().equals(other.codes, codes));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,total,page,pageSize,const DeepCollectionEquality().hash(codes));
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'ThemaListResponse(total: $total, page: $page, pageSize: $pageSize, codes: $codes)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ThemaListResponseCopyWith<$Res>  {
+  factory $ThemaListResponseCopyWith(ThemaListResponse value, $Res Function(ThemaListResponse) _then) = _$ThemaListResponseCopyWithImpl;
+@useResult
+$Res call({
+ int total, int page,@JsonKey(name: 'page_size') int pageSize, List<ThemaNode> codes
+});
+
+
+
+
+}
+/// @nodoc
+class _$ThemaListResponseCopyWithImpl<$Res>
+    implements $ThemaListResponseCopyWith<$Res> {
+  _$ThemaListResponseCopyWithImpl(this._self, this._then);
+
+  final ThemaListResponse _self;
+  final $Res Function(ThemaListResponse) _then;
+
+/// Create a copy of ThemaListResponse
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? total = null,Object? page = null,Object? pageSize = null,Object? codes = null,}) {
+  return _then(_self.copyWith(
+total: null == total ? _self.total : total // ignore: cast_nullable_to_non_nullable
+as int,page: null == page ? _self.page : page // ignore: cast_nullable_to_non_nullable
+as int,pageSize: null == pageSize ? _self.pageSize : pageSize // ignore: cast_nullable_to_non_nullable
+as int,codes: null == codes ? _self.codes : codes // ignore: cast_nullable_to_non_nullable
+as List<ThemaNode>,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [ThemaListResponse].
+extension ThemaListResponsePatterns on ThemaListResponse {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ThemaListResponse value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ThemaListResponse() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ThemaListResponse value)  $default,){
+final _that = this;
+switch (_that) {
+case _ThemaListResponse():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ThemaListResponse value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ThemaListResponse() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int total,  int page, @JsonKey(name: 'page_size')  int pageSize,  List<ThemaNode> codes)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ThemaListResponse() when $default != null:
+return $default(_that.total,_that.page,_that.pageSize,_that.codes);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int total,  int page, @JsonKey(name: 'page_size')  int pageSize,  List<ThemaNode> codes)  $default,) {final _that = this;
+switch (_that) {
+case _ThemaListResponse():
+return $default(_that.total,_that.page,_that.pageSize,_that.codes);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int total,  int page, @JsonKey(name: 'page_size')  int pageSize,  List<ThemaNode> codes)?  $default,) {final _that = this;
+switch (_that) {
+case _ThemaListResponse() when $default != null:
+return $default(_that.total,_that.page,_that.pageSize,_that.codes);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _ThemaListResponse with DiagnosticableTreeMixin implements ThemaListResponse {
+   _ThemaListResponse({required this.total, required this.page, @JsonKey(name: 'page_size') required this.pageSize, final  List<ThemaNode> codes = const []}): _codes = codes;
+  factory _ThemaListResponse.fromJson(Map<String, dynamic> json) => _$ThemaListResponseFromJson(json);
+
+@override final  int total;
+@override final  int page;
+@override@JsonKey(name: 'page_size') final  int pageSize;
+ final  List<ThemaNode> _codes;
+@override@JsonKey() List<ThemaNode> get codes {
+  if (_codes is EqualUnmodifiableListView) return _codes;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_codes);
+}
+
+
+/// Create a copy of ThemaListResponse
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ThemaListResponseCopyWith<_ThemaListResponse> get copyWith => __$ThemaListResponseCopyWithImpl<_ThemaListResponse>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$ThemaListResponseToJson(this, );
+}
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'ThemaListResponse'))
+    ..add(DiagnosticsProperty('total', total))..add(DiagnosticsProperty('page', page))..add(DiagnosticsProperty('pageSize', pageSize))..add(DiagnosticsProperty('codes', codes));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ThemaListResponse&&(identical(other.total, total) || other.total == total)&&(identical(other.page, page) || other.page == page)&&(identical(other.pageSize, pageSize) || other.pageSize == pageSize)&&const DeepCollectionEquality().equals(other._codes, _codes));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,total,page,pageSize,const DeepCollectionEquality().hash(_codes));
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'ThemaListResponse(total: $total, page: $page, pageSize: $pageSize, codes: $codes)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ThemaListResponseCopyWith<$Res> implements $ThemaListResponseCopyWith<$Res> {
+  factory _$ThemaListResponseCopyWith(_ThemaListResponse value, $Res Function(_ThemaListResponse) _then) = __$ThemaListResponseCopyWithImpl;
+@override @useResult
+$Res call({
+ int total, int page,@JsonKey(name: 'page_size') int pageSize, List<ThemaNode> codes
+});
+
+
+
+
+}
+/// @nodoc
+class __$ThemaListResponseCopyWithImpl<$Res>
+    implements _$ThemaListResponseCopyWith<$Res> {
+  __$ThemaListResponseCopyWithImpl(this._self, this._then);
+
+  final _ThemaListResponse _self;
+  final $Res Function(_ThemaListResponse) _then;
+
+/// Create a copy of ThemaListResponse
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? total = null,Object? page = null,Object? pageSize = null,Object? codes = null,}) {
+  return _then(_ThemaListResponse(
+total: null == total ? _self.total : total // ignore: cast_nullable_to_non_nullable
+as int,page: null == page ? _self.page : page // ignore: cast_nullable_to_non_nullable
+as int,pageSize: null == pageSize ? _self.pageSize : pageSize // ignore: cast_nullable_to_non_nullable
+as int,codes: null == codes ? _self._codes : codes // ignore: cast_nullable_to_non_nullable
+as List<ThemaNode>,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$ThemaDetailsResponse implements DiagnosticableTreeMixin {
+
+ String get code; String get name;@JsonKey(unknownEnumValue: ThemaType.unknown) ThemaType get type; String? get parent; List<ThemaNode> get ancestors; List<ThemaNode> get children;/// The requested retired code, when the API returned its replacement.
+@JsonKey(name: 'replaced_from') String? get replacedFrom;
+/// Create a copy of ThemaDetailsResponse
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ThemaDetailsResponseCopyWith<ThemaDetailsResponse> get copyWith => _$ThemaDetailsResponseCopyWithImpl<ThemaDetailsResponse>(this as ThemaDetailsResponse, _$identity);
+
+  /// Serializes this ThemaDetailsResponse to a JSON map.
+  Map<String, dynamic> toJson();
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'ThemaDetailsResponse'))
+    ..add(DiagnosticsProperty('code', code))..add(DiagnosticsProperty('name', name))..add(DiagnosticsProperty('type', type))..add(DiagnosticsProperty('parent', parent))..add(DiagnosticsProperty('ancestors', ancestors))..add(DiagnosticsProperty('children', children))..add(DiagnosticsProperty('replacedFrom', replacedFrom));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ThemaDetailsResponse&&(identical(other.code, code) || other.code == code)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.parent, parent) || other.parent == parent)&&const DeepCollectionEquality().equals(other.ancestors, ancestors)&&const DeepCollectionEquality().equals(other.children, children)&&(identical(other.replacedFrom, replacedFrom) || other.replacedFrom == replacedFrom));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,code,name,type,parent,const DeepCollectionEquality().hash(ancestors),const DeepCollectionEquality().hash(children),replacedFrom);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'ThemaDetailsResponse(code: $code, name: $name, type: $type, parent: $parent, ancestors: $ancestors, children: $children, replacedFrom: $replacedFrom)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ThemaDetailsResponseCopyWith<$Res>  {
+  factory $ThemaDetailsResponseCopyWith(ThemaDetailsResponse value, $Res Function(ThemaDetailsResponse) _then) = _$ThemaDetailsResponseCopyWithImpl;
+@useResult
+$Res call({
+ String code, String name,@JsonKey(unknownEnumValue: ThemaType.unknown) ThemaType type, String? parent, List<ThemaNode> ancestors, List<ThemaNode> children,@JsonKey(name: 'replaced_from') String? replacedFrom
+});
+
+
+
+
+}
+/// @nodoc
+class _$ThemaDetailsResponseCopyWithImpl<$Res>
+    implements $ThemaDetailsResponseCopyWith<$Res> {
+  _$ThemaDetailsResponseCopyWithImpl(this._self, this._then);
+
+  final ThemaDetailsResponse _self;
+  final $Res Function(ThemaDetailsResponse) _then;
+
+/// Create a copy of ThemaDetailsResponse
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? code = null,Object? name = null,Object? type = null,Object? parent = freezed,Object? ancestors = null,Object? children = null,Object? replacedFrom = freezed,}) {
+  return _then(_self.copyWith(
+code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
+as ThemaType,parent: freezed == parent ? _self.parent : parent // ignore: cast_nullable_to_non_nullable
+as String?,ancestors: null == ancestors ? _self.ancestors : ancestors // ignore: cast_nullable_to_non_nullable
+as List<ThemaNode>,children: null == children ? _self.children : children // ignore: cast_nullable_to_non_nullable
+as List<ThemaNode>,replacedFrom: freezed == replacedFrom ? _self.replacedFrom : replacedFrom // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [ThemaDetailsResponse].
+extension ThemaDetailsResponsePatterns on ThemaDetailsResponse {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ThemaDetailsResponse value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ThemaDetailsResponse() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ThemaDetailsResponse value)  $default,){
+final _that = this;
+switch (_that) {
+case _ThemaDetailsResponse():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ThemaDetailsResponse value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ThemaDetailsResponse() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String code,  String name, @JsonKey(unknownEnumValue: ThemaType.unknown)  ThemaType type,  String? parent,  List<ThemaNode> ancestors,  List<ThemaNode> children, @JsonKey(name: 'replaced_from')  String? replacedFrom)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ThemaDetailsResponse() when $default != null:
+return $default(_that.code,_that.name,_that.type,_that.parent,_that.ancestors,_that.children,_that.replacedFrom);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String code,  String name, @JsonKey(unknownEnumValue: ThemaType.unknown)  ThemaType type,  String? parent,  List<ThemaNode> ancestors,  List<ThemaNode> children, @JsonKey(name: 'replaced_from')  String? replacedFrom)  $default,) {final _that = this;
+switch (_that) {
+case _ThemaDetailsResponse():
+return $default(_that.code,_that.name,_that.type,_that.parent,_that.ancestors,_that.children,_that.replacedFrom);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String code,  String name, @JsonKey(unknownEnumValue: ThemaType.unknown)  ThemaType type,  String? parent,  List<ThemaNode> ancestors,  List<ThemaNode> children, @JsonKey(name: 'replaced_from')  String? replacedFrom)?  $default,) {final _that = this;
+switch (_that) {
+case _ThemaDetailsResponse() when $default != null:
+return $default(_that.code,_that.name,_that.type,_that.parent,_that.ancestors,_that.children,_that.replacedFrom);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _ThemaDetailsResponse with DiagnosticableTreeMixin implements ThemaDetailsResponse {
+   _ThemaDetailsResponse({required this.code, required this.name, @JsonKey(unknownEnumValue: ThemaType.unknown) required this.type, this.parent, final  List<ThemaNode> ancestors = const [], final  List<ThemaNode> children = const [], @JsonKey(name: 'replaced_from') this.replacedFrom}): _ancestors = ancestors,_children = children;
+  factory _ThemaDetailsResponse.fromJson(Map<String, dynamic> json) => _$ThemaDetailsResponseFromJson(json);
+
+@override final  String code;
+@override final  String name;
+@override@JsonKey(unknownEnumValue: ThemaType.unknown) final  ThemaType type;
+@override final  String? parent;
+ final  List<ThemaNode> _ancestors;
+@override@JsonKey() List<ThemaNode> get ancestors {
+  if (_ancestors is EqualUnmodifiableListView) return _ancestors;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_ancestors);
+}
+
+ final  List<ThemaNode> _children;
+@override@JsonKey() List<ThemaNode> get children {
+  if (_children is EqualUnmodifiableListView) return _children;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_children);
+}
+
+/// The requested retired code, when the API returned its replacement.
+@override@JsonKey(name: 'replaced_from') final  String? replacedFrom;
+
+/// Create a copy of ThemaDetailsResponse
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ThemaDetailsResponseCopyWith<_ThemaDetailsResponse> get copyWith => __$ThemaDetailsResponseCopyWithImpl<_ThemaDetailsResponse>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$ThemaDetailsResponseToJson(this, );
+}
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'ThemaDetailsResponse'))
+    ..add(DiagnosticsProperty('code', code))..add(DiagnosticsProperty('name', name))..add(DiagnosticsProperty('type', type))..add(DiagnosticsProperty('parent', parent))..add(DiagnosticsProperty('ancestors', ancestors))..add(DiagnosticsProperty('children', children))..add(DiagnosticsProperty('replacedFrom', replacedFrom));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ThemaDetailsResponse&&(identical(other.code, code) || other.code == code)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.parent, parent) || other.parent == parent)&&const DeepCollectionEquality().equals(other._ancestors, _ancestors)&&const DeepCollectionEquality().equals(other._children, _children)&&(identical(other.replacedFrom, replacedFrom) || other.replacedFrom == replacedFrom));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,code,name,type,parent,const DeepCollectionEquality().hash(_ancestors),const DeepCollectionEquality().hash(_children),replacedFrom);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'ThemaDetailsResponse(code: $code, name: $name, type: $type, parent: $parent, ancestors: $ancestors, children: $children, replacedFrom: $replacedFrom)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ThemaDetailsResponseCopyWith<$Res> implements $ThemaDetailsResponseCopyWith<$Res> {
+  factory _$ThemaDetailsResponseCopyWith(_ThemaDetailsResponse value, $Res Function(_ThemaDetailsResponse) _then) = __$ThemaDetailsResponseCopyWithImpl;
+@override @useResult
+$Res call({
+ String code, String name,@JsonKey(unknownEnumValue: ThemaType.unknown) ThemaType type, String? parent, List<ThemaNode> ancestors, List<ThemaNode> children,@JsonKey(name: 'replaced_from') String? replacedFrom
+});
+
+
+
+
+}
+/// @nodoc
+class __$ThemaDetailsResponseCopyWithImpl<$Res>
+    implements _$ThemaDetailsResponseCopyWith<$Res> {
+  __$ThemaDetailsResponseCopyWithImpl(this._self, this._then);
+
+  final _ThemaDetailsResponse _self;
+  final $Res Function(_ThemaDetailsResponse) _then;
+
+/// Create a copy of ThemaDetailsResponse
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? code = null,Object? name = null,Object? type = null,Object? parent = freezed,Object? ancestors = null,Object? children = null,Object? replacedFrom = freezed,}) {
+  return _then(_ThemaDetailsResponse(
+code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
+as ThemaType,parent: freezed == parent ? _self.parent : parent // ignore: cast_nullable_to_non_nullable
+as String?,ancestors: null == ancestors ? _self._ancestors : ancestors // ignore: cast_nullable_to_non_nullable
+as List<ThemaNode>,children: null == children ? _self._children : children // ignore: cast_nullable_to_non_nullable
+as List<ThemaNode>,replacedFrom: freezed == replacedFrom ? _self.replacedFrom : replacedFrom // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$ThemaBooksResponse implements DiagnosticableTreeMixin {
+
+ ThemaNode get thema; List<Book> get books; int get total; int get page;@JsonKey(name: 'page_size') int get pageSize;
+/// Create a copy of ThemaBooksResponse
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ThemaBooksResponseCopyWith<ThemaBooksResponse> get copyWith => _$ThemaBooksResponseCopyWithImpl<ThemaBooksResponse>(this as ThemaBooksResponse, _$identity);
+
+  /// Serializes this ThemaBooksResponse to a JSON map.
+  Map<String, dynamic> toJson();
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'ThemaBooksResponse'))
+    ..add(DiagnosticsProperty('thema', thema))..add(DiagnosticsProperty('books', books))..add(DiagnosticsProperty('total', total))..add(DiagnosticsProperty('page', page))..add(DiagnosticsProperty('pageSize', pageSize));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ThemaBooksResponse&&(identical(other.thema, thema) || other.thema == thema)&&const DeepCollectionEquality().equals(other.books, books)&&(identical(other.total, total) || other.total == total)&&(identical(other.page, page) || other.page == page)&&(identical(other.pageSize, pageSize) || other.pageSize == pageSize));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,thema,const DeepCollectionEquality().hash(books),total,page,pageSize);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'ThemaBooksResponse(thema: $thema, books: $books, total: $total, page: $page, pageSize: $pageSize)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ThemaBooksResponseCopyWith<$Res>  {
+  factory $ThemaBooksResponseCopyWith(ThemaBooksResponse value, $Res Function(ThemaBooksResponse) _then) = _$ThemaBooksResponseCopyWithImpl;
+@useResult
+$Res call({
+ ThemaNode thema, List<Book> books, int total, int page,@JsonKey(name: 'page_size') int pageSize
+});
+
+
+$ThemaNodeCopyWith<$Res> get thema;
+
+}
+/// @nodoc
+class _$ThemaBooksResponseCopyWithImpl<$Res>
+    implements $ThemaBooksResponseCopyWith<$Res> {
+  _$ThemaBooksResponseCopyWithImpl(this._self, this._then);
+
+  final ThemaBooksResponse _self;
+  final $Res Function(ThemaBooksResponse) _then;
+
+/// Create a copy of ThemaBooksResponse
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? thema = null,Object? books = null,Object? total = null,Object? page = null,Object? pageSize = null,}) {
+  return _then(_self.copyWith(
+thema: null == thema ? _self.thema : thema // ignore: cast_nullable_to_non_nullable
+as ThemaNode,books: null == books ? _self.books : books // ignore: cast_nullable_to_non_nullable
+as List<Book>,total: null == total ? _self.total : total // ignore: cast_nullable_to_non_nullable
+as int,page: null == page ? _self.page : page // ignore: cast_nullable_to_non_nullable
+as int,pageSize: null == pageSize ? _self.pageSize : pageSize // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+/// Create a copy of ThemaBooksResponse
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ThemaNodeCopyWith<$Res> get thema {
+
+  return $ThemaNodeCopyWith<$Res>(_self.thema, (value) {
+    return _then(_self.copyWith(thema: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [ThemaBooksResponse].
+extension ThemaBooksResponsePatterns on ThemaBooksResponse {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ThemaBooksResponse value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ThemaBooksResponse() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ThemaBooksResponse value)  $default,){
+final _that = this;
+switch (_that) {
+case _ThemaBooksResponse():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ThemaBooksResponse value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ThemaBooksResponse() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( ThemaNode thema,  List<Book> books,  int total,  int page, @JsonKey(name: 'page_size')  int pageSize)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ThemaBooksResponse() when $default != null:
+return $default(_that.thema,_that.books,_that.total,_that.page,_that.pageSize);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( ThemaNode thema,  List<Book> books,  int total,  int page, @JsonKey(name: 'page_size')  int pageSize)  $default,) {final _that = this;
+switch (_that) {
+case _ThemaBooksResponse():
+return $default(_that.thema,_that.books,_that.total,_that.page,_that.pageSize);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( ThemaNode thema,  List<Book> books,  int total,  int page, @JsonKey(name: 'page_size')  int pageSize)?  $default,) {final _that = this;
+switch (_that) {
+case _ThemaBooksResponse() when $default != null:
+return $default(_that.thema,_that.books,_that.total,_that.page,_that.pageSize);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _ThemaBooksResponse with DiagnosticableTreeMixin implements ThemaBooksResponse {
+   _ThemaBooksResponse({required this.thema, final  List<Book> books = const [], required this.total, required this.page, @JsonKey(name: 'page_size') required this.pageSize}): _books = books;
+  factory _ThemaBooksResponse.fromJson(Map<String, dynamic> json) => _$ThemaBooksResponseFromJson(json);
+
+@override final  ThemaNode thema;
+ final  List<Book> _books;
+@override@JsonKey() List<Book> get books {
+  if (_books is EqualUnmodifiableListView) return _books;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_books);
+}
+
+@override final  int total;
+@override final  int page;
+@override@JsonKey(name: 'page_size') final  int pageSize;
+
+/// Create a copy of ThemaBooksResponse
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ThemaBooksResponseCopyWith<_ThemaBooksResponse> get copyWith => __$ThemaBooksResponseCopyWithImpl<_ThemaBooksResponse>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$ThemaBooksResponseToJson(this, );
+}
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'ThemaBooksResponse'))
+    ..add(DiagnosticsProperty('thema', thema))..add(DiagnosticsProperty('books', books))..add(DiagnosticsProperty('total', total))..add(DiagnosticsProperty('page', page))..add(DiagnosticsProperty('pageSize', pageSize));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ThemaBooksResponse&&(identical(other.thema, thema) || other.thema == thema)&&const DeepCollectionEquality().equals(other._books, _books)&&(identical(other.total, total) || other.total == total)&&(identical(other.page, page) || other.page == page)&&(identical(other.pageSize, pageSize) || other.pageSize == pageSize));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,thema,const DeepCollectionEquality().hash(_books),total,page,pageSize);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'ThemaBooksResponse(thema: $thema, books: $books, total: $total, page: $page, pageSize: $pageSize)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ThemaBooksResponseCopyWith<$Res> implements $ThemaBooksResponseCopyWith<$Res> {
+  factory _$ThemaBooksResponseCopyWith(_ThemaBooksResponse value, $Res Function(_ThemaBooksResponse) _then) = __$ThemaBooksResponseCopyWithImpl;
+@override @useResult
+$Res call({
+ ThemaNode thema, List<Book> books, int total, int page,@JsonKey(name: 'page_size') int pageSize
+});
+
+
+@override $ThemaNodeCopyWith<$Res> get thema;
+
+}
+/// @nodoc
+class __$ThemaBooksResponseCopyWithImpl<$Res>
+    implements _$ThemaBooksResponseCopyWith<$Res> {
+  __$ThemaBooksResponseCopyWithImpl(this._self, this._then);
+
+  final _ThemaBooksResponse _self;
+  final $Res Function(_ThemaBooksResponse) _then;
+
+/// Create a copy of ThemaBooksResponse
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? thema = null,Object? books = null,Object? total = null,Object? page = null,Object? pageSize = null,}) {
+  return _then(_ThemaBooksResponse(
+thema: null == thema ? _self.thema : thema // ignore: cast_nullable_to_non_nullable
+as ThemaNode,books: null == books ? _self._books : books // ignore: cast_nullable_to_non_nullable
+as List<Book>,total: null == total ? _self.total : total // ignore: cast_nullable_to_non_nullable
+as int,page: null == page ? _self.page : page // ignore: cast_nullable_to_non_nullable
+as int,pageSize: null == pageSize ? _self.pageSize : pageSize // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+/// Create a copy of ThemaBooksResponse
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ThemaNodeCopyWith<$Res> get thema {
+
+  return $ThemaNodeCopyWith<$Res>(_self.thema, (value) {
+    return _then(_self.copyWith(thema: value));
+  });
+}
+}
+
+
+/// @nodoc
 mixin _$UpdatedBook implements DiagnosticableTreeMixin {
 
 /// Updated book ISBN-13.
@@ -4115,9 +5522,9 @@ mixin _$UpdatedBookFeed implements DiagnosticableTreeMixin {
 /// Updated ISBN entries.
 @JsonKey(name: 'data') List<UpdatedBook> get updates;/// Total number of updates available for the query, when provided.
  int? get total;/// Opaque cursor for the next page; null when no more updates remain.
- String? get next;/// Legacy offset page number; always 1 with a cursor.
-/// ISBNdb rejects values other than 1 from November 7, 2026, 00:00 UTC.
- int get page;/// Requested page size.
+ String? get next;/// Legacy offset page number, defaulting to 1 for cursor-only responses.
+/// ISBNdb API 2.9.0 no longer returns this field.
+@Deprecated('Use next for cursor pagination instead.') int get page;/// Requested page size.
 @JsonKey(name: 'page_size') int get pageSize;
 /// Create a copy of UpdatedBookFeed
 /// with the given fields replaced by the non-null parameter values.
@@ -4157,7 +5564,7 @@ abstract mixin class $UpdatedBookFeedCopyWith<$Res>  {
   factory $UpdatedBookFeedCopyWith(UpdatedBookFeed value, $Res Function(UpdatedBookFeed) _then) = _$UpdatedBookFeedCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(name: 'data') List<UpdatedBook> updates, int? total, String? next, int page,@JsonKey(name: 'page_size') int pageSize
+@JsonKey(name: 'data') List<UpdatedBook> updates, int? total, String? next,@Deprecated('Use next for cursor pagination instead.') int page,@JsonKey(name: 'page_size') int pageSize
 });
 
 
@@ -4258,7 +5665,7 @@ return $default(_that);case _:
 @JsonSerializable()
 
 class _UpdatedBookFeed extends UpdatedBookFeed with DiagnosticableTreeMixin {
-   _UpdatedBookFeed({@JsonKey(name: 'data') final  List<UpdatedBook> updates = const [], this.total, this.next, required this.page, @JsonKey(name: 'page_size') required this.pageSize}): _updates = updates,super._();
+   _UpdatedBookFeed({@JsonKey(name: 'data') final  List<UpdatedBook> updates = const [], this.total, this.next, @Deprecated('Use next for cursor pagination instead.') this.page = 1, @JsonKey(name: 'page_size') required this.pageSize}): _updates = updates,super._();
   factory _UpdatedBookFeed.fromJson(Map<String, dynamic> json) => _$UpdatedBookFeedFromJson(json);
 
 /// Updated ISBN entries.
@@ -4274,9 +5681,9 @@ class _UpdatedBookFeed extends UpdatedBookFeed with DiagnosticableTreeMixin {
 @override final  int? total;
 /// Opaque cursor for the next page; null when no more updates remain.
 @override final  String? next;
-/// Legacy offset page number; always 1 with a cursor.
-/// ISBNdb rejects values other than 1 from November 7, 2026, 00:00 UTC.
-@override final  int page;
+/// Legacy offset page number, defaulting to 1 for cursor-only responses.
+/// ISBNdb API 2.9.0 no longer returns this field.
+@override@JsonKey()@Deprecated('Use next for cursor pagination instead.') final  int page;
 /// Requested page size.
 @override@JsonKey(name: 'page_size') final  int pageSize;
 
@@ -4319,7 +5726,7 @@ abstract mixin class _$UpdatedBookFeedCopyWith<$Res> implements $UpdatedBookFeed
   factory _$UpdatedBookFeedCopyWith(_UpdatedBookFeed value, $Res Function(_UpdatedBookFeed) _then) = __$UpdatedBookFeedCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(name: 'data') List<UpdatedBook> updates, int? total, String? next, int page,@JsonKey(name: 'page_size') int pageSize
+@JsonKey(name: 'data') List<UpdatedBook> updates, int? total, String? next,@Deprecated('Use next for cursor pagination instead.') int page,@JsonKey(name: 'page_size') int pageSize
 });
 
 

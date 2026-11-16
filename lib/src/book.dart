@@ -1,8 +1,80 @@
 part of isbndb_flutter;
 
+/// The original book fields used by the destructuring callbacks.
+/// Access newer fields, including [Book.thema], directly on the book.
+typedef BookFieldsCallback<TResult> =
+    TResult Function(
+      String title,
+      String? titleLong,
+      String isbn,
+      String isbn13,
+      String? deweyDecimal,
+      String? binding,
+      String? publisher,
+      String? language,
+      DateTime? datePublished,
+      String? edition,
+      int? editionNumber,
+      int? pages,
+      String? dimensions,
+      String? overview,
+      String? image,
+      double? msrp,
+      ListPrice? listPrice,
+      String? excerpt,
+      String? synopsys,
+      List<String?>? authors,
+      List<String>? subjects,
+      List<String>? reviews,
+      List<Merchant>? prices,
+      List<String>? related,
+    );
+
 /// An object which handle the details of a book
-@freezed
+@Freezed(when: FreezedWhenOptions.none)
 sealed class Book with _$Book {
+  const Book._();
+
+  /// Destructure the original fields; access [thema] directly on the book.
+  TResult when<TResult extends Object?>(BookFieldsCallback<TResult> callback) =>
+      callback(
+        title,
+        titleLong,
+        isbn,
+        isbn13,
+        deweyDecimal,
+        binding,
+        publisher,
+        language,
+        datePublished,
+        edition,
+        editionNumber,
+        pages,
+        dimensions,
+        overview,
+        image,
+        msrp,
+        listPrice,
+        excerpt,
+        synopsys,
+        authors,
+        subjects,
+        reviews,
+        prices,
+        related,
+      );
+
+  /// Invoke the original callback when supplied, otherwise use [orElse].
+  TResult maybeWhen<TResult extends Object?>(
+    BookFieldsCallback<TResult>? callback, {
+    required TResult Function() orElse,
+  }) => callback == null ? orElse() : when(callback);
+
+  /// Invoke the original callback when supplied, otherwise return null.
+  TResult? whenOrNull<TResult extends Object?>(
+    BookFieldsCallback<TResult?>? callback,
+  ) => callback == null ? null : when(callback);
+
   factory Book({
     /// Title of the book
     required String title,
@@ -70,8 +142,8 @@ sealed class Book with _$Book {
     /// List of the authors of the book
     @JsonKey(readValue: _readBookAuthors) List<String?>? authors,
 
-    /// List of the subjects of the book. Scheduled for removal by ISBNdb.
-    @Deprecated('Deprecated by ISBNdb without a replacement.')
+    /// Legacy subjects, scheduled for removal by ISBNdb. Use [thema] instead.
+    @Deprecated('Use thema instead.')
     @JsonKey(readValue: _readBookSubjects)
     List<String>? subjects,
 
@@ -83,6 +155,9 @@ sealed class Book with _$Book {
 
     /// Not documented in the official API
     @JsonKey(readValue: _readBookRelated) List<String>? related,
+
+    /// Thema subjects and qualifiers; the main subject is first, when present.
+    List<ThemaEntry>? thema,
   }) = _Book;
 
   /// Used to build the object from the response of the ISBNdb API

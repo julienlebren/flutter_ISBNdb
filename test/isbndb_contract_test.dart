@@ -11,10 +11,10 @@ void main() {
       spec = _readJsonFile('api/upstream/isbndb-openapi.json');
     });
 
-    test('tracks ISBNdb OpenAPI 2.8.4.1', () {
+    test('tracks ISBNdb OpenAPI 2.9.0', () {
       final info = Map<String, dynamic>.from(spec['info'] as Map);
 
-      expect(info['version'], '2.8.4.1');
+      expect(info['version'], '2.9.0');
     });
 
     test('contains all public endpoints currently exposed by the package', () {
@@ -26,6 +26,7 @@ void main() {
           '/book/{isbn}',
           '/books',
           '/books/{query}',
+          '/search/books',
           '/author/{name}',
           '/authors/{query}',
           '/publisher/{name}',
@@ -33,6 +34,9 @@ void main() {
           '/subject/{name}',
           '/subjects/{query}',
           '/feeds/books/updates',
+          '/thema',
+          '/thema/{code}',
+          '/thema/{code}/books',
           '/key',
           '/stats',
         }),
@@ -55,6 +59,7 @@ void main() {
           'column',
           'publishedFrom',
           'publishedTo',
+          'thema',
         }),
       );
     });
@@ -96,6 +101,8 @@ void main() {
         '/publishers/{query}',
         '/subject/{name}',
         '/subjects/{query}',
+        '/thema',
+        '/thema/{code}/books',
       ]) {
         final pageSize = _parameter(spec, path, 'get', 'pageSize');
         final pageSizeDescription = pageSize['description'] as String;
@@ -134,6 +141,7 @@ void main() {
       expect(subjects['type'], 'array');
       expect(subjects['items'], containsPair('type', 'string'));
       expect(subjects['deprecated'], isTrue);
+      expect(subjects['description'], contains('use `thema` instead'));
 
       final searchFilters = Map<String, dynamic>.from(
         _schema(spec, 'SearchQueryFilters')['properties'] as Map,
@@ -159,6 +167,126 @@ void main() {
         expect(operation['deprecated'], isTrue, reason: path);
         expect(operation['responses'], contains('200'), reason: path);
       }
+    });
+
+    test('documents Thema on books and both search endpoints', () {
+      final properties = Map<String, dynamic>.from(
+        _schema(spec, 'Book')['properties'] as Map,
+      );
+      final thema = Map<String, dynamic>.from(properties['thema'] as Map);
+      expect(thema['type'], 'array');
+      expect(thema['nullable'], isTrue);
+      expect(
+        thema['items'],
+        containsPair(r'$ref', '#/components/schemas/ThemaEntry'),
+      );
+
+      for (final path in ['/books/{query}', '/search/books']) {
+        final filter = _parameter(spec, path, 'get', 'thema');
+        expect(filter['schema'], containsPair('type', 'string'));
+        expect(filter['description'], contains('comma-separated, up to 5'));
+        expect(filter['description'], contains('1,000'));
+      }
+      expect(
+        _parameterNames(spec, '/search/books', 'get'),
+        containsAll({
+          'isbn',
+          'isbn13',
+          'author',
+          'text',
+          'subject',
+          'publisher',
+          'thema',
+          'page',
+          'pageSize',
+          'publishedFrom',
+          'publishedTo',
+        }),
+      );
+    });
+
+    test('documents Thema navigation and book filters', () {
+      expect(_parameterNames(spec, '/thema', 'get'), {
+        'parent',
+        'type',
+        'q',
+        'codes',
+        'withAncestors',
+        'page',
+        'pageSize',
+      });
+      expect(
+        _parameter(spec, '/thema', 'get', 'codes')['description'],
+        contains('comma-separated, up to 100'),
+      );
+      expect(
+        _parameter(spec, '/thema', 'get', 'withAncestors')['schema'],
+        containsPair('default', false),
+      );
+      expect(_parameterNames(spec, '/thema/{code}', 'get'), {'code'});
+      expect(_parameterNames(spec, '/thema/{code}/books', 'get'), {
+        'code',
+        'includeDescendants',
+        'language',
+        'page',
+        'pageSize',
+        'publishedFrom',
+        'publishedTo',
+      });
+      expect(
+        _parameter(
+          spec,
+          '/thema/{code}/books',
+          'get',
+          'includeDescendants',
+        )['schema'],
+        containsPair('default', true),
+      );
+      expect(
+        _operation(spec, '/thema/{code}/books', 'get')['description'],
+        contains('At most 1,000 books'),
+      );
+    });
+
+    test('documents Thema response fields and classification types', () {
+      for (final entry in <String, Set<String>>{
+        'ThemaEntry': {'code', 'name', 'type', 'main'},
+        'ThemaNode': {'code', 'name', 'type', 'has_children'},
+        'ThemaListResponse': {'total', 'page', 'page_size', 'codes'},
+        'ThemaDetailsResponse': {
+          'code',
+          'name',
+          'type',
+          'ancestors',
+          'children',
+        },
+        'ThemaBooksResponse': {'thema', 'books', 'total', 'page', 'page_size'},
+      }.entries) {
+        expect(
+          Set<String>.from(_schema(spec, entry.key)['required'] as List),
+          entry.value,
+          reason: entry.key,
+        );
+      }
+      for (final name in ['ThemaEntry', 'ThemaNode', 'ThemaDetailsResponse']) {
+        final properties = _schema(spec, name)['properties'] as Map;
+        expect(
+          (properties['type'] as Map)['enum'],
+          {
+            'subject',
+            'place',
+            'language',
+            'time',
+            'education',
+            'interest',
+            'style',
+          }.toList(),
+        );
+      }
+      final details =
+          _schema(spec, 'ThemaDetailsResponse')['properties'] as Map;
+      expect(details['parent'], containsPair('nullable', true));
+      expect(details['replaced_from'], containsPair('nullable', true));
     });
 
     test(
@@ -339,26 +467,28 @@ void main() {
         'get',
       );
 
-      expect(
-        parameterNames,
-        containsAll(<String>{'page', 'pageSize', 'lastUpdated', 'cursor'}),
-      );
+      expect(parameterNames, <String>{'pageSize', 'lastUpdated', 'cursor'});
     });
 
-    test('UpdatedBooksResponse no longer requires total', () {
-      final schema = _schema(spec, 'UpdatedBooksResponse');
-      final requiredFields = List<String>.from(schema['required'] as List);
+    test(
+      'UpdatedBooksResponse uses cursor pagination without page or total',
+      () {
+        final schema = _schema(spec, 'UpdatedBooksResponse');
+        final requiredFields = List<String>.from(schema['required'] as List);
 
-      expect(
-        requiredFields,
-        containsAll(<String>['data', 'page', 'page_size']),
-      );
-      expect(requiredFields, isNot(contains('total')));
-      final properties = Map<String, dynamic>.from(schema['properties'] as Map);
-      expect(properties['next'], containsPair('type', 'string'));
-      expect(properties['next'], containsPair('nullable', true));
-      expect(properties['page'], containsPair('deprecated', true));
-    });
+        expect(requiredFields, unorderedEquals(<String>['data', 'page_size']));
+        expect(requiredFields, isNot(contains('total')));
+        final properties = Map<String, dynamic>.from(
+          schema['properties'] as Map,
+        );
+        expect(properties['next'], containsPair('type', 'string'));
+        expect(properties['next'], containsPair('nullable', true));
+        expect(properties, isNot(contains('page')));
+        expect(properties, isNot(contains('total')));
+        final pagination = _schema(spec, 'UnlimitedPaginationFilter');
+        expect(pagination['properties'], isNot(contains('page')));
+      },
+    );
 
     test('UpdatedBook requires the documented new or updated status', () {
       final schema = _schema(spec, 'UpdatedBook');

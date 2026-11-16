@@ -246,6 +246,8 @@ class ISBNdb {
   /// Search books in ISBNdb.
   ///
   /// ISBNdb rejects [pageSize] values greater than 100 with HTTP 400.
+  /// [thema] accepts up to five codes, all of which must match, including
+  /// narrower classifications. Searches using it return at most 1,000 books.
   Future<BookQueryResult> getBooks(
     String query, {
     int page = 1,
@@ -257,6 +259,7 @@ class ISBNdb {
     BookColumn? column,
     DateTime? publishedFrom,
     DateTime? publishedTo,
+    List<String>? thema,
     @Deprecated('No longer supported by ISBNdb API contract.') int? offset,
   }) async {
     final path = "books/$query";
@@ -270,6 +273,7 @@ class ISBNdb {
       "column": column?.name,
       "publishedFrom": _formatQueryDate(publishedFrom),
       "publishedTo": _formatQueryDate(publishedTo),
+      "thema": thema?.join(','),
     }..removeWhere((_, value) => value == null);
 
     final response = await _get(path, queryParameters: queryParameters);
@@ -277,6 +281,134 @@ class ISBNdb {
       method: "GET",
       path: path,
       parser: () => BookQueryResult.fromJson(response),
+    );
+  }
+
+  /// Search by ISBN or by author, text, publisher, legacy subject or Thema.
+  ///
+  /// At least one identifier or search field is required. ISBN identifiers
+  /// cannot be combined with search fields; ISBNdb rejects invalid filters
+  /// with HTTP 400. [thema] accepts up to five codes that must all match.
+  /// Results are capped at 10,000, or 1,000 when [thema] is supplied.
+  /// ISBNdb rejects [pageSize] greater than 100. Pricing is not returned.
+  Future<BookQueryResult> searchBooks({
+    String? isbn,
+    String? isbn13,
+    String? author,
+    String? text,
+    @Deprecated('Use thema instead.') String? subject,
+    String? publisher,
+    List<String>? thema,
+    int page = 1,
+    int pageSize = 20,
+    DateTime? publishedFrom,
+    DateTime? publishedTo,
+  }) async {
+    const path = "search/books";
+    final response = await _get(
+      path,
+      queryParameters: <String, Object?>{
+        "isbn": isbn,
+        "isbn13": isbn13,
+        "author": author,
+        "text": text,
+        "subject": subject,
+        "publisher": publisher,
+        "thema": thema?.join(','),
+        "page": page,
+        "pageSize": pageSize,
+        "publishedFrom": _formatQueryDate(publishedFrom),
+        "publishedTo": _formatQueryDate(publishedTo),
+      }..removeWhere((_, value) => value == null),
+    );
+    return _parseModel(
+      method: "GET",
+      path: path,
+      parser: () => BookQueryResult.fromJson(response),
+    );
+  }
+
+  /// Browse or search the Thema scheme, optionally looking up specific codes.
+  ///
+  /// Without filters, lists top-level codes. [q] accepts 2 to 100 characters.
+  /// [codes] looks up at most 100 codes, preserving their order and replacing
+  /// retired codes with their successors; unknown codes are skipped.
+  /// With [codes], [parent], [type], [q] and pagination are ignored by ISBNdb.
+  /// [withAncestors] also includes broader codes before each requested code.
+  /// ISBNdb rejects [pageSize] greater than 100.
+  Future<ThemaListResponse> getThemaCodes({
+    String? parent,
+    ThemaType? type,
+    String? q,
+    List<String>? codes,
+    bool withAncestors = false,
+    int page = 1,
+    int pageSize = 20,
+  }) async {
+    const path = "thema";
+    final response = await _get(
+      path,
+      queryParameters: <String, Object?>{
+        "parent": parent,
+        "type": type?.name,
+        "q": q,
+        "codes": codes?.join(','),
+        "withAncestors": withAncestors,
+        "page": page,
+        "pageSize": pageSize,
+      }..removeWhere((_, value) => value == null),
+    );
+    return _parseModel(
+      method: "GET",
+      path: path,
+      parser: () => ThemaListResponse.fromJson(response),
+    );
+  }
+
+  /// Get a Thema code with its broader codes and direct children.
+  ///
+  /// Retired codes with successors return their replacement and expose the
+  /// requested code as [ThemaDetailsResponse.replacedFrom].
+  Future<ThemaDetailsResponse> getThema(String code) async {
+    final path = "thema/${Uri.encodeComponent(code)}";
+    final response = await _get(path);
+    return _parseModel(
+      method: "GET",
+      path: path,
+      parser: () => ThemaDetailsResponse.fromJson(response),
+    );
+  }
+
+  /// Get at most 1,000 books classified under a Thema code, best matches first.
+  ///
+  /// [includeDescendants] includes narrower codes. [language] matches the
+  /// indexed ISO 639-3 code exactly, for example `eng` or `fra`.
+  /// ISBNdb rejects [pageSize] greater than 100 and pages past 1,000 matches.
+  Future<ThemaBooksResponse> getBooksByThema(
+    String code, {
+    bool includeDescendants = true,
+    String? language,
+    int page = 1,
+    int pageSize = 20,
+    DateTime? publishedFrom,
+    DateTime? publishedTo,
+  }) async {
+    final path = "thema/${Uri.encodeComponent(code)}/books";
+    final response = await _get(
+      path,
+      queryParameters: <String, Object?>{
+        "includeDescendants": includeDescendants,
+        "language": language,
+        "page": page,
+        "pageSize": pageSize,
+        "publishedFrom": _formatQueryDate(publishedFrom),
+        "publishedTo": _formatQueryDate(publishedTo),
+      }..removeWhere((_, value) => value == null),
+    );
+    return _parseModel(
+      method: "GET",
+      path: path,
+      parser: () => ThemaBooksResponse.fromJson(response),
     );
   }
 
@@ -394,9 +526,9 @@ class ISBNdb {
 
   /// Get a list of books about a given subject.
   ///
-  /// Scheduled for removal by ISBNdb without a replacement.
+  /// Scheduled for removal by ISBNdb. Use [getBooksByThema] instead.
   /// ISBNdb rejects [pageSize] values greater than 100 with HTTP 400.
-  @Deprecated('Deprecated by ISBNdb without a replacement.')
+  @Deprecated('Use getBooksByThema instead.')
   Future<Subject?> getSubject(
     String name, {
     int page = 1,
@@ -425,9 +557,9 @@ class ISBNdb {
 
   /// Search subjects in the ISBNdb.
   ///
-  /// Scheduled for removal by ISBNdb without a replacement.
+  /// Scheduled for removal by ISBNdb. Use [getThemaCodes] instead.
   /// ISBNdb rejects [pageSize] values greater than 100 with HTTP 400.
-  @Deprecated('Deprecated by ISBNdb without a replacement.')
+  @Deprecated('Use getThemaCodes instead.')
   Future<SubjectQueryResult> getSubjects(
     String query, {
     int page = 1,
@@ -472,20 +604,28 @@ class ISBNdb {
   /// This ISBNdb endpoint is available on Pro plans and higher and keeps up to 7 days
   /// of update history. Pass the previous response's `next` as [cursor] until
   /// it is null. With a cursor, [page] and [lastUpdated] are ignored.
-  /// Offset pagination with [page] is deprecated by ISBNdb. From November 7,
-  /// 2026, 00:00 UTC, values other than 1 return HTTP 400; use [cursor] instead.
+  /// Offset pagination was removed in ISBNdb API 2.9.0. The legacy [page]
+  /// argument is not sent; without a cursor, values other than 1 throw
+  /// [ArgumentError].
   /// ISBNdb rejects [pageSize] values greater than 1,000 with HTTP 400.
   Future<UpdatedBookFeed> getUpdatedBookFeed({
+    @Deprecated('Offset pagination was removed. Use cursor instead.')
     int page = 1,
     int pageSize = 100,
     DateTime? lastUpdated,
     String? cursor,
   }) async {
+    if (cursor == null && page != 1) {
+      throw ArgumentError.value(
+        page,
+        'page',
+        'Offset pagination was removed by ISBNdb. Use cursor instead.',
+      );
+    }
     const path = "feeds/books/updates";
     final response = await _get(
       path,
       queryParameters: <String, Object?>{
-        if (cursor == null) "page": page,
         "pageSize": pageSize,
         if (cursor == null) "lastUpdated": _formatQueryDate(lastUpdated),
         "cursor": cursor,

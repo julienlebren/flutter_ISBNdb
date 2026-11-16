@@ -1,5 +1,11 @@
 ## Unreleased
 
+- Aligned the bundled OpenAPI snapshot and documentation with ISBNdb API 2.9.0.
+- Fixed update-feed decoding when the API omits `page`. The deprecated `UpdatedBookFeed.page` defaults to `1` for missing or null values; legacy responses and the four-field callbacks remain supported.
+- Stopped sending `page` to `/feeds/books/updates`. The deprecated `getUpdatedBookFeed` parameter remains ignored with a cursor; without one, only `1` is accepted and other values throw `ArgumentError` before a request. Use `cursor` to fetch following pages.
+- Added `Book.thema`, typed Thema models, and `getThemaCodes`, `getThema`, and `getBooksByThema` to browse classification codes and books. Existing `Book.when`, `maybeWhen`, and `whenOrNull` callbacks remain compatible; read `thema` directly on the book.
+- Added a `thema` filter to `getBooks` and a new `searchBooks` method for field-level book searches, including Thema-only queries.
+- Updated subject deprecation guidance to point to Thema.
 - Refreshed the bundled OpenAPI snapshot and documentation for ISBNdb API 2.8.4.1, which adds versioning guidance and an upstream changelog without changing the API contract.
 
 ## 2.5.0 - 2026-11-02

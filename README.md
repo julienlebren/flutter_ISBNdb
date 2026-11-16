@@ -14,7 +14,7 @@ You can have a 7-day trial for free.
 
 ## Features of the API
 
-This package allows you to use the main ISBNdb API features for books, authors, publishers, and subjects.
+This package allows you to use the main ISBNdb API features for books, authors, publishers, and Thema classifications.
 
 Before any request to the API, you need to init the service class with the following code:
 
@@ -54,6 +54,8 @@ try {
 ISBNdb limits `pageSize` to 100 on search and detail endpoints. A larger value
 returns `400 Bad Request` for all API keys. The legacy allowance ended on
 October 10, 2026. The updated-books feed uses a separate limit of 1,000.
+Book searches with a `thema` filter and `getBooksByThema` return at most 1,000
+books per code and filter combination; their `total` is capped at 1,000.
 
 ### Books
 
@@ -110,6 +112,7 @@ int? edition | Filter books by edition
 bool? shouldMatchAll | If true, title/author must contain all searched words
 String? language | Language code filter (for example `en`, `fr`)
 BookColumn? column | Search limited to a column
+List<String>? thema | Up to 5 Thema codes; every code must match (narrower codes count)
 DateTime? publishedFrom | Only return books published on or after this day; sent as `YYYY-MM-DD`
 DateTime? publishedTo | Only return books published on or before this day; sent as `YYYY-MM-DD`
 
@@ -118,6 +121,66 @@ DateTime? publishedTo | Only return books published on or before this day; sent 
 * author - Only searches books by the given Author
 * date_published - Only searches books in a given year, e.g. 1998
 * subjects - Only searches in subjects; deprecated by ISBNdb and scheduled for removal in a future API version
+
+* **Search books by fields**
+
+```dart
+final books = await isbnDb.searchBooks(
+  author: "Ursula K. Le Guin",
+  thema: ["FBA"],
+  pageSize: 20,
+);
+final byClassification = await isbnDb.searchBooks(thema: ["FBA", "1KBB"]);
+```
+
+`searchBooks` uses `GET /search/books` and returns `BookQueryResult`. Supply
+`isbn` or `isbn13` for direct lookup, or at least one of `author`, `text`,
+`subject` (deprecated), `publisher`, or `thema`. ISBN filters cannot be combined
+with those search fields. Invalid combinations are rejected by the API with
+HTTP 400. Optional `page`, `pageSize`, `publishedFrom`, and `publishedTo` filters
+are supported. Thema lists are sent as comma-separated codes.
+
+### Thema classifications
+
+Thema replaces the deprecated subject headings. Books expose a nullable
+`List<ThemaEntry>` as `book.thema`; the main subject comes first with `main: true`.
+A book with qualifiers only has no main entry. Codes have a `ThemaType`: `subject`,
+`place`, `language`, `time`, `education`, `interest`, or `style`; unrecognized
+future response types decode as `unknown`.
+
+```dart
+final roots = await isbnDb.getThemaCodes();
+final matches = await isbnDb.getThemaCodes(q: "crime", type: ThemaType.subject);
+final children = await isbnDb.getThemaCodes(parent: "FB");
+final breadcrumbs = await isbnDb.getThemaCodes(
+  codes: ["FBA", "1KBB"],
+  withAncestors: true,
+);
+final details = await isbnDb.getThema("FBA");
+final books = await isbnDb.getBooksByThema(
+  "FBA",
+  includeDescendants: true,
+  language: "eng",
+  page: 1,
+  pageSize: 20,
+  publishedFrom: DateTime(2020),
+);
+final search = await isbnDb.getBooks("fiction", thema: ["FBA"]);
+```
+
+`getThemaCodes` returns `ThemaListResponse` with `total`, `page`, `pageSize`, and
+`codes` (`List<ThemaNode>`). With no filters it lists top-level codes. `q` accepts
+2–100 characters; `codes` looks up at most 100 codes and makes `parent`, `type`,
+`q`, and paging irrelevant. `withAncestors` adds broader codes before each match.
+Paging defaults to `page: 1` and `pageSize: 20`, with a maximum page size of 100.
+
+`getThema` returns `ThemaDetailsResponse` with the code, name, type, optional
+parent, ancestors, children, and optional `replacedFrom` for a retired code that
+was replaced. `getBooksByThema` returns `ThemaBooksResponse` with the resolved
+`thema` node, `books`, `total`, `page`, and `pageSize`. It supports
+`includeDescendants` (default `true`), `language` (ISO 639-3, such as `eng` or
+`fra`), pagination, and publication date ranges. Results stop at 1,000 books;
+a page starting beyond that limit returns HTTP 400.
 
 ### Authors
 
@@ -202,8 +265,9 @@ int pageSize | How many items should be returned per page, maximum of 100
 ### Subjects
 
 ISBNdb has deprecated `getSubject`, `getSubjects`, `Book.subjects`, and
-`BookColumn.subjects`. No replacement or removal date has been announced.
-They remain available in this package for compatibility with the current API.
+`BookColumn.subjects`. Use `getThemaCodes`, `getThema`, `getBooksByThema`, and
+`Book.thema` instead. The deprecated APIs remain available for compatibility;
+ISBNdb has not announced their removal date.
 
 * **Get subject details**
 
@@ -284,10 +348,16 @@ while (feed.next != null) {
 This endpoint is available on Pro plans and higher, keeps at most 7 days of history,
 and does not count against the daily quota according to ISBNdb's OpenAPI docs.
 Continue with `feed.next` as the cursor until it is null. When a cursor is supplied,
-other filters except `pageSize` are ignored, and the client omits `page` from the
-request. Offset pagination with `page` is deprecated. From **November 7, 2026 at
-00:00 UTC (01:00 in Paris)**, ISBNdb rejects `page` values other than `1` with
-HTTP 400. Use `cursor` to retrieve following pages.
+other filters except `pageSize` are ignored. The client never sends `page`:
+ISBNdb 2.9.0 removed it from this endpoint's request and response contract.
+Without a cursor, the method's deprecated `page` argument only accepts its default
+value of `1`; other values throw `ArgumentError` before any request. With a cursor,
+`page` remains ignored for compatibility. Use `cursor` to retrieve following pages.
+
+`UpdatedBookFeed.page` is retained as a deprecated compatibility field and
+defaults to `1` when absent or null in a response. The existing four-field
+`when`, `maybeWhen`, and `whenOrNull` callbacks remain supported. Read `next`
+to continue pagination.
 
 Each entry exposes `UpdatedBook.status`: `UpdatedBookStatus.newBook` corresponds
 to the API value `new`, and `UpdatedBookStatus.updated` to `updated`. Older
@@ -299,7 +369,7 @@ remain supported; read `status` directly from the entry.
 Param | Description
 ------------ | -------------
 String? cursor | Opaque `next` cursor returned by the previous response
-int page | Deprecated offset page number; omitted with a cursor. Values other than 1 return HTTP 400 from November 7, 2026 at 00:00 UTC
+int page | Deprecated compatibility argument; never sent. Ignored with a cursor; otherwise only `1` is accepted
 int pageSize | How many items should be returned per page, maximum of 1,000
 DateTime? lastUpdated | Only return ISBNs updated on or after the given day; sent as `YYYY-MM-DD`, ignored with a cursor
 
@@ -385,10 +455,33 @@ listPrice | ListPrice | List price with its currency
 excerpt | String | Deprecated excerpt of the book
 synopsys | String | Synopsys of the book
 authors | List<String> | List of the authors
-subjects | List<String> | Deprecated list of subjects; ISBNdb plans to remove it in a future API version, with no replacement or removal date announced
+subjects | List<String> | Deprecated list of subjects; use `thema`
+thema | List<ThemaEntry>? | Thema subject codes and qualifiers; main subject first when present
 reviews | List<String> | Not documented in the official API
 prices | List<Merchant> | Real-time prices returned by `getBook` when `withPrices` is enabled and supported by the plan
 related | List<String> | Not documented in the official API
+
+The existing `Book.when`, `maybeWhen`, and `whenOrNull` callbacks remain
+compatible. Access `thema` directly on the book.
+
+**ThemaEntry**
+
+Name | Type | Description
+------------ | ------------- | -------------
+code | String | Thema code
+name | String | English name
+type | ThemaType | Subject or qualifier type; unknown future types decode as `unknown`
+main | bool | Whether this is the book's main subject
+
+**ThemaNode**
+
+Name | Type | Description
+------------ | ------------- | -------------
+code | String | Thema code
+name | String | English name
+type | ThemaType | Subject or qualifier type
+parent | String? | Parent code; absent for a top-level code
+hasChildren | bool | Whether narrower codes exist
 
 **ListPrice**
 
