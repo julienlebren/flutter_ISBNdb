@@ -1,5 +1,7 @@
 import 'dart:async';
 
+// Keep compatibility with Flutter versions predating the Material package split.
+// ignore: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
