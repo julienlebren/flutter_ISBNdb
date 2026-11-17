@@ -110,7 +110,7 @@ int pageSize | How many items should be returned per page, maximum of 100
 int? year | Filter books by year of publication; cannot be combined with `publishedFrom` or `publishedTo`
 int? edition | Filter books by edition
 bool? shouldMatchAll | If true, title/author must contain all searched words
-String? language | Language code filter (for example `en`, `fr`)
+String? language | Language filter: ISO 639-3 code (`eng`); ISBNdb also normalizes two-letter codes (`en`) and full names (`English`)
 BookColumn? column | Search limited to a column
 List<String>? thema | Up to 5 Thema codes; every code must match (narrower codes count)
 DateTime? publishedFrom | Only return books published on or after this day; sent as `YYYY-MM-DD`
@@ -178,9 +178,10 @@ Paging defaults to `page: 1` and `pageSize: 20`, with a maximum page size of 100
 parent, ancestors, children, and optional `replacedFrom` for a retired code that
 was replaced. `getBooksByThema` returns `ThemaBooksResponse` with the resolved
 `thema` node, `books`, `total`, `page`, and `pageSize`. It supports
-`includeDescendants` (default `true`), `language` (ISO 639-3, such as `eng` or
-`fra`), pagination, and publication date ranges. Results stop at 1,000 books;
-a page starting beyond that limit returns HTTP 400.
+`includeDescendants` (default `true`), `language`, pagination, and publication
+date ranges. ISBNdb normalizes language names and two-letter codes, so `English`
+and `en` work alongside ISO 639-3 codes such as `eng` or `fra`. Results stop at
+1,000 books; a page starting beyond that limit returns HTTP 400.
 
 ### Authors
 
@@ -202,7 +203,7 @@ Param | Description
 String name | The name of an author in the Author's database
 int page | The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them
 int pageSize | How many items should be returned per page, maximum of 100
-String? language | Language code filter (for example `en`, `fr`)
+String? language | Language filter: ISO 639-3 code (`eng`); ISBNdb also normalizes two-letter codes (`en`) and full names (`English`)
 DateTime? publishedFrom | Only return books published on or after this day; sent as `YYYY-MM-DD`
 DateTime? publishedTo | Only return books published on or before this day; sent as `YYYY-MM-DD`
 
@@ -242,7 +243,7 @@ Param | Description
 String name | The name of a publisher in the Publisher's database
 int page | The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them
 int pageSize | How many items should be returned per page, maximum of 100
-String? language | Language code filter (for example `en`, `fr`)
+String? language | Language filter: ISO 639-3 code (`eng`); ISBNdb also normalizes two-letter codes (`en`) and full names (`English`)
 DateTime? publishedFrom | Only return books published on or after this day; sent as `YYYY-MM-DD`
 DateTime? publishedTo | Only return books published on or before this day; sent as `YYYY-MM-DD`
 
@@ -287,7 +288,7 @@ Param | Description
 String name | A subject in the Subject's database
 int page | The number of page to retrieve, please note the API will not return more than 10,000 results no matter how you paginate them
 int pageSize | How many items should be returned per page, maximum of 100
-String? language | Language code filter (for example `en`, `fr`)
+String? language | Language filter: ISO 639-3 code (`eng`); ISBNdb also normalizes two-letter codes (`en`) and full names (`English`)
 DateTime? publishedFrom | Only return books published on or after this day; sent as `YYYY-MM-DD`
 DateTime? publishedTo | Only return books published on or before this day; sent as `YYYY-MM-DD`
 

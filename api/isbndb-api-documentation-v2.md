@@ -105,7 +105,7 @@ Returns the author name and a list of books.
 | Name | In | Type | Required | Default | Nullable | Description |
 | --- | --- | --- | --- | --- | --- | --- |
 | `name` | path | string | yes | - | no | Author name |
-| `language` | query | string | no | `null` | yes | Language code (`en`, `fr`, ...) |
+| `language` | query | string | no | `null` | yes | ISO 639-3 code (e.g. `eng` or `fra`); ISBNdb also normalizes two-letter codes (`en`) and full names (`English`) |
 | `page` | query | integer | no | `1` | yes | Page number |
 | `pageSize` | query | integer | no | `20` | yes | Items per page (max 100); larger values return `400 Bad Request` |
 | `publishedFrom` | query | string | no | `null` | yes | Only return books published on or after this date (`YYYY-MM-DD`) |
@@ -167,7 +167,7 @@ Search books by query.
 | `year` | query | integer | no | `null` | yes | Publication year |
 | `edition` | query | integer | no | `null` | yes | Edition |
 | `shouldMatchAll` | query | boolean | no | `false` | yes | Match all words in title/author |
-| `language` | query | string | no | `null` | yes | Language code |
+| `language` | query | string | no | `null` | yes | ISO 639-3 code (e.g. `eng` or `fra`); ISBNdb also normalizes two-letter codes (`en`) and full names (`English`) |
 | `column` | query | enum(`Column`) | no | - | yes | One of: `title`, `author`, `date_published`, `subjects` (deprecated; planned for removal) |
 | `page` | query | integer | no | `1` | yes | Page number |
 | `pageSize` | query | integer | no | `20` | yes | Items per page (max 100); larger values return `400 Bad Request` |
@@ -222,7 +222,7 @@ Returns publisher details and books.
 | Name | In | Type | Required | Default | Nullable | Description |
 | --- | --- | --- | --- | --- | --- | --- |
 | `name` | path | string | yes | - | no | Publisher name |
-| `language` | query | string | no | `null` | yes | Language code |
+| `language` | query | string | no | `null` | yes | ISO 639-3 code (e.g. `eng` or `fra`); ISBNdb also normalizes two-letter codes (`en`) and full names (`English`) |
 | `page` | query | integer | no | `1` | yes | Page number |
 | `pageSize` | query | integer | no | `20` | yes | Items per page (max 100); larger values return `400 Bad Request` |
 | `publishedFrom` | query | string | no | `null` | yes | Only return books published on or after this date (`YYYY-MM-DD`) |
@@ -348,7 +348,7 @@ Returns subject details and related books. Deprecated and planned for removal in
 | Name | In | Type | Required | Default | Nullable | Description |
 | --- | --- | --- | --- | --- | --- | --- |
 | `name` | path | string | yes | - | no | Subject name |
-| `language` | query | string | no | `null` | yes | Language code |
+| `language` | query | string | no | `null` | yes | ISO 639-3 code (e.g. `eng` or `fra`); ISBNdb also normalizes two-letter codes (`en`) and full names (`English`) |
 | `page` | query | integer | no | `1` | yes | Page number |
 | `pageSize` | query | integer | no | `20` | yes | Items per page (max 100); larger values return `400 Bad Request` |
 | `publishedFrom` | query | string | no | `null` | yes | Only return books published on or after this date (`YYYY-MM-DD`) |
@@ -412,7 +412,7 @@ that successor, exposed as `thema` in the response.
 | --- | --- | --- | --- | --- | --- | --- |
 | `code` | path | string | yes | - | no | Case-insensitive Thema code |
 | `includeDescendants` | query | boolean | no | `true` | no | Include books classified only under narrower codes; `false` requires the code itself |
-| `language` | query | string | no | `null` | yes | Exact ISO 639-3 code, e.g. `eng` or `fra` |
+| `language` | query | string | no | `null` | yes | ISO 639-3 code (e.g. `eng` or `fra`); ISBNdb also normalizes two-letter codes (`en`) and full names (`English`) |
 | `page` | query | integer | no | `1` | yes | Page number |
 | `pageSize` | query | integer | no | `20` | yes | Items per page, maximum 100; larger values return HTTP 400 |
 | `publishedFrom` | query | string | no | `null` | yes | Inclusive lower publication date, `YYYY`, `YYYY-MM`, or `YYYY-MM-DD` |
@@ -492,7 +492,7 @@ Responses:
 
 | Field | Type | Required | Nullable | Deprecated | Default | Description |
 | --- | --- | --- | --- | --- | --- | --- |
-| `language` | string | no | yes | no | `null` | Language code (`en`, `fr`, ...) |
+| `language` | string | no | yes | no | `null` | ISO 639-3 code (e.g. `eng` or `fra`); ISBNdb also normalizes two-letter codes (`en`) and full names (`English`) |
 
 ### `PaginationFilters`
 
@@ -564,7 +564,7 @@ The `subjects` value is deprecated and will be removed in a future API version; 
 | `year` | integer | no | yes | no | `null` | Filter books by publication year |
 | `edition` | integer | no | yes | no | `null` | Filter books by edition |
 | `should_match_all` | boolean | no | yes | no | `false` | Match all words in title/author |
-| `language` | string | no | yes | no | `null` | Language code (`en`, `fr`, ...) |
+| `language` | string | no | yes | no | `null` | ISO 639-3 code (e.g. `eng` or `fra`); ISBNdb also normalizes two-letter codes (`en`) and full names (`English`) |
 | `column_enum` | `oneOf(Column)` | no | yes | no | - | Column filter |
 | `thema` | string | no | yes | no | `null` | Up to 5 comma-separated Thema codes; all must match, including narrower codes; at most 1,000 books |
 
