@@ -35,10 +35,10 @@
                     {
                         "name": "language",
                         "in": "query",
-                        "description": "Filter by language. Matches the ISO 639-3 code held in the index, e.g. `eng` for English, `fra` for French. On `/books/{query}` full names and two-letter codes are normalised for you; every other endpoint matches the code exactly.",
+                        "description": "Filter by language. Matches the ISO 639-3 code held in the index, e.g. `eng` for English, `fra` for French. Full names and two-letter codes are normalised for you, so `English` and `en` work too.",
                         "required": false,
                         "schema": {
-                            "description": "Filter by language. Matches the ISO 639-3 code held in the index, e.g. `eng` for English, `fra` for French. On `/books/{query}` full names and two-letter codes are normalised for you; every other endpoint matches the code exactly.",
+                            "description": "Filter by language. Matches the ISO 639-3 code held in the index, e.g. `eng` for English, `fra` for French. Full names and two-letter codes are normalised for you, so `English` and `en` work too.",
                             "type": "string",
                             "nullable": true,
                             "default": null,
@@ -477,10 +477,10 @@
                     {
                         "name": "language",
                         "in": "query",
-                        "description": "Filter by language. Matches the ISO 639-3 code held in the index, e.g. `eng` for English, `fra` for French. On `/books/{query}` full names and two-letter codes are normalised for you; every other endpoint matches the code exactly.",
+                        "description": "Filter by language. Matches the ISO 639-3 code held in the index, e.g. `eng` for English, `fra` for French. Full names and two-letter codes are normalised for you, so `English` and `en` work too.",
                         "required": false,
                         "schema": {
-                            "description": "Filter by language. Matches the ISO 639-3 code held in the index, e.g. `eng` for English, `fra` for French. On `/books/{query}` full names and two-letter codes are normalised for you; every other endpoint matches the code exactly.",
+                            "description": "Filter by language. Matches the ISO 639-3 code held in the index, e.g. `eng` for English, `fra` for French. Full names and two-letter codes are normalised for you, so `English` and `en` work too.",
                             "type": "string",
                             "nullable": true,
                             "default": null,
@@ -757,10 +757,10 @@
                     {
                         "name": "language",
                         "in": "query",
-                        "description": "Filter by language. Matches the ISO 639-3 code held in the index, e.g. `eng` for English, `fra` for French. On `/books/{query}` full names and two-letter codes are normalised for you; every other endpoint matches the code exactly.",
+                        "description": "Filter by language. Matches the ISO 639-3 code held in the index, e.g. `eng` for English, `fra` for French. Full names and two-letter codes are normalised for you, so `English` and `en` work too.",
                         "required": false,
                         "schema": {
-                            "description": "Filter by language. Matches the ISO 639-3 code held in the index, e.g. `eng` for English, `fra` for French. On `/books/{query}` full names and two-letter codes are normalised for you; every other endpoint matches the code exactly.",
+                            "description": "Filter by language. Matches the ISO 639-3 code held in the index, e.g. `eng` for English, `fra` for French. Full names and two-letter codes are normalised for you, so `English` and `en` work too.",
                             "type": "string",
                             "nullable": true,
                             "default": null,
@@ -1578,10 +1578,10 @@
                     {
                         "name": "language",
                         "in": "query",
-                        "description": "Filter by language. Matches the ISO 639-3 code held in the index, e.g. `eng` for English, `fra` for French. On `/books/{query}` full names and two-letter codes are normalised for you; every other endpoint matches the code exactly.",
+                        "description": "Filter by language. Matches the ISO 639-3 code held in the index, e.g. `eng` for English, `fra` for French. Full names and two-letter codes are normalised for you, so `English` and `en` work too.",
                         "required": false,
                         "schema": {
-                            "description": "Filter by language. Matches the ISO 639-3 code held in the index, e.g. `eng` for English, `fra` for French. On `/books/{query}` full names and two-letter codes are normalised for you; every other endpoint matches the code exactly.",
+                            "description": "Filter by language. Matches the ISO 639-3 code held in the index, e.g. `eng` for English, `fra` for French. Full names and two-letter codes are normalised for you, so `English` and `en` work too.",
                             "type": "string",
                             "nullable": true,
                             "default": null,
@@ -1718,10 +1718,10 @@
                     {
                         "name": "language",
                         "in": "query",
-                        "description": "Filter by language. Matches the ISO 639-3 code held in the index, e.g. `eng` for English, `fra` for French. On `/books/{query}` full names and two-letter codes are normalised for you; every other endpoint matches the code exactly.",
+                        "description": "Filter by language. Matches the ISO 639-3 code held in the index, e.g. `eng` for English, `fra` for French. Full names and two-letter codes are normalised for you, so `English` and `en` work too.",
                         "required": false,
                         "schema": {
-                            "description": "Filter by language. Matches the ISO 639-3 code held in the index, e.g. `eng` for English, `fra` for French. On `/books/{query}` full names and two-letter codes are normalised for you; every other endpoint matches the code exactly.",
+                            "description": "Filter by language. Matches the ISO 639-3 code held in the index, e.g. `eng` for English, `fra` for French. Full names and two-letter codes are normalised for you, so `English` and `en` work too.",
                             "type": "string",
                             "nullable": true,
                             "default": null,
@@ -2197,7 +2197,7 @@
             "LanguageFilters": {
                 "properties": {
                     "language": {
-                        "description": "Filter by language. Matches the ISO 639-3 code held in the index, e.g. `eng` for English, `fra` for French. On `/books/{query}` full names and two-letter codes are normalised for you; every other endpoint matches the code exactly.",
+                        "description": "Filter by language. Matches the ISO 639-3 code held in the index, e.g. `eng` for English, `fra` for French. Full names and two-letter codes are normalised for you, so `English` and `en` work too.",
                         "type": "string",
                         "nullable": true,
                         "default": null,
@@ -2299,7 +2299,7 @@
                         "default": null
                     },
                     "language": {
-                        "description": "Filter by language. Matches the ISO 639-3 code held in the index, e.g. `eng` for English, `fra` for French. On `/books/{query}` full names and two-letter codes are normalised for you; every other endpoint matches the code exactly.",
+                        "description": "Filter by language. Matches the ISO 639-3 code held in the index, e.g. `eng` for English, `fra` for French. Full names and two-letter codes are normalised for you, so `English` and `en` work too.",
                         "type": "string",
                         "nullable": true,
                         "default": null,

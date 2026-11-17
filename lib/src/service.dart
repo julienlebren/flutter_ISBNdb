@@ -381,8 +381,9 @@ class ISBNdb {
 
   /// Get at most 1,000 books classified under a Thema code, best matches first.
   ///
-  /// [includeDescendants] includes narrower codes. [language] matches the
-  /// indexed ISO 639-3 code exactly, for example `eng` or `fra`.
+  /// [includeDescendants] includes narrower codes. [language] accepts ISO 639-3
+  /// codes such as `eng` or `fra`. ISBNdb also normalizes two-letter codes
+  /// (`en`) and full language names (`English`).
   /// ISBNdb rejects [pageSize] greater than 100 and pages past 1,000 matches.
   Future<ThemaBooksResponse> getBooksByThema(
     String code, {
