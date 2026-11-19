@@ -11,10 +11,10 @@ void main() {
       spec = _readJsonFile('api/upstream/isbndb-openapi.json');
     });
 
-    test('tracks ISBNdb OpenAPI 2.9.0', () {
+    test('tracks ISBNdb OpenAPI 2.9.1', () {
       final info = Map<String, dynamic>.from(spec['info'] as Map);
 
-      expect(info['version'], '2.9.0');
+      expect(info['version'], '2.9.1');
     });
 
     test('contains all public endpoints currently exposed by the package', () {
@@ -167,6 +167,20 @@ void main() {
         expect(operation['deprecated'], isTrue, reason: path);
         expect(operation['responses'], contains('200'), reason: path);
       }
+    });
+
+    test('documents optional nullable book genres as strings', () {
+      final book = _schema(spec, 'Book');
+      final properties = Map<String, dynamic>.from(book['properties'] as Map);
+      final genres = Map<String, dynamic>.from(properties['genres'] as Map);
+
+      expect(book['required'], isNot(contains('genres')));
+      expect(genres['type'], 'array');
+      expect(genres['items'], containsPair('type', 'string'));
+      expect(genres['nullable'], isTrue);
+      expect(genres, containsPair('default', null));
+      expect(genres['description'], contains('most relevant first'));
+      expect(genres['description'], contains('Absent when no genre'));
     });
 
     test('documents Thema on books and both search endpoints', () {

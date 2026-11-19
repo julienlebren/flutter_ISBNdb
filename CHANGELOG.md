@@ -1,3 +1,8 @@
+## Unreleased
+
+- Added nullable `Book.genres` for ISBNdb's genre labels, preserving their relevance order. Missing or null values remain supported; read `genres` directly on the book while the existing 24-field callbacks remain compatible.
+- Aligned the bundled OpenAPI snapshot and documentation with ISBNdb API 2.9.1.
+
 ## 2.6.0 - 2026-11-16
 
 - Aligned the bundled OpenAPI snapshot and documentation with ISBNdb API 2.9.0.

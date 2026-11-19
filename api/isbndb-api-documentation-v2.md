@@ -1,11 +1,11 @@
-# ISBNdb API Documentation v2 (OpenAPI 2.9.0)
+# ISBNdb API Documentation v2 (OpenAPI 2.9.1)
 
 Source: `https://api2.isbndb.com/doc.json` (OpenAPI 3.0.0)
 
 ## API metadata
 
 - Title: `ISBNdb API Documentation v2`
-- Version: `2.9.0`
+- Version: `2.9.1`
 - Server: `https://api2.isbndb.com`
 - Security: `ApiKeyAuth` (`Authorization` header)
 
@@ -48,6 +48,11 @@ A zero patch is omitted, as in `2.9.0` rather than `2.9.0.0`.
 Clients should accept unknown response fields because minor releases can add them.
 
 ## API changelog
+
+### 2.9.1 (November 19, 2026)
+
+- Added optional, nullable `genres` on books: genre labels ordered by relevance, with `Children` and `Young adult` identifying books for young readers. The field is absent when no genre can be derived.
+- The upstream changelog says up to three genres, while the field description says up to four. The OpenAPI schema has no `maxItems` constraint, and the client preserves the list without imposing a limit.
 
 ### 2.9.0 (November 16, 2026)
 
@@ -635,9 +640,15 @@ The `subjects` value is deprecated and will be removed in a future API version; 
 | `authors` | `oneOf(array<nullable>, object<string,nullable>)` | no | yes | no | - | Authors |
 | `subjects` | `oneOf(array<nullable>, object<string,nullable>)` | no | yes | yes | - | Subjects; planned for removal; use `thema` |
 | `thema` | `array<ThemaEntry>` | no | yes | no | `null` | Thema subject codes and qualifiers; main subject first when one exists |
+| `genres` | `array<string>` | no | yes | no | `null` | Genre labels, most relevant first; `Children` and `Young adult` mark books for young readers; absent when no genre can be derived |
 | `reviews` | `oneOf(array<nullable>, object<string,nullable>)` | no | yes | yes | - | Legacy reviews |
 | `related` | `oneOf(array<nullable>, object<string,nullable>)` | no | yes | yes | - | Legacy related books |
 | `other_isbns` | `oneOf(array<nullable>, object<string,nullable>)` | no | yes | no | - | Other ISBNs |
+
+`Book.genres` is exposed by the Dart client as `List<String>?`. Missing and null
+values decode to `null`; the returned list retains its order. Read `genres`
+directly on the book; the existing 24-field `Book.when`, `maybeWhen`, and
+`whenOrNull` callbacks remain compatible.
 
 ### `BookWithPrices`
 
