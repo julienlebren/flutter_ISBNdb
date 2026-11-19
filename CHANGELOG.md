@@ -1,7 +1,8 @@
-## Unreleased
+## 2.7.0 - 2026-11-19
 
 - Added nullable `Book.genres` for ISBNdb's genre labels, preserving their relevance order. Missing or null values remain supported; read `genres` directly on the book while the existing 24-field callbacks remain compatible.
 - Aligned the bundled OpenAPI snapshot and documentation with ISBNdb API 2.9.1.
+- Clarified language filter documentation: ISBNdb accepts ISO 639-3 codes and also normalizes two-letter codes and full language names.
 
 ## 2.6.0 - 2026-11-16
 
