@@ -1,7 +1,8 @@
 part of isbndb_flutter;
 
 /// The original book fields used by the destructuring callbacks.
-/// Access newer fields, including [Book.thema], directly on the book.
+/// Access newer fields, including [Book.thema] and [Book.genres], directly on
+/// the book.
 typedef BookFieldsCallback<TResult> =
     TResult Function(
       String title,
@@ -35,7 +36,8 @@ typedef BookFieldsCallback<TResult> =
 sealed class Book with _$Book {
   const Book._();
 
-  /// Destructure the original fields; access [thema] directly on the book.
+  /// Destructure the original fields; access [thema] and [genres] directly on
+  /// the book.
   TResult when<TResult extends Object?>(BookFieldsCallback<TResult> callback) =>
       callback(
         title,
@@ -158,6 +160,11 @@ sealed class Book with _$Book {
 
     /// Thema subjects and qualifiers; the main subject is first, when present.
     List<ThemaEntry>? thema,
+
+    /// Genres of the book, most relevant first.
+    /// `Children` and `Young adult` mark books for young readers.
+    /// Null when the API omits genres or cannot derive them.
+    List<String>? genres,
   }) = _Book;
 
   /// Used to build the object from the response of the ISBNdb API

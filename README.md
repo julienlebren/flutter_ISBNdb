@@ -71,6 +71,15 @@ Param | Description
 String isbn | an ISBN 10 or ISBN 13 in the Books database
 bool withPrices = false | indicate if shows Real Time Prices. Only with the Pro plan
 
+Books expose genre labels through `book.genres` (`List<String>?`), most relevant
+first. Labels such as `Children` and `Young adult` identify books for young
+readers. The value is `null` when the API omits genres or returns `null`.
+
+```dart
+final book = await isbnDb.getBook("9781092297370");
+final genres = book?.genres ?? <String>[];
+```
+
 * **Get many books with ISBNs**
 
 ```dart
@@ -458,12 +467,13 @@ synopsys | String | Synopsys of the book
 authors | List<String> | List of the authors
 subjects | List<String> | Deprecated list of subjects; use `thema`
 thema | List<ThemaEntry>? | Thema subject codes and qualifiers; main subject first when present
+genres | List<String>? | Genre labels, most relevant first; `null` when omitted or returned as `null`
 reviews | List<String> | Not documented in the official API
 prices | List<Merchant> | Real-time prices returned by `getBook` when `withPrices` is enabled and supported by the plan
 related | List<String> | Not documented in the official API
 
 The existing `Book.when`, `maybeWhen`, and `whenOrNull` callbacks remain
-compatible. Access `thema` directly on the book.
+compatible. Access `thema` and `genres` directly on the book.
 
 **ThemaEntry**
 

@@ -29,7 +29,10 @@ void main() {
     });
 
     test('preserves the original 24-field book callbacks', () {
-      final book = Book.fromJson(_bookJson());
+      final book = Book.fromJson({
+        ..._bookJson(),
+        'genres': ['Literary fiction'],
+      });
       String legacyCallback(
         String title,
         String? titleLong,
@@ -70,6 +73,7 @@ void main() {
       expect(book.whenOrNull(legacyCallback), expected);
       expect(book.whenOrNull<String>(null), isNull);
       expect(book.thema!.first.main, isTrue);
+      expect(book.genres, ['Literary fiction']);
     });
 
     test(
